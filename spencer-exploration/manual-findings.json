@@ -1,0 +1,19 @@
+{
+  "_comment": "Hand-verified facts the automated probes cannot establish. Merged into registry.json by score.py. Each entry must name how it was verified so it can be re-checked.",
+  "findings": {
+    "ph-smmarkets": {
+      "verified_api": "https://smmarkets.ph/graphql",
+      "api_kind": "magento-graphql-public",
+      "verified_how": "GET /graphql?query={products(search:\"rice\",pageSize:3){total_count items{name sku url_key price_range{minimum_price{final_price{value currency}}}}}} returned 200 with 833 total_count and live PHP prices",
+      "note": "Product pages render client-side, but the Magento GraphQL endpoint is public and returns name, sku, url_key and final_price with currency. Makes SM Markets the strongest PH grocery target despite the spa_empty page verdict.",
+      "score_bonus": 10
+    },
+    "ph-landers": {
+      "verified_api": null,
+      "api_kind": "private-microservices",
+      "verified_how": "JS bundle at /assets/static/js/index.*.js references api.landers.ph, core-ms.landers.ph, mars.landers.ph/v1 and search-apac.unbxd.io (Unbxd hosted search)",
+      "note": "No public unauthenticated API found. Prices need a browser-rendering scraper. Basket coverage is the best of any PH site (10/10 from a 17k-URL sitemap), so it stays a fleet target via Studio, not via HTTP.",
+      "score_bonus": 0
+    }
+  }
+}
