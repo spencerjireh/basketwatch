@@ -14,6 +14,20 @@
       "verified_how": "JS bundle at /assets/static/js/index.*.js references api.landers.ph, core-ms.landers.ph, mars.landers.ph/v1 and search-apac.unbxd.io (Unbxd hosted search)",
       "note": "No public unauthenticated API found. Prices need a browser-rendering scraper. Basket coverage is the best of any PH site (10/10 from a 17k-URL sitemap), so it stays a fleet target via Studio, not via HTTP.",
       "score_bonus": 0
+    },
+    "ph-merrymartwholesale": {
+      "verified_api": null,
+      "api_kind": "server-rendered-html",
+      "verified_how": "GET /categories/coffee-tea-1 returned 410KB with 16 distinct PHP prices and 14 /products/ links in raw HTML; robots.txt is 'Disallow:' (allow all)",
+      "note": "MerryMart's real storefront. merrymart.com.ph is corporate-only and blocked; this domain is fully server-rendered. Publishes no sitemap at all, so it is only discoverable by crawling categories - which is why vet.py grew a homepage->category->product fallback. Wholesale case pricing needs per-unit normalisation before it joins the basket.",
+      "score_bonus": 0
+    },
+    "ph-puregold": {
+      "verified_api": null,
+      "api_kind": "app-only",
+      "verified_how": "SERP round 3: top results are the iOS/Android apps, GrabMart, foodpanda and a Lazada storefront; puregold.com.ph is a Joomla corporate site and /shop 404s. Guessed subdomains (shop., epuregold.com) do not resolve.",
+      "note": "Puregold has no public web storefront. The app-first risk flagged in docs/prd.md is confirmed - it is not vettable, not merely hard. Robinsons is the same shape: its own site is informational and ordering happens through Pick.A.Roo and foodpanda.",
+      "score_bonus": 0
     }
   },
   "studio_proofs": {
@@ -49,6 +63,22 @@
       },
       "validator": "priceRecordSchema PASS; validateRun status=ok; findings=[]",
       "significance": "Authentic US regional grocer, json-ld, real basket staple (bread). Confirms the server_rendered tier of the registry end to end."
+    },
+    "ph-shopgaisano": {
+      "collector_id": "c_mszan6wx1bgpc7941r",
+      "name": "basketwatch-vet-shopgaisano",
+      "view_url": "https://brightdata.com/cp/scrapers/c_mszan6wx1bgpc7941r",
+      "target": "https://shopgaisano.com/products/great-value-v-160-rice-5kg",
+      "row": {
+        "product_key": "great-value-v-160-rice-5kg",
+        "name": "Great Value V-160 Rice 5KG",
+        "price": 378,
+        "currency": "PHP",
+        "unit": "5kg",
+        "in_stock": false
+      },
+      "validator": "priceRecordSchema PASS; validateRun status=ok; findings=[]",
+      "significance": "Top-scoring PH site (100) and the strongest PH grocery target: json-ld, 10/10 basket categories off a 1,406-URL sitemap. The row is rice per 5kg, which is the PH basket anchor item named in docs/prd.md section 5. Also picked up in_stock=false correctly, so stock state is not being faked."
     }
   }
 }

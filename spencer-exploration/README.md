@@ -78,6 +78,7 @@ repo's own validator, not by eye:
 
 | Site | Collector | Result |
 |---|---|---|
+| Shop Gaisano (PH) | `c_mszan6wx1bgpc7941r` | `priceRecordSchema` PASS, `validateRun` = `ok` |
 | SM Markets (PH) | `c_msyxrpa82470hx65c9` | `priceRecordSchema` PASS, `validateRun` = `ok` |
 | Dierbergs (US) | `c_msyxuy2519vvn3139s` | `priceRecordSchema` PASS, `validateRun` = `ok` |
 
@@ -98,6 +99,10 @@ brightdata scraper run c_msyxrpa82470hx65c9 \
 
 - Probes run from a Manila IP, so a US tier-0 failure is not conclusive - that is
   what the tier-1 `--country us` re-test is for.
+- Sites with no sitemap are discovered by crawling homepage -> categories ->
+  products. Basket-relevant categories are visited first so the sampled URL pool
+  stays roughly comparable to a sitemap-derived one, but it is still a smaller
+  sample, so their category counts read low relative to sitemap sites.
 - Basket mapping is URL-slug keyword matching with a non-grocery blocklist. It is
   a discovery aid, not a product catalogue: confirm items before wiring a scraper.
 - The prebuilt-scraper check is a judgement call from a hand-maintained list, not

@@ -1398,6 +1398,65 @@
       "product_hint": [
         "/product"
       ]
+    },
+    {
+      "id": "ph-merrymartwholesale",
+      "name": "MerryMart Wholesale",
+      "country": "PH",
+      "vertical": "grocery",
+      "homepage": "https://www.merrymartwholesale.com",
+      "why": "Round 3: MerryMart's real web storefront (merrymart.com.ph is corporate only). Server-rendered PHP prices, clean /products/ slugs, robots allows all. Wholesale case pricing needs per-unit normalisation.",
+      "product_hint": [
+        "/products/"
+      ]
+    },
+    {
+      "id": "ph-shopgaisano",
+      "name": "Shop Gaisano",
+      "country": "PH",
+      "vertical": "grocery",
+      "homepage": "https://shopgaisano.com",
+      "why": "Round 3: online store of Gaisano Malls (Visayas/Mindanao). Regional long-tail, absent from any prebuilt library.",
+      "product_hint": [
+        "/products/",
+        "/product"
+      ]
+    },
+    {
+      "id": "ph-marketfresh",
+      "name": "Market Fresh Davao",
+      "country": "PH",
+      "vertical": "grocery",
+      "homepage": "https://marketfresh.ph",
+      "why": "Round 3: Davao online palengke - wet-market staples (rice, chicken, eggs) that supermarket sites price differently",
+      "product_hint": [
+        "/products/",
+        "/product"
+      ]
+    },
+    {
+      "id": "ph-themarketplace-order",
+      "name": "The Marketplace (order online)",
+      "country": "PH",
+      "vertical": "grocery",
+      "homepage": "https://themarketplace.com.ph/order-online",
+      "why": "Round 3: the ordering surface of The Marketplace; the site root probed as an empty shell",
+      "product_hint": [
+        "/products/",
+        "/product"
+      ]
+    },
+    {
+      "id": "ph-pickaroo-stores",
+      "name": "Pick.A.Roo store catalogues",
+      "country": "PH",
+      "vertical": "grocery-aggregator",
+      "homepage": "https://pickaroo.com/robinsons/",
+      "why": "Round 3: aggregator carrying Robinsons, MerryMart and The Marketplace catalogues - Robinsons and Puregold have no own web storefront, so this is the only public web route to their prices",
+      "product_hint": [
+        "/products/",
+        "/product"
+      ]
     }
   ]
 }
