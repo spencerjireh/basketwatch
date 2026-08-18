@@ -1,0 +1,6 @@
+# cached HTTP probe responses - regenerable, 100MB+, and site content we do not own
+raw/
+*.log
+__pycache__/
+# in-flight Studio create output, superseded by registry.json
+studio-*.json
