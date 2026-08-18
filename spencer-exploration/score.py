@@ -10,6 +10,7 @@ Usage:
 
 from __future__ import annotations
 
+import argparse
 import json
 from collections import Counter, defaultdict
 from pathlib import Path
@@ -199,7 +200,7 @@ def pct(n: int, d: int) -> str:
     return f"{100 * n / d:.0f}%" if d else "-"
 
 
-def write_report(registry: dict) -> str:
+def write_report(registry: dict, fleet_size: int = 10) -> str:
     sites = registry["sites"]
     fleet = [s for s in sites if s["verdict"] == "fleet_ready" and s["role"] == "store"]
     backup = [s for s in sites if s["verdict"] == "backup" and s["role"] == "store"]
@@ -270,12 +271,19 @@ def write_report(registry: dict) -> str:
                  f"(ceiling hit: {b.get('ceiling_hit')}).")
         L.append("")
 
-    suggested = suggest_fleet(fleet, set(registry.get("studio_proofs", {})))
+    suggested = suggest_fleet(fleet, set(registry.get("studio_proofs", {})), fleet_size)
     L.append("## Suggested starting fleet")
+    L.append("")
+    n_us = len([x for x in fleet if x["country"] == "US"])
+    n_ph = len([x for x in fleet if x["country"] == "PH"])
+    L.append(f"A starting subset of {len(suggested)}, drawn from **{len(fleet)} fleet-ready "
+             f"stores** ({n_us} US, {n_ph} PH) with {len(backup)} more on the backup bench. "
+             "This is a suggestion, not the ceiling - resize it with "
+             "`score.py --fleet-size N`.")
     L.append("")
     L.append("Picked for spread, not just score: different countries and different markup "
              "styles, so a breakage in one does not look like a breakage in another. "
-             "`docs/prd.md` asks for 4+ US scrapers plus the clone store; this covers that "
+             "`docs/prd.md` asks for 4+ US scrapers plus the clone store; this clears that "
              "with PH included.")
     L.append("")
     for s_ in suggested:
@@ -409,6 +417,11 @@ def write_report(registry: dict) -> str:
 
 
 def main() -> int:
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--fleet-size", type=int, default=10,
+                    help="how many sites the suggested starting fleet should name")
+    args = ap.parse_args()
+
     t0 = json.loads((HERE / "tier0.json").read_text())["results"]
     t1_path = HERE / "tier1.json"
     t1_doc = json.loads(t1_path.read_text()) if t1_path.exists() else {"results": [], "budget": {}}
@@ -454,7 +467,7 @@ def main() -> int:
         "sites": sites,
     }
     (HERE / "registry.json").write_text(json.dumps(registry, indent=2))
-    (HERE / "registry.md").write_text(write_report(registry))
+    (HERE / "registry.md").write_text(write_report(registry, args.fleet_size))
 
     print(f"scored {len(sites)} candidates")
     for v, n in counts.most_common():

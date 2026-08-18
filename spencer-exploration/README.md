@@ -46,6 +46,7 @@ uv run spencer-exploration/bd_tier1.py --cap-usd 5.0
 
 # score and build the registry
 uv run spencer-exploration/score.py
+uv run spencer-exploration/score.py --fleet-size 16   # bigger suggested fleet
 ```
 
 `bd_tier1.py` reads the live account balance before it starts and re-checks it as
