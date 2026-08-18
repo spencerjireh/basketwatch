@@ -149,6 +149,52 @@ def score_site(t0: dict, t1: dict | None, manual: dict | None = None) -> dict:
 
 
 
+# docs/prd.md section 2.6 wants the US fleet authenticity-weighted: real grocers
+# and pharmacies ahead of online pantries, even at a slightly lower score.
+AUTHENTIC_VERTICALS = ("grocery", "ethnic-grocery", "pharmacy", "convenience")
+
+
+def suggest_fleet(fleet: list[dict], proven: set[str], size: int = 6) -> list[dict]:
+    """Greedy pick: strongest sites, but spread across countries and markup styles.
+
+    A fleet of six JSON-LD Shopify stores would prove almost nothing about
+    self-healing - every breakage would look the same. Diversity is the point.
+    """
+    pool = sorted(
+        fleet,
+        key=lambda x: (
+            x["id"] not in proven,                          # proven end to end first
+            x["vertical"] not in AUTHENTIC_VERTICALS,       # then real stores
+            -x["score"],
+            -x["basket_coverage"],
+        ),
+    )
+    picked: list[dict] = []
+    seen_struct: set[str] = set()
+
+    # PH first: the gate is the scarce constraint, so spend the slots there first.
+    for country in ("PH", "US"):
+        for s_ in pool:
+            if len(picked) >= size:
+                break
+            if s_["country"] != country or s_ in picked:
+                continue
+            key = (s_["country"], s_["structural_class"])
+            if key in seen_struct:
+                continue
+            seen_struct.add(key)
+            picked.append(s_)
+            if country == "PH" and len([x for x in picked if x["country"] == "PH"]) >= 3:
+                break
+
+    for s_ in pool:  # top up on raw score
+        if len(picked) >= size:
+            break
+        if s_ not in picked:
+            picked.append(s_)
+    return picked[:size]
+
+
 def pct(n: int, d: int) -> str:
     return f"{100 * n / d:.0f}%" if d else "-"
 
@@ -224,6 +270,33 @@ def write_report(registry: dict) -> str:
                  f"(ceiling hit: {b.get('ceiling_hit')}).")
         L.append("")
 
+    suggested = suggest_fleet(fleet, set(registry.get("studio_proofs", {})))
+    L.append("## Suggested starting fleet")
+    L.append("")
+    L.append("Picked for spread, not just score: different countries and different markup "
+             "styles, so a breakage in one does not look like a breakage in another. "
+             "`docs/prd.md` asks for 4+ US scrapers plus the clone store; this covers that "
+             "with PH included.")
+    L.append("")
+    for s_ in suggested:
+        why = []
+        if s_["verified_api"]:
+            why.append(f"public {s_['api_kind']} endpoint")
+        if s_["id"] in registry.get("studio_proofs", {}):
+            why.append("already proven end to end")
+        why.append(f"{s_['structural_class']} markup")
+        why.append(f"{s_['basket_coverage']}/10 basket categories")
+        if s_["needs_unlocker"]:
+            why.append("needs Web Unlocker on every run")
+        if s_["vertical"] in AUTHENTIC_VERTICALS:
+            why.append(f"real {s_['vertical'].replace('-', ' ')}")
+        L.append(f"- **{s_['name']}** ({s_['country']}, `{s_['id']}`, score {s_['score']}) - "
+                 + "; ".join(why))
+    L.append("")
+    L.append("Plus Parker's Pantry, the clone store, which stays in the fleet as the "
+             "scripted break-and-heal rig.")
+    L.append("")
+
     L.append("## Fleet-ready")
     L.append("")
     L.append(caveat)
@@ -274,6 +347,25 @@ def write_report(registry: dict) -> str:
         L.append(", ".join(f"{s['name']} (`{s['id']}`)" for s in prebuilt) + ".")
         L.append("")
 
+    proofs = registry.get("studio_proofs", {})
+    if proofs:
+        L.append("## Proven end to end")
+        L.append("")
+        L.append("Scraper Studio scraper built, run against the live page, and the output fed "
+                 "through this repo's own validator (`validateRun` with `priceRecordSchema`) "
+                 "rather than eyeballed.")
+        L.append("")
+        for pid, pf in proofs.items():
+            nm = next((x["name"] for x in sites if x["id"] == pid), pid)
+            L.append(f"### {nm} (`{pid}`)")
+            L.append("")
+            L.append(f"- collector `{pf['collector_id']}` - {pf['view_url']}")
+            L.append(f"- target: {pf['target']}")
+            L.append(f"- row: `{json.dumps(pf['row'])}`")
+            L.append(f"- validator: **{pf['validator']}**")
+            L.append(f"- {pf['significance']}")
+            L.append("")
+
     api_sites = [x for x in sites if x.get("verified_api")]
     if api_sites:
         L.append("## Verified public price APIs")
@@ -323,7 +415,9 @@ def main() -> int:
     t1_by_id = {r["id"]: r for r in t1_doc["results"]}
 
     mf_path = HERE / "manual-findings.json"
-    manual = json.loads(mf_path.read_text())["findings"] if mf_path.exists() else {}
+    mf = json.loads(mf_path.read_text()) if mf_path.exists() else {}
+    manual = mf.get("findings", {})
+    proofs = {k: v for k, v in mf.get("studio_proofs", {}).items() if not k.startswith("_")}
     sites = [score_site(r, t1_by_id.get(r["id"]), manual.get(r["id"])) for r in t0]
     sites.sort(key=lambda x: (-x["score"], x["country"], x["id"]))
 
@@ -356,6 +450,7 @@ def main() -> int:
             "sites": [s["id"] for s in ph_ready],
         },
         "budget": t1_doc.get("budget", {}),
+        "studio_proofs": proofs,
         "sites": sites,
     }
     (HERE / "registry.json").write_text(json.dumps(registry, indent=2))

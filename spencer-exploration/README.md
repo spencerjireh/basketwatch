@@ -70,6 +70,29 @@ so the chosen fleet spans different extraction shapes. A fleet that is five
 JSON-LD Shopify stores proves far less about self-healing than one spanning four
 different markup styles.
 
+## Proven end to end
+
+Two finalists were taken all the way through Scraper Studio and validated with this
+repo's own validator, not by eye:
+
+| Site | Collector | Result |
+|---|---|---|
+| SM Markets (PH) | `c_msyxrpa82470hx65c9` | `priceRecordSchema` PASS, `validateRun` = `ok` |
+| Dierbergs (US) | `c_msyxuy2519vvn3139s` | `priceRecordSchema` PASS, `validateRun` = `ok` |
+
+SM Markets is the interesting one. Its pages are `spa_empty` - no price in the raw
+HTML, not even through the Web Unlocker - yet the Studio scraper returned a clean
+contract-shaped row on the first attempt, because Studio drives a real browser.
+That is why `spa_empty` is scored as workable-but-costlier rather than rejected.
+
+To reproduce:
+
+```bash
+set -a; . ./.env; set +a
+brightdata scraper run c_msyxrpa82470hx65c9 \
+  "https://smmarkets.ph/10103348-batangas-coffee-brew-500g.html" --sync --pretty
+```
+
 ## Known limits
 
 - Probes run from a Manila IP, so a US tier-0 failure is not conclusive - that is
