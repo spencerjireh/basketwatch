@@ -1,0 +1,27 @@
+stateDiagram-v2
+    [*] --> Healthy: first successful run
+
+    Healthy --> Suspect: soft anomaly<br/>(drift within tolerance,<br/>single missed run)
+    Suspect --> Healthy: next run clean
+    Suspect --> Broken: anomaly confirmed<br/>(2nd consecutive failure or<br/>hard schema violation)
+    Healthy --> Broken: hard failure<br/>(schema violation, empty output,<br/>run error)
+
+    Broken --> Healing: heal orchestrator picks up<br/>(within budget cap)
+    Healing --> Verifying: Studio diff approved,<br/>canary run triggered
+    Verifying --> Healthy: canary passes validation<br/>(incident closed, diff logged)
+    Verifying --> Healing: canary fails,<br/>retry with refined prompt<br/>(attempt < N)
+    Healing --> ManualAttention: attempts exhausted<br/>or credit budget hit
+    Broken --> ManualAttention: heal budget exhausted
+    ManualAttention --> Healthy: human fix +<br/>manual re-run passes
+
+    note right of Suspect
+        Suspect runs are stored
+        but flagged, excluded
+        from baseline updates
+    end note
+
+    note right of Healing
+        Every attempt logged:
+        evidence, prompt, diff,
+        verdict, credits spent
+    end note

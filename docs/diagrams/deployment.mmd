@@ -1,0 +1,32 @@
+flowchart TB
+    subgraph INET["Internet"]
+        JUDGE["Judges / Users<br/>(browser)"]
+        TG["Telegram"]
+        RESEND["Resend (email)"]
+        ANTHROPIC["Anthropic API"]
+        BDCLOUD["Bright Data Cloud<br/>Scraper Studio + fleet"]
+        STORES["Real store sites"]
+    end
+
+    subgraph COOLIFY["Coolify VPS (Docker)"]
+        PROXY["Reverse proxy + TLS<br/>(Coolify-managed)"]
+        subgraph APP["app stack (docker compose)"]
+            WEB["dashboard<br/>React SPA / Next.js"]
+            APIC["orchestrator-api<br/>Node/TS + node-cron"]
+            PG[("postgres 16<br/>volume-backed")]
+        end
+        CLONE["clone-store<br/>static site + mutation flag<br/>(separate subdomain)"]
+    end
+
+    JUDGE -->|https| PROXY
+    PROXY --> WEB
+    PROXY --> CLONE
+    WEB -->|REST /api| APIC
+    APIC --> PG
+    APIC -->|"trigger / heal / approve<br/>(api.brightdata.com)"| BDCLOUD
+    BDCLOUD -->|"webhook delivery<br/>(signed)"| PROXY
+    BDCLOUD -->|scrapes| STORES
+    BDCLOUD -->|scrapes| CLONE
+    APIC -->|heal-prompt calls| ANTHROPIC
+    APIC -->|alerts| RESEND
+    APIC -->|alerts| TG

@@ -1,0 +1,9 @@
+{
+  "name": "@scrape-verse/clone-store",
+  "version": "0.0.1",
+  "type": "module",
+  "scripts": {
+    "dev": "node server.js",
+    "start": "node server.js"
+  }
+}
