@@ -34,6 +34,19 @@ PH sites join the fleet. The US-vs-PH comparison view is unblocked.
 
 Tier-1 cost: **$0.36** of a $5.00 ceiling across 311 Web Unlocker calls (ceiling hit: False).
 
+## Suggested starting fleet
+
+Picked for spread, not just score: different countries and different markup styles, so a breakage in one does not look like a breakage in another. `docs/prd.md` asks for 4+ US scrapers plus the clone store; this covers that with PH included.
+
+- **SM Markets** (PH, `ph-smmarkets`, score 82) - public magento-graphql-public endpoint; already proven end to end; unknown markup; 10/10 basket categories; real grocery
+- **MedsGo** (PH, `ph-medsgo`, score 93) - json-ld markup; 5/10 basket categories; real pharmacy
+- **Southstar Drug** (PH, `ph-southstar`, score 88) - microdata markup; 4/10 basket categories; real pharmacy
+- **Dierbergs** (US, `us-dierbergs`, score 95) - already proven end to end; json-ld markup; 7/10 basket categories; real grocery
+- **Wegmans** (US, `us-wegmans`, score 84) - spa-with-state markup; 4/10 basket categories; real grocery
+- **Grocery Outlet** (US, `us-groceryoutlet`, score 80) - bare-html markup; 3/10 basket categories; real grocery
+
+Plus Parker's Pantry, the clone store, which stays in the fleet as the scripted break-and-heal rig.
+
 ## Fleet-ready
 
 **Read `Cat. hits` as catalogue breadth, not a product mapping.** It counts how many of the ten basket *categories* have at least one matching product URL in the site's sitemap, matched on slug keywords. It is a discovery aid: Netrition's "bananas" is banana-nut oatmeal, and Southstar's is a banana-flavoured medicine. Confirming the actual canonical SKU per store is a separate step before wiring each scraper.
@@ -127,6 +140,26 @@ Reachable and otherwise attractive, but robots.txt disallows the product path. T
 Bright Data almost certainly ships prebuilt scrapers for these, and the organizers asked for long-tail targets. Kept in the registry as controls, not as fleet candidates.
 
 GoodRx (`us-goodrx`), Walgreens (`us-walgreens`), GNC (`us-gnc`), Lazada PH (`ph-lazada`), iHerb (`us-iherb`), The Vitamin Shoppe (`us-vitaminshoppe`), Shopee PH (`ph-shopee`), CVS (`us-cvs`).
+
+## Proven end to end
+
+Scraper Studio scraper built, run against the live page, and the output fed through this repo's own validator (`validateRun` with `priceRecordSchema`) rather than eyeballed.
+
+### SM Markets (`ph-smmarkets`)
+
+- collector `c_msyxrpa82470hx65c9` - https://brightdata.com/cp/scrapers/c_msyxrpa82470hx65c9
+- target: https://smmarkets.ph/10103348-batangas-coffee-brew-500g.html
+- row: `{"product_key": "10103348", "name": "Batangas Coffee Brew | 500g", "price": 494.5, "currency": "PHP", "unit": "500g", "in_stock": true}`
+- validator: **priceRecordSchema PASS; validateRun status=ok; findings=[]**
+- Proves a spa_empty site is fully workable through Studio. The page serves no price in raw HTML even through the Web Unlocker, yet the Studio scraper - which drives a real browser - returned a clean contract-shaped row on the first try, no healing needed.
+
+### Dierbergs (`us-dierbergs`)
+
+- collector `c_msyxuy2519vvn3139s` - https://brightdata.com/cp/scrapers/c_msyxuy2519vvn3139s
+- target: https://www.dierbergs.com/item/bakehouse-italian-supremo-bread-37509
+- row: `{"product_key": "37509", "name": "Supremo Italian Bread", "price": 3.99, "currency": "USD", "unit": "16 oz. Loaf.", "in_stock": true}`
+- validator: **priceRecordSchema PASS; validateRun status=ok; findings=[]**
+- Authentic US regional grocer, json-ld, real basket staple (bread). Confirms the server_rendered tier of the registry end to end.
 
 ## Verified public price APIs
 

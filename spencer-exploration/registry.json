@@ -60,6 +60,40 @@
     "spent_usd": 0.36,
     "ceiling_hit": false
   },
+  "studio_proofs": {
+    "ph-smmarkets": {
+      "collector_id": "c_msyxrpa82470hx65c9",
+      "name": "basketwatch-vet-smmarkets",
+      "view_url": "https://brightdata.com/cp/scrapers/c_msyxrpa82470hx65c9",
+      "target": "https://smmarkets.ph/10103348-batangas-coffee-brew-500g.html",
+      "row": {
+        "product_key": "10103348",
+        "name": "Batangas Coffee Brew | 500g",
+        "price": 494.5,
+        "currency": "PHP",
+        "unit": "500g",
+        "in_stock": true
+      },
+      "validator": "priceRecordSchema PASS; validateRun status=ok; findings=[]",
+      "significance": "Proves a spa_empty site is fully workable through Studio. The page serves no price in raw HTML even through the Web Unlocker, yet the Studio scraper - which drives a real browser - returned a clean contract-shaped row on the first try, no healing needed."
+    },
+    "us-dierbergs": {
+      "collector_id": "c_msyxuy2519vvn3139s",
+      "name": "basketwatch-vet-dierbergs",
+      "view_url": "https://brightdata.com/cp/scrapers/c_msyxuy2519vvn3139s",
+      "target": "https://www.dierbergs.com/item/bakehouse-italian-supremo-bread-37509",
+      "row": {
+        "product_key": "37509",
+        "name": "Supremo Italian Bread",
+        "price": 3.99,
+        "currency": "USD",
+        "unit": "16 oz. Loaf.",
+        "in_stock": true
+      },
+      "validator": "priceRecordSchema PASS; validateRun status=ok; findings=[]",
+      "significance": "Authentic US regional grocer, json-ld, real basket staple (bread). Confirms the server_rendered tier of the registry end to end."
+    }
+  },
   "sites": [
     {
       "id": "us-netrition",
