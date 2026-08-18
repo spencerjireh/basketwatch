@@ -1,7 +1,15 @@
+---
+title: PRD — Basketwatch
+tags: [hackathon, prd]
+created: 2026-08-18
+status: confirmed-v1
+---
+
 # PRD: Basketwatch (working name)
 
 v1 — confirmed Aug 18, 2026.
-Companions: `architecture.md` (HLD), `hackathon-brief.md` (rules + findings).
+Companions: [architecture](architecture.md) (HLD),
+[hackathon-brief](hackathon-brief.md) (rules + findings).
 Review artifact: https://claude.ai/code/artifact/f7cf34cf-af6e-4efd-8f76-16dd1865ef36
 
 ## 1. Product statement
@@ -23,6 +31,13 @@ judging value decides.
 
 1. **Coverage**: US fleet is committed scope. PH sites join only if >= 2 vet
    cleanly by end of Aug 19; otherwise ship US-only with zero rework.
+
+   ```mermaid
+   flowchart LR
+       VET["Vet 6 PH candidate sites<br/>(cheap HTTP checks first)"] --> GATE{">= 2 scrape<br/>cleanly by<br/>Aug 19 EOD?"}
+       GATE -->|yes| IN["PH fleet joins<br/>+ US-vs-PH comparison view"]
+       GATE -->|no| OUT["Ship US-only<br/>(zero rework;<br/>country model stays)"]
+   ```
 2. **Multi-country is architectural, not a feature**: country is a
    first-class dimension on stores, products, and baskets, with generalized
    currency handling. Adding any country's sites later immediately enables
@@ -72,6 +87,15 @@ judging value decides.
 4. **Wayback rig** — drop; clone store + any organic incident carry the proof.
 
 The core loop and the clone-store demo are never cut.
+
+```mermaid
+flowchart LR
+    CORE["Core loop + clone demo<br/>NEVER CUT"] --- P["time pressure hits"]
+    P --> C1["1. Alerts<br/>(two channels -> one)"]
+    C1 --> C2["2. SSE<br/>(-> polling)"]
+    C2 --> C3["3. Comparison view<br/>(-> plain table)"]
+    C3 --> C4["4. Wayback rig<br/>(-> dropped)"]
+```
 
 ## 5. The basket
 

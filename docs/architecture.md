@@ -1,8 +1,17 @@
+---
+title: Architecture (HLD)
+tags: [hackathon, hld]
+created: 2026-08-15
+status: v1
+---
+
 # HLD: Self-Healing Price Tracker ("Into the Scrape-Verse" 2026)
 
 Status: draft v1 for team review. Aug 15, 2026.
-Companion: `hackathon-brief.md` (rules, judging, experiment findings).
-Diagrams: `diagrams/*.png` (sources in `*.mmd`).
+Companions: [hackathon-brief](hackathon-brief.md) (rules, judging, experiment
+findings) and [prd](prd.md) (confirmed scope).
+Diagrams are inline mermaid below; exported PNGs and `.mmd` sources live in
+`diagrams/`.
 
 ## 1. One-liner
 
@@ -33,7 +42,50 @@ Non-goals (explicitly out)
 
 ## 3. Component overview
 
-See `diagrams/system-architecture.png`.
+```mermaid
+flowchart LR
+    subgraph BD["Bright Data Cloud"]
+        SS["Scraper Studio<br/>AI create / heal"]
+        FLEET["Scraper Fleet<br/>4-6 store scrapers<br/>+ 1 clone-site scraper"]
+        SS -->|generates & repairs| FLEET
+    end
+
+    subgraph VPS["Coolify VPS"]
+        subgraph API["Orchestrator API (TypeScript)"]
+            SCHED["Scheduler<br/>cron: 2x daily + on-demand"]
+            INGEST["Ingest<br/>webhook receiver + poller"]
+            SENSE["Spider-Sense Layer<br/>schema / null-rate / row-count /<br/>value-drift / freshness checks"]
+            HEAL["Heal Orchestrator<br/>evidence -> prompt -> heal -><br/>verify -> approve"]
+            NOTIF["Notifier<br/>Resend email | Telegram | (Discord)"]
+        end
+        DB[("Postgres<br/>prices, runs, incidents,<br/>heals, audit log")]
+        DASH["Dashboard (React)<br/>public: basket index charts<br/>ops: fleet health + heal audit"]
+        CLONE["Clone Store Site<br/>layout-mutation switch<br/>(demo chaos target)"]
+    end
+
+    CLAUDE["Claude API<br/>diagnoses evidence,<br/>writes heal prompts"]
+    USERS["Users / Judges"]
+    CHANNELS["Email / Telegram"]
+
+    SCHED -->|"trigger runs<br/>(/dca/trigger)"| FLEET
+    FLEET -->|"structured JSON<br/>(webhook / get_result)"| INGEST
+    INGEST --> SENSE
+    SENSE -->|clean data| DB
+    SENSE -->|anomaly detected| HEAL
+    HEAL <-->|evidence / prompt| CLAUDE
+    HEAL -->|"heal + approve<br/>(refactor_template)"| SS
+    HEAL -->|canary verify run| FLEET
+    HEAL -->|audit trail| DB
+    SENSE --> NOTIF
+    HEAL --> NOTIF
+    DB --> DASH
+    NOTIF --> CHANNELS
+    USERS --> DASH
+    FLEET -.->|scrapes| CLONE
+    FLEET -.->|scrapes| WEB["Real store sites"]
+```
+
+Source: `diagrams/system-architecture.mmd` (PNG export alongside).
 
 ### 3.1 Scraper fleet (Bright Data Scraper Studio)
 - One scraper per target site, AI-generated via `automate_template`, saved to
@@ -62,9 +114,28 @@ language across scrapers/backend/frontend serves the clean-code track.
      fall outside, or store-level median jumps >30% run-over-run
   5. Freshness: expected delivery missed by >2h
   - Soft anomaly -> `suspect` (stored, flagged, excluded from baselines);
-    confirmed/hard -> `broken` + incident. See
-    `diagrams/health-state-machine.png`.
-- **Heal orchestrator** (see `diagrams/heal-loop-sequence.png`):
+    confirmed/hard -> `broken` + incident:
+
+```mermaid
+stateDiagram-v2
+    [*] --> Healthy: first successful run
+
+    Healthy --> Suspect: soft anomaly<br/>(drift within tolerance,<br/>single missed run)
+    Suspect --> Healthy: next run clean
+    Suspect --> Broken: anomaly confirmed<br/>(2nd consecutive failure or<br/>hard schema violation)
+    Healthy --> Broken: hard failure<br/>(schema violation, empty output,<br/>run error)
+
+    Broken --> Healing: heal orchestrator picks up<br/>(within budget cap)
+    Healing --> Verifying: Studio diff approved,<br/>canary run triggered
+    Verifying --> Healthy: canary passes validation<br/>(incident closed, diff logged)
+    Verifying --> Healing: canary fails,<br/>retry with refined prompt<br/>(attempt < N)
+    Healing --> ManualAttention: attempts exhausted<br/>or credit budget hit
+    Broken --> ManualAttention: heal budget exhausted
+    ManualAttention --> Healthy: human fix +<br/>manual re-run passes
+```
+
+Source: `diagrams/health-state-machine.mmd`.
+- **Heal orchestrator**:
   - Builds evidence bundle: failing checks, sample bad output, last-good
     sample, field-level diff summary.
   - Claude API turns evidence into a plain-language heal prompt (Studio's
@@ -76,13 +147,116 @@ language across scrapers/backend/frontend serves the clean-code track.
     to `manual_attention`.
   - **Budget guard**: per-scraper daily heal cap + global daily credit
     ceiling; guard checked before every Studio call. (Protects the $50.)
+
+  The full loop:
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant Cron as Scheduler
+    participant BD as Bright Data<br/>Scraper Fleet
+    participant Sense as Spider-Sense<br/>Validator
+    participant DB as Postgres
+    participant Heal as Heal<br/>Orchestrator
+    participant Claude as Claude API
+    participant Studio as Scraper Studio<br/>(AI heal)
+    participant Notif as Notifier
+
+    Cron->>BD: trigger scheduled run
+    BD-->>Sense: deliver JSON (webhook)
+    Sense->>Sense: schema + null-rate + row-count<br/>+ value-drift + freshness checks
+    alt output healthy
+        Sense->>DB: store records, update baseline
+    else anomaly detected
+        Sense->>DB: open incident (status: broken)
+        Sense->>Notif: ops alert "scraper X broken"
+        Sense->>Heal: evidence bundle<br/>(failing fields, samples, last-good diff)
+        Heal->>Claude: diagnose evidence
+        Claude-->>Heal: heal prompt (plain language fix)
+        Heal->>Studio: refactor_template(prompt)
+        Studio-->>Heal: proposed diff (awaiting approval)
+        Heal->>Studio: approve (resume_automation_job)
+        Heal->>BD: canary verify run
+        BD-->>Heal: fresh output
+        Heal->>Sense: re-validate canary output
+        alt canary passes
+            Heal->>Studio: save to production
+            Heal->>DB: close incident, log diff + verdict
+            Heal->>Notif: ops alert "scraper X healed autonomously"
+        else canary fails (max N attempts / budget cap)
+            Heal->>Studio: reject proposal
+            Heal->>DB: incident stays open, log attempt
+            Heal->>Notif: escalate "manual attention needed"
+        end
+    end
+```
+
+Source: `diagrams/heal-loop-sequence.mmd`.
 - **Notifier**: one interface, three adapters (Resend, Telegram, Discord).
   Product alerts (price drop >X% on basket item) and ops alerts (breakage,
   healed, escalation).
 
 ### 3.3 Datastore (Postgres 16)
-Schema in `diagrams/data-model.png`: `scrapers`, `runs`, `baselines`,
+Tables: `scrapers`, `runs`, `baselines`,
 `price_records`, `products`, `incidents`, `heal_attempts`, `alerts`.
+
+```mermaid
+erDiagram
+    SCRAPER ||--o{ RUN : "executes"
+    SCRAPER ||--o{ INCIDENT : "suffers"
+    SCRAPER ||--|| BASELINE : "has rolling"
+    RUN ||--o{ PRICE_RECORD : "produces"
+    INCIDENT ||--o{ HEAL_ATTEMPT : "triggers"
+    PRICE_RECORD }o--|| PRODUCT : "prices"
+    PRODUCT }o--o{ BASKET : "belongs to"
+    INCIDENT ||--o{ ALERT : "emits"
+    PRICE_RECORD ||--o{ ALERT : "price-drop emits"
+
+    SCRAPER {
+        text id PK "collector_id from Studio"
+        text name
+        text target_site
+        text output_schema "JSON Schema"
+        text status "healthy|suspect|broken|healing|verifying|manual"
+        int heal_budget_daily
+    }
+    RUN {
+        uuid id PK
+        text scraper_id FK
+        text trigger "cron|manual|canary"
+        text status "ok|anomalous|error"
+        jsonb raw_output
+        timestamptz finished_at
+    }
+    INCIDENT {
+        uuid id PK
+        text scraper_id FK
+        text kind "schema|nulls|rowcount|drift|freshness|error"
+        jsonb evidence
+        text state "open|healing|resolved|manual"
+    }
+    HEAL_ATTEMPT {
+        uuid id PK
+        uuid incident_id FK
+        text claude_diagnosis
+        text heal_prompt
+        text studio_diff
+        text verdict "approved|rejected|failed"
+        int credits_spent
+    }
+    PRICE_RECORD {
+        uuid id PK
+        uuid run_id FK
+        uuid product_id FK
+        text store
+        numeric price
+        text currency
+        timestamptz observed_at
+    }
+```
+
+Source: `diagrams/data-model.mmd` (full column detail there; abbreviated
+here for readability).
 Drizzle ORM + migrations. Raw run payloads kept (jsonb) so incidents can be
 replayed/re-validated during development.
 
@@ -101,11 +275,48 @@ nested span, switches price format. Purpose: scripted, guaranteed
 break-and-heal demo moment + integration-test target during development.
 Disclosed as a test target in the submission.
 
-### 3.6 Deployment (see `diagrams/deployment.png`)
+### 3.6 Deployment
 Coolify VPS, docker compose stack: `dashboard`, `orchestrator-api`,
 `postgres` (volume), `clone-store`. Coolify handles TLS/subdomains. Secrets
 (Bright Data key, Anthropic key, Resend, Telegram token, webhook secret) via
 Coolify env vars. Bright Data webhook -> `https://api.<domain>/ingest/<scraper>`.
+
+```mermaid
+flowchart TB
+    subgraph INET["Internet"]
+        JUDGE["Judges / Users<br/>(browser)"]
+        TG["Telegram"]
+        RESEND["Resend (email)"]
+        ANTHROPIC["Anthropic API"]
+        BDCLOUD["Bright Data Cloud<br/>Scraper Studio + fleet"]
+        STORES["Real store sites"]
+    end
+
+    subgraph COOLIFY["Coolify VPS (Docker)"]
+        PROXY["Reverse proxy + TLS<br/>(Coolify-managed)"]
+        subgraph APP["app stack (docker compose)"]
+            WEB["dashboard<br/>React SPA"]
+            APIC["orchestrator-api<br/>Node/TS + node-cron"]
+            PG[("postgres 16<br/>volume-backed")]
+        end
+        CLONE["clone-store<br/>static site + mutation flag<br/>(separate subdomain)"]
+    end
+
+    JUDGE -->|https| PROXY
+    PROXY --> WEB
+    PROXY --> CLONE
+    WEB -->|REST /api| APIC
+    APIC --> PG
+    APIC -->|"trigger / heal / approve<br/>(api.brightdata.com)"| BDCLOUD
+    BDCLOUD -->|"webhook delivery<br/>(signed)"| PROXY
+    BDCLOUD -->|scrapes| STORES
+    BDCLOUD -->|scrapes| CLONE
+    APIC -->|heal-prompt calls| ANTHROPIC
+    APIC -->|alerts| RESEND
+    APIC -->|alerts| TG
+```
+
+Source: `diagrams/deployment.mmd`.
 
 ## 4. External interfaces
 

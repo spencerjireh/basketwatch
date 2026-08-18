@@ -1,8 +1,38 @@
+---
+title: Hackathon Brief
+tags: [hackathon, notes]
+created: 2026-08-15
+status: living-notes
+---
+
 # Into the Scrape-Verse — Hackathon Brief
 
 Source: https://www.wemakedevs.org/hackathons/scrape-verse
 Dates: August 17-23, 2026 (online or SF). Team: solo or up to 4.
 Organizer: WeMakeDevs. Title sponsor: Bright Data.
+Companions: [architecture](architecture.md), [prd](prd.md).
+
+## Week at a glance
+
+```mermaid
+gantt
+    dateFormat YYYY-MM-DD
+    axisFormat %a %d
+    title Build week (Aug 17-23)
+
+    section Build
+    Scaffold + first scrapers      :done, d1, 2026-08-17, 1d
+    Validator + fleet + vetting    :active, d2, 2026-08-18, 1d
+    Heal loop end-to-end (make-or-break) :crit, d3, 2026-08-19, 1d
+    Dashboard + alerts             :d4, 2026-08-20, 1d
+    Polish + framing decision      :d5, 2026-08-21, 1d
+    Video + writeup                :d6, 2026-08-22, 1d
+    Buffer + submit                :crit, d7, 2026-08-23, 1d
+
+    section Gates
+    PH go-no-go (EOD)              :milestone, g1, 2026-08-19, 0d
+    Spencer blocked 9h (capstone)  :crit, g2, 2026-08-20, 1d
+```
 
 ## Core challenge
 
