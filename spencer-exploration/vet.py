@@ -387,6 +387,60 @@ def basket_map(urls: list[str]) -> dict:
     return out
 
 
+def internal_links(html: str, base: str) -> list[str]:
+    hrefs = re.findall(r'href\s*=\s*["\']([^"\'#]+)["\']', html, re.I)
+    host = urlparse(base).netloc
+    out = []
+    for h in hrefs:
+        u = urljoin(base, h).split("?")[0]
+        if urlparse(u).netloc == host:
+            out.append(u)
+    return list(dict.fromkeys(out))
+
+
+# Category slugs worth crawling first when a site has no sitemap - they are where
+# the basket lives, so the sampled URL pool stays comparable to a sitemap-derived one.
+BASKET_CATEGORY_HINTS = (
+    "rice", "grain", "dairy", "milk", "egg", "bread", "bakery", "baking", "coffee",
+    "tea", "beverage", "sugar", "sweetener", "cooking", "oil", "condiment", "pasta",
+    "noodle", "meat", "poultry", "chicken", "produce", "fruit", "vegetable", "grocery",
+    "staple", "pantry", "canned", "breakfast",
+)
+
+
+async def crawl_for_products(
+    f: "Fetcher", home: str, hints: list[str], max_categories: int = 8
+) -> tuple[list[str], list[str]]:
+    """Free fallback when a site publishes no sitemap: homepage -> categories -> products.
+
+    MerryMart Wholesale is the motivating case - fully server-rendered PHP prices but
+    no sitemap at all. Crawling only one category also skews basket coverage, so this
+    walks several basket-relevant categories to keep the sample comparable to a
+    sitemap-derived one.
+    """
+    hp = await f.get(home, "home")
+    if hp["status"] != 200 or not hp["body"]:
+        return [], []
+    links = internal_links(hp["body"], home)
+    products = [u for u in links if product_score(u, hints) >= 3]
+
+    cats = [u for u in links if re.search(r"/(categor|collection|shop|department|aisle)", u, re.I)]
+    # basket-relevant categories first, then whatever else is left
+    cats.sort(key=lambda u: 0 if any(k in u.lower() for k in BASKET_CATEGORY_HINTS) else 1)
+
+    visited: list[str] = []
+    for c in cats[:max_categories]:
+        if len(products) >= 400:
+            break
+        r = await f.get(c, "category", timeout=30)
+        visited.append(c)
+        if r["status"] != 200:
+            continue
+        products.extend(u for u in internal_links(r["body"], c) if product_score(u, hints) >= 3)
+
+    return list(dict.fromkeys(products)), visited
+
+
 async def probe_site(cand: dict, f: Fetcher, sem: asyncio.Semaphore) -> dict:
     async with sem:
         home = cand["homepage"]
@@ -447,10 +501,25 @@ async def probe_site(cand: dict, f: Fetcher, sem: asyncio.Semaphore) -> dict:
 
         page_urls = list(dict.fromkeys(page_urls))
         hints = cand.get("product_hint", [])
+        crawled: list[str] = []
         scored = ((product_score(u, hints), u) for u in page_urls)
         product_urls = [u for sc, u in sorted(
             (t for t in scored if t[0] >= 3), key=lambda t: -t[0]
         )]
+        if not product_urls:
+            crawl_found, crawled = await crawl_for_products(f, home, hints)
+            if crawl_found:
+                product_urls = [u for sc, u in sorted(
+                    ((product_score(u, hints), u) for u in crawl_found), key=lambda t: -t[0]
+                )]
+                page_urls = page_urls or product_urls
+
+        rec["discovery"] = {
+            "via": "sitemap" if tried and page_urls and not crawled else
+                   "crawl" if product_urls and crawled else
+                   "sitemap" if page_urls else "none",
+            "categories_crawled": crawled,
+        }
         rec["sitemap"] = {
             "tried": tried,
             "total_urls": len(page_urls),

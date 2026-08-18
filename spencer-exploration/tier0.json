@@ -21,6 +21,10 @@
         "disallow_star": [],
         "allow_star": []
       },
+      "discovery": {
+        "via": "none",
+        "categories_crawled": []
+      },
       "sitemap": {
         "tried": [
           {
@@ -125,6 +129,12 @@
           "*/weeebates/share/grocery/landing/"
         ]
       },
+      "discovery": {
+        "via": "none",
+        "categories_crawled": [
+          "https://www.sayweee.com/en/category/sale"
+        ]
+      },
       "sitemap": {
         "tried": [
           {
@@ -214,6 +224,10 @@
         "allow_star": [
           "/"
         ]
+      },
+      "discovery": {
+        "via": "sitemap",
+        "categories_crawled": []
       },
       "sitemap": {
         "tried": [
@@ -360,6 +374,15 @@
         ],
         "allow_star": []
       },
+      "discovery": {
+        "via": "crawl",
+        "categories_crawled": [
+          "https://www.hy-vee.com/aisles-online/browse/bakery/bakery-desserts/bakery-cakes",
+          "https://www.hy-vee.com/aisles-online/lists",
+          "https://www.hy-vee.com/aisles-online/category/catering",
+          "https://www.hy-vee.com/aisles-online/category/floral-and-gifting/gifting"
+        ]
+      },
       "sitemap": {
         "tried": [
           {
@@ -369,14 +392,66 @@
           }
         ],
         "total_urls": 7,
-        "product_like_urls": 0
+        "product_like_urls": 3
       },
       "basket": {},
       "basket_coverage": 0,
-      "product_probes": [],
-      "verdict_class": "no_product_urls",
-      "structural_class": "unknown",
-      "evidence_url": null,
+      "product_probes": [
+        {
+          "url": "https://www.hy-vee.com/aisles-online/browse/bakery/bakery-desserts/bakery-cakes",
+          "status": 200,
+          "bytes": 119793,
+          "class": "spa_empty",
+          "reason": "200 but no price in raw HTML",
+          "signals": {
+            "jsonld_product": true,
+            "jsonld_price": false,
+            "microdata_price": false,
+            "meta_price": false,
+            "distinct_currency_strings": 0,
+            "embedded_state": true,
+            "api_paths": [],
+            "bytes": 119793
+          }
+        },
+        {
+          "url": "https://www.hy-vee.com/aisles-online/api/user-details",
+          "status": 200,
+          "bytes": 93,
+          "class": "spa_empty",
+          "reason": "200 but no price in raw HTML",
+          "signals": {
+            "jsonld_product": false,
+            "jsonld_price": false,
+            "microdata_price": false,
+            "meta_price": false,
+            "distinct_currency_strings": 0,
+            "embedded_state": false,
+            "api_paths": [],
+            "bytes": 93
+          }
+        },
+        {
+          "url": "https://www.hy-vee.com/aisles-online/lists",
+          "status": 200,
+          "bytes": 52143,
+          "class": "spa_empty",
+          "reason": "200 but no price in raw HTML",
+          "signals": {
+            "jsonld_product": false,
+            "jsonld_price": false,
+            "microdata_price": false,
+            "meta_price": false,
+            "distinct_currency_strings": 1,
+            "embedded_state": false,
+            "api_paths": [],
+            "bytes": 52143
+          }
+        }
+      ],
+      "verdict_class": "spa_empty",
+      "structural_class": "spa-with-state",
+      "evidence_url": "https://www.hy-vee.com/aisles-online/browse/bakery/bakery-desserts/bakery-cakes",
       "robots_allows_product": true
     },
     {
@@ -399,6 +474,10 @@
         "sitemaps": [],
         "disallow_star": [],
         "allow_star": []
+      },
+      "discovery": {
+        "via": "none",
+        "categories_crawled": []
       },
       "sitemap": {
         "tried": [
@@ -712,6 +791,12 @@
           "/grocery/search/product/"
         ]
       },
+      "discovery": {
+        "via": "sitemap",
+        "categories_crawled": [
+          "https://www.gianteagle.com/assets/shoppingCart-DkyP4oHr.js"
+        ]
+      },
       "sitemap": {
         "tried": [
           {
@@ -755,6 +840,10 @@
         "sitemaps": [],
         "disallow_star": [],
         "allow_star": []
+      },
+      "discovery": {
+        "via": "none",
+        "categories_crawled": []
       },
       "sitemap": {
         "tried": [
@@ -811,6 +900,10 @@
         "disallow_star": [],
         "allow_star": []
       },
+      "discovery": {
+        "via": "none",
+        "categories_crawled": []
+      },
       "sitemap": {
         "tried": [
           {
@@ -865,6 +958,10 @@
         "sitemaps": [],
         "disallow_star": [],
         "allow_star": []
+      },
+      "discovery": {
+        "via": "none",
+        "categories_crawled": []
       },
       "sitemap": {
         "tried": [
@@ -923,6 +1020,10 @@
         "sitemaps": [],
         "disallow_star": [],
         "allow_star": []
+      },
+      "discovery": {
+        "via": "none",
+        "categories_crawled": []
       },
       "sitemap": {
         "tried": [
@@ -989,6 +1090,10 @@
         "allow_star": [
           "/wp-content/uploads/"
         ]
+      },
+      "discovery": {
+        "via": "sitemap",
+        "categories_crawled": []
       },
       "sitemap": {
         "tried": [
@@ -1111,6 +1216,10 @@
         ],
         "disallow_star": [],
         "allow_star": []
+      },
+      "discovery": {
+        "via": "sitemap",
+        "categories_crawled": []
       },
       "sitemap": {
         "tried": [
@@ -1293,6 +1402,10 @@
         "disallow_star": [],
         "allow_star": []
       },
+      "discovery": {
+        "via": "none",
+        "categories_crawled": []
+      },
       "sitemap": {
         "tried": [
           {
@@ -1362,6 +1475,10 @@
           "/wp-content/uploads/",
           "/wp-admin/admin-ajax.php"
         ]
+      },
+      "discovery": {
+        "via": "sitemap",
+        "categories_crawled": []
       },
       "sitemap": {
         "tried": [
@@ -1489,6 +1606,10 @@
         "allow_star": [
           "/wp-admin/admin-ajax.php"
         ]
+      },
+      "discovery": {
+        "via": "sitemap",
+        "categories_crawled": []
       },
       "sitemap": {
         "tried": [
@@ -1666,6 +1787,10 @@
           "/my-account/dash-board"
         ]
       },
+      "discovery": {
+        "via": "none",
+        "categories_crawled": []
+      },
       "sitemap": {
         "tried": [
           {
@@ -1728,6 +1853,10 @@
         "disallow_star": [],
         "allow_star": []
       },
+      "discovery": {
+        "via": "none",
+        "categories_crawled": []
+      },
       "sitemap": {
         "tried": [
           {
@@ -1786,6 +1915,10 @@
         "sitemaps": [],
         "disallow_star": [],
         "allow_star": []
+      },
+      "discovery": {
+        "via": "none",
+        "categories_crawled": []
       },
       "sitemap": {
         "tried": [
@@ -1846,6 +1979,10 @@
         "disallow_star": [],
         "allow_star": []
       },
+      "discovery": {
+        "via": "none",
+        "categories_crawled": []
+      },
       "sitemap": {
         "tried": [
           {
@@ -1904,6 +2041,10 @@
         "disallow_star": [],
         "allow_star": []
       },
+      "discovery": {
+        "via": "none",
+        "categories_crawled": []
+      },
       "sitemap": {
         "tried": [
           {
@@ -1958,6 +2099,10 @@
         "sitemaps": [],
         "disallow_star": [],
         "allow_star": []
+      },
+      "discovery": {
+        "via": "none",
+        "categories_crawled": []
       },
       "sitemap": {
         "tried": [
@@ -2024,6 +2169,19 @@
         ],
         "allow_star": []
       },
+      "discovery": {
+        "via": "crawl",
+        "categories_crawled": [
+          "https://www.topsmarkets.com/[$vHost_Reg]/departments/dairy/",
+          "https://www.topsmarkets.com/[$vHost_Reg]/Departments/In_Store_Bakery/",
+          "https://www.topsmarkets.com/[$vHost_Reg]/Departments/Meat/",
+          "https://www.topsmarkets.com/[$vHost_Reg]/Departments/Produce/",
+          "https://www.topsmarkets.com/departments/ContactUs/",
+          "https://www.topsmarkets.com/ShopScan/",
+          "https://www.topsmarkets.com/[$vHost_Reg]/Departments/Frozen/",
+          "https://www.topsmarkets.com/[$vHost_Reg]/Departments/Deli_And_Carryout_Cafe/"
+        ]
+      },
       "sitemap": {
         "tried": [
           {
@@ -2047,15 +2205,49 @@
             "bytes": 2149
           }
         ],
-        "total_urls": 0,
-        "product_like_urls": 0
+        "total_urls": 9,
+        "product_like_urls": 9
       },
       "basket": {},
       "basket_coverage": 0,
-      "product_probes": [],
-      "verdict_class": "no_product_urls",
+      "product_probes": [
+        {
+          "url": "https://www.topsmarkets.com/Wellness/Refills_And_Transfers/",
+          "status": 200,
+          "bytes": 57563,
+          "class": "spa_empty",
+          "reason": "200 but no price in raw HTML",
+          "signals": {
+            "jsonld_product": false,
+            "jsonld_price": false,
+            "microdata_price": false,
+            "meta_price": false,
+            "distinct_currency_strings": 0,
+            "embedded_state": false,
+            "api_paths": [],
+            "bytes": 57563
+          }
+        },
+        {
+          "url": "https://www.topsmarkets.com/[$vHost_Reg]/Departments/Deli_And_Carryout_Cafe/",
+          "status": 404,
+          "bytes": 52308,
+          "class": "blocked",
+          "reason": "http 404",
+          "signals": {}
+        },
+        {
+          "url": "https://www.topsmarkets.com/[$vHost_Reg]/Departments/Your_Neighborhood_Florist/",
+          "status": 404,
+          "bytes": 52308,
+          "class": "blocked",
+          "reason": "http 404",
+          "signals": {}
+        }
+      ],
+      "verdict_class": "spa_empty",
       "structural_class": "unknown",
-      "evidence_url": null,
+      "evidence_url": "https://www.topsmarkets.com/Wellness/Refills_And_Transfers/",
       "robots_allows_product": true
     },
     {
@@ -2093,6 +2285,12 @@
           "/cdn/assets/cwv/"
         ],
         "allow_star": []
+      },
+      "discovery": {
+        "via": "none",
+        "categories_crawled": [
+          "https://www.lidl.com/r/shops/slider/assets/reco-asset-index.css"
+        ]
       },
       "sitemap": {
         "tried": [
@@ -2172,6 +2370,10 @@
           "/"
         ],
         "allow_star": []
+      },
+      "discovery": {
+        "via": "sitemap",
+        "categories_crawled": []
       },
       "sitemap": {
         "tried": [
@@ -2437,6 +2639,10 @@
           "/profiles/*.svg"
         ]
       },
+      "discovery": {
+        "via": "sitemap",
+        "categories_crawled": []
+      },
       "sitemap": {
         "tried": [
           {
@@ -2555,6 +2761,10 @@
         "disallow_star": [],
         "allow_star": []
       },
+      "discovery": {
+        "via": "none",
+        "categories_crawled": []
+      },
       "sitemap": {
         "tried": [
           {
@@ -2656,6 +2866,10 @@
         ],
         "allow_star": []
       },
+      "discovery": {
+        "via": "sitemap",
+        "categories_crawled": []
+      },
       "sitemap": {
         "tried": [
           {
@@ -2727,6 +2941,12 @@
           "/"
         ]
       },
+      "discovery": {
+        "via": "crawl",
+        "categories_crawled": [
+          "https://savemart.com/shopping-list"
+        ]
+      },
       "sitemap": {
         "tried": [
           {
@@ -2736,23 +2956,49 @@
           }
         ],
         "total_urls": 185,
-        "product_like_urls": 0
+        "product_like_urls": 7
       },
-      "basket": {
-        "eggs": {
-          "count": 1,
-          "samples": [
-            "https://savemart.com/categories/Product%2Fdairy_eggs_cheese"
-          ],
-          "sample": "https://savemart.com/categories/Product%2Fdairy_eggs_cheese"
-        }
-      },
-      "basket_coverage": 1,
+      "basket": {},
+      "basket_coverage": 0,
       "product_probes": [
         {
-          "url": "https://savemart.com/categories/Product%2Fdairy_eggs_cheese",
+          "url": "https://savemart.com/wp/consumer-information",
           "status": 200,
-          "bytes": 302433,
+          "bytes": 438129,
+          "class": "server_rendered",
+          "reason": "price present in raw HTML",
+          "signals": {
+            "jsonld_product": false,
+            "jsonld_price": false,
+            "microdata_price": false,
+            "meta_price": false,
+            "distinct_currency_strings": 4,
+            "embedded_state": true,
+            "api_paths": [],
+            "bytes": 438129
+          }
+        },
+        {
+          "url": "https://savemart.com/wp/pick-5-or-more-for-5-each",
+          "status": 200,
+          "bytes": 554125,
+          "class": "server_rendered",
+          "reason": "price present in raw HTML",
+          "signals": {
+            "jsonld_product": false,
+            "jsonld_price": false,
+            "microdata_price": false,
+            "meta_price": false,
+            "distinct_currency_strings": 4,
+            "embedded_state": true,
+            "api_paths": [],
+            "bytes": 554125
+          }
+        },
+        {
+          "url": "https://savemart.com/wp/californias-proposition-65-warnings",
+          "status": 200,
+          "bytes": 440839,
           "class": "server_rendered",
           "reason": "price present in raw HTML",
           "signals": {
@@ -2763,13 +3009,13 @@
             "distinct_currency_strings": 3,
             "embedded_state": true,
             "api_paths": [],
-            "bytes": 302433
+            "bytes": 440839
           }
         }
       ],
       "verdict_class": "server_rendered",
       "structural_class": "spa-with-state",
-      "evidence_url": "https://savemart.com/categories/Product%2Fdairy_eggs_cheese",
+      "evidence_url": "https://savemart.com/wp/consumer-information",
       "robots_allows_product": true
     },
     {
@@ -2792,6 +3038,10 @@
         "sitemaps": [],
         "disallow_star": [],
         "allow_star": []
+      },
+      "discovery": {
+        "via": "none",
+        "categories_crawled": []
       },
       "sitemap": {
         "tried": [
@@ -2849,6 +3099,10 @@
         "sitemaps": [],
         "disallow_star": [],
         "allow_star": []
+      },
+      "discovery": {
+        "via": "none",
+        "categories_crawled": []
       },
       "sitemap": {
         "tried": [
@@ -2908,6 +3162,10 @@
         "allow_star": [
           "/"
         ]
+      },
+      "discovery": {
+        "via": "sitemap",
+        "categories_crawled": []
       },
       "sitemap": {
         "tried": [
@@ -3040,6 +3298,10 @@
         "allow_star": [
           "/"
         ]
+      },
+      "discovery": {
+        "via": "sitemap",
+        "categories_crawled": []
       },
       "sitemap": {
         "tried": [
@@ -3235,6 +3497,10 @@
         "disallow_star": [],
         "allow_star": []
       },
+      "discovery": {
+        "via": "none",
+        "categories_crawled": []
+      },
       "sitemap": {
         "tried": [
           {
@@ -3294,6 +3560,10 @@
         "disallow_star": [],
         "allow_star": []
       },
+      "discovery": {
+        "via": "none",
+        "categories_crawled": []
+      },
       "sitemap": {
         "tried": [
           {
@@ -3352,6 +3622,10 @@
         "disallow_star": [],
         "allow_star": []
       },
+      "discovery": {
+        "via": "none",
+        "categories_crawled": []
+      },
       "sitemap": {
         "tried": [
           {
@@ -3409,6 +3683,10 @@
         "sitemaps": [],
         "disallow_star": [],
         "allow_star": []
+      },
+      "discovery": {
+        "via": "none",
+        "categories_crawled": []
       },
       "sitemap": {
         "tried": [
@@ -3533,6 +3811,19 @@
           "/includes/home/homeBodyContent"
         ]
       },
+      "discovery": {
+        "via": "crawl",
+        "categories_crawled": [
+          "https://www.walgreens.com/store/c/productlist/N=20000750/1/ShopAll=20000750",
+          "https://www.walgreens.com/findcare/category/inperson-visit",
+          "https://www.walgreens.com/store/catalog/shopLanding",
+          "https://www.walgreens.com/store/c/productlist/N=20001875/1/ShopAll=20001875",
+          "https://www.walgreens.com/store/c/productlist/N=20001182/1/ShopAll=20001182",
+          "https://www.walgreens.com/store/c/productlist/N=359438/1/ShopAll=359438",
+          "https://www.walgreens.com/store/c/productlist/N=359447/1/ShopAll=359447",
+          "https://www.walgreens.com/store/c/productlist/N=360533/1/ShopAll=360533"
+        ]
+      },
       "sitemap": {
         "tried": [
           {
@@ -3542,14 +3833,66 @@
           }
         ],
         "total_urls": 12,
-        "product_like_urls": 0
+        "product_like_urls": 87
       },
       "basket": {},
       "basket_coverage": 0,
-      "product_probes": [],
-      "verdict_class": "no_product_urls",
-      "structural_class": "unknown",
-      "evidence_url": null,
+      "product_probes": [
+        {
+          "url": "https://www.walgreens.com/store/c/contact-lenses/ID=350006-tier3contactlens",
+          "status": 200,
+          "bytes": 733158,
+          "class": "server_rendered",
+          "reason": "price present in raw HTML",
+          "signals": {
+            "jsonld_product": false,
+            "jsonld_price": false,
+            "microdata_price": false,
+            "meta_price": false,
+            "distinct_currency_strings": 15,
+            "embedded_state": false,
+            "api_paths": [],
+            "bytes": 733158
+          }
+        },
+        {
+          "url": "https://www.walgreens.com/store/c/solutions-drops-and-cases/ID=360305-tier3contactlens",
+          "status": 200,
+          "bytes": 686495,
+          "class": "server_rendered",
+          "reason": "price present in raw HTML",
+          "signals": {
+            "jsonld_product": false,
+            "jsonld_price": false,
+            "microdata_price": false,
+            "meta_price": false,
+            "distinct_currency_strings": 21,
+            "embedded_state": false,
+            "api_paths": [],
+            "bytes": 686495
+          }
+        },
+        {
+          "url": "https://www.walgreens.com/store/c/contact-lenses-eye-health-supplements/ID=360307-tier3contactlens",
+          "status": 200,
+          "bytes": 648955,
+          "class": "server_rendered",
+          "reason": "price present in raw HTML",
+          "signals": {
+            "jsonld_product": false,
+            "jsonld_price": false,
+            "microdata_price": false,
+            "meta_price": false,
+            "distinct_currency_strings": 22,
+            "embedded_state": false,
+            "api_paths": [],
+            "bytes": 648955
+          }
+        }
+      ],
+      "verdict_class": "server_rendered",
+      "structural_class": "bare-html",
+      "evidence_url": "https://www.walgreens.com/store/c/contact-lenses/ID=350006-tier3contactlens",
       "robots_allows_product": true
     },
     {
@@ -3572,6 +3915,10 @@
         "sitemaps": [],
         "disallow_star": [],
         "allow_star": []
+      },
+      "discovery": {
+        "via": "none",
+        "categories_crawled": []
       },
       "sitemap": {
         "tried": [
@@ -3641,6 +3988,10 @@
           "/autoreorders"
         ],
         "allow_star": []
+      },
+      "discovery": {
+        "via": "none",
+        "categories_crawled": []
       },
       "sitemap": {
         "tried": [
@@ -3728,6 +4079,10 @@
           "/terms/"
         ]
       },
+      "discovery": {
+        "via": "sitemap",
+        "categories_crawled": []
+      },
       "sitemap": {
         "tried": [
           {
@@ -3796,6 +4151,10 @@
         "sitemaps": [],
         "disallow_star": [],
         "allow_star": []
+      },
+      "discovery": {
+        "via": "none",
+        "categories_crawled": []
       },
       "sitemap": {
         "tried": [
@@ -3896,6 +4255,10 @@
         ],
         "allow_star": []
       },
+      "discovery": {
+        "via": "sitemap",
+        "categories_crawled": []
+      },
       "sitemap": {
         "tried": [
           {
@@ -3985,6 +4348,10 @@
         "disallow_star": [],
         "allow_star": []
       },
+      "discovery": {
+        "via": "none",
+        "categories_crawled": []
+      },
       "sitemap": {
         "tried": [
           {
@@ -4045,6 +4412,10 @@
         "allow_star": [
           "/"
         ]
+      },
+      "discovery": {
+        "via": "sitemap",
+        "categories_crawled": []
       },
       "sitemap": {
         "tried": [
@@ -4390,6 +4761,10 @@
           "/r/*?p=2$"
         ]
       },
+      "discovery": {
+        "via": "sitemap",
+        "categories_crawled": []
+      },
       "sitemap": {
         "tried": [
           {
@@ -4540,6 +4915,10 @@
           "/*/collections/*/products/*-[a-f0-9][a-f0-9][a-f0-9][a-f0-9][a-f0-9][a-f0-9][a-f0-9][a-f0-9]-remote"
         ],
         "allow_star": []
+      },
+      "discovery": {
+        "via": "sitemap",
+        "categories_crawled": []
       },
       "sitemap": {
         "tried": [
@@ -4791,6 +5170,10 @@
           "/*/collections/*/products/*-[a-f0-9][a-f0-9][a-f0-9][a-f0-9][a-f0-9][a-f0-9][a-f0-9][a-f0-9]-remote"
         ],
         "allow_star": []
+      },
+      "discovery": {
+        "via": "sitemap",
+        "categories_crawled": []
       },
       "sitemap": {
         "tried": [
@@ -5049,6 +5432,10 @@
         ],
         "allow_star": []
       },
+      "discovery": {
+        "via": "sitemap",
+        "categories_crawled": []
+      },
       "sitemap": {
         "tried": [
           {
@@ -5237,6 +5624,10 @@
           "/"
         ]
       },
+      "discovery": {
+        "via": "none",
+        "categories_crawled": []
+      },
       "sitemap": {
         "tried": [
           {
@@ -5307,6 +5698,10 @@
           "/*(?|&)filter"
         ],
         "allow_star": []
+      },
+      "discovery": {
+        "via": "sitemap",
+        "categories_crawled": []
       },
       "sitemap": {
         "tried": [
@@ -5561,6 +5956,10 @@
           "/*/account/login"
         ]
       },
+      "discovery": {
+        "via": "sitemap",
+        "categories_crawled": []
+      },
       "sitemap": {
         "tried": [
           {
@@ -5749,6 +6148,10 @@
           "/*.atom"
         ],
         "allow_star": []
+      },
+      "discovery": {
+        "via": "sitemap",
+        "categories_crawled": []
       },
       "sitemap": {
         "tried": [
@@ -5945,6 +6348,10 @@
           "/blog/wp-admin/admin-ajax.php"
         ]
       },
+      "discovery": {
+        "via": "sitemap",
+        "categories_crawled": []
+      },
       "sitemap": {
         "tried": [
           {
@@ -6074,6 +6481,10 @@
           "/dw/image*"
         ]
       },
+      "discovery": {
+        "via": "none",
+        "categories_crawled": []
+      },
       "sitemap": {
         "tried": [
           {
@@ -6136,6 +6547,10 @@
         "sitemaps": [],
         "disallow_star": [],
         "allow_star": []
+      },
+      "discovery": {
+        "via": "none",
+        "categories_crawled": []
       },
       "sitemap": {
         "tried": [
@@ -6367,6 +6782,12 @@
           "/myaccount/index.cfm"
         ]
       },
+      "discovery": {
+        "via": "crawl",
+        "categories_crawled": [
+          "https://www.webstaurantstore.com/categories.html"
+        ]
+      },
       "sitemap": {
         "tried": [
           {
@@ -6376,79 +6797,23 @@
           }
         ],
         "total_urls": 457,
-        "product_like_urls": 0
+        "product_like_urls": 104
       },
       "basket": {
-        "pasta": {
-          "count": 2,
-          "samples": [
-            "https://www.webstaurantstore.com/article/923/pasta-cooking-times.html",
-            "https://www.webstaurantstore.com/article/760/types-of-pasta-sauce.html"
-          ],
-          "sample": "https://www.webstaurantstore.com/article/923/pasta-cooking-times.html"
-        },
-        "milk": {
-          "count": 1,
-          "samples": [
-            "https://www.webstaurantstore.com/article/1051/types-of-milk.html"
-          ],
-          "sample": "https://www.webstaurantstore.com/article/1051/types-of-milk.html"
-        },
         "coffee": {
-          "count": 9,
-          "samples": [
-            "https://www.webstaurantstore.com/article/397/types-of-coffee-drinks.html",
-            "https://www.webstaurantstore.com/article/369/starting-a-coffee-shop.html",
-            "https://www.webstaurantstore.com/article/578/coffee-grind-chart.html"
-          ],
-          "sample": "https://www.webstaurantstore.com/article/397/types-of-coffee-drinks.html"
-        },
-        "bread": {
-          "count": 2,
-          "samples": [
-            "https://www.webstaurantstore.com/article/1086/bread-proofing-guide.html",
-            "https://www.webstaurantstore.com/article/801/bread-types.html"
-          ],
-          "sample": "https://www.webstaurantstore.com/article/1086/bread-proofing-guide.html"
-        },
-        "chicken": {
-          "count": 4,
-          "samples": [
-            "https://www.webstaurantstore.com/article/163/how-to-debone-a-chicken.html",
-            "https://www.webstaurantstore.com/article/1073/chicken-grilling-guide.html",
-            "https://www.webstaurantstore.com/article/917/chicken-temps.html"
-          ],
-          "sample": "https://www.webstaurantstore.com/article/163/how-to-debone-a-chicken.html"
-        },
-        "cooking_oil": {
           "count": 1,
           "samples": [
-            "https://www.webstaurantstore.com/article/800/cooking-oil-smoke-points.html"
+            "https://www.webstaurantstore.com/53/coffee-and-espresso.html"
           ],
-          "sample": "https://www.webstaurantstore.com/article/800/cooking-oil-smoke-points.html"
-        },
-        "eggs": {
-          "count": 2,
-          "samples": [
-            "https://www.webstaurantstore.com/article/824/egg-safety.html",
-            "https://www.webstaurantstore.com/article/1106/how-to-use-an-egg-poacher.html"
-          ],
-          "sample": "https://www.webstaurantstore.com/article/824/egg-safety.html"
-        },
-        "rice": {
-          "count": 1,
-          "samples": [
-            "https://www.webstaurantstore.com/article/277/how-to-use-a-rice-cooker.html"
-          ],
-          "sample": "https://www.webstaurantstore.com/article/277/how-to-use-a-rice-cooker.html"
+          "sample": "https://www.webstaurantstore.com/53/coffee-and-espresso.html"
         }
       },
-      "basket_coverage": 8,
+      "basket_coverage": 1,
       "product_probes": [
         {
-          "url": "https://www.webstaurantstore.com/article/923/pasta-cooking-times.html",
+          "url": "https://www.webstaurantstore.com/53/coffee-and-espresso.html",
           "status": 200,
-          "bytes": 215632,
+          "bytes": 588384,
           "class": "server_rendered",
           "reason": "price present in raw HTML",
           "signals": {
@@ -6456,37 +6821,50 @@
             "jsonld_price": true,
             "microdata_price": false,
             "meta_price": false,
-            "distinct_currency_strings": 0,
+            "distinct_currency_strings": 20,
             "embedded_state": false,
-            "api_paths": [
-              "/api/subscribetoallemails/"
-            ],
-            "bytes": 215632
+            "api_paths": [],
+            "bytes": 588384
           }
         },
         {
-          "url": "https://www.webstaurantstore.com/article/1051/types-of-milk.html",
+          "url": "https://www.webstaurantstore.com/acopa-gardenia-11-oz-rocks-old-fashioned-glass-case/5535011G.html",
           "status": 200,
-          "bytes": 243891,
+          "bytes": 465112,
           "class": "server_rendered",
           "reason": "price present in raw HTML",
           "signals": {
-            "jsonld_product": false,
+            "jsonld_product": true,
             "jsonld_price": true,
             "microdata_price": false,
-            "meta_price": false,
-            "distinct_currency_strings": 0,
+            "meta_price": true,
+            "distinct_currency_strings": 7,
             "embedded_state": false,
-            "api_paths": [
-              "/api/subscribetoallemails/"
-            ],
-            "bytes": 243891
+            "api_paths": [],
+            "bytes": 465112
+          }
+        },
+        {
+          "url": "https://www.webstaurantstore.com/visions-12-oz-clear-plastic-pilsner-glass-case/347SLBG12.html",
+          "status": 200,
+          "bytes": 298024,
+          "class": "server_rendered",
+          "reason": "price present in raw HTML",
+          "signals": {
+            "jsonld_product": true,
+            "jsonld_price": true,
+            "microdata_price": false,
+            "meta_price": true,
+            "distinct_currency_strings": 5,
+            "embedded_state": false,
+            "api_paths": [],
+            "bytes": 298024
           }
         }
       ],
       "verdict_class": "server_rendered",
       "structural_class": "json-ld",
-      "evidence_url": "https://www.webstaurantstore.com/article/923/pasta-cooking-times.html",
+      "evidence_url": "https://www.webstaurantstore.com/53/coffee-and-espresso.html",
       "robots_allows_product": true
     },
     {
@@ -6522,6 +6900,10 @@
           "/espiar/*"
         ],
         "allow_star": []
+      },
+      "discovery": {
+        "via": "sitemap",
+        "categories_crawled": []
       },
       "sitemap": {
         "tried": [
@@ -6708,6 +7090,10 @@
         ],
         "allow_star": []
       },
+      "discovery": {
+        "via": "sitemap",
+        "categories_crawled": []
+      },
       "sitemap": {
         "tried": [
           {
@@ -6754,6 +7140,10 @@
           "/rewards/"
         ],
         "allow_star": []
+      },
+      "discovery": {
+        "via": "sitemap",
+        "categories_crawled": []
       },
       "sitemap": {
         "tried": [
@@ -6915,6 +7305,10 @@
         "disallow_star": [],
         "allow_star": []
       },
+      "discovery": {
+        "via": "sitemap",
+        "categories_crawled": []
+      },
       "sitemap": {
         "tried": [
           {
@@ -6960,6 +7354,10 @@
         "allow_star": [
           "/"
         ]
+      },
+      "discovery": {
+        "via": "sitemap",
+        "categories_crawled": []
       },
       "sitemap": {
         "tried": [
@@ -7079,6 +7477,10 @@
           "/"
         ]
       },
+      "discovery": {
+        "via": "sitemap",
+        "categories_crawled": []
+      },
       "sitemap": {
         "tried": [
           {
@@ -7126,6 +7528,10 @@
         "sitemaps": [],
         "disallow_star": [],
         "allow_star": []
+      },
+      "discovery": {
+        "via": "none",
+        "categories_crawled": []
       },
       "sitemap": {
         "tried": [
@@ -7192,6 +7598,10 @@
         "allow_star": [
           "/"
         ]
+      },
+      "discovery": {
+        "via": "sitemap",
+        "categories_crawled": []
       },
       "sitemap": {
         "tried": [
@@ -7409,6 +7819,10 @@
         ],
         "allow_star": []
       },
+      "discovery": {
+        "via": "sitemap",
+        "categories_crawled": []
+      },
       "sitemap": {
         "tried": [
           {
@@ -7621,6 +8035,10 @@
         ],
         "allow_star": []
       },
+      "discovery": {
+        "via": "sitemap",
+        "categories_crawled": []
+      },
       "sitemap": {
         "tried": [
           {
@@ -7649,15 +8067,35 @@
             "bytes": 6603
           }
         ],
-        "total_urls": 0,
-        "product_like_urls": 0
+        "total_urls": 1,
+        "product_like_urls": 1
       },
       "basket": {},
       "basket_coverage": 0,
-      "product_probes": [],
-      "verdict_class": "no_product_urls",
+      "product_probes": [
+        {
+          "url": "https://www.robinsonssupermarket.com.ph/news-press/order-your-robinsons-supermarket-groceries-online",
+          "status": 200,
+          "bytes": 33553,
+          "class": "spa_empty",
+          "reason": "200 but no price in raw HTML",
+          "signals": {
+            "jsonld_product": false,
+            "jsonld_price": false,
+            "microdata_price": false,
+            "meta_price": false,
+            "distinct_currency_strings": 0,
+            "embedded_state": false,
+            "api_paths": [
+              "/api/christmas-catalog/campaign"
+            ],
+            "bytes": 33553
+          }
+        }
+      ],
+      "verdict_class": "spa_empty",
       "structural_class": "unknown",
-      "evidence_url": null,
+      "evidence_url": "https://www.robinsonssupermarket.com.ph/news-press/order-your-robinsons-supermarket-groceries-online",
       "robots_allows_product": true
     },
     {
@@ -7697,6 +8135,10 @@
         ],
         "allow_star": []
       },
+      "discovery": {
+        "via": "sitemap",
+        "categories_crawled": []
+      },
       "sitemap": {
         "tried": [
           {
@@ -7720,15 +8162,67 @@
             "bytes": 282
           }
         ],
-        "total_urls": 0,
-        "product_like_urls": 0
+        "total_urls": 22,
+        "product_like_urls": 22
       },
       "basket": {},
       "basket_coverage": 0,
-      "product_probes": [],
-      "verdict_class": "no_product_urls",
+      "product_probes": [
+        {
+          "url": "https://www.puregold.com.ph/index.php/corporate/share-information/top-100-stockholders",
+          "status": 200,
+          "bytes": 51555,
+          "class": "spa_empty",
+          "reason": "200 but no price in raw HTML",
+          "signals": {
+            "jsonld_product": false,
+            "jsonld_price": false,
+            "microdata_price": false,
+            "meta_price": false,
+            "distinct_currency_strings": 0,
+            "embedded_state": false,
+            "api_paths": [],
+            "bytes": 51555
+          }
+        },
+        {
+          "url": "https://www.puregold.com.ph/index.php/news-room/official-statement-november-29-2018",
+          "status": 200,
+          "bytes": 39221,
+          "class": "spa_empty",
+          "reason": "200 but no price in raw HTML",
+          "signals": {
+            "jsonld_product": false,
+            "jsonld_price": false,
+            "microdata_price": false,
+            "meta_price": false,
+            "distinct_currency_strings": 0,
+            "embedded_state": false,
+            "api_paths": [],
+            "bytes": 39221
+          }
+        },
+        {
+          "url": "https://www.puregold.com.ph/index.php/corporate/iacgr/integrated-annual-corporate-governance-report",
+          "status": 200,
+          "bytes": 40620,
+          "class": "spa_empty",
+          "reason": "200 but no price in raw HTML",
+          "signals": {
+            "jsonld_product": false,
+            "jsonld_price": false,
+            "microdata_price": false,
+            "meta_price": false,
+            "distinct_currency_strings": 0,
+            "embedded_state": false,
+            "api_paths": [],
+            "bytes": 40620
+          }
+        }
+      ],
+      "verdict_class": "spa_empty",
       "structural_class": "unknown",
-      "evidence_url": null,
+      "evidence_url": "https://www.puregold.com.ph/index.php/corporate/share-information/top-100-stockholders",
       "robots_allows_product": true
     },
     {
@@ -7753,6 +8247,10 @@
           "/"
         ],
         "allow_star": []
+      },
+      "discovery": {
+        "via": "none",
+        "categories_crawled": []
       },
       "sitemap": {
         "tried": [
@@ -7808,6 +8306,10 @@
         "sitemaps": [],
         "disallow_star": [],
         "allow_star": []
+      },
+      "discovery": {
+        "via": "none",
+        "categories_crawled": []
       },
       "sitemap": {
         "tried": [
@@ -7873,6 +8375,10 @@
         "allow_star": [
           "/wp-admin/admin-ajax.php"
         ]
+      },
+      "discovery": {
+        "via": "sitemap",
+        "categories_crawled": []
       },
       "sitemap": {
         "tried": [
@@ -7992,6 +8498,19 @@
         "disallow_star": [],
         "allow_star": []
       },
+      "discovery": {
+        "via": "crawl",
+        "categories_crawled": [
+          "https://www.snrshopping.com/category/express-deliveries/groceries-1/beverages-1",
+          "https://www.snrshopping.com/category/express-deliveries/groceries-1/beverages-1/coffee-tea-sweeteners-1",
+          "https://www.snrshopping.com/category/express-deliveries/groceries-1/beverages-1/juice-smoothies-1",
+          "https://www.snrshopping.com/category/express-deliveries/groceries-1/beverages-1/milk-products-1",
+          "https://www.snrshopping.com/category/express-deliveries/groceries-1/beverages-1/carbonated-drinks-1",
+          "https://www.snrshopping.com/category/express-deliveries/groceries-1/beverages-1/water-other-beverages-1",
+          "https://www.snrshopping.com/category/express-deliveries/groceries-1/bread-bakery-1",
+          "https://www.snrshopping.com/category/express-deliveries/groceries-1/bread-bakery-1/bakery-items-1"
+        ]
+      },
       "sitemap": {
         "tried": [
           {
@@ -8015,15 +8534,67 @@
             "bytes": 1905
           }
         ],
-        "total_urls": 0,
-        "product_like_urls": 0
+        "total_urls": 12,
+        "product_like_urls": 12
       },
       "basket": {},
       "basket_coverage": 0,
-      "product_probes": [],
-      "verdict_class": "no_product_urls",
-      "structural_class": "unknown",
-      "evidence_url": null,
+      "product_probes": [
+        {
+          "url": "https://www.snrshopping.com/product/new-arrival/wolf-blass-bilyara-shiraz-2022-750ml",
+          "status": 200,
+          "bytes": 434938,
+          "class": "server_rendered",
+          "reason": "price present in raw HTML",
+          "signals": {
+            "jsonld_product": false,
+            "jsonld_price": true,
+            "microdata_price": false,
+            "meta_price": false,
+            "distinct_currency_strings": 0,
+            "embedded_state": false,
+            "api_paths": [],
+            "bytes": 434938
+          }
+        },
+        {
+          "url": "https://www.snrshopping.com/product/new-arrival/johnsons-baby-original-shampoo-750ml",
+          "status": 200,
+          "bytes": 431050,
+          "class": "server_rendered",
+          "reason": "price present in raw HTML",
+          "signals": {
+            "jsonld_product": false,
+            "jsonld_price": true,
+            "microdata_price": false,
+            "meta_price": false,
+            "distinct_currency_strings": 0,
+            "embedded_state": false,
+            "api_paths": [],
+            "bytes": 431050
+          }
+        },
+        {
+          "url": "https://www.snrshopping.com/product/new-arrival/hbaf-baked-corn-almond-190g",
+          "status": 200,
+          "bytes": 434262,
+          "class": "server_rendered",
+          "reason": "price present in raw HTML",
+          "signals": {
+            "jsonld_product": false,
+            "jsonld_price": true,
+            "microdata_price": false,
+            "meta_price": false,
+            "distinct_currency_strings": 0,
+            "embedded_state": false,
+            "api_paths": [],
+            "bytes": 434262
+          }
+        }
+      ],
+      "verdict_class": "server_rendered",
+      "structural_class": "json-ld",
+      "evidence_url": "https://www.snrshopping.com/product/new-arrival/wolf-blass-bilyara-shiraz-2022-750ml",
       "robots_allows_product": true
     },
     {
@@ -8050,6 +8621,10 @@
         "allow_star": [
           "/"
         ]
+      },
+      "discovery": {
+        "via": "sitemap",
+        "categories_crawled": []
       },
       "sitemap": {
         "tried": [
@@ -8093,6 +8668,10 @@
         "disallow_star": [],
         "allow_star": []
       },
+      "discovery": {
+        "via": "sitemap",
+        "categories_crawled": []
+      },
       "sitemap": {
         "tried": [
           {
@@ -8134,6 +8713,10 @@
         "sitemaps": [],
         "disallow_star": [],
         "allow_star": []
+      },
+      "discovery": {
+        "via": "sitemap",
+        "categories_crawled": []
       },
       "sitemap": {
         "tried": [
@@ -8201,6 +8784,10 @@
         "disallow_star": [],
         "allow_star": []
       },
+      "discovery": {
+        "via": "none",
+        "categories_crawled": []
+      },
       "sitemap": {
         "tried": [
           {
@@ -8264,6 +8851,19 @@
         ],
         "allow_star": []
       },
+      "discovery": {
+        "via": "crawl",
+        "categories_crawled": [
+          "https://www.pickaroo.com/shops/brands/gadgets-electronics/",
+          "https://www.pickaroo.com/shops/brands/hardware/",
+          "https://www.pickaroo.com/shops/brands/lifestyle-variety-store/",
+          "https://www.pickaroo.com/shops/brands/pet-care/",
+          "https://www.pickaroo.com/shops/brands/flowers-plants/",
+          "https://www.pickaroo.com/shops/brands/self-care-wellness/",
+          "https://www.pickaroo.com/shops/brands/fashion-and-apparel/",
+          "https://www.pickaroo.com/shops/brands/stay-safe-with-roo/"
+        ]
+      },
       "sitemap": {
         "tried": [
           {
@@ -8287,15 +8887,67 @@
             "bytes": 937
           }
         ],
-        "total_urls": 0,
-        "product_like_urls": 0
+        "total_urls": 8,
+        "product_like_urls": 8
       },
       "basket": {},
       "basket_coverage": 0,
-      "product_probes": [],
-      "verdict_class": "no_product_urls",
+      "product_probes": [
+        {
+          "url": "https://www.pickaroo.com/robinsons/products/robinsons-supermarket-b-hive-mall-valenzuela",
+          "status": 200,
+          "bytes": 689801,
+          "class": "spa_empty",
+          "reason": "200 but no price in raw HTML",
+          "signals": {
+            "jsonld_product": false,
+            "jsonld_price": false,
+            "microdata_price": false,
+            "meta_price": false,
+            "distinct_currency_strings": 0,
+            "embedded_state": false,
+            "api_paths": [],
+            "bytes": 689801
+          }
+        },
+        {
+          "url": "https://www.pickaroo.com/the-marketplace/products/the-marketplace-venice-grand-mckinley-2",
+          "status": 200,
+          "bytes": 861437,
+          "class": "spa_empty",
+          "reason": "200 but no price in raw HTML",
+          "signals": {
+            "jsonld_product": false,
+            "jsonld_price": false,
+            "microdata_price": false,
+            "meta_price": false,
+            "distinct_currency_strings": 0,
+            "embedded_state": false,
+            "api_paths": [],
+            "bytes": 861437
+          }
+        },
+        {
+          "url": "https://www.pickaroo.com/sr/products/sr-paranaque",
+          "status": 200,
+          "bytes": 826842,
+          "class": "spa_empty",
+          "reason": "200 but no price in raw HTML",
+          "signals": {
+            "jsonld_product": false,
+            "jsonld_price": false,
+            "microdata_price": false,
+            "meta_price": false,
+            "distinct_currency_strings": 0,
+            "embedded_state": false,
+            "api_paths": [],
+            "bytes": 826842
+          }
+        }
+      ],
+      "verdict_class": "spa_empty",
       "structural_class": "unknown",
-      "evidence_url": null,
+      "evidence_url": "https://www.pickaroo.com/robinsons/products/robinsons-supermarket-b-hive-mall-valenzuela",
       "robots_allows_product": true
     },
     {
@@ -8318,6 +8970,10 @@
         "sitemaps": [],
         "disallow_star": [],
         "allow_star": []
+      },
+      "discovery": {
+        "via": "none",
+        "categories_crawled": []
       },
       "sitemap": {
         "tried": [
@@ -8379,6 +9035,10 @@
         "allow_star": [
           "/wp-admin/admin-ajax.php"
         ]
+      },
+      "discovery": {
+        "via": "sitemap",
+        "categories_crawled": []
       },
       "sitemap": {
         "tried": [
@@ -8500,6 +9160,10 @@
           "/"
         ]
       },
+      "discovery": {
+        "via": "sitemap",
+        "categories_crawled": []
+      },
       "sitemap": {
         "tried": [
           {
@@ -8544,6 +9208,10 @@
         "allow_star": [
           "/"
         ]
+      },
+      "discovery": {
+        "via": "sitemap",
+        "categories_crawled": []
       },
       "sitemap": {
         "tried": [
@@ -8614,6 +9282,19 @@
         ],
         "allow_star": []
       },
+      "discovery": {
+        "via": "crawl",
+        "categories_crawled": [
+          "https://www.lazada.com.ph/shop-baking-tools-accessories/wilton/",
+          "https://www.lazada.com.ph/shop-beverages/nestle/",
+          "https://www.lazada.com.ph/shop-coffee/nescafe/",
+          "https://www.lazada.com.ph/shop-beverages/nestea/",
+          "https://www.lazada.com.ph/shop-tea/healthy-tropics/",
+          "https://www.lazada.com.ph/shop/nike",
+          "https://www.lazada.com.ph/shop/moose-gear",
+          "https://www.lazada.com.ph/shop/samsung-home-appliance"
+        ]
+      },
       "sitemap": {
         "tried": [
           {
@@ -8661,15 +9342,67 @@
             "bytes": 78049
           }
         ],
-        "total_urls": 0,
-        "product_like_urls": 0
+        "total_urls": 10,
+        "product_like_urls": 10
       },
       "basket": {},
       "basket_coverage": 0,
-      "product_probes": [],
-      "verdict_class": "no_product_urls",
+      "product_probes": [
+        {
+          "url": "https://www.lazada.com.ph/products/pdp-i214964794-s278754803.html",
+          "status": 200,
+          "bytes": 247571,
+          "class": "spa_empty",
+          "reason": "200 but no price in raw HTML",
+          "signals": {
+            "jsonld_product": true,
+            "jsonld_price": false,
+            "microdata_price": false,
+            "meta_price": false,
+            "distinct_currency_strings": 2,
+            "embedded_state": false,
+            "api_paths": [],
+            "bytes": 247571
+          }
+        },
+        {
+          "url": "https://www.lazada.com.ph/products/pdp-i224634737-s8695627819.html",
+          "status": 200,
+          "bytes": 290045,
+          "class": "spa_empty",
+          "reason": "200 but no price in raw HTML",
+          "signals": {
+            "jsonld_product": true,
+            "jsonld_price": false,
+            "microdata_price": false,
+            "meta_price": false,
+            "distinct_currency_strings": 2,
+            "embedded_state": false,
+            "api_paths": [],
+            "bytes": 290045
+          }
+        },
+        {
+          "url": "https://www.lazada.com.ph/products/pdp-i261356391-s360394758.html",
+          "status": 200,
+          "bytes": 252499,
+          "class": "spa_empty",
+          "reason": "200 but no price in raw HTML",
+          "signals": {
+            "jsonld_product": true,
+            "jsonld_price": false,
+            "microdata_price": false,
+            "meta_price": false,
+            "distinct_currency_strings": 2,
+            "embedded_state": false,
+            "api_paths": [],
+            "bytes": 252499
+          }
+        }
+      ],
+      "verdict_class": "spa_empty",
       "structural_class": "unknown",
-      "evidence_url": null,
+      "evidence_url": "https://www.lazada.com.ph/products/pdp-i214964794-s278754803.html",
       "robots_allows_product": true
     },
     {
@@ -8709,6 +9442,10 @@
           "/index.html"
         ],
         "allow_star": []
+      },
+      "discovery": {
+        "via": "none",
+        "categories_crawled": []
       },
       "sitemap": {
         "tried": [
@@ -8766,6 +9503,10 @@
         "sitemaps": [],
         "disallow_star": [],
         "allow_star": []
+      },
+      "discovery": {
+        "via": "none",
+        "categories_crawled": []
       },
       "sitemap": {
         "tried": [
@@ -8875,6 +9616,10 @@
           "/collections/over-the-counter/*"
         ],
         "allow_star": []
+      },
+      "discovery": {
+        "via": "sitemap",
+        "categories_crawled": []
       },
       "sitemap": {
         "tried": [
@@ -9036,6 +9781,10 @@
         ],
         "allow_star": []
       },
+      "discovery": {
+        "via": "sitemap",
+        "categories_crawled": []
+      },
       "sitemap": {
         "tried": [
           {
@@ -9059,15 +9808,67 @@
             "bytes": 301
           }
         ],
-        "total_urls": 0,
-        "product_like_urls": 0
+        "total_urls": 3,
+        "product_like_urls": 3
       },
       "basket": {},
       "basket_coverage": 0,
-      "product_probes": [],
-      "verdict_class": "no_product_urls",
+      "product_probes": [
+        {
+          "url": "https://www.mercurydrug.com/tfgh/Essential Post Run Recovery Tips.html",
+          "status": 200,
+          "bytes": 31306,
+          "class": "spa_empty",
+          "reason": "200 but no price in raw HTML",
+          "signals": {
+            "jsonld_product": false,
+            "jsonld_price": false,
+            "microdata_price": false,
+            "meta_price": false,
+            "distinct_currency_strings": 0,
+            "embedded_state": false,
+            "api_paths": [],
+            "bytes": 31306
+          }
+        },
+        {
+          "url": "https://www.mercurydrug.com/tfgh/From Zero to Runner.html",
+          "status": 200,
+          "bytes": 30536,
+          "class": "spa_empty",
+          "reason": "200 but no price in raw HTML",
+          "signals": {
+            "jsonld_product": false,
+            "jsonld_price": false,
+            "microdata_price": false,
+            "meta_price": false,
+            "distinct_currency_strings": 0,
+            "embedded_state": false,
+            "api_paths": [],
+            "bytes": 30536
+          }
+        },
+        {
+          "url": "https://www.mercurydrug.com/tfgh/Stay Safe on the Run.html",
+          "status": 200,
+          "bytes": 29113,
+          "class": "spa_empty",
+          "reason": "200 but no price in raw HTML",
+          "signals": {
+            "jsonld_product": false,
+            "jsonld_price": false,
+            "microdata_price": false,
+            "meta_price": false,
+            "distinct_currency_strings": 0,
+            "embedded_state": false,
+            "api_paths": [],
+            "bytes": 29113
+          }
+        }
+      ],
+      "verdict_class": "spa_empty",
       "structural_class": "unknown",
-      "evidence_url": null,
+      "evidence_url": "https://www.mercurydrug.com/tfgh/Essential Post Run Recovery Tips.html",
       "robots_allows_product": true
     },
     {
@@ -9095,6 +9896,10 @@
         "allow_star": [
           "/"
         ]
+      },
+      "discovery": {
+        "via": "sitemap",
+        "categories_crawled": []
       },
       "sitemap": {
         "tried": [
@@ -9262,6 +10067,18 @@
           "/wp-admin/admin-ajax.php"
         ]
       },
+      "discovery": {
+        "via": "crawl",
+        "categories_crawled": [
+          "https://tgp.com.ph/wp-content/plugins/category-widget-limiter/assets/frontend.css",
+          "https://tgp.com.ph/wp-content/themes/porto/css/part/shop-legacy.css",
+          "https://tgp.com.ph/wp-content/themes/porto/css/theme/shop/other/pw-brand-filter.css",
+          "https://tgp.com.ph/wp-content/themes/porto/css/theme/shop/login-style/account-login.css",
+          "https://tgp.com.ph/wp-content/themes/porto/css/theme/shop/other/woopage.css",
+          "https://tgp.com.ph/shop/",
+          "https://tgp.com.ph/category/press/"
+        ]
+      },
       "sitemap": {
         "tried": [
           {
@@ -9285,15 +10102,75 @@
             "bytes": 277238
           }
         ],
-        "total_urls": 0,
-        "product_like_urls": 0
+        "total_urls": 211,
+        "product_like_urls": 211
       },
-      "basket": {},
-      "basket_coverage": 0,
-      "product_probes": [],
-      "verdict_class": "no_product_urls",
-      "structural_class": "unknown",
-      "evidence_url": null,
+      "basket": {
+        "sugar": {
+          "count": 1,
+          "samples": [
+            "https://tgp.com.ph/product/difflam-benzydamine-hcl-3mg-sugar-free-mint-8-lozenges/"
+          ],
+          "sample": "https://tgp.com.ph/product/difflam-benzydamine-hcl-3mg-sugar-free-mint-8-lozenges/"
+        }
+      },
+      "basket_coverage": 1,
+      "product_probes": [
+        {
+          "url": "https://tgp.com.ph/product/difflam-benzydamine-hcl-3mg-sugar-free-mint-8-lozenges/",
+          "status": 200,
+          "bytes": 399201,
+          "class": "server_rendered",
+          "reason": "price present in raw HTML",
+          "signals": {
+            "jsonld_product": true,
+            "jsonld_price": true,
+            "microdata_price": false,
+            "meta_price": false,
+            "distinct_currency_strings": 0,
+            "embedded_state": false,
+            "api_paths": [],
+            "bytes": 399201
+          }
+        },
+        {
+          "url": "https://tgp.com.ph/product/fludex-paracetamol-phenylpropanolamine-chlorphenamine-tablet-325mg-25mg-2mg-100pcs/",
+          "status": 200,
+          "bytes": 399897,
+          "class": "server_rendered",
+          "reason": "price present in raw HTML",
+          "signals": {
+            "jsonld_product": true,
+            "jsonld_price": true,
+            "microdata_price": false,
+            "meta_price": false,
+            "distinct_currency_strings": 0,
+            "embedded_state": false,
+            "api_paths": [],
+            "bytes": 399897
+          }
+        },
+        {
+          "url": "https://tgp.com.ph/product/tru-e-vitamin-e-capsule-400-iu-100pcs/",
+          "status": 200,
+          "bytes": 395906,
+          "class": "server_rendered",
+          "reason": "price present in raw HTML",
+          "signals": {
+            "jsonld_product": true,
+            "jsonld_price": true,
+            "microdata_price": false,
+            "meta_price": false,
+            "distinct_currency_strings": 0,
+            "embedded_state": false,
+            "api_paths": [],
+            "bytes": 395906
+          }
+        }
+      ],
+      "verdict_class": "server_rendered",
+      "structural_class": "json-ld",
+      "evidence_url": "https://tgp.com.ph/product/difflam-benzydamine-hcl-3mg-sugar-free-mint-8-lozenges/",
       "robots_allows_product": true
     },
     {
@@ -9316,6 +10193,10 @@
         "sitemaps": [],
         "disallow_star": [],
         "allow_star": []
+      },
+      "discovery": {
+        "via": "none",
+        "categories_crawled": []
       },
       "sitemap": {
         "tried": [
@@ -9371,6 +10252,10 @@
         "sitemaps": [],
         "disallow_star": [],
         "allow_star": []
+      },
+      "discovery": {
+        "via": "none",
+        "categories_crawled": []
       },
       "sitemap": {
         "tried": [
@@ -9430,6 +10315,10 @@
           "/author/"
         ],
         "allow_star": []
+      },
+      "discovery": {
+        "via": "sitemap",
+        "categories_crawled": []
       },
       "sitemap": {
         "tried": [
@@ -9611,6 +10500,10 @@
           "/"
         ]
       },
+      "discovery": {
+        "via": "sitemap",
+        "categories_crawled": []
+      },
       "sitemap": {
         "tried": [
           {
@@ -9670,6 +10563,10 @@
         ],
         "allow_star": []
       },
+      "discovery": {
+        "via": "sitemap",
+        "categories_crawled": []
+      },
       "sitemap": {
         "tried": [
           {
@@ -9679,14 +10576,32 @@
           }
         ],
         "total_urls": 24,
-        "product_like_urls": 0
+        "product_like_urls": 1
       },
       "basket": {},
       "basket_coverage": 0,
-      "product_probes": [],
-      "verdict_class": "no_product_urls",
+      "product_probes": [
+        {
+          "url": "https://www.doe.gov.ph/_nuxt/manifest.2e923986.json",
+          "status": 200,
+          "bytes": 1238,
+          "class": "spa_empty",
+          "reason": "200 but no price in raw HTML",
+          "signals": {
+            "jsonld_product": false,
+            "jsonld_price": false,
+            "microdata_price": false,
+            "meta_price": false,
+            "distinct_currency_strings": 0,
+            "embedded_state": false,
+            "api_paths": [],
+            "bytes": 1238
+          }
+        }
+      ],
+      "verdict_class": "spa_empty",
       "structural_class": "unknown",
-      "evidence_url": null,
+      "evidence_url": "https://www.doe.gov.ph/_nuxt/manifest.2e923986.json",
       "robots_allows_product": true
     },
     {
@@ -9713,6 +10628,10 @@
         "sitemaps": [],
         "disallow_star": [],
         "allow_star": []
+      },
+      "discovery": {
+        "via": "none",
+        "categories_crawled": []
       },
       "sitemap": {
         "tried": [
@@ -9771,6 +10690,10 @@
         "disallow_star": [],
         "allow_star": []
       },
+      "discovery": {
+        "via": "none",
+        "categories_crawled": []
+      },
       "sitemap": {
         "tried": [
           {
@@ -9825,6 +10748,10 @@
         "sitemaps": [],
         "disallow_star": [],
         "allow_star": []
+      },
+      "discovery": {
+        "via": "none",
+        "categories_crawled": []
       },
       "sitemap": {
         "tried": [
@@ -9889,6 +10816,10 @@
         "allow_star": [
           "/"
         ]
+      },
+      "discovery": {
+        "via": "sitemap",
+        "categories_crawled": []
       },
       "sitemap": {
         "tried": [
@@ -10104,6 +11035,10 @@
           "/reports/upcoming.php"
         ]
       },
+      "discovery": {
+        "via": "sitemap",
+        "categories_crawled": []
+      },
       "sitemap": {
         "tried": [
           {
@@ -10182,6 +11117,10 @@
         "disallow_star": [],
         "allow_star": []
       },
+      "discovery": {
+        "via": "none",
+        "categories_crawled": []
+      },
       "sitemap": {
         "tried": [
           {
@@ -10239,6 +11178,10 @@
         "disallow_star": [],
         "allow_star": []
       },
+      "discovery": {
+        "via": "sitemap",
+        "categories_crawled": []
+      },
       "sitemap": {
         "tried": [
           {
@@ -10262,15 +11205,67 @@
             "bytes": 215883
           }
         ],
-        "total_urls": 0,
-        "product_like_urls": 0
+        "total_urls": 15,
+        "product_like_urls": 15
       },
       "basket": {},
       "basket_coverage": 0,
-      "product_probes": [],
-      "verdict_class": "no_product_urls",
+      "product_probes": [
+        {
+          "url": "https://company.meralco.com.ph/news-and-advisories/1h-2024-operational-highlights",
+          "status": 200,
+          "bytes": 197884,
+          "class": "spa_empty",
+          "reason": "200 but no price in raw HTML",
+          "signals": {
+            "jsonld_product": false,
+            "jsonld_price": false,
+            "microdata_price": false,
+            "meta_price": false,
+            "distinct_currency_strings": 0,
+            "embedded_state": false,
+            "api_paths": [],
+            "bytes": 197884
+          }
+        },
+        {
+          "url": "https://company.meralco.com.ph/news-and-advisories/lower-rates-august-2026",
+          "status": 200,
+          "bytes": 217360,
+          "class": "spa_empty",
+          "reason": "200 but no price in raw HTML",
+          "signals": {
+            "jsonld_product": false,
+            "jsonld_price": false,
+            "microdata_price": false,
+            "meta_price": false,
+            "distinct_currency_strings": 0,
+            "embedded_state": false,
+            "api_paths": [],
+            "bytes": 217360
+          }
+        },
+        {
+          "url": "https://company.meralco.com.ph/news-and-advisories/supply-chain-management-invitations-bid",
+          "status": 200,
+          "bytes": 211623,
+          "class": "spa_empty",
+          "reason": "200 but no price in raw HTML",
+          "signals": {
+            "jsonld_product": false,
+            "jsonld_price": false,
+            "microdata_price": false,
+            "meta_price": false,
+            "distinct_currency_strings": 0,
+            "embedded_state": false,
+            "api_paths": [],
+            "bytes": 211623
+          }
+        }
+      ],
+      "verdict_class": "spa_empty",
       "structural_class": "unknown",
-      "evidence_url": null,
+      "evidence_url": "https://company.meralco.com.ph/news-and-advisories/1h-2024-operational-highlights",
       "robots_allows_product": true
     },
     {
@@ -10363,6 +11358,10 @@
           "/account/login",
           "/*/account/login"
         ]
+      },
+      "discovery": {
+        "via": "sitemap",
+        "categories_crawled": []
       },
       "sitemap": {
         "tried": [
@@ -10480,6 +11479,12 @@
         "disallow_star": [],
         "allow_star": []
       },
+      "discovery": {
+        "via": "none",
+        "categories_crawled": [
+          "https://www.landmark.ph/categories"
+        ]
+      },
       "sitemap": {
         "tried": [
           {
@@ -10542,6 +11547,10 @@
           "/wp-admin/admin-ajax.php"
         ]
       },
+      "discovery": {
+        "via": "sitemap",
+        "categories_crawled": []
+      },
       "sitemap": {
         "tried": [
           {
@@ -10575,15 +11584,33 @@
             "bytes": 839
           }
         ],
-        "total_urls": 0,
-        "product_like_urls": 0
+        "total_urls": 1,
+        "product_like_urls": 1
       },
       "basket": {},
       "basket_coverage": 0,
-      "product_probes": [],
-      "verdict_class": "no_product_urls",
+      "product_probes": [
+        {
+          "url": "https://www.generika.com.ph/product-and-services/",
+          "status": 200,
+          "bytes": 246798,
+          "class": "spa_empty",
+          "reason": "200 but no price in raw HTML",
+          "signals": {
+            "jsonld_product": false,
+            "jsonld_price": false,
+            "microdata_price": false,
+            "meta_price": false,
+            "distinct_currency_strings": 0,
+            "embedded_state": false,
+            "api_paths": [],
+            "bytes": 246798
+          }
+        }
+      ],
+      "verdict_class": "spa_empty",
       "structural_class": "unknown",
-      "evidence_url": null,
+      "evidence_url": "https://www.generika.com.ph/product-and-services/",
       "robots_allows_product": true
     },
     {
@@ -10606,6 +11633,10 @@
         "sitemaps": [],
         "disallow_star": [],
         "allow_star": []
+      },
+      "discovery": {
+        "via": "sitemap",
+        "categories_crawled": []
       },
       "sitemap": {
         "tried": [
@@ -10630,15 +11661,33 @@
             "bytes": 1245
           }
         ],
-        "total_urls": 0,
-        "product_like_urls": 0
+        "total_urls": 1,
+        "product_like_urls": 1
       },
       "basket": {},
       "basket_coverage": 0,
-      "product_probes": [],
-      "verdict_class": "no_product_urls",
+      "product_probes": [
+        {
+          "url": "https://www.medexpress.com.ph/about-us/terms-and-conditions",
+          "status": 200,
+          "bytes": 24782,
+          "class": "spa_empty",
+          "reason": "200 but no price in raw HTML",
+          "signals": {
+            "jsonld_product": false,
+            "jsonld_price": false,
+            "microdata_price": false,
+            "meta_price": false,
+            "distinct_currency_strings": 0,
+            "embedded_state": false,
+            "api_paths": [],
+            "bytes": 24782
+          }
+        }
+      ],
+      "verdict_class": "spa_empty",
       "structural_class": "unknown",
-      "evidence_url": null,
+      "evidence_url": "https://www.medexpress.com.ph/about-us/terms-and-conditions",
       "robots_allows_product": true
     },
     {
@@ -10720,6 +11769,10 @@
           "*.jpg",
           "*.svg"
         ]
+      },
+      "discovery": {
+        "via": "sitemap",
+        "categories_crawled": []
       },
       "sitemap": {
         "tried": [
@@ -10882,6 +11935,10 @@
         "allow_star": [
           "/"
         ]
+      },
+      "discovery": {
+        "via": "sitemap",
+        "categories_crawled": []
       },
       "sitemap": {
         "tried": [
@@ -11063,6 +12120,10 @@
           "/*/account/login"
         ]
       },
+      "discovery": {
+        "via": "sitemap",
+        "categories_crawled": []
+      },
       "sitemap": {
         "tried": [
           {
@@ -11202,6 +12263,10 @@
         ],
         "allow_star": []
       },
+      "discovery": {
+        "via": "sitemap",
+        "categories_crawled": []
+      },
       "sitemap": {
         "tried": [
           {
@@ -11211,14 +12276,49 @@
           }
         ],
         "total_urls": 1,
-        "product_like_urls": 0
+        "product_like_urls": 2
       },
       "basket": {},
       "basket_coverage": 0,
-      "product_probes": [],
-      "verdict_class": "no_product_urls",
+      "product_probes": [
+        {
+          "url": "https://www.robinsonseasymart.com.ph/news-and-promos/bpi-cash-deposits-and-withdrawals-at-robinsons-easymart-lfrm",
+          "status": 200,
+          "bytes": 140217,
+          "class": "spa_empty",
+          "reason": "200 but no price in raw HTML",
+          "signals": {
+            "jsonld_product": false,
+            "jsonld_price": false,
+            "microdata_price": false,
+            "meta_price": false,
+            "distinct_currency_strings": 0,
+            "embedded_state": false,
+            "api_paths": [],
+            "bytes": 140217
+          }
+        },
+        {
+          "url": "https://www.robinsonseasymart.com.ph/news-and-promos/bills-payment-services-at-robinsons-easymart",
+          "status": 200,
+          "bytes": 136771,
+          "class": "spa_empty",
+          "reason": "200 but no price in raw HTML",
+          "signals": {
+            "jsonld_product": false,
+            "jsonld_price": false,
+            "microdata_price": false,
+            "meta_price": false,
+            "distinct_currency_strings": 0,
+            "embedded_state": false,
+            "api_paths": [],
+            "bytes": 136771
+          }
+        }
+      ],
+      "verdict_class": "spa_empty",
       "structural_class": "unknown",
-      "evidence_url": null,
+      "evidence_url": "https://www.robinsonseasymart.com.ph/news-and-promos/bpi-cash-deposits-and-withdrawals-at-robinsons-easymart-lfrm",
       "robots_allows_product": true
     },
     {
@@ -11252,6 +12352,10 @@
           "/rewards/"
         ],
         "allow_star": []
+      },
+      "discovery": {
+        "via": "sitemap",
+        "categories_crawled": []
       },
       "sitemap": {
         "tried": [
@@ -11426,6 +12530,10 @@
         "disallow_star": [],
         "allow_star": []
       },
+      "discovery": {
+        "via": "none",
+        "categories_crawled": []
+      },
       "sitemap": {
         "tried": [
           {
@@ -11483,6 +12591,10 @@
         "sitemaps": [],
         "disallow_star": [],
         "allow_star": []
+      },
+      "discovery": {
+        "via": "none",
+        "categories_crawled": []
       },
       "sitemap": {
         "tried": [
@@ -11546,6 +12658,10 @@
         "allow_star": [
           "/"
         ]
+      },
+      "discovery": {
+        "via": "sitemap",
+        "categories_crawled": []
       },
       "sitemap": {
         "tried": [
@@ -11711,6 +12827,10 @@
         "disallow_star": [],
         "allow_star": []
       },
+      "discovery": {
+        "via": "none",
+        "categories_crawled": []
+      },
       "sitemap": {
         "tried": [
           {
@@ -11766,6 +12886,12 @@
         "disallow_star": [],
         "allow_star": []
       },
+      "discovery": {
+        "via": "crawl",
+        "categories_crawled": [
+          "https://www.newseasonsmarket.com/shop"
+        ]
+      },
       "sitemap": {
         "tried": [
           {
@@ -11789,15 +12915,79 @@
             "bytes": 0
           }
         ],
-        "total_urls": 0,
-        "product_like_urls": 0
+        "total_urls": 5,
+        "product_like_urls": 5
       },
       "basket": {},
       "basket_coverage": 0,
-      "product_probes": [],
-      "verdict_class": "no_product_urls",
+      "product_probes": [
+        {
+          "url": "https://www.newseasonsmarket.com/product-recalls",
+          "status": 200,
+          "bytes": 74478,
+          "class": "spa_empty",
+          "reason": "200 but no price in raw HTML",
+          "signals": {
+            "jsonld_product": false,
+            "jsonld_price": false,
+            "microdata_price": false,
+            "meta_price": false,
+            "distinct_currency_strings": 2,
+            "embedded_state": false,
+            "api_paths": [
+              "/api/email/subscribe",
+              "/api/favoritestore/getstore",
+              "/api/favoritestore/setstore"
+            ],
+            "bytes": 74478
+          }
+        },
+        {
+          "url": "https://www.newseasonsmarket.com/discover/new-seasons-market-brands",
+          "status": 200,
+          "bytes": 80493,
+          "class": "spa_empty",
+          "reason": "200 but no price in raw HTML",
+          "signals": {
+            "jsonld_product": false,
+            "jsonld_price": false,
+            "microdata_price": false,
+            "meta_price": false,
+            "distinct_currency_strings": 2,
+            "embedded_state": false,
+            "api_paths": [
+              "/api/email/subscribe",
+              "/api/favoritestore/getstore",
+              "/api/favoritestore/setstore"
+            ],
+            "bytes": 80493
+          }
+        },
+        {
+          "url": "https://www.newseasonsmarket.com/purpose/regenerative-agriculture",
+          "status": 200,
+          "bytes": 78388,
+          "class": "spa_empty",
+          "reason": "200 but no price in raw HTML",
+          "signals": {
+            "jsonld_product": false,
+            "jsonld_price": false,
+            "microdata_price": false,
+            "meta_price": false,
+            "distinct_currency_strings": 2,
+            "embedded_state": false,
+            "api_paths": [
+              "/api/email/subscribe",
+              "/api/favoritestore/getstore",
+              "/api/favoritestore/setstore"
+            ],
+            "bytes": 78388
+          }
+        }
+      ],
+      "verdict_class": "spa_empty",
       "structural_class": "unknown",
-      "evidence_url": null,
+      "evidence_url": "https://www.newseasonsmarket.com/product-recalls",
       "robots_allows_product": true
     },
     {
@@ -11823,6 +13013,10 @@
         "sitemaps": [],
         "disallow_star": [],
         "allow_star": []
+      },
+      "discovery": {
+        "via": "none",
+        "categories_crawled": []
       },
       "sitemap": {
         "tried": [
@@ -11886,6 +13080,10 @@
         ],
         "disallow_star": [],
         "allow_star": []
+      },
+      "discovery": {
+        "via": "sitemap",
+        "categories_crawled": []
       },
       "sitemap": {
         "tried": [
@@ -12008,6 +13206,10 @@
         ],
         "disallow_star": [],
         "allow_star": []
+      },
+      "discovery": {
+        "via": "sitemap",
+        "categories_crawled": []
       },
       "sitemap": {
         "tried": [
@@ -12149,6 +13351,10 @@
           "/wp-admin/admin-ajax.php"
         ]
       },
+      "discovery": {
+        "via": "none",
+        "categories_crawled": []
+      },
       "sitemap": {
         "tried": [
           {
@@ -12218,6 +13424,10 @@
         ],
         "disallow_star": [],
         "allow_star": []
+      },
+      "discovery": {
+        "via": "sitemap",
+        "categories_crawled": []
       },
       "sitemap": {
         "tried": [
@@ -12327,6 +13537,10 @@
         "allow_star": [
           "/wp-admin/admin-ajax.php"
         ]
+      },
+      "discovery": {
+        "via": "sitemap",
+        "categories_crawled": []
       },
       "sitemap": {
         "tried": [
@@ -12468,6 +13682,10 @@
         ],
         "allow_star": []
       },
+      "discovery": {
+        "via": "sitemap",
+        "categories_crawled": []
+      },
       "sitemap": {
         "tried": [
           {
@@ -12566,6 +13784,10 @@
         "allow_star": [
           "/"
         ]
+      },
+      "discovery": {
+        "via": "sitemap",
+        "categories_crawled": []
       },
       "sitemap": {
         "tried": [
@@ -12700,6 +13922,19 @@
           "/"
         ]
       },
+      "discovery": {
+        "via": "crawl",
+        "categories_crawled": [
+          "https://www.keyfood.com/categories/Product%2Fdairy",
+          "https://www.keyfood.com/categories/Product%2Fcondiments-and-dressings",
+          "https://www.keyfood.com/categories/Product%2Fbreakfast-and-cereal",
+          "https://www.keyfood.com/categories/Product%2Fcoffee-and-tea",
+          "https://www.keyfood.com/categories/Product%2Fmeat-and-seafood",
+          "https://www.keyfood.com/categories/Product%2Fbeverages",
+          "https://www.keyfood.com/categories/Product%2Fproduce",
+          "https://www.keyfood.com/shopping-list"
+        ]
+      },
       "sitemap": {
         "tried": [
           {
@@ -12709,68 +13944,15 @@
           }
         ],
         "total_urls": 4305,
-        "product_like_urls": 0
+        "product_like_urls": 2
       },
-      "basket": {
-        "chicken": {
-          "count": 23,
-          "samples": [
-            "https://www.keyfood.com/recipes/Lunch/Grilled-Chicken-and-Fruit-Salad-with-Pineapple-Mint-Dressing-Dole",
-            "https://www.keyfood.com/recipes/Salad/Grilled-Chicken-and-Fruit-Salad-with-Pineapple-Mint-Dressing-Dole",
-            "https://www.keyfood.com/recipes/*/Grilled-Chicken-and-Fruit-Salad-with-Pineapple-Mint-Dressing-Dole"
-          ],
-          "sample": "https://www.keyfood.com/recipes/Lunch/Grilled-Chicken-and-Fruit-Salad-with-Pineapple-Mint-Dressing-Dole"
-        },
-        "rice": {
-          "count": 3,
-          "samples": [
-            "https://www.keyfood.com/recipes/lunch/Chicken-Thighs-with-Yellow-Rice",
-            "https://www.keyfood.com/recipes/dinner/Chicken-Thighs-with-Yellow-Rice",
-            "https://www.keyfood.com/recipes/*/Chicken-Thighs-with-Yellow-Rice"
-          ],
-          "sample": "https://www.keyfood.com/recipes/lunch/Chicken-Thighs-with-Yellow-Rice"
-        },
-        "sugar": {
-          "count": 5,
-          "samples": [
-            "https://www.keyfood.com/recipes/beverages/Bourbon-Brown-Sugar-Latte",
-            "https://www.keyfood.com/recipes/drink/Bourbon-Brown-Sugar-Latte",
-            "https://www.keyfood.com/recipes/drinks/Bourbon-Brown-Sugar-Latte"
-          ],
-          "sample": "https://www.keyfood.com/recipes/beverages/Bourbon-Brown-Sugar-Latte"
-        },
-        "pasta": {
-          "count": 18,
-          "samples": [
-            "https://www.keyfood.com/recipes/side-dishes/Classic-Macaroni-Salad",
-            "https://www.keyfood.com/recipes/soup-salad/Classic-Macaroni-Salad",
-            "https://www.keyfood.com/recipes/side/Classic-Macaroni-Salad"
-          ],
-          "sample": "https://www.keyfood.com/recipes/side-dishes/Classic-Macaroni-Salad"
-        },
-        "bananas": {
-          "count": 2,
-          "samples": [
-            "https://www.keyfood.com/recipes/snacks/ants-on-a-banana-log-jif",
-            "https://www.keyfood.com/recipes/*/ants-on-a-banana-log-jif"
-          ],
-          "sample": "https://www.keyfood.com/recipes/snacks/ants-on-a-banana-log-jif"
-        },
-        "eggs": {
-          "count": 2,
-          "samples": [
-            "https://www.keyfood.com/recipes/lunch/tuna-salad-with-egg-chicken-of-the-sea",
-            "https://www.keyfood.com/recipes/*/tuna-salad-with-egg-chicken-of-the-sea"
-          ],
-          "sample": "https://www.keyfood.com/recipes/lunch/tuna-salad-with-egg-chicken-of-the-sea"
-        }
-      },
-      "basket_coverage": 6,
+      "basket": {},
+      "basket_coverage": 0,
       "product_probes": [
         {
-          "url": "https://www.keyfood.com/recipes/Lunch/Grilled-Chicken-and-Fruit-Salad-with-Pineapple-Mint-Dressing-Dole",
+          "url": "https://www.keyfood.com/wcp/product-recalls",
           "status": 200,
-          "bytes": 323953,
+          "bytes": 313072,
           "class": "spa_empty",
           "reason": "200 but no price in raw HTML",
           "signals": {
@@ -12781,13 +13963,13 @@
             "distinct_currency_strings": 0,
             "embedded_state": true,
             "api_paths": [],
-            "bytes": 323953
+            "bytes": 313072
           }
         },
         {
-          "url": "https://www.keyfood.com/recipes/lunch/Chicken-Thighs-with-Yellow-Rice",
+          "url": "https://www.keyfood.com/wcp/refund-and-cancellation-policy",
           "status": 200,
-          "bytes": 323378,
+          "bytes": 313132,
           "class": "spa_empty",
           "reason": "200 but no price in raw HTML",
           "signals": {
@@ -12798,13 +13980,13 @@
             "distinct_currency_strings": 0,
             "embedded_state": true,
             "api_paths": [],
-            "bytes": 323378
+            "bytes": 313132
           }
         }
       ],
       "verdict_class": "spa_empty",
       "structural_class": "spa-with-state",
-      "evidence_url": "https://www.keyfood.com/recipes/Lunch/Grilled-Chicken-and-Fruit-Salad-with-Pineapple-Mint-Dressing-Dole",
+      "evidence_url": "https://www.keyfood.com/wcp/product-recalls",
       "robots_allows_product": true
     },
     {
@@ -12838,6 +14020,13 @@
           "/"
         ]
       },
+      "discovery": {
+        "via": "crawl",
+        "categories_crawled": [
+          "https://www.mortonwilliams.com/shoponline",
+          "https://www.mortonwilliams.com/\\/\\/shop.mortonwilliams.com\\/"
+        ]
+      },
       "sitemap": {
         "tried": [
           {
@@ -12853,14 +14042,23 @@
           }
         ],
         "total_urls": 42,
-        "product_like_urls": 0
+        "product_like_urls": 1
       },
       "basket": {},
       "basket_coverage": 0,
-      "product_probes": [],
-      "verdict_class": "no_product_urls",
+      "product_probes": [
+        {
+          "url": "https://www.mortonwilliams.com/\\/\\/shop.mortonwilliams.com\\/",
+          "status": 403,
+          "bytes": 0,
+          "class": "blocked",
+          "reason": "http 403",
+          "signals": {}
+        }
+      ],
+      "verdict_class": "blocked",
       "structural_class": "unknown",
-      "evidence_url": null,
+      "evidence_url": "https://www.mortonwilliams.com/\\/\\/shop.mortonwilliams.com\\/",
       "robots_allows_product": true
     },
     {
@@ -12885,6 +14083,10 @@
         "sitemaps": [],
         "disallow_star": [],
         "allow_star": []
+      },
+      "discovery": {
+        "via": "sitemap",
+        "categories_crawled": []
       },
       "sitemap": {
         "tried": [
@@ -12967,6 +14169,807 @@
       "verdict_class": "spa_empty",
       "structural_class": "unknown",
       "evidence_url": "https://www.wmarketnyc.com/location/1407-lexington-avenue/",
+      "robots_allows_product": true
+    },
+    {
+      "id": "ph-merrymartwholesale",
+      "name": "MerryMart Wholesale",
+      "country": "PH",
+      "vertical": "grocery",
+      "homepage": "https://www.merrymartwholesale.com",
+      "why": "Round 3: MerryMart's real web storefront (merrymart.com.ph is corporate only). Server-rendered PHP prices, clean /products/ slugs, robots allows all. Wholesale case pricing needs per-unit normalisation.",
+      "home": {
+        "status": 200,
+        "final_url": "https://www.merrymartwholesale.com",
+        "bytes": 104389,
+        "error": null,
+        "waf": [
+          "cf-ray",
+          "server:cloudflare"
+        ]
+      },
+      "home_class": "spa_empty",
+      "robots": {
+        "fetched": true,
+        "sitemaps": [],
+        "disallow_star": [],
+        "allow_star": []
+      },
+      "discovery": {
+        "via": "crawl",
+        "categories_crawled": [
+          "https://www.merrymartwholesale.com/categories/grocery",
+          "https://www.merrymartwholesale.com/categories/canned-bottled-goods-1",
+          "https://www.merrymartwholesale.com/categories/cooking-1",
+          "https://www.merrymartwholesale.com/categories/beverages-1",
+          "https://www.merrymartwholesale.com/categories/dairy-chilled-1",
+          "https://www.merrymartwholesale.com/categories/bread-baking-needs-1",
+          "https://www.merrymartwholesale.com/categories/coffee-tea-1",
+          "https://www.merrymartwholesale.com/categories/rice-pasta-noodles-1"
+        ]
+      },
+      "sitemap": {
+        "tried": [
+          {
+            "url": "https://www.merrymartwholesale.com/sitemap.xml",
+            "status": 404,
+            "bytes": 11774
+          },
+          {
+            "url": "https://www.merrymartwholesale.com/sitemap_index.xml",
+            "status": 404,
+            "bytes": 11774
+          },
+          {
+            "url": "https://www.merrymartwholesale.com/sitemap.txt",
+            "status": 404,
+            "bytes": 11774
+          },
+          {
+            "url": "https://www.merrymartwholesale.com/sitemap-index.xml",
+            "status": 404,
+            "bytes": 11774
+          }
+        ],
+        "total_urls": 129,
+        "product_like_urls": 129
+      },
+      "basket": {
+        "bread": {
+          "count": 3,
+          "samples": [
+            "https://www.merrymartwholesale.com/products/argentina-beef-loaf-250g-1-case-includes-48-pcs-250g",
+            "https://www.merrymartwholesale.com/products/fry-best-bread-crumbs-230g-1-case-includes-50-pcs-230g",
+            "https://www.merrymartwholesale.com/products/fry-best-bread-crumbs-1kilo-1-case-includes-12-pcs-1kilo"
+          ],
+          "sample": "https://www.merrymartwholesale.com/products/argentina-beef-loaf-250g-1-case-includes-48-pcs-250g"
+        },
+        "cooking_oil": {
+          "count": 3,
+          "samples": [
+            "https://www.merrymartwholesale.com/products/baguio-oil-canola-oil-sup-900ml-1-case-includes-12pcs-900ml",
+            "https://www.merrymartwholesale.com/products/baguio-oil-canola-oil-savings-bundle-sup-900ml-1-case-includes-6-pcs-900ml",
+            "https://www.merrymartwholesale.com/products/baguio-oil-canola-oil-sup-15l-1-case-includes-12pcs-15l"
+          ],
+          "sample": "https://www.merrymartwholesale.com/products/baguio-oil-canola-oil-sup-900ml-1-case-includes-12pcs-900ml"
+        },
+        "milk": {
+          "count": 5,
+          "samples": [
+            "https://www.merrymartwholesale.com/products/alaska-evaporada-filled-milk-360ml-1-case-includes-48pcs-360ml",
+            "https://www.merrymartwholesale.com/products/bear-brand-powdered-milk-drink-swak-33g-1-case-includes-192-pcs-by-8s-33g",
+            "https://www.merrymartwholesale.com/products/birch-tree-fortified-milk-135g-1-case-includes-72pcs-135g"
+          ],
+          "sample": "https://www.merrymartwholesale.com/products/alaska-evaporada-filled-milk-360ml-1-case-includes-48pcs-360ml"
+        },
+        "coffee": {
+          "count": 3,
+          "samples": [
+            "https://www.merrymartwholesale.com/products/angel-coffee-creamer-200g-1-case-includes-48-pcs-200g",
+            "https://www.merrymartwholesale.com/products/nash-white-coffee-30g-twin-pack-1-case-includes-100-pcs-30g",
+            "https://www.merrymartwholesale.com/products/nestle-coffee-mate-sup-400g-1-case-includes-24-pcs-400g"
+          ],
+          "sample": "https://www.merrymartwholesale.com/products/angel-coffee-creamer-200g-1-case-includes-48-pcs-200g"
+        },
+        "pasta": {
+          "count": 7,
+          "samples": [
+            "https://www.merrymartwholesale.com/products/del-monte-spaghetti-900g-1-case-includes-20-pcs-900g",
+            "https://www.merrymartwholesale.com/products/ideal-gourmet-elbow-macaroni-200g-1-case-includes-30-pcs-200g",
+            "https://www.merrymartwholesale.com/products/ideal-gourmet-penne-rigate-500g-1-case-includes-30-pcs-500g"
+          ],
+          "sample": "https://www.merrymartwholesale.com/products/del-monte-spaghetti-900g-1-case-includes-20-pcs-900g"
+        },
+        "eggs": {
+          "count": 2,
+          "samples": [
+            "https://www.merrymartwholesale.com/products/excellent-egg-noodles-200g-1-case-includes-18-pcs-200g",
+            "https://www.merrymartwholesale.com/products/excellent-egg-noodles-400g-1-case-includes-10-pcs-400g"
+          ],
+          "sample": "https://www.merrymartwholesale.com/products/excellent-egg-noodles-200g-1-case-includes-18-pcs-200g"
+        },
+        "chicken": {
+          "count": 2,
+          "samples": [
+            "https://www.merrymartwholesale.com/products/ladys-choice-chicken-27ml-1-case-includes-72-pcs-27ml",
+            "https://www.merrymartwholesale.com/products/excellent-sotanghon-soup-garlic-chicken-1-case-includes-24-pcs-60g"
+          ],
+          "sample": "https://www.merrymartwholesale.com/products/ladys-choice-chicken-27ml-1-case-includes-72-pcs-27ml"
+        }
+      },
+      "basket_coverage": 7,
+      "product_probes": [
+        {
+          "url": "https://www.merrymartwholesale.com/products/argentina-beef-loaf-250g-1-case-includes-48-pcs-250g",
+          "status": 200,
+          "bytes": 322443,
+          "class": "server_rendered",
+          "reason": "price present in raw HTML",
+          "signals": {
+            "jsonld_product": false,
+            "jsonld_price": false,
+            "microdata_price": false,
+            "meta_price": false,
+            "distinct_currency_strings": 35,
+            "embedded_state": false,
+            "api_paths": [],
+            "bytes": 322443
+          }
+        },
+        {
+          "url": "https://www.merrymartwholesale.com/products/baguio-oil-canola-oil-sup-900ml-1-case-includes-12pcs-900ml",
+          "status": 200,
+          "bytes": 372345,
+          "class": "server_rendered",
+          "reason": "price present in raw HTML",
+          "signals": {
+            "jsonld_product": false,
+            "jsonld_price": false,
+            "microdata_price": false,
+            "meta_price": false,
+            "distinct_currency_strings": 37,
+            "embedded_state": false,
+            "api_paths": [],
+            "bytes": 372345
+          }
+        },
+        {
+          "url": "https://www.merrymartwholesale.com/products/555-carne-norte-easy-open-can-100g-1-case-includes-48-pcs-100g",
+          "status": 200,
+          "bytes": 329622,
+          "class": "server_rendered",
+          "reason": "price present in raw HTML",
+          "signals": {
+            "jsonld_product": false,
+            "jsonld_price": false,
+            "microdata_price": false,
+            "meta_price": false,
+            "distinct_currency_strings": 44,
+            "embedded_state": false,
+            "api_paths": [],
+            "bytes": 329622
+          }
+        }
+      ],
+      "verdict_class": "server_rendered",
+      "structural_class": "bare-html",
+      "evidence_url": "https://www.merrymartwholesale.com/products/argentina-beef-loaf-250g-1-case-includes-48-pcs-250g",
+      "robots_allows_product": true
+    },
+    {
+      "id": "ph-shopgaisano",
+      "name": "Shop Gaisano",
+      "country": "PH",
+      "vertical": "grocery",
+      "homepage": "https://shopgaisano.com",
+      "why": "Round 3: online store of Gaisano Malls (Visayas/Mindanao). Regional long-tail, absent from any prebuilt library.",
+      "home": {
+        "status": 200,
+        "final_url": "https://shopgaisano.com",
+        "bytes": 1329320,
+        "error": null,
+        "waf": [
+          "cf-ray",
+          "server:cloudflare"
+        ]
+      },
+      "home_class": "server_rendered",
+      "robots": {
+        "fetched": true,
+        "sitemaps": [
+          "https://shopgaisano.com/sitemap.xml"
+        ],
+        "disallow_star": [
+          "/admin",
+          "/cart/",
+          "/*/cart/",
+          "/checkout",
+          "/*/checkout",
+          "/checkouts/",
+          "/*/checkouts/",
+          "/orders",
+          "/*/orders",
+          "/account",
+          "/*/account",
+          "/27167981639",
+          "/cdn/wpm/*.js",
+          "/services",
+          "/sf_*",
+          "/cart.js",
+          "/*/cart.js",
+          "/recommendations/products",
+          "/*/recommendations/products",
+          "/collections/*sort_by*",
+          "/*/collections/*sort_by*",
+          "/collections/*+*",
+          "/collections/*%2B*",
+          "/collections/*%2b*",
+          "/*/collections/*+*",
+          "/*/collections/*%2B*",
+          "/*/collections/*%2b*",
+          "/collections/*filter*&*filter*",
+          "/*/collections/*filter*&*filter*",
+          "/blogs/*+*",
+          "/blogs/*%2B*",
+          "/blogs/*%2b*",
+          "/*/blogs/*+*",
+          "/*/blogs/*%2B*",
+          "/*/blogs/*%2b*",
+          "/*?*ls=*&ls=*",
+          "/*?*ls%3*ls%3*",
+          "/*?*oseid=*",
+          "/*?*preview_theme_id=*",
+          "/*?*preview_script_id=*"
+        ],
+        "allow_star": [
+          "/",
+          "/products/account",
+          "/products/orders",
+          "/products/checkout",
+          "/*/products/account",
+          "/*/products/orders",
+          "/*/products/checkout",
+          "/collections/account",
+          "/collections/orders",
+          "/collections/checkout",
+          "/*/collections/account",
+          "/*/collections/orders",
+          "/*/collections/checkout",
+          "/pages/checkout",
+          "/*/pages/checkout",
+          "/blogs/*account",
+          "/blogs/*orders",
+          "/blogs/*checkout",
+          "/*/blogs/*account",
+          "/*/blogs/*orders",
+          "/*/blogs/*checkout",
+          "/account/login",
+          "/*/account/login"
+        ]
+      },
+      "discovery": {
+        "via": "sitemap",
+        "categories_crawled": []
+      },
+      "sitemap": {
+        "tried": [
+          {
+            "url": "https://shopgaisano.com/sitemap.xml",
+            "status": 200,
+            "bytes": 1001
+          },
+          {
+            "url": "https://shopgaisano.com/sitemap_agentic_discovery.xml",
+            "status": 200,
+            "bytes": 212,
+            "nested": true
+          },
+          {
+            "url": "https://shopgaisano.com/sitemap_products_1.xml?from=4646462292039&amp;to=7662126235820",
+            "status": 200,
+            "bytes": 471382,
+            "nested": true
+          },
+          {
+            "url": "https://shopgaisano.com/sitemap_products_2.xml?from=7662127481004&amp;to=8689307582636",
+            "status": 200,
+            "bytes": 169693,
+            "nested": true
+          },
+          {
+            "url": "https://shopgaisano.com/sitemap_pages_1.xml?from=50629410887&amp;to=117223555244",
+            "status": 200,
+            "bytes": 6486,
+            "nested": true
+          }
+        ],
+        "total_urls": 1406,
+        "product_like_urls": 1365
+      },
+      "basket": {
+        "milk": {
+          "count": 20,
+          "samples": [
+            "https://shopgaisano.com/products/bear-brand-powdered-milk-drink-320g",
+            "https://shopgaisano.com/products/angel-condensada-milk-380g",
+            "https://shopgaisano.com/products/birch-tree-fortified-milk-drink-300g"
+          ],
+          "sample": "https://shopgaisano.com/products/bear-brand-powdered-milk-drink-320g"
+        },
+        "chicken": {
+          "count": 8,
+          "samples": [
+            "https://shopgaisano.com/products/ladys-choice-chicken-spread-doy-220ml",
+            "https://shopgaisano.com/products/ladys-choice-chicken-spread-doy-pack-470ml-1",
+            "https://shopgaisano.com/products/knorr-chicken-cube-savers-120g-1"
+          ],
+          "sample": "https://shopgaisano.com/products/ladys-choice-chicken-spread-doy-220ml"
+        },
+        "bread": {
+          "count": 5,
+          "samples": [
+            "https://shopgaisano.com/products/argentina-beef-loaf-150g",
+            "https://shopgaisano.com/products/argentina-beef-loaf-170g",
+            "https://shopgaisano.com/products/argentina-beef-loaf-250g"
+          ],
+          "sample": "https://shopgaisano.com/products/argentina-beef-loaf-150g"
+        },
+        "coffee": {
+          "count": 10,
+          "samples": [
+            "https://shopgaisano.com/products/nescafe-original-coffee-200g",
+            "https://shopgaisano.com/products/nestle-coffee-mate-the-original-250g",
+            "https://shopgaisano.com/products/nestle-coffee-mate-french-vanilla-15oz"
+          ],
+          "sample": "https://shopgaisano.com/products/nescafe-original-coffee-200g"
+        },
+        "bananas": {
+          "count": 10,
+          "samples": [
+            "https://shopgaisano.com/products/east-bali-cashews-granola-bites-chocolate-banana-125g",
+            "https://shopgaisano.com/products/ufc-banana-catsup-320g",
+            "https://shopgaisano.com/products/ufc-banana-catsup-550g"
+          ],
+          "sample": "https://shopgaisano.com/products/east-bali-cashews-granola-bites-chocolate-banana-125g"
+        },
+        "rice": {
+          "count": 12,
+          "samples": [
+            "https://shopgaisano.com/products/great-value-v-160-rice-5kg",
+            "https://shopgaisano.com/products/great-value-v-160-rice-1kg",
+            "https://shopgaisano.com/products/cerelac-rice-soya-250g-1"
+          ],
+          "sample": "https://shopgaisano.com/products/great-value-v-160-rice-5kg"
+        },
+        "cooking_oil": {
+          "count": 7,
+          "samples": [
+            "https://shopgaisano.com/products/ufc-hapi-fiesta-canola-oil-blend-900ml",
+            "https://shopgaisano.com/products/golden-fiesta-palm-oil-1l",
+            "https://shopgaisano.com/products/golden-fiesta-canola-oil-1l"
+          ],
+          "sample": "https://shopgaisano.com/products/ufc-hapi-fiesta-canola-oil-blend-900ml"
+        },
+        "pasta": {
+          "count": 1,
+          "samples": [
+            "https://shopgaisano.com/products/ufc-spaghetti-sauce-1kg-1"
+          ],
+          "sample": "https://shopgaisano.com/products/ufc-spaghetti-sauce-1kg-1"
+        },
+        "sugar": {
+          "count": 2,
+          "samples": [
+            "https://shopgaisano.com/products/great-value-brown-sugar-1-4-kg",
+            "https://shopgaisano.com/products/great-value-brown-sugar-1kg"
+          ],
+          "sample": "https://shopgaisano.com/products/great-value-brown-sugar-1-4-kg"
+        },
+        "eggs": {
+          "count": 2,
+          "samples": [
+            "https://shopgaisano.com/products/stainless-egg-whisk-12",
+            "https://shopgaisano.com/products/great-value-farm-fresh-eggs-medium-12s"
+          ],
+          "sample": "https://shopgaisano.com/products/stainless-egg-whisk-12"
+        }
+      },
+      "basket_coverage": 10,
+      "product_probes": [
+        {
+          "url": "https://shopgaisano.com/products/bear-brand-powdered-milk-drink-320g",
+          "status": 200,
+          "bytes": 404072,
+          "class": "server_rendered",
+          "reason": "price present in raw HTML",
+          "signals": {
+            "jsonld_product": false,
+            "jsonld_price": true,
+            "microdata_price": true,
+            "meta_price": true,
+            "distinct_currency_strings": 7,
+            "embedded_state": false,
+            "api_paths": [],
+            "bytes": 404072
+          }
+        },
+        {
+          "url": "https://shopgaisano.com/products/ladys-choice-chicken-spread-doy-220ml",
+          "status": 200,
+          "bytes": 403610,
+          "class": "server_rendered",
+          "reason": "price present in raw HTML",
+          "signals": {
+            "jsonld_product": false,
+            "jsonld_price": true,
+            "microdata_price": true,
+            "meta_price": true,
+            "distinct_currency_strings": 7,
+            "embedded_state": false,
+            "api_paths": [],
+            "bytes": 403610
+          }
+        },
+        {
+          "url": "https://shopgaisano.com/products/chippy-barbeque-110g",
+          "status": 200,
+          "bytes": 403545,
+          "class": "server_rendered",
+          "reason": "price present in raw HTML",
+          "signals": {
+            "jsonld_product": false,
+            "jsonld_price": true,
+            "microdata_price": true,
+            "meta_price": true,
+            "distinct_currency_strings": 7,
+            "embedded_state": false,
+            "api_paths": [],
+            "bytes": 403545
+          }
+        }
+      ],
+      "verdict_class": "server_rendered",
+      "structural_class": "json-ld",
+      "evidence_url": "https://shopgaisano.com/products/bear-brand-powdered-milk-drink-320g",
+      "robots_allows_product": true
+    },
+    {
+      "id": "ph-marketfresh",
+      "name": "Market Fresh Davao",
+      "country": "PH",
+      "vertical": "grocery",
+      "homepage": "https://marketfresh.ph",
+      "why": "Round 3: Davao online palengke - wet-market staples (rice, chicken, eggs) that supermarket sites price differently",
+      "home": {
+        "status": 200,
+        "final_url": "https://marketfresh.ph",
+        "bytes": 309721,
+        "error": null,
+        "waf": []
+      },
+      "home_class": "spa_empty",
+      "robots": {
+        "fetched": true,
+        "sitemaps": [
+          "https://marketfresh.ph/sitemap.xml",
+          "https://marketfresh.ph/sitemap.rss"
+        ],
+        "disallow_star": [
+          "/wp-content/uploads/wc-logs/",
+          "/wp-content/uploads/woocommerce_transient_files/",
+          "/wp-content/uploads/woocommerce_uploads/",
+          "/*?add-to-cart=",
+          "/*?*add-to-cart=",
+          "/wp-admin/"
+        ],
+        "allow_star": [
+          "/wp-admin/admin-ajax.php"
+        ]
+      },
+      "discovery": {
+        "via": "sitemap",
+        "categories_crawled": []
+      },
+      "sitemap": {
+        "tried": [
+          {
+            "url": "https://marketfresh.ph/sitemap.xml",
+            "status": 200,
+            "bytes": 820
+          },
+          {
+            "url": "https://marketfresh.ph/sitemap.rss",
+            "status": 200,
+            "bytes": 14066
+          },
+          {
+            "url": "https://marketfresh.ph/sitemap.xml",
+            "status": 200,
+            "bytes": 820
+          },
+          {
+            "url": "https://marketfresh.ph/sitemap_index.xml",
+            "status": 200,
+            "bytes": 820
+          },
+          {
+            "url": "https://marketfresh.ph/sitemap.txt",
+            "status": 200,
+            "bytes": 820
+          },
+          {
+            "url": "https://marketfresh.ph/sitemap-index.xml",
+            "status": 200,
+            "bytes": 820
+          }
+        ],
+        "total_urls": 42,
+        "product_like_urls": 42
+      },
+      "basket": {
+        "chicken": {
+          "count": 4,
+          "samples": [
+            "https://marketfresh.ph/product/native-chicken-dressed/",
+            "https://marketfresh.ph/product/chicken-wings/",
+            "https://marketfresh.ph/product/chicken-dressed/"
+          ],
+          "sample": "https://marketfresh.ph/product/native-chicken-dressed/"
+        },
+        "eggs": {
+          "count": 1,
+          "samples": [
+            "https://marketfresh.ph/product/white-eggs-large/"
+          ],
+          "sample": "https://marketfresh.ph/product/white-eggs-large/"
+        },
+        "rice": {
+          "count": 2,
+          "samples": [
+            "https://marketfresh.ph/product/banaybanay-rice/",
+            "https://marketfresh.ph/product/kohaku-rice/"
+          ],
+          "sample": "https://marketfresh.ph/product/banaybanay-rice/"
+        },
+        "sugar": {
+          "count": 1,
+          "samples": [
+            "https://marketfresh.ph/product/sugar-white/"
+          ],
+          "sample": "https://marketfresh.ph/product/sugar-white/"
+        }
+      },
+      "basket_coverage": 4,
+      "product_probes": [
+        {
+          "url": "https://marketfresh.ph/product/native-chicken-dressed/",
+          "status": 200,
+          "bytes": 174218,
+          "class": "spa_empty",
+          "reason": "200 but no price in raw HTML",
+          "signals": {
+            "jsonld_product": false,
+            "jsonld_price": false,
+            "microdata_price": false,
+            "meta_price": false,
+            "distinct_currency_strings": 0,
+            "embedded_state": false,
+            "api_paths": [],
+            "bytes": 174218
+          }
+        },
+        {
+          "url": "https://marketfresh.ph/product/white-eggs-large/",
+          "status": 200,
+          "bytes": 173863,
+          "class": "spa_empty",
+          "reason": "200 but no price in raw HTML",
+          "signals": {
+            "jsonld_product": false,
+            "jsonld_price": false,
+            "microdata_price": false,
+            "meta_price": false,
+            "distinct_currency_strings": 0,
+            "embedded_state": false,
+            "api_paths": [],
+            "bytes": 173863
+          }
+        },
+        {
+          "url": "https://marketfresh.ph/product/grapes-seedless-imported/",
+          "status": 200,
+          "bytes": 172660,
+          "class": "spa_empty",
+          "reason": "200 but no price in raw HTML",
+          "signals": {
+            "jsonld_product": false,
+            "jsonld_price": false,
+            "microdata_price": false,
+            "meta_price": false,
+            "distinct_currency_strings": 0,
+            "embedded_state": false,
+            "api_paths": [],
+            "bytes": 172660
+          }
+        }
+      ],
+      "verdict_class": "spa_empty",
+      "structural_class": "unknown",
+      "evidence_url": "https://marketfresh.ph/product/native-chicken-dressed/",
+      "robots_allows_product": true
+    },
+    {
+      "id": "ph-themarketplace-order",
+      "name": "The Marketplace (order online)",
+      "country": "PH",
+      "vertical": "grocery",
+      "homepage": "https://themarketplace.com.ph/order-online",
+      "why": "Round 3: the ordering surface of The Marketplace; the site root probed as an empty shell",
+      "home": {
+        "status": 200,
+        "final_url": "https://themarketplace.com.ph/order-online",
+        "bytes": 333865,
+        "error": null,
+        "waf": [
+          "server:nginx"
+        ]
+      },
+      "home_class": "spa_empty",
+      "robots": {
+        "fetched": true,
+        "sitemaps": [],
+        "disallow_star": [],
+        "allow_star": []
+      },
+      "discovery": {
+        "via": "sitemap",
+        "categories_crawled": []
+      },
+      "sitemap": {
+        "tried": [
+          {
+            "url": "https://themarketplace.com.ph/sitemap.xml",
+            "status": 200,
+            "bytes": 2874
+          }
+        ],
+        "total_urls": 21,
+        "product_like_urls": 0
+      },
+      "basket": {},
+      "basket_coverage": 0,
+      "product_probes": [],
+      "verdict_class": "no_product_urls",
+      "structural_class": "unknown",
+      "evidence_url": null,
+      "robots_allows_product": true
+    },
+    {
+      "id": "ph-pickaroo-stores",
+      "name": "Pick.A.Roo store catalogues",
+      "country": "PH",
+      "vertical": "grocery-aggregator",
+      "homepage": "https://pickaroo.com/robinsons/",
+      "why": "Round 3: aggregator carrying Robinsons, MerryMart and The Marketplace catalogues - Robinsons and Puregold have no own web storefront, so this is the only public web route to their prices",
+      "home": {
+        "status": 200,
+        "final_url": "https://pickaroo.com/robinsons/",
+        "bytes": 95565,
+        "error": null,
+        "waf": [
+          "cf-ray",
+          "server:cloudflare"
+        ]
+      },
+      "home_class": "spa_empty",
+      "robots": {
+        "fetched": true,
+        "sitemaps": [],
+        "disallow_star": [
+          "/admin/",
+          "/ops/",
+          "/backoffices/",
+          "/users/"
+        ],
+        "allow_star": []
+      },
+      "discovery": {
+        "via": "crawl",
+        "categories_crawled": [
+          "https://pickaroo.com/shops/brands/gadgets-electronics/",
+          "https://pickaroo.com/shops/brands/hardware/",
+          "https://pickaroo.com/shops/brands/lifestyle-variety-store/",
+          "https://pickaroo.com/shops/brands/pet-care/",
+          "https://pickaroo.com/shops/brands/flowers-plants/",
+          "https://pickaroo.com/shops/brands/self-care-wellness/",
+          "https://pickaroo.com/shops/brands/fashion-and-apparel/",
+          "https://pickaroo.com/shops/brands/stay-safe-with-roo/"
+        ]
+      },
+      "sitemap": {
+        "tried": [
+          {
+            "url": "https://pickaroo.com/sitemap.xml",
+            "status": 404,
+            "bytes": 937
+          },
+          {
+            "url": "https://pickaroo.com/sitemap_index.xml",
+            "status": 404,
+            "bytes": 937
+          },
+          {
+            "url": "https://pickaroo.com/sitemap.txt",
+            "status": 404,
+            "bytes": 937
+          },
+          {
+            "url": "https://pickaroo.com/sitemap-index.xml",
+            "status": 404,
+            "bytes": 937
+          }
+        ],
+        "total_urls": 17,
+        "product_like_urls": 17
+      },
+      "basket": {},
+      "basket_coverage": 0,
+      "product_probes": [
+        {
+          "url": "https://pickaroo.com/robinsons/products/robinsons-supermarket-b-hive-mall-valenzuela",
+          "status": 200,
+          "bytes": 689808,
+          "class": "spa_empty",
+          "reason": "200 but no price in raw HTML",
+          "signals": {
+            "jsonld_product": false,
+            "jsonld_price": false,
+            "microdata_price": false,
+            "meta_price": false,
+            "distinct_currency_strings": 0,
+            "embedded_state": false,
+            "api_paths": [],
+            "bytes": 689808
+          }
+        },
+        {
+          "url": "https://pickaroo.com/robinsons/products/robinsons-supermarket-california-mandaluyong",
+          "status": 200,
+          "bytes": 682193,
+          "class": "spa_empty",
+          "reason": "200 but no price in raw HTML",
+          "signals": {
+            "jsonld_product": false,
+            "jsonld_price": false,
+            "microdata_price": false,
+            "meta_price": false,
+            "distinct_currency_strings": 0,
+            "embedded_state": false,
+            "api_paths": [],
+            "bytes": 682193
+          }
+        },
+        {
+          "url": "https://pickaroo.com/robinsons/products/robinsons-supermarket-one-ayala-makati",
+          "status": 200,
+          "bytes": 648742,
+          "class": "spa_empty",
+          "reason": "200 but no price in raw HTML",
+          "signals": {
+            "jsonld_product": false,
+            "jsonld_price": false,
+            "microdata_price": false,
+            "meta_price": false,
+            "distinct_currency_strings": 0,
+            "embedded_state": false,
+            "api_paths": [],
+            "bytes": 648742
+          }
+        }
+      ],
+      "verdict_class": "spa_empty",
+      "structural_class": "unknown",
+      "evidence_url": "https://pickaroo.com/robinsons/products/robinsons-supermarket-b-hive-mall-valenzuela",
       "robots_allows_product": true
     }
   ],
