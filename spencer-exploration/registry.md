@@ -36,7 +36,9 @@ Tier-1 cost: **$0.36** of a $5.00 ceiling across 311 Web Unlocker calls (ceiling
 
 ## Suggested starting fleet
 
-Picked for spread, not just score: different countries and different markup styles, so a breakage in one does not look like a breakage in another. `docs/prd.md` asks for 4+ US scrapers plus the clone store; this covers that with PH included.
+A starting subset of 12, drawn from **23 fleet-ready stores** (17 US, 6 PH) with 40 more on the backup bench. This is a suggestion, not the ceiling - resize it with `score.py --fleet-size N`.
+
+Picked for spread, not just score: different countries and different markup styles, so a breakage in one does not look like a breakage in another. `docs/prd.md` asks for 4+ US scrapers plus the clone store; this clears that with PH included.
 
 - **SM Markets** (PH, `ph-smmarkets`, score 82) - public magento-graphql-public endpoint; already proven end to end; unknown markup; 10/10 basket categories; real grocery
 - **MedsGo** (PH, `ph-medsgo`, score 93) - json-ld markup; 5/10 basket categories; real pharmacy
@@ -44,6 +46,12 @@ Picked for spread, not just score: different countries and different markup styl
 - **Dierbergs** (US, `us-dierbergs`, score 95) - already proven end to end; json-ld markup; 7/10 basket categories; real grocery
 - **Wegmans** (US, `us-wegmans`, score 84) - spa-with-state markup; 4/10 basket categories; real grocery
 - **Grocery Outlet** (US, `us-groceryoutlet`, score 80) - bare-html markup; 3/10 basket categories; real grocery
+- **Swanson Health** (US, `us-swanson`, score 96) - microdata markup; 9/10 basket categories
+- **The Fresh Market** (US, `us-thefreshmarket`, score 99) - json-ld markup; 9/10 basket categories; real grocery
+- **H Mart** (US, `us-hmart`, score 97) - json-ld markup; 8/10 basket categories; real ethnic grocery
+- **Rose Pharmacy** (PH, `ph-rosepharmacy`, score 93) - json-ld markup; 5/10 basket categories; real pharmacy
+- **Key Food** (US, `us-keyfood`, score 74) - spa-with-state markup; 6/10 basket categories; real grocery
+- **S&R Membership Shopping** (PH, `ph-snr`, score 73) - json-ld markup; 3/10 basket categories; needs Web Unlocker on every run; real grocery
 
 Plus Parker's Pantry, the clone store, which stays in the fleet as the scripted break-and-heal rig.
 
