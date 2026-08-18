@@ -9,3 +9,4 @@ scratch/
 .playwright-mcp/
 .DS_Store
 *.log
+.obsidian/
