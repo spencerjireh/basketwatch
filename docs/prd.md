@@ -140,3 +140,7 @@ Cheap HTTP checks first; Studio credits only on survivors.
 - C2: PH gate deadline confirmed as Aug 19 EOD unless changed.
 - C3: site list additions/vetoes — team.
 - C4: real product name before the video; repo rename lands with it.
+- C5: which Bright Data account owns the fleet. The team has two accounts
+  with separate budgets, and triggers/heals cannot cross accounts, so this
+  decides the orchestrator's key, the credit ceiling, and where every
+  scraper is created. Needed before the fleet is built out.

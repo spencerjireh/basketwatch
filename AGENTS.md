@@ -15,6 +15,7 @@ Read these before doing product work, in order:
 1. `docs/hackathon-brief.md` — rules, judging criteria, experiment findings
 2. `docs/prd.md` — confirmed scope, cut order, definition of done
 3. `docs/architecture.md` — HLD; diagrams in `docs/diagrams/`
+4. `docs/api-contract.md` — frozen endpoint and response shapes
 
 ## Layout
 
@@ -55,7 +56,8 @@ Bright Data CLI (`brightdata`, v0.3.4+) drives Scraper Studio:
 
 - **Never commit secrets.** `.env` is gitignored; keys live there only.
   Never print API keys in output, code, or the demo video.
-- **Credits are finite (~$50).** Check `brightdata budget` before and
+- **Credits are finite (~$50 per account, and the team has two separate
+ accounts — see `docs/index.md`).** Check `brightdata budget` before and
   after Studio-heavy work. Respect the budget-guard env knobs in
   `.env.example`. Do not create/run/heal scrapers in bulk without the
   user's go-ahead.
@@ -75,8 +77,10 @@ Bright Data CLI (`brightdata`, v0.3.4+) drives Scraper Studio:
   no semicolon changes, keep files small and typed).
 - Validator checks stay pure and unit-tested; incidents must be replayable
   from stored `raw_output`.
-- The dashboard's mock data module is the API contract — change them
-  together or not at all.
+- The API contract is frozen in `packages/shared/src/api.ts` and documented
+  in `docs/api-contract.md`. The dashboard's mock data module holds fixtures
+  in exactly those shapes — change the type and the fixture together, or
+  neither.
 - No emojis in code, docs, or output.
 
 ## Current state (update as things land)
@@ -84,5 +88,9 @@ Bright Data CLI (`brightdata`, v0.3.4+) drives Scraper Studio:
 - Scaffold complete on NestJS + pg-boss (swapped from Hono Aug 18, team
   decision); dashboard v1 on mock data; clone store working; dev/prod
   compose split with Dockerfiles for all three apps.
+- API contract frozen Aug 18: shared types cover fleet, basket, feed,
+  incidents, heal attempts and credit budget; `country` is a first-class
+  dimension in the contract but not yet in the DB schema (gaps listed at the
+  end of `docs/api-contract.md`).
 - Not yet: DB wiring for ingest, heal orchestrator service, notifier,
   first deploy, real fleet (site vetting pending — PH gate Aug 19 EOD).

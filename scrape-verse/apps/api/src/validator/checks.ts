@@ -1,23 +1,16 @@
+import type { Baseline, CheckResult, Verdict } from "@scrape-verse/shared";
 import { z } from "zod";
 
 /**
  * Spider-sense: pure anomaly checks over a delivered run.
  * No IO here — everything takes data in and returns findings, so the whole
  * layer is unit-testable and incidents can be replayed against new rules.
+ *
+ * The Baseline/CheckResult/Verdict vocabulary lives in @scrape-verse/shared
+ * because incident evidence and the dashboard audit view speak it too.
  */
 
-export interface Baseline {
-  fieldNullRates: Record<string, number>;
-  expectedRowCount: number;
-  /** per-field [p5, p95] envelope for numeric fields */
-  valueRanges: Record<string, [number, number]>;
-}
-
-export interface CheckResult {
-  check: "schema" | "rowcount" | "nulls" | "drift";
-  severity: "hard" | "soft";
-  detail: string;
-}
+export type { Baseline, CheckResult, Verdict };
 
 /** Hard fail: any row that does not match the fleet output contract. */
 export function checkSchema(rows: unknown[], schema: z.ZodTypeAny): CheckResult[] {
@@ -90,11 +83,6 @@ export function checkDrift(
     }
   }
   return results;
-}
-
-export interface Verdict {
-  status: "ok" | "suspect" | "broken";
-  findings: CheckResult[];
 }
 
 /** Combine all checks into a run verdict feeding the scraper state machine. */

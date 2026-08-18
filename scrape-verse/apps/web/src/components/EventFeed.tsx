@@ -1,6 +1,7 @@
-import { feed, type FeedEvent } from "../data/mock";
+import type { FeedEventKind } from "@scrape-verse/shared";
+import { feed } from "../data/mock";
 
-const kindColor: Record<FeedEvent["kind"], string> = {
+const kindColor: Record<FeedEventKind, string> = {
   breakage: "var(--bad)",
   healing: "var(--blue)",
   healed: "var(--ok)",

@@ -19,6 +19,8 @@ on GitHub — everything renders in both.
    candidate sites, definition of done.
 3. [Architecture (HLD)](architecture.md) — components, self-heal loop,
    state machine, data model, deployment; all diagrams inline.
+4. [API contract](api-contract.md) — frozen v1 endpoint and response shapes;
+   the seam the data plane and control plane meet at.
 
 ## Elsewhere
 
@@ -33,6 +35,13 @@ on GitHub — everything renders in both.
 
 ## Standing status
 
-- Bright Data verification: cleared Aug 17. Credits: ~$49.76 as of Aug 18.
+- Bright Data: two separate accounts, two separate budgets. Spencer's is
+  verified (cleared Aug 17) and holds the Aug 15-17 experiment collectors,
+  balance ~$49.76 as of Aug 18. Edjin's is a second account, balance $52.00
+  as of Aug 18, verification status untested.
+- OPEN DECISION: which account owns the fleet. Triggers and heals cannot
+  cross accounts, so the deployed orchestrator's key fixes the fleet,
+  the heal loop and the budget guard to one account; the other becomes a
+  dev sandbox.
 - PH gate: 2+ PH sites must vet cleanly by Aug 19 EOD.
 - Submission form: not yet live on the hackathon page — check daily.

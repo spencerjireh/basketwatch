@@ -1,5 +1,9 @@
 import { basketItems } from "../data/mock";
 
+/** Prices carry their own ISO currency, so formatting is per row, not global. */
+const money = (currency: string) =>
+  new Intl.NumberFormat(undefined, { style: "currency", currency });
+
 export function BasketTable() {
   return (
     <table className="basket">
@@ -13,12 +17,14 @@ export function BasketTable() {
       </thead>
       <tbody>
         {basketItems.map((item) => (
-          <tr key={item.name}>
+          <tr key={item.productKey}>
             <td>{item.name}</td>
-            <td>{item.cheapest}</td>
-            <td>${item.price.toFixed(2)}</td>
-            <td className={item.delta < 0 ? "delta-down" : item.delta > 0 ? "delta-up" : ""}>
-              {item.delta === 0 ? "—" : `${item.delta > 0 ? "+" : ""}${item.delta.toFixed(1)}%`}
+            <td>{item.cheapestStore}</td>
+            <td>{money(item.currency).format(item.price)}</td>
+            <td className={item.deltaPct < 0 ? "delta-down" : item.deltaPct > 0 ? "delta-up" : ""}>
+              {item.deltaPct === 0
+                ? "—"
+                : `${item.deltaPct > 0 ? "+" : ""}${item.deltaPct.toFixed(1)}%`}
             </td>
           </tr>
         ))}

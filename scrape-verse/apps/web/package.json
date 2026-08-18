@@ -8,6 +8,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@scrape-verse/shared": "*",
     "react": "^18.3.0",
     "react-dom": "^18.3.0",
     "recharts": "^3.10.1"

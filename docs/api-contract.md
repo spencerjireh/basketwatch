@@ -1,0 +1,76 @@
+---
+title: API Contract
+tags: [hackathon, contract]
+created: 2026-08-18
+status: frozen-v1
+---
+
+# API contract (frozen v1)
+
+The seam between the two work slices in
+[architecture](architecture.md) section 5. Response types live in
+`scrape-verse/packages/shared/src/api.ts` and are the single source of truth;
+`scrape-verse/apps/web/src/data/mock.ts` holds fixtures in exactly those
+shapes. Change the type and the fixture together, or neither.
+
+Conventions: JSON only, timestamps are ISO 8601 UTC strings, money is a
+number plus an ISO currency code (never a preformatted string), and `country`
+is present on every store-, product- and basket-shaped payload.
+
+## Dashboard reads
+
+| Endpoint | Response | Implemented |
+|---|---|---|
+| `GET /health` | `{ ok: true }` | yes |
+| `GET /api/fleet` | `FleetScraper[]` | no |
+| `GET /api/basket/index?country=US` | `BasketSeries[]` | no |
+| `GET /api/basket/today?country=US` | `BasketItem[]` | no |
+| `GET /api/feed?limit=50` | `FeedEvent[]` | no |
+| `GET /api/incidents?state=open` | `Incident[]` | no |
+| `GET /api/incidents/:id` | `Incident` | no |
+| `GET /api/budget` | `CreditBudget` | no |
+
+`country` is optional on the basket endpoints: omit it to get every country
+(which is what the comparison view asks for), pass it to get one.
+
+`Incident` carries its `evidence` bundle and its full `attempts` array, so the
+heal audit view renders from a single response: diagnosis, prompt, Studio
+diff, canary result, verdict, credits.
+
+## Writes and inbound
+
+| Endpoint | Body | Auth | Implemented |
+|---|---|---|---|
+| `POST /ingest/:scraperId` | `PriceRecord[]` | `X-Webhook-Secret` | accepts, does not persist |
+| `POST /api/scrapers/:id/run` | `{}` | ops token | no |
+| `GET /api/stream` (SSE) | `FeedEvent` per message | none | no |
+
+SSE is the P0-but-cuttable live path; the fallback is polling these same
+endpoints, so nothing about the contract changes if it gets cut.
+
+## Shared vocabulary
+
+Enums are exported as const arrays plus derived types, so both runtime
+validation and the UI use the same list:
+
+- `countries` / `Country`
+- `scraperStates` / `ScraperState` — the state machine in
+  [architecture](architecture.md) section 3.2
+- `incidentKinds` / `IncidentKind`, `incidentStates` / `IncidentState`
+- `healVerdicts` / `HealVerdict`
+- `feedEventKinds` / `FeedEventKind`
+- `checkNames` / `CheckName`, `runStatuses` / `RunStatus`
+
+The validator's `Baseline`, `CheckResult` and `Verdict` also live in shared
+(re-exported from `apps/api/src/validator/checks.ts` for convenience) because
+incident evidence and the dashboard audit view speak the same vocabulary.
+
+## Known gaps to close before the data plane lands
+
+- `apps/api/src/db/schema.ts` has no `country` column on `scrapers`,
+  `products` or `price_records`, and no `product_key` on `products`, so it
+  cannot yet satisfy this contract.
+- `price_records` has no per-row `unit`, which `BasketItem.unit` needs.
+- Nothing computes `FleetScraper.nullRatePct`, `healsToday` or
+  `CreditBudget.spentTodayUsd` yet; those are derived at query time from
+  `runs`, `heal_attempts` and `baselines`.
