@@ -95,6 +95,10 @@ Source: `diagrams/system-architecture.mmd` (PNG export alongside).
   fallback: poll `/dca/get_result`.
 - Canary runs: same scraper, `--sync`/trigger_immediate against 1 URL, used
   only for verification after heals.
+- Studio exposes browser **functions** — click, navigate, wait, input — over a
+  cloud browser, so a scraper can drive interaction before extracting. This is
+  the lever for store-or-ZIP gating, which is the most likely reason a grocery
+  candidate fails vetting. Reach for it before dropping a site.
 
 ### 3.2 Orchestrator API (NestJS)
 Single NestJS service, modular internals (controllers + injectable

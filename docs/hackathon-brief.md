@@ -41,13 +41,17 @@ then use that data to build something meaningful.
 
 **Bright Data Scraper Studio is mandatory** and must be central to the project.
 
-## Tracks (every submission auto-considered for all three)
+## Tracks (every submission auto-considered for the first three)
 
 | Track | Criterion | Prize |
 |---|---|---|
 | Web-Slinger (grand) | Best use of Bright Data: scraper design, coding agent integration, self-healing, structured output | NVIDIA DGX Spark ($5k) or $5k cash |
 | Suit-Up | Best UI: looks/feels finished, data presentation | iPad per member |
 | Spider-Sense | Best clean code: readable, structured, edge cases handled | Keychron per member |
+| Daily Bugle | Best LinkedIn post: build-in-public documentation, tag Kunal + Bright Data | Samsung Galaxy Watch (~$600) |
+
+Also given away: an Iron Man helmet (criteria unstated). The clean-code track
+is sponsored by Kodo.
 
 ## Judging criteria (equal weight)
 
@@ -67,17 +71,25 @@ then use that data to build something meaningful.
 
 GitHub repo + demo video + project description + explanation of Scraper Studio usage + form.
 
-## Scraper Studio facts (from docs/research)
+## Scraper Studio facts (from docs/research; corrected by the findings below)
 
 - AI-powered scraper builder: give a URL + description of data, it generates
   and deploys a working scraper (JavaScript, editable in a web IDE).
 - Self-Healing tool: plain-language prompt -> AI proposes a code diff ->
-  review/accept -> preview -> save to production. UI-only per current docs
-  (no documented API/CLI trigger for healing itself). Refactor can take up
-  to 15 min. Works on scrapers saved in development mode.
+  review/accept -> preview -> save to production. Drivable three ways: the
+  control-panel UI, the CLI (`scraper heal`, plus `--auto-approve
+  --auto-save` for unattended runs), and REST (`refactor_template` ->
+  `resume_automation_job`). Refactor can take up to 15 min. Works on scrapers
+  saved in development mode. Prompt-level flow, with expected output at each
+  step: [agent prompts](reference/brightdata-agent-prompts.md).
 - Free tier: 5,000 credits/month. Promo code `wemakedevs` = +$50 credits.
-- Bright Data also ships an official CLI (github.com/brightdata/cli) for
-  scrape/search/extract from the terminal.
+- Bright Data also ships an official CLI (github.com/brightdata/cli) that
+  drives the whole Studio loop from the terminal — create, run, heal, approve
+  — alongside scrape/search/extract, `brightdata skill`, and
+  `brightdata add mcp`. Installed as both `brightdata` and `bdata`; Bright
+  Data's own docs invoke it via `npx -p @brightdata/cli` with
+  `bdata login --device`, which is the login that works inside a coding
+  agent or SSH session.
 
 ## Experiment findings (Aug 15)
 
@@ -118,6 +130,48 @@ GitHub repo + demo video + project description + explanation of Scraper Studio u
   Amazon/Walmart — 800+ prebuilt exist). Regional grocers/pharmacies it is.
 - Schedule: user has 9h work block Thu Aug 20 ("AI Bootcamp Capstone") —
   polish work may need to shift Wed evening / Fri morning.
+
+## Kickoff webinar findings (Aug 18)
+
+Source: the official WeMakeDevs kickoff stream (54m), recorded locally via OBS.
+Transcript sits in the session scratchpad (`stream.txt` / `stream.vtt`), not
+committed. Timestamps below index into that recording.
+
+- Anil from Bright Data is both a judge and the author of the repo vendored
+  into [agent prompts](reference/brightdata-agent-prompts.md) — that file is the
+  literal script for his live demo. He is a technical product marketer and
+  leads go-to-market for Scraper Studio and the Scraper APIs.
+- **Healing during the event is NOT a requirement** (47:43), asked directly how
+  anyone demos a heal when sites do not redesign themselves in a week: "It
+  doesn't mean the website has to break during the event. That's not the
+  mandatory requirement. The mandatory requirement is using the Scraper Studio
+  to build something cool. If the website doesn't change during the week,
+  that's fine. That's not a requirement. It's just the outcome." Consequences
+  for our cut order are open item C5 in [prd](prd.md).
+- Judge's stated priority order when asked what he looks for (33:32): did you
+  use Scraper Studio (first and foremost) -> is it demoable, can he check it ->
+  is the use case real -> clean readable code -> demo narrative (what the
+  challenge was, how Studio solved it, what the end result is).
+- A two-version sample store with a switch between layouts is his recommended
+  way to stage a heal demo (46:42) — independent confirmation of the Parker's
+  Pantry approach.
+- Bright Data MCP is optional but scores (36:00): "You don't have to use the
+  Bright Data MCP, but you can, extra points for you to go the extra mile."
+- Scraper Studio exposes **functions** — click, navigate, wait, input (45:16).
+  "It's basically a browser sitting on the cloud and you're just giving
+  instruction to browser what to do." This is the lever for store/ZIP gating on
+  grocery sites; see 3.1 in [architecture](architecture.md).
+- Auto self-healing — no prompt needed, "zero maintenance" — is on Bright
+  Data's product roadmap (24:26). Frame our orchestrator as building that loop
+  today rather than as permanently novel.
+- Submissions open Aug 19, early filing is encouraged for feedback, and the
+  form stays editable after you submit (36:20).
+- Mid-event feedback stream Thursday Aug 20 (34:48): show progress, get live
+  feedback from Kunal and Anil. Collides with the 9h capstone block.
+- Q&A gotcha: a participant's heal silently did nothing because the scraper was
+  never saved to production and stayed on the dev version. The approve ->
+  update schema -> save-to-production sequence no-ops if you stop partway.
+- Field size: ~8,500 registrations.
 
 ## RESOLVED BLOCKER (was: as of Aug 15)
 

@@ -144,3 +144,8 @@ Cheap HTTP checks first; Studio credits only on survivors.
   with separate budgets, and triggers/heals cannot cross accounts, so this
   decides the orchestrator's key, the credit ceiling, and where every
   scraper is created. Needed before the fleet is built out.
+- C6: the Aug 18 kickoff confirmed a live heal is NOT a hackathon
+  requirement — only Scraper Studio use is (47:43, see brief). The heal
+  loop is therefore a differentiator, not a gate. Decide: keep it as the
+  centerpiece of the week, or demote it in the cut order. Until this is
+  settled the DoD below is unchanged and still assumes centerpiece.

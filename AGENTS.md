@@ -69,6 +69,9 @@ Bright Data CLI (`brightdata`, v0.3.4+) drives Scraper Studio:
 - **Kill only listeners.** Use `lsof -ti:PORT -sTCP:LISTEN | xargs kill` —
   a bare `lsof -ti:PORT` also matches browsers connected to the port.
 - **Don't deploy** anything without the user's explicit go-ahead.
+- **Never push to `main`.** Branch, open a PR, merge the PR — see
+  [CONTRIBUTING.md](./CONTRIBUTING.md). A pre-push hook enforces this once
+  `git config core.hooksPath .githooks` has been run in the clone.
 - The pre-build HN heal test is excluded from demo material (team decision).
 
 ## Conventions
