@@ -52,7 +52,7 @@ flowchart LR
 
     subgraph VPS["Coolify VPS"]
         subgraph API["Orchestrator API (TypeScript)"]
-            SCHED["Scheduler<br/>cron: 2x daily + on-demand"]
+            SCHED["pg-boss queue<br/>cron 2x daily + retries"]
             INGEST["Ingest<br/>webhook receiver + poller"]
             SENSE["Spider-Sense Layer<br/>schema / null-rate / row-count /<br/>value-drift / freshness checks"]
             HEAL["Heal Orchestrator<br/>evidence -> prompt -> heal -><br/>verify -> approve"]
@@ -96,12 +96,16 @@ Source: `diagrams/system-architecture.mmd` (PNG export alongside).
 - Canary runs: same scraper, `--sync`/trigger_immediate against 1 URL, used
   only for verification after heals.
 
-### 3.2 Orchestrator API (Node/TypeScript)
-Single service, modular internals. Why TS: Studio scraper code is JS, one
-language across scrapers/backend/frontend serves the clean-code track.
+### 3.2 Orchestrator API (NestJS)
+Single NestJS service, modular internals (controllers + injectable
+services). Why TS: Studio scraper code is JS, one language across
+scrapers/backend/frontend serves the clean-code track. Team-confirmed
+Aug 18 (replaces the earlier Hono sketch).
 
-- **Scheduler**: node-cron; 2 scheduled fleet runs/day + manual trigger from
-  ops UI. Jitter between scrapers to spread load.
+- **Jobs**: pg-boss — a Postgres-backed queue (no Redis broker): persistent
+  jobs, retries with backoff, cron schedules. Queues: `fleet-scrape`
+  (2x daily + manual trigger from ops UI, jitter between scrapers) and
+  `heal` (enqueued when an incident opens).
 - **Ingest**: webhook receiver; verifies signature, stores raw run, enqueues
   validation.
 - **Spider-Sense validator** (pure functions, unit-tested — this is the
@@ -276,8 +280,11 @@ break-and-heal demo moment + integration-test target during development.
 Disclosed as a test target in the submission.
 
 ### 3.6 Deployment
-Coolify VPS, docker compose stack: `dashboard`, `orchestrator-api`,
-`postgres` (volume), `clone-store`. Coolify handles TLS/subdomains. Secrets
+Coolify VPS. **`scrape-verse/docker-compose.prod.yml` is the deployment
+unit** — Coolify runs the whole stack as one Docker Compose resource:
+`dashboard`, `orchestrator-api`, `postgres` (internal-only, volume-backed),
+`clone-store`. `docker-compose.dev.yml` runs just postgres locally; apps
+run on the host with hot reload. Coolify handles TLS/subdomains. Secrets
 (Bright Data key, Anthropic key, Resend, Telegram token, webhook secret) via
 Coolify env vars. Bright Data webhook -> `https://api.<domain>/ingest/<scraper>`.
 
@@ -296,7 +303,7 @@ flowchart TB
         PROXY["Reverse proxy + TLS<br/>(Coolify-managed)"]
         subgraph APP["app stack (docker compose)"]
             WEB["dashboard<br/>React SPA"]
-            APIC["orchestrator-api<br/>Node/TS + node-cron"]
+            APIC["orchestrator-api<br/>NestJS + pg-boss"]
             PG[("postgres 16<br/>volume-backed")]
         end
         CLONE["clone-store<br/>static site + mutation flag<br/>(separate subdomain)"]

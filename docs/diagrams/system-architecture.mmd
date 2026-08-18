@@ -7,7 +7,7 @@ flowchart LR
 
     subgraph VPS["Coolify VPS"]
         subgraph API["Orchestrator API (TypeScript)"]
-            SCHED["Scheduler<br/>cron: 2x daily + on-demand"]
+            SCHED["pg-boss queue<br/>cron 2x daily + retries"]
             INGEST["Ingest<br/>webhook receiver + poller"]
             SENSE["Spider-Sense Layer<br/>schema / null-rate / row-count /<br/>value-drift / freshness checks"]
             HEAL["Heal Orchestrator<br/>evidence -> prompt -> heal -><br/>verify -> approve"]

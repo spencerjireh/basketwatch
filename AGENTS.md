@@ -19,8 +19,9 @@ Read these before doing product work, in order:
 ## Layout
 
 - `scrape-verse/` — the product monorepo (npm workspaces)
-  - `apps/api` — orchestrator: Hono + Drizzle + Postgres; spider-sense
-    validator in `src/validator/` (pure functions, keep them IO-free)
+  - `apps/api` — orchestrator: NestJS + Drizzle + pg-boss (Postgres-backed
+    job queue, no Redis); spider-sense validator in `src/validator/`
+    (pure functions, keep them IO-free)
   - `apps/web` — dashboard (Vite + React + Recharts); currently on mock
     data in `src/data/mock.ts` that mirrors the API contract
   - `apps/clone-store` — "Parker's Pantry" chaos target (dependency-free
@@ -34,12 +35,16 @@ Run from `scrape-verse/`:
 
 ```sh
 npm install
-docker compose up postgres -d
+docker compose -f docker-compose.dev.yml up -d   # postgres only
 npm run dev:api     # :3001
 npm run dev:web     # :3000
 npm run dev:clone   # :3002
 npm test            # vitest (validator tests must stay green)
 ```
+
+Deployment: `docker-compose.prod.yml` is THE Coolify deployment unit
+(single Docker Compose resource; secrets via Coolify env vars). Never
+deploy without the user's go-ahead.
 
 Bright Data CLI (`brightdata`, v0.3.4+) drives Scraper Studio:
 `scraper create <url> "<desc>"`, `scraper run <id> [url]`,
@@ -76,6 +81,8 @@ Bright Data CLI (`brightdata`, v0.3.4+) drives Scraper Studio:
 
 ## Current state (update as things land)
 
-- Scaffold complete, dashboard v1 on mock data, clone store working.
-- Not yet: DB wiring for ingest, heal orchestrator service, scheduler,
-  notifier, deploy, real fleet (site vetting pending — PH gate Aug 19 EOD).
+- Scaffold complete on NestJS + pg-boss (swapped from Hono Aug 18, team
+  decision); dashboard v1 on mock data; clone store working; dev/prod
+  compose split with Dockerfiles for all three apps.
+- Not yet: DB wiring for ingest, heal orchestrator service, notifier,
+  first deploy, real fleet (site vetting pending — PH gate Aug 19 EOD).

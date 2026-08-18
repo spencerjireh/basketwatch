@@ -11,8 +11,9 @@ diagrams/).
 
 ## Layout
 
-- `apps/api` — orchestrator: scheduler, webhook ingest, spider-sense
-  validator, heal orchestrator, notifier (Hono + Drizzle + Postgres)
+- `apps/api` — orchestrator: jobs, webhook ingest, spider-sense
+  validator, heal orchestrator, notifier (NestJS + Drizzle + pg-boss +
+  Postgres)
 - `apps/web` — dashboard (React + Vite)
 - `apps/clone-store` — "Parker's Pantry", the controlled chaos target with a
   layout-mutation switch (dependency-free node server)
@@ -22,13 +23,20 @@ diagrams/).
 
 ```sh
 npm install
-docker compose up postgres -d
+docker compose -f docker-compose.dev.yml up -d   # postgres only
 cp .env.example .env   # fill in keys
 npm run dev:api        # :3001
 npm run dev:web        # :3000
 npm run dev:clone      # :3002
 npm test
 ```
+
+## Deploy
+
+`docker-compose.prod.yml` is the deployment unit: Coolify runs it as a
+single Docker Compose resource (postgres internal-only, secrets from
+Coolify env vars). Dev runs only postgres in Docker; apps run on the host
+with hot reload.
 
 ## Rules kept
 
