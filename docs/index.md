@@ -28,6 +28,11 @@ on GitHub — everything renders in both.
   points here). Hard rules: secrets, credit budget, bounded scrapers.
 - `diagrams/` — `.mmd` sources and PNG exports of the HLD diagrams; the
   inline mermaid in [architecture](architecture.md) is the same content.
+- `reference/` — vendored third-party docs, not team writing: Bright Data's
+  official hackathon repo, split into
+  [agent prompts](reference/brightdata-agent-prompts.md) (build, run, heal,
+  approve, batch) and [demo ideas](reference/brightdata-demo-ideas.md)
+  (target-selection gates). Re-fetch from source rather than editing by hand.
 - Code: `../scrape-verse/` (see its [README](../scrape-verse/README.md)).
 - Review artifacts (shareable pages):
   - HLD: https://claude.ai/code/artifact/a6c6e40f-22be-4b1d-b8f7-2c3f08578463
@@ -44,4 +49,5 @@ on GitHub — everything renders in both.
   the heal loop and the budget guard to one account; the other becomes a
   dev sandbox.
 - PH gate: 2+ PH sites must vet cleanly by Aug 19 EOD.
-- Submission form: not yet live on the hackathon page — check daily.
+- Submissions: open from Aug 19, early filing encouraged for organizer
+  feedback, and the form stays editable after you submit.
