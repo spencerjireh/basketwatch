@@ -1,0 +1,34 @@
+#!/bin/sh
+#
+# Refuse direct pushes to main. This repo is PR-only; see CONTRIBUTING.md.
+#
+# Activate in each clone with:
+#     git config core.hooksPath .githooks
+#
+# git feeds this hook one line per ref being pushed, on stdin:
+#     <local ref> <local sha> <remote ref> <remote sha>
+
+protected='refs/heads/main'
+
+if [ "$ALLOW_MAIN_PUSH" = "1" ]; then
+    echo "pre-push: ALLOW_MAIN_PUSH set, allowing push to main. Tell the team." >&2
+    exit 0
+fi
+
+while read -r _local_ref _local_sha remote_ref _remote_sha; do
+    if [ "$remote_ref" = "$protected" ]; then
+        echo "pre-push: refusing to push directly to main." >&2
+        echo "" >&2
+        echo "  This repo is PR-only. Branch, open a PR, merge the PR." >&2
+        echo "" >&2
+        echo "    git switch -c area/short-summary" >&2
+        echo "    git push -u origin area/short-summary" >&2
+        echo "    gh pr create --fill" >&2
+        echo "" >&2
+        echo "  See CONTRIBUTING.md. Real emergency only:" >&2
+        echo "    ALLOW_MAIN_PUSH=1 git push origin main" >&2
+        exit 1
+    fi
+done
+
+exit 0
