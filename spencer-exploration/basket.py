@@ -450,6 +450,49 @@ async def shopify_basket(base: str, country: str) -> dict:
     return items
 
 
+async def woocommerce_basket(base: str, country: str) -> dict:
+    """WooCommerce Store API - the co-op and small-independent platform of choice."""
+    items: dict = {}
+    async with httpx.AsyncClient(headers=HEADERS, follow_redirects=True, timeout=40) as c:
+        for item in ITEMS:
+            best = None
+            for term in must_terms(item, country):
+                try:
+                    r = await c.get(f"{base}/wp-json/wc/store/products",
+                                    params={"search": term, "per_page": 20})
+                    hits = r.json()
+                except Exception as e:  # noqa: BLE001
+                    items[item] = {"status": "error", "note": f"{type(e).__name__}: {e}"[:120]}
+                    hits = []
+                if not isinstance(hits, list):
+                    hits = []
+                for h in hits:
+                    if not pick_is_usable(item, h.get("name", ""), country):
+                        continue
+                    best = h
+                    break
+                if best:
+                    break
+            if not best:
+                items[item] = {"status": "not_found", "note": "store search returned no plain staple"}
+                continue
+            prices = best.get("prices") or {}
+            raw = prices.get("price")
+            minor = int(prices.get("currency_minor_unit", 2) or 0)
+            try:
+                price = float(raw) / (10 ** minor)
+            except (TypeError, ValueError):
+                price = None
+            items[item] = {
+                "url": best.get("permalink"), "name": best.get("name"),
+                "price": price, "currency": prices.get("currency_code"),
+                "size": parse_size(best.get("name", "")),
+                "status": "verified" if price else "candidate_unverified",
+                "via": "woocommerce-search",
+            }
+    return items
+
+
 async def graphql_basket(country_cur: str) -> dict:
     """SM Markets ships a public Magento GraphQL endpoint - ask it directly."""
     items: dict = {}
@@ -533,6 +576,8 @@ async def build_store(entry: dict, cand: dict, f: Fetcher) -> dict:
 
     if entry.get("search_api") == "magento-graphql":
         store["items"] = await graphql_basket(country)
+    elif entry.get("search_api") == "woocommerce":
+        store["items"] = await woocommerce_basket(cand["homepage"].rstrip("/"), country)
     elif entry.get("search_api") == "shopify":
         store["items"] = await shopify_basket(cand["homepage"].rstrip("/"), country)
     else:

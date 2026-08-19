@@ -36,6 +36,58 @@ store's public catalogue has no such staple.
 
 - **coffee** curated: Automation picked Nescafe Original 200g at PHP 949.95, which works out to PHP 4,750/kg - roughly 4.5x every other instant coffee in the same catalogue, so it is almost certainly a case or a mispriced line. The Tipid Pack is the standard instant refill and the representative PH form named in items.json.
 
+## Ever Supermarket (PH) - 19/10 settled, 19/10 with a chosen URL
+
+| Item | Target | Status | Size | Price | Product |
+|---|---|---|---|---|---|
+| rice | 5 kg | verified | {'raw': '5kg', 'value': 5.0, 'uom': 'kg', 'approximate': False, 'form': 'plain', 'quantity': 5000.0, 'base_uom': 'g'} | 389.50 | Farmboy Pandan Rice 5kg |
+| bread | 500 g loaf | verified | {'raw': '550g', 'value': 550.0, 'uom': 'g', 'approximate': False, 'form': 'plain', 'quantity': 550.0, 'base_uom': 'g'} | 91.25 | Melle's Butter Cheese Loaf Bread 550g |
+| pasta | 500 g | verified | {'raw': '500g', 'value': 500.0, 'uom': 'g', 'approximate': False, 'form': 'plain', 'quantity': 500.0, 'base_uom': 'g'} | 97.00 | San Remo Fettuccine Pasta 500g |
+| chicken | 1 kg | verified | {'raw': '1kg', 'value': 1.0, 'uom': 'kg', 'approximate': False, 'form': 'plain', 'quantity': 1000.0, 'base_uom': 'g'} | 203.50 | Mamanok's Whole Chicken 1kg Frozen Packed |
+| eggs | tray (30) or dozen | verified | {'raw': '30s', 'value': 30.0, 'uom': 's', 'approximate': False, 'form': 'plain', 'quantity': 30.0, 'base_uom': 'count'} | 335.75 | Bounty Fresh Eggs Premium Large 30s |
+| milk | 1 L | verified | {'raw': '1L', 'value': 1.0, 'uom': 'l', 'approximate': False, 'form': 'plain', 'quantity': 1000.0, 'base_uom': 'ml'} | 121.25 | Magnolia Low Fat Milk 1L |
+| coffee | ground or instant refill | verified | {'raw': '20x7g', 'value': 140.0, 'uom': 'g', 'approximate': False, 'form': 'multipack', 'quantity': 140.0, 'base_uom': 'g'} | 166.75 | San Mig Super Coffee Sugar Free Original 3in1 Coffee Mix 20x7g |
+| sugar | 1 kg | verified | {'raw': '1kg', 'value': 1.0, 'uom': 'kg', 'approximate': False, 'form': 'plain', 'quantity': 1000.0, 'base_uom': 'g'} | 78.25 | Ever Savers Brown Sugar 1kg |
+| cooking_oil | 1 L | verified | {'raw': '2L', 'value': 2.0, 'uom': 'l', 'approximate': False, 'form': 'plain', 'quantity': 2000.0, 'base_uom': 'ml'} | 327.50 | Simply Pure Canola Oil 2L |
+| bananas | 1 kg | verified | {'raw': '500g', 'value': 500.0, 'uom': 'g', 'approximate': False, 'form': 'plain', 'quantity': 500.0, 'base_uom': 'g'} | 78.75 | Dizon Banana Lacatan Premium 500g |
+| pork | 1 kg | verified | {'raw': '500g', 'value': 500.0, 'uom': 'g', 'approximate': False, 'form': 'plain', 'quantity': 500.0, 'base_uom': 'g'} | 277.00 | Jupiter Pork Kasim Skinless Boneless 500g |
+| fish | 1 kg | verified | {'raw': '700g', 'value': 700.0, 'uom': 'g', 'approximate': False, 'form': 'plain', 'quantity': 700.0, 'base_uom': 'g'} | 315.25 | Cold Storage Frozen Tilapia Fillets 700g |
+| cheese | 500 g | verified | {'raw': '160g', 'value': 160.0, 'uom': 'g', 'approximate': False, 'form': 'plain', 'quantity': 160.0, 'base_uom': 'g'} | 57.25 | Eden Cheese Original 160g |
+| tomatoes | 1 kg | verified | {'raw': '250g', 'value': 250.0, 'uom': 'g', 'approximate': False, 'form': 'plain', 'quantity': 250.0, 'base_uom': 'g'} | 30.50 | Yesha Tomato Regular 250g |
+| potatoes | 1 kg | verified | {'raw': '500g', 'value': 500.0, 'uom': 'g', 'approximate': False, 'form': 'plain', 'quantity': 500.0, 'base_uom': 'g'} | 101.75 | Yesha Potato 500g |
+| onions | 1 kg | verified | {'raw': '250g', 'value': 250.0, 'uom': 'g', 'approximate': False, 'form': 'plain', 'quantity': 250.0, 'base_uom': 'g'} | 51.00 | Yesha Onion White 250g |
+| apples | 1 kg | not_found | - | - | search returned no plain staple |
+| oranges | 1 kg | verified | {'raw': '500g', 'value': 500.0, 'uom': 'g', 'approximate': False, 'form': 'plain', 'quantity': 500.0, 'base_uom': 'g'} | 127.25 | Yesha Orange 500g |
+| canned_fish | 155 g tin | verified | {'raw': '155g', 'value': 155.0, 'uom': 'g', 'approximate': False, 'form': 'plain', 'quantity': 155.0, 'base_uom': 'g'} | 25.75 | Mega Sardines in Tomato Sauce Easy Open 155g |
+| bottled_water | 1.5 L | verified | {'raw': '10L', 'value': 10.0, 'uom': 'l', 'approximate': False, 'form': 'plain', 'quantity': 10000.0, 'base_uom': 'ml'} | 102.75 | Nature's Spring Purified Drinking Water 10L |
+
+
+## Shop Suki (PH) - 13/10 settled, 19/10 with a chosen URL
+
+| Item | Target | Status | Size | Price | Product |
+|---|---|---|---|---|---|
+| rice | 5 kg | verified | {'raw': '5kg', 'value': 5.0, 'uom': 'kg', 'approximate': False, 'form': 'plain', 'quantity': 5000.0, 'base_uom': 'g'} | 272.00 | Premium Gold Rice (PGR) 5kg |
+| bread | 500 g loaf | verified | {'raw': '340g', 'value': 340.0, 'uom': 'g', 'approximate': False, 'form': 'plain', 'quantity': 340.0, 'base_uom': 'g'} | 60.75 | Lucky Charm Whole Wheat Pandesal 340g |
+| pasta | 500 g | verified | {'raw': '400g', 'value': 400.0, 'uom': 'g', 'approximate': False, 'form': 'plain', 'quantity': 400.0, 'base_uom': 'g'} | 74.10 | Royal Premium Elbow Macaroni 400g |
+| chicken | 1 kg | verified | {'raw': '500g', 'value': 500.0, 'uom': 'g', 'approximate': False, 'form': 'plain', 'quantity': 500.0, 'base_uom': 'g'} | 113.80 | Besuto Chicken Crackers 500g |
+| eggs | tray (30) or dozen | verified | {'raw': "120's", 'value': 120.0, 'uom': 'count', 'approximate': False, 'form': 'count', 'quantity': 120.0, 'base_uom': 'count'} | 133.45 | Mcmaster Crunchy Egg Bubble Gum 120's |
+| milk | 1 L | verified | {'raw': '360ml', 'value': 360.0, 'uom': 'ml', 'approximate': False, 'form': 'plain', 'quantity': 360.0, 'base_uom': 'ml'} | 60.90 | Alaska Evaporated Filled Milk Classic 360ml |
+| coffee | ground or instant refill | candidate_unverified | {'raw': '20g', 'value': 20.0, 'uom': 'g', 'approximate': False, 'form': 'plain', 'quantity': 20.0, 'base_uom': 'g'} | - | URL selected from the sitemap but the page serves no price over plain  |
+| sugar | 1 kg | verified | {'raw': '500g', 'value': 500.0, 'uom': 'g', 'approximate': False, 'form': 'plain', 'quantity': 500.0, 'base_uom': 'g'} | 129.75 | Alter Trade Mascobado Sugar 500g |
+| cooking_oil | 1 L | candidate_unverified | {'raw': '120ml', 'value': 120.0, 'uom': 'ml', 'approximate': False, 'form': 'plain', 'quantity': 120.0, 'base_uom': 'ml'} | - | URL selected from the sitemap but the page serves no price over plain  |
+| bananas | 1 kg | candidate_unverified | {'raw': '33g', 'value': 33.0, 'uom': 'g', 'approximate': False, 'form': 'plain', 'quantity': 33.0, 'base_uom': 'g'} | - | URL selected from the sitemap but the page serves no price over plain  |
+| pork | 1 kg | verified | {'raw': '5kg', 'value': 5.0, 'uom': 'kg', 'approximate': True, 'form': 'plain', 'quantity': 5000.0, 'base_uom': 'g'} | 1727.25 | Pork Belly Whole Approx. 5kg |
+| fish | 1 kg | verified | {'raw': '250g', 'value': 250.0, 'uom': 'g', 'approximate': False, 'form': 'plain', 'quantity': 250.0, 'base_uom': 'g'} | 61.45 | Besuto Kropeck Fish Curry 250g |
+| cheese | 500 g | verified | {'raw': '160g', 'value': 160.0, 'uom': 'g', 'approximate': False, 'form': 'plain', 'quantity': 160.0, 'base_uom': 'g'} | 58.20 | Kraft Eden Cheese 160g |
+| tomatoes | 1 kg | not_found | - | - | no candidate URL in pool |
+| potatoes | 1 kg | candidate_unverified | {'raw': '85g', 'value': 85.0, 'uom': 'g', 'approximate': False, 'form': 'plain', 'quantity': 85.0, 'base_uom': 'g'} | - | URL selected from the sitemap but the page serves no price over plain  |
+| onions | 1 kg | verified | {'raw': '250g', 'value': 250.0, 'uom': 'g', 'approximate': False, 'form': 'plain', 'quantity': 250.0, 'base_uom': 'g'} | 61.45 | Besuto Prawn Cracker Onion Garlic 250g |
+| apples | 1 kg | candidate_unverified | {'raw': '330ml', 'value': 330.0, 'uom': 'ml', 'approximate': False, 'form': 'plain', 'quantity': 330.0, 'base_uom': 'ml'} | - | URL selected from the sitemap but the page serves no price over plain  |
+| oranges | 1 kg | candidate_unverified | {'raw': '230ml', 'value': 230.0, 'uom': 'ml', 'approximate': False, 'form': 'plain', 'quantity': 230.0, 'base_uom': 'ml'} | - | URL selected from the sitemap but the page serves no price over plain  |
+| canned_fish | 155 g tin | verified | {'raw': '155g', 'value': 155.0, 'uom': 'g', 'approximate': False, 'form': 'plain', 'quantity': 155.0, 'base_uom': 'g'} | 26.95 | Mega Sardines In Tomato Sauce 155g |
+| bottled_water | 1.5 L | verified | {'raw': '500ml', 'value': 500.0, 'uom': 'ml', 'approximate': False, 'form': 'plain', 'quantity': 500.0, 'base_uom': 'ml'} | 9.80 | Refresh Mineral Water 500ml |
+
+
 ## SM Markets (PH) - 9/10 settled, 9/10 with a chosen URL
 
 | Item | Target | Status | Size | Price | Product |

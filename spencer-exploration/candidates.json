@@ -1660,6 +1660,18 @@
       "product_hint": [
         "/product"
       ]
+    },
+    {
+      "id": "ph-shopsuki",
+      "name": "Shop Suki",
+      "country": "PH",
+      "vertical": "grocery",
+      "homepage": "https://shopsuki.ph",
+      "why": "Round 5: PH online grocery delivery surfaced while hunting for more stores on queryable platforms",
+      "product_hint": [
+        "/products/",
+        "/product"
+      ]
     }
   ]
 }

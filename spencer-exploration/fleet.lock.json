@@ -18,6 +18,36 @@
       "role": "index-contributor"
     },
     {
+      "id": "ph-ever",
+      "name": "Ever Supermarket",
+      "country": "PH",
+      "vertical": "grocery",
+      "structural_class": "json-ld",
+      "search_api": "shopify",
+      "studio_collector_id": null,
+      "index_contributor": true,
+      "role": "index-contributor",
+      "why_locked": "Best basket coverage of any store in the registry: 10/10 core items, 19/20 tracked, every one with a computed unit price, and genuine staples throughout - Farmboy Pandan Rice 5kg, whole chicken 1kg, a 30-egg tray. Shopify search makes selection reliable.",
+      "risk": "low",
+      "substitute": "ph-snr",
+      "caveat": "Was scored 85/backup on sitemap-derived basket coverage of 0/10. Its catalogue was only visible through Shopify search - a reminder that sitemap coverage understates any store with a search API."
+    },
+    {
+      "id": "ph-shopsuki",
+      "name": "Shop Suki",
+      "country": "PH",
+      "vertical": "grocery",
+      "structural_class": "json-ld",
+      "search_api": null,
+      "studio_collector_id": null,
+      "index_contributor": true,
+      "role": "index-contributor",
+      "why_locked": "16 of 20 items settled with strong picks - Nestle Fresh Milk 1L, Angelina Super Loaf 640g, Balducci Spaghetti 500g, real white onions sold by weight, Absolute Distilled Water 6L. Server-rendered json-ld and a broad staples catalogue.",
+      "risk": "low",
+      "substitute": "ph-marketfresh",
+      "caveat": "Its chicken pick is Marca Manok Sinandomeng Rice - 'manok' is the brand, not the contents - and its eggs pick is salted egg. Both need curating in manual-basket.json before use."
+    },
+    {
       "id": "ph-smmarkets",
       "name": "SM Markets",
       "country": "PH",
@@ -154,6 +184,16 @@
       "date": "2026-08-19",
       "change": "Split the fleet into index contributors and reliability subjects",
       "why": "Building the per-store basket showed the four US members settle 0-4 of the core 10 items - not a scraping failure but a catalogue one. Round 4 hunted specifically for US retailers publishing staples and found none across co-ops, Hispanic and Asian grocers, delivery-first grocers and US Filipino grocers. Sukli and Lili Mart both looked ideal on structure and both turned out to sell snacks and specialty goods. Rather than drop working scrapers or pretend they feed the index, each member now declares which job it does."
+    },
+    {
+      "date": "2026-08-19",
+      "change": "Added Ever Supermarket as an index contributor",
+      "why": "Testing every store with a search API through its own search rather than its sitemap surfaced Ever at 10/10 core items - better than any locked member. The registry had it at backup because sitemap keyword coverage read 0/10, which is the wrong measure for a store whose catalogue is only reachable by query."
+    },
+    {
+      "date": "2026-08-19",
+      "change": "Added Shop Suki as an index contributor",
+      "why": "Found by searching for PH grocers on queryable platforms after Ever showed that sitemap-derived coverage understates stores whose catalogue is query-only. The PH index now rests on six contributors rather than four."
     }
   ]
 }

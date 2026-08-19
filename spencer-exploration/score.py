@@ -158,6 +158,21 @@ def load_lock() -> dict:
     return json.loads(lp.read_text()) if lp.exists() else {"fleet": [], "always_in_fleet": []}
 
 
+def load_basket_coverage() -> dict:
+    """Core-item coverage actually measured by the basket builder.
+
+    The registry's own basket_coverage counts keyword hits in a sitemap, which
+    understates any store whose catalogue is only reachable by query - Ever reads
+    0/10 there and 10/10 once its Shopify search is used. Where the basket builder
+    has measured a store, that measurement wins.
+    """
+    bp = HERE / "basket-map.json"
+    if not bp.exists():
+        return {}
+    doc = json.loads(bp.read_text())
+    return {sid: st.get("core_settled", 0) for sid, st in doc.get("stores", {}).items()}
+
+
 def audit_lock(lock: dict, sites: list[dict]) -> list[dict]:
     """Check every locked site still holds up. Drift is reported, never silently kept.
 
@@ -166,6 +181,7 @@ def audit_lock(lock: dict, sites: list[dict]) -> list[dict]:
     is that such a move surfaces instead of quietly changing what ships.
     """
     by_id = {x["id"]: x for x in sites}
+    measured = load_basket_coverage()
     problems = []
     for entry in lock.get("fleet", []):
         sid = entry["id"]
@@ -182,6 +198,10 @@ def audit_lock(lock: dict, sites: list[dict]) -> list[dict]:
         # Reliability subjects are locked for scraper health, not for the basket, so
         # a thin-basket demotion is the expected state rather than drift. Anything
         # that makes them unscrapeable still counts.
+        # An index contributor measured by the basket builder is judged on that,
+        # not on sitemap keyword hits.
+        if entry.get("index_contributor") and measured.get(sid, 0) >= 3:
+            continue
         if (not entry.get("index_contributor", True)
                 and site["verdict"] == "backup"
                 and site["render_class"] in ("server_rendered", "spa_empty")):

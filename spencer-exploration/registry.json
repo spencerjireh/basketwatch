@@ -10,16 +10,16 @@
     "novelty": 5
   },
   "totals": {
-    "candidates": 147,
+    "candidates": 148,
     "by_verdict": {
-      "fleet_ready": 25,
+      "fleet_ready": 26,
       "excluded": 2,
       "backup": 63,
       "reject": 57
     },
     "by_country": {
       "PH": {
-        "fleet_ready": 8,
+        "fleet_ready": 9,
         "backup": 17,
         "reject": 19
       },
@@ -31,7 +31,7 @@
       }
     },
     "us_fleet_ready": 16,
-    "ph_fleet_ready": 8,
+    "ph_fleet_ready": 9,
     "reference_feeds_usable": 5
   },
   "reference_feeds": [
@@ -43,10 +43,11 @@
   ],
   "ph_gate": {
     "requirement": "at least 2 PH sites vetting cleanly (docs/prd.md section 2)",
-    "ph_fleet_ready": 8,
+    "ph_fleet_ready": 9,
     "passed": true,
     "sites": [
       "ph-shopgaisano",
+      "ph-shopsuki",
       "ph-medsgo",
       "ph-rosepharmacy",
       "ph-southstar",
@@ -132,6 +133,36 @@
         "search_api": "shopify",
         "index_contributor": true,
         "role": "index-contributor"
+      },
+      {
+        "id": "ph-ever",
+        "name": "Ever Supermarket",
+        "country": "PH",
+        "vertical": "grocery",
+        "structural_class": "json-ld",
+        "search_api": "shopify",
+        "studio_collector_id": null,
+        "index_contributor": true,
+        "role": "index-contributor",
+        "why_locked": "Best basket coverage of any store in the registry: 10/10 core items, 19/20 tracked, every one with a computed unit price, and genuine staples throughout - Farmboy Pandan Rice 5kg, whole chicken 1kg, a 30-egg tray. Shopify search makes selection reliable.",
+        "risk": "low",
+        "substitute": "ph-snr",
+        "caveat": "Was scored 85/backup on sitemap-derived basket coverage of 0/10. Its catalogue was only visible through Shopify search - a reminder that sitemap coverage understates any store with a search API."
+      },
+      {
+        "id": "ph-shopsuki",
+        "name": "Shop Suki",
+        "country": "PH",
+        "vertical": "grocery",
+        "structural_class": "json-ld",
+        "search_api": null,
+        "studio_collector_id": null,
+        "index_contributor": true,
+        "role": "index-contributor",
+        "why_locked": "16 of 20 items settled with strong picks - Nestle Fresh Milk 1L, Angelina Super Loaf 640g, Balducci Spaghetti 500g, real white onions sold by weight, Absolute Distilled Water 6L. Server-rendered json-ld and a broad staples catalogue.",
+        "risk": "low",
+        "substitute": "ph-marketfresh",
+        "caveat": "Its chicken pick is Marca Manok Sinandomeng Rice - 'manok' is the brand, not the contents - and its eggs pick is salted egg. Both need curating in manual-basket.json before use."
       },
       {
         "id": "ph-smmarkets",
@@ -270,6 +301,16 @@
         "date": "2026-08-19",
         "change": "Split the fleet into index contributors and reliability subjects",
         "why": "Building the per-store basket showed the four US members settle 0-4 of the core 10 items - not a scraping failure but a catalogue one. Round 4 hunted specifically for US retailers publishing staples and found none across co-ops, Hispanic and Asian grocers, delivery-first grocers and US Filipino grocers. Sukli and Lili Mart both looked ideal on structure and both turned out to sell snacks and specialty goods. Rather than drop working scrapers or pretend they feed the index, each member now declares which job it does."
+      },
+      {
+        "date": "2026-08-19",
+        "change": "Added Ever Supermarket as an index contributor",
+        "why": "Testing every store with a search API through its own search rather than its sitemap surfaced Ever at 10/10 core items - better than any locked member. The registry had it at backup because sitemap keyword coverage read 0/10, which is the wrong measure for a store whose catalogue is only reachable by query."
+      },
+      {
+        "date": "2026-08-19",
+        "change": "Added Shop Suki as an index contributor",
+        "why": "Found by searching for PH grocers on queryable platforms after Ever showed that sitemap-derived coverage understates stores whose catalogue is query-only. The PH index now rests on six contributors rather than four."
       }
     ]
   },
@@ -323,6 +364,60 @@
         "sugar": "https://shopgaisano.com/products/great-value-brown-sugar-1-4-kg"
       },
       "evidence_url": "https://shopgaisano.com/products/bear-brand-powdered-milk-drink-320g",
+      "likely_prebuilt_scraper": false,
+      "verified_api": null,
+      "api_kind": null,
+      "manual_note": null,
+      "manual_verified_how": null
+    },
+    {
+      "id": "ph-shopsuki",
+      "name": "Shop Suki",
+      "country": "PH",
+      "vertical": "grocery",
+      "target_site": "https://shopsuki.ph",
+      "why_candidate": "Round 5: PH online grocery delivery surfaced while hunting for more stores on queryable platforms",
+      "role": "store",
+      "verdict": "fleet_ready",
+      "verdict_reason": "server_rendered via direct, 10/10 basket items",
+      "score": 100,
+      "score_breakdown": {
+        "reachability": 20,
+        "price_extractability": 25,
+        "structured_data": 15,
+        "url_stability": 10,
+        "basket_coverage": 15,
+        "robots": 10,
+        "novelty": 5
+      },
+      "render_class": "server_rendered",
+      "access_path": "direct",
+      "structural_class": "json-ld",
+      "search_api": "shopify",
+      "needs_unlocker": false,
+      "robots_allows_product": true,
+      "robots_disallow_sample": [
+        "/admin",
+        "/cart/",
+        "/*/cart/",
+        "/checkout",
+        "/*/checkout"
+      ],
+      "sitemap_urls": 3002,
+      "basket_coverage": 10,
+      "basket_items": {
+        "bananas": "https://shopsuki.ph/products/papa-banana-ketchup-sup-200g",
+        "bread": "https://shopsuki.ph/products/argentina-beef-loaf-150g",
+        "chicken": "https://shopsuki.ph/products/ladys-choice-chicken-spread-220ml",
+        "coffee": "https://shopsuki.ph/products/coffeemate-coffee-creamer-the-original-sup-150g",
+        "cooking_oil": "https://shopsuki.ph/products/frito-plus-vegetable-oil-sup-900ml-by-2s-budget-pack",
+        "eggs": "https://shopsuki.ph/products/bakers-square-egg-bread-600g",
+        "milk": "https://shopsuki.ph/products/milo-activ-go-powdered-choco-malt-milk-drink-300g",
+        "pasta": "https://shopsuki.ph/products/royal-premium-elbow-macaroni-400g",
+        "rice": "https://shopsuki.ph/products/nestle-cerelac-baby-food-rice-and-soya-250g",
+        "sugar": "https://shopsuki.ph/products/alter-trade-mascobado-sugar-500g"
+      },
+      "evidence_url": "https://shopsuki.ph/products/argentina-beef-loaf-150g",
       "likely_prebuilt_scraper": false,
       "verified_api": null,
       "api_kind": null,
