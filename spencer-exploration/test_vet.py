@@ -95,6 +95,8 @@ def test_dollar_anchor_is_respected():
     "https://x.test/healthy-living/recipes-for-leftover-hard-boiled-eggs/",
     "https://x.test/pages/product-recall-lewis-artisan-bread-allergen",
     "https://x.test/blog/how-to-cook-rice",
+    "https://x.test/inspiration/recipe-and-ideas/deviled-eggs-with-fresh-herbs",
+    "https://x.test/learn/meal-ideas/weeknight-pasta-dinners",
     "https://x.test/categories/dairy-1",
     "https://x.test/images/banner.png",
     "https://x.test/home-page-grocery-outlet/012126_eggs_websitebanner_",

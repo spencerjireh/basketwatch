@@ -28,6 +28,13 @@
       "verified_how": "SERP round 3: top results are the iOS/Android apps, GrabMart, foodpanda and a Lazada storefront; puregold.com.ph is a Joomla corporate site and /shop 404s. Guessed subdomains (shop., epuregold.com) do not resolve.",
       "note": "Puregold has no public web storefront. The app-first risk flagged in docs/prd.md is confirmed - it is not vettable, not merely hard. Robinsons is the same shape: its own site is informational and ordering happens through Pick.A.Roo and foodpanda.",
       "score_bonus": 0
+    },
+    "_us-catalogue-gap": {
+      "verified_api": null,
+      "api_kind": "structural-finding",
+      "verified_how": "Ran the basket builder across every US fleet-ready store and the whole US bench (129 candidates probed overall). Locked US grocers settled 0-4 of 10 basket items. Dierbergs' public catalogue returns Deviled Eggs and Oil & Vinegar Cole Slaw; The Fresh Market's sitemap is /inspiration/recipe-and-ideas/ editorial; Meijer has no public catalogue at all. The pantries verify 10/10 but on the wrong products - Netrition's rice is shirataki, its milk is macadamia, its sugar is ranch dressing; Thrive's pasta is shirataki noodles. H Mart is a genuine grocer but Korean-specialty: sesame oil, instant coffee sticks.",
+      "note": "No US site in the registry publishes a public catalogue of plain grocery staples. US chains gate catalogues behind store selection and client-side rendering, so their sitemaps carry marketing and recipe pages; online pantries publish full catalogues but sell diet and specialty goods, not staples. This is a product-shaping constraint, not a scraping problem - those sites ARE scrapeable, they just do not sell a comparable basket. The PH side has no such problem: Landers, SM Markets and Shop Gaisano all publish real staples with categories.",
+      "score_bonus": 0
     }
   },
   "studio_proofs": {
