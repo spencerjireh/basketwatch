@@ -22,6 +22,7 @@ import json
 import re
 import sys
 import time
+from datetime import datetime, timezone
 from collections import defaultdict
 from pathlib import Path
 from urllib.parse import urljoin, urlparse
@@ -65,7 +66,13 @@ RE_JSONLD_PRODUCT = re.compile(r'"@type"\s*:\s*"(?:Product|Offer|AggregateOffer)
 RE_JSONLD_PRICE = re.compile(r'"(?:price|lowPrice|highPrice)"\s*:\s*"?\d', re.I)
 RE_MICRODATA = re.compile(r'itemprop\s*=\s*["\'](?:price|lowPrice)["\']', re.I)
 RE_META_PRICE = re.compile(r'property\s*=\s*["\'](?:product:price:amount|og:price:amount)["\']', re.I)
-RE_CURRENCY = re.compile(r"(?:[$₱]|PHP|USD)\s?\d{1,3}(?:,\d{3})*(?:\.\d{2})?")
+# A price is 2+ digits ("PHP 378") or has explicit cents ("$4.49"). One-digit
+# amounts like "$5" appear too often in body copy to be a reliable signal.
+RE_CURRENCY = re.compile(
+    r"(?:[$₱]|PHP|USD)\s?(?:\d{1,3}(?:,\d{3})+(?:\.\d{2})?"   # 1,234 / 1,234.56
+    r"|\d{2,}(?:\.\d{2})?"                                      # 378 / 378.00
+    r"|\d\.\d{2})"                                              # 4.49
+)
 RE_EMBEDDED_STATE = re.compile(
     r"__NEXT_DATA__|window\.__INITIAL_STATE__|window\.__NUXT__|__APOLLO_STATE__"
     r"|window\.__remixContext|self\.__next_f",
@@ -105,6 +112,10 @@ NON_GROCERY = (
     "flavor", "flavour", "syrup", "suspension", "drops", "lozenge",
     "cleansing", "cleanser", "micellar", "moisturizer", "conditioner",
     "scrub", "mask", "toner", "balm", "wax", "spray",
+    # pharmacy dosage forms - PH drugstores sell banana-flavoured medicine
+    "granules", "solution", "effervescent", "ampule", "vial", "ointment", "sachet-rx",
+    # collectible/novelty wording - a "surprise egg" is a toy
+    "surprise", "collectible", "figurine", "blindbag", "keychain",
 )
 
 
@@ -116,7 +127,11 @@ def _slug_tokens(url: str) -> str:
 
 
 def basket_match(url: str) -> str | None:
-    """Which canonical basket item this product URL is, if any."""
+    """Which canonical basket item this product URL is, if any.
+
+    First match wins, in BASKET declaration order, so a slug naming two items
+    resolves deterministically rather than by dict iteration luck.
+    """
     slug = _slug_tokens(url)
     if any(f" {w.replace('-', ' ')} " in slug for w in NON_GROCERY):
         return None
@@ -125,6 +140,7 @@ def basket_match(url: str) -> str | None:
             if f" {kw} " in slug:
                 return item
     return None
+
 
 def cache_path(url: str, tag: str) -> Path:
     h = hashlib.sha256(url.encode()).hexdigest()[:16]
@@ -235,6 +251,11 @@ def classify(resp: dict) -> dict:
 
 
 def structural_class(sig: dict) -> str:
+    """The extraction shape a scraper would have to target.
+
+    "spa-opaque" and "unknown" are different findings: the first means we read the
+    page and it carries no price in any form, the second means we never saw a page.
+    """
     if sig.get("jsonld_price"):
         return "json-ld"
     if sig.get("microdata_price") or sig.get("meta_price"):
@@ -243,7 +264,7 @@ def structural_class(sig: dict) -> str:
         return "spa-with-state"
     if sig.get("distinct_currency_strings", 0) >= 3:
         return "bare-html"
-    return "unknown"
+    return "spa-opaque" if sig else "unknown"
 
 
 def parse_robots(text: str) -> dict:
@@ -327,7 +348,12 @@ NON_PRODUCT_PATHS = (
     "cart", "checkout", "sitemap", "page", "pages", "author", "press", "media",
     "community", "recall", "recalls", "spotlight", "promo", "promos", "sale",
     "deals", "flyer", "circular", "careers", "info", "landing",
+    "home-page", "homepage", "assets", "static", "uploads", "banners",
 )
+
+# Slug fragments that mark a marketing asset rather than a product. Grocery Outlet
+# was scored server-rendered off "012126_eggs_websitebanner_", a homepage image.
+RE_ASSET_SLUG = re.compile(r"banner|logo|hero|thumbnail|placeholder|sprite|favicon", re.I)
 
 RE_UNIT = re.compile(
     r"\b\d+(?:\.\d+)?\s?-?\s?(?:oz|lb|lbs|ml|l|g|kg|ct|pk|pack|packs|dozen|count|gal|qt|pcs|pc)\b"
@@ -350,6 +376,9 @@ def product_score(url: str, hints: list[str]) -> int:
     if segs[-1] in NON_PRODUCT_PATHS:
         return -100
 
+    if RE_ASSET_SLUG.search(segs[-1]):
+        return -100
+
     slug = re.sub(r"[^a-z0-9]+", " ", segs[-1])
     score = 0
     if any(h and h != "/" and h in url for h in hints):
@@ -365,10 +394,6 @@ def product_score(url: str, hints: list[str]) -> int:
     if len(segs) >= 2:
         score += 1
     return score
-
-
-def looks_like_product(url: str, hints: list[str]) -> bool:
-    return product_score(url, hints) >= 3
 
 
 def basket_map(urls: list[str]) -> dict:
@@ -514,12 +539,13 @@ async def probe_site(cand: dict, f: Fetcher, sem: asyncio.Semaphore) -> dict:
                 )]
                 page_urls = page_urls or product_urls
 
-        rec["discovery"] = {
-            "via": "sitemap" if tried and page_urls and not crawled else
-                   "crawl" if product_urls and crawled else
-                   "sitemap" if page_urls else "none",
-            "categories_crawled": crawled,
-        }
+        if crawled:
+            via = "crawl" if product_urls else "none"
+        elif page_urls:
+            via = "sitemap"
+        else:
+            via = "none"
+        rec["discovery"] = {"via": via, "categories_crawled": crawled}
         rec["sitemap"] = {
             "tried": tried,
             "total_urls": len(page_urls),
@@ -592,6 +618,9 @@ async def main() -> int:
     ap.add_argument("--only", help="country filter: US or PH")
     ap.add_argument("--ids", nargs="*", help="probe only these candidate ids")
     ap.add_argument("--no-cache", action="store_true")
+    ap.add_argument("--insecure", action="store_true",
+                    help="skip TLS verification (default: verify, and record cert failures "
+                         "as blocked - a broken cert is a real finding about a site)")
     ap.add_argument("--out", default=str(HERE / "tier0.json"))
     ap.add_argument("--candidates", default=str(HERE / "candidates.json"))
     args = ap.parse_args()
@@ -606,7 +635,8 @@ async def main() -> int:
     sem = asyncio.Semaphore(GLOBAL_CONCURRENCY)
     limits = httpx.Limits(max_connections=40, max_keepalive_connections=10)
     async with httpx.AsyncClient(
-        headers=HEADERS, follow_redirects=True, limits=limits, verify=False, http2=True
+        headers=HEADERS, follow_redirects=True, limits=limits,
+        verify=not args.insecure, http2=True,
     ) as client:
         f = Fetcher(client, use_cache=not args.no_cache)
         results = await asyncio.gather(*(probe_site(c, f, sem) for c in cands), return_exceptions=True)
@@ -618,7 +648,13 @@ async def main() -> int:
         else:
             ok.append(r)
 
-    Path(args.out).write_text(json.dumps({"results": ok, "harness_failures": failed}, indent=2))
+    Path(args.out).write_text(json.dumps({
+        "generated_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+        "tls_verified": not args.insecure,
+        "candidates_probed": len(cands),
+        "results": ok,
+        "harness_failures": failed,
+    }, indent=2))
 
     tally: dict[str, int] = defaultdict(int)
     for r in ok:

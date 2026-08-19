@@ -22,6 +22,7 @@ anywhere, direct or through the Unlocker.
 
 | File | What it is |
 |---|---|
+| `fleet.lock.json` | **the locked fleet** - the decision about what ships, held by hand |
 | `candidates.json` | the seed list - hand-authored, expanded by SERP discovery |
 | `vet.py` | tier 0: free HTTP probes, robots, sitemaps, basket mapping, classification |
 | `bd_tier1.py` | tier 1: Web Unlocker sweep over what tier 0 could not settle, with a hard credit ceiling |
@@ -29,6 +30,7 @@ anywhere, direct or through the Unlocker.
 | `registry.json` | **the deliverable** - every candidate, scored, with evidence |
 | `registry.md` | human scorecard, PH gate verdict, recommended fleet |
 | `tier0.json` / `tier1.json` | raw evidence behind the registry |
+| `test_vet.py` | tests for the pure logic - every case is a bug this harness shipped |
 | `raw/` | cached HTTP responses (gitignored) so re-runs cost nothing |
 
 ## Running it
@@ -44,15 +46,34 @@ uv run spencer-exploration/vet.py --no-cache         # force refetch
 set -a; . ./.env; set +a
 uv run spencer-exploration/bd_tier1.py --cap-usd 5.0
 
-# score and build the registry
+# score, audit the lock, and build the registry
 uv run spencer-exploration/score.py
-uv run spencer-exploration/score.py --fleet-size 16   # bigger suggested fleet
+
+# tests
+uv run --with pytest --with 'httpx[http2]' pytest spencer-exploration/test_vet.py -q
 ```
 
 `bd_tier1.py` reads the live account balance before it starts and re-checks it as
 it goes; it stops the sweep the moment spend reaches `--cap-usd`. Between balance
 reads it also tracks a deliberately pessimistic per-call estimate, so a burst
 cannot overshoot the ceiling in the gap.
+
+## The lock
+
+`fleet.lock.json` is the fleet. It is written by hand, not produced by a picker, so
+re-running the harness cannot quietly change what ships. Every entry carries why it
+is in, its risk level, a named bench substitute, and any caveat that has to be
+handled before its numbers enter the basket index.
+
+`score.py` audits the lock on every run and reports drift: a locked site that is no
+longer fleet-ready, whose robots.txt changed, or that vanished from the registry.
+Drift appears both on stdout and as a callout at the top of `registry.md`.
+
+That guard has already paid for itself once. A clean re-probe reclassified Grocery
+Outlet from `server_rendered` to `spa_empty` - its original verdict rested on a
+homepage banner image the product-URL scorer mistook for a product page. The audit
+flagged it and Meijer, the named bench substitute for that slot, took its place. The
+swap is recorded in the lock's `changelog`.
 
 ## Scoring
 
@@ -73,7 +94,7 @@ different markup styles.
 
 ## Proven end to end
 
-Two finalists were taken all the way through Scraper Studio and validated with this
+Three finalists were taken all the way through Scraper Studio and validated with this
 repo's own validator, not by eye:
 
 | Site | Collector | Result |
@@ -94,6 +115,20 @@ set -a; . ./.env; set +a
 brightdata scraper run c_msyxrpa82470hx65c9 \
   "https://smmarkets.ph/10103348-batangas-coffee-brew-500g.html" --sync --pretty
 ```
+
+## Correctness
+
+`test_vet.py` covers the pure logic: robots matching, product-URL scoring, basket
+matching, sitemap parsing, and page classification. Every test is a mistake this
+harness actually made - a `/*/cart/` rule that excluded five good sites, recipe and
+recall pages probed as products, a toy "surprise egg" mapped to the basket, a
+banana-flavoured medicine mapped to bananas, a marketing banner scored as a product.
+
+Two of those were still live when the tests were first written, which is the point.
+
+TLS certificates are verified by default. A cert failure is recorded as `blocked`
+rather than suppressed, since a broken cert is a real finding about a site. Pass
+`--insecure` to skip verification; `tier0.json` records which mode produced it.
 
 ## Known limits
 
