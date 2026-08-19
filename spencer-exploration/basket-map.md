@@ -168,6 +168,58 @@ store's public catalogue has no such staple.
 - **chicken** curated: Automation picked frozen Ajinomoto Chicken Karaage, a prepared product. This is raw chicken breast sold by weight, matching the PRD basket item.
 - **coffee** curated: Automation picked Binggrae Coffee Milk, a ready-to-drink beverage. Folgers ground is the closest analogue to the US 12oz ground-coffee basket item, and the same brand exists on both sides, which makes the cross-country comparison honest.
 
+## Kesar Grocery (US) - 13/10 settled, 18/10 with a chosen URL
+
+| Item | Target | Status | Size | Price | Product |
+|---|---|---|---|---|---|
+| rice | 5 lb | verified | {'raw': '4 LB', 'value': 4.0, 'uom': 'lb', 'approximate': False, 'form': 'plain', 'quantity': 1814.368, 'base_uom': 'g'} | 8.49 | Kesar Dehraduni Basmati Rice - 4 LB |
+| bread | 500 g loaf | verified | {'raw': '24 Oz', 'value': 24.0, 'uom': 'oz', 'approximate': False, 'form': 'plain', 'quantity': 680.388, 'base_uom': 'g'} | 6.49 | 100% Whole Wheat Bread (24 Oz.) |
+| pasta | 1 lb | verified | {'raw': '1 LB', 'value': 1.0, 'uom': 'lb', 'approximate': False, 'form': 'plain', 'quantity': 453.592, 'base_uom': 'g'} | 2.74 | Great Value Elbows Pasta (1 LB - 454 GM) |
+| chicken | per lb | candidate_unverified | {'raw': '10 oz', 'value': 10.0, 'uom': 'oz', 'approximate': False, 'form': 'plain', 'quantity': 283.495, 'base_uom': 'g'} | - | URL selected from the sitemap but the page serves no price over plain  |
+| eggs | dozen | candidate_unverified | {'raw': '10 oz', 'value': 10.0, 'uom': 'oz', 'approximate': False, 'form': 'plain', 'quantity': 283.495, 'base_uom': 'g'} | - | URL selected from the sitemap but the page serves no price over plain  |
+| milk | 1 gal | candidate_unverified | {'raw': '2 lb', 'value': 2.0, 'uom': 'lb', 'approximate': False, 'form': 'plain', 'quantity': 907.184, 'base_uom': 'g'} | - | URL selected from the sitemap but the page serves no price over plain  |
+| coffee | 12 oz ground | verified | {'raw': '16 Oz', 'value': 16.0, 'uom': 'oz', 'approximate': False, 'form': 'plain', 'quantity': 453.592, 'base_uom': 'g'} | 10.99 | Cothas Coffee Speciality Bland - 16 Oz (454 Gm) |
+| sugar | 4 lb | verified | {'raw': '2 LB', 'value': 2.0, 'uom': 'lb', 'approximate': False, 'form': 'plain', 'quantity': 907.184, 'base_uom': 'g'} | 3.99 | Indian Sugar (2 LB) |
+| cooking_oil | 48 oz | verified | {'raw': '473 ml', 'value': 473.0, 'uom': 'ml', 'approximate': False, 'form': 'plain', 'quantity': 473.0, 'base_uom': 'ml'} | 10.99 | Swad Almond Oil 473 ml |
+| bananas | per lb | verified | {'raw': '3 Lbs', 'value': 3.0, 'uom': 'lbs', 'approximate': False, 'form': 'plain', 'quantity': 1360.776, 'base_uom': 'g'} | 5.39 | Organic Bananas (3 Lbs.) |
+| pork | per lb | not_found | - | - | no candidate URL in pool |
+| fish | per lb | candidate_unverified | {'raw': '7 oz', 'value': 7.0, 'uom': 'oz', 'approximate': False, 'form': 'plain', 'quantity': 198.4465, 'base_uom': 'g'} | - | URL selected from the sitemap but the page serves no price over plain  |
+| cheese | 1 lb | verified | {'raw': '1 KG', 'value': 1.0, 'uom': 'kg', 'approximate': False, 'form': 'plain', 'quantity': 1000.0, 'base_uom': 'g'} | 19.99 | Amul Cheese Block - 1 KG |
+| tomatoes | per lb | verified | {'raw': '3 Lbs', 'value': 3.0, 'uom': 'lbs', 'approximate': False, 'form': 'plain', 'quantity': 1360.776, 'base_uom': 'g'} | 11.99 | Beefsteak Tomatoes (3 Lbs) |
+| potatoes | per lb | verified | {'raw': '5 Lb', 'value': 5.0, 'uom': 'lb', 'approximate': False, 'form': 'plain', 'quantity': 2267.96, 'base_uom': 'g'} | 11.39 | Dynamic Duo Fresh Creamer Potatoes (5 Lb.) |
+| onions | per lb | verified | {'raw': '3 Lb', 'value': 3.0, 'uom': 'lb', 'approximate': False, 'form': 'plain', 'quantity': 1360.776, 'base_uom': 'g'} | 6.99 | White Onions - 3 Lb. |
+| apples | per lb | verified | {'raw': '3 LB', 'value': 3.0, 'uom': 'lb', 'approximate': False, 'form': 'plain', 'quantity': 1360.776, 'base_uom': 'g'} | 7.99 | Freshness Guaranteed Gala Apples (3 LB) |
+| oranges | per lb | verified | {'raw': '3 LB', 'value': 3.0, 'uom': 'lb', 'approximate': False, 'form': 'plain', 'quantity': 1360.776, 'base_uom': 'g'} | 7.99 | Fresh Navel Oranges (3 LB) |
+| canned_fish | 155 g tin | not_found | - | - | no candidate URL in pool |
+| bottled_water | 1.5 L | candidate_unverified | {'raw': '130 ml', 'value': 130.0, 'uom': 'ml', 'approximate': False, 'form': 'plain', 'quantity': 130.0, 'base_uom': 'ml'} | - | URL selected from the sitemap but the page serves no price over plain  |
+
+
+## MexGrocer (US) - 9/10 settled, 9/10 with a chosen URL
+
+| Item | Target | Status | Size | Price | Product |
+|---|---|---|---|---|---|
+| rice | 5 lb | verified | {'raw': '2 lb', 'value': 2.0, 'uom': 'lb', 'approximate': False, 'form': 'plain', 'quantity': 907.184, 'base_uom': 'g'} | 8.95 | Arroz - Mahatma Long Grain Rice Poly - 2 lb |
+| bread | 500 g loaf | not_found | - | - | search returned no plain staple |
+| pasta | 1 lb | not_found | - | - | search returned no plain staple |
+| chicken | per lb | verified | {'raw': '15.9 oz', 'value': 15.9, 'uom': 'oz', 'approximate': False, 'form': 'plain', 'quantity': 450.757, 'base_uom': 'g'} | 13.95 | Knorr Tomato/Chicken Boullion - 15.9 oz |
+| eggs | dozen | not_found | - | - | search returned no plain staple |
+| milk | 1 gal | not_found | - | - | search returned no plain staple |
+| coffee | 12 oz ground | verified | {'raw': '12 oz', 'value': 12.0, 'uom': 'oz', 'approximate': False, 'form': 'plain', 'quantity': 340.194, 'base_uom': 'g'} | 18.95 | Cafe de Olla Mexican Coffee Ground by Mexgrocer.com - 12 oz |
+| sugar | 4 lb | verified | {'raw': '8.82 oz', 'value': 8.82, 'uom': 'oz', 'approximate': False, 'form': 'plain', 'quantity': 250.0426, 'base_uom': 'g'} | 9.95 | Zulka Spicy Sweet Shaker - Cane Sugar with Chili Powder and Lime - 8.8 |
+| cooking_oil | 48 oz | not_found | - | - | search returned no plain staple |
+| bananas | per lb | verified | {'raw': '3 lb', 'value': 3.0, 'uom': 'lb', 'approximate': False, 'form': 'plain', 'quantity': 1360.776, 'base_uom': 'g'} | 48.95 | Goya Banana Leaves - Hojas de Platano - 3 lb |
+| pork | per lb | not_found | - | - | search returned no plain staple |
+| fish | per lb | not_found | - | - | search returned no plain staple |
+| cheese | 1 lb | verified | {'raw': '10 oz', 'value': 10.0, 'uom': 'oz', 'approximate': False, 'form': 'plain', 'quantity': 283.495, 'base_uom': 'g'} | 28.95 | El Mexicano Queso Panela Whole Milk Cheese - 10 oz |
+| tomatoes | per lb | verified | {'raw': '15.9 oz', 'value': 15.9, 'uom': 'oz', 'approximate': False, 'form': 'plain', 'quantity': 450.757, 'base_uom': 'g'} | 13.95 | Knorr Tomato/Chicken Boullion - 15.9 oz |
+| potatoes | per lb | not_found | - | - | search returned no plain staple |
+| onions | per lb | verified | {'raw': '27 oz', 'value': 27.0, 'uom': 'oz', 'approximate': False, 'form': 'plain', 'quantity': 765.4365, 'base_uom': 'g'} | 7.95 | Herdez Whole Jalapeños Pickled with Carrots & Onions – 27 oz |
+| apples | per lb | not_found | - | - | search returned no plain staple |
+| oranges | per lb | verified | {'raw': '24 oz', 'value': 24.0, 'uom': 'oz', 'approximate': False, 'form': 'plain', 'quantity': 680.388, 'base_uom': 'g'} | 6.95 | Goya Naranja Agria - Bitter Orange Marinade - 24 oz |
+| canned_fish | 155 g tin | not_found | - | - | search returned no plain staple |
+| bottled_water | 1.5 L | not_found | - | - | search returned no plain staple |
+
+
 ## Dierbergs (US) - 0/10 settled, 12/10 with a chosen URL
 
 | Item | Target | Status | Size | Price | Product |

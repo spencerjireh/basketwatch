@@ -29,22 +29,22 @@ PH sites join the fleet. The US-vs-PH comparison view is unblocked.
 
 ## Totals
 
-148 candidates probed. US fleet-ready **16**, PH fleet-ready **9**.
+163 candidates probed. US fleet-ready **22**, PH fleet-ready **9**.
 
 | Verdict | Count | Share |
 |---|---:|---:|
-| backup | 63 | 43% |
-| reject | 57 | 39% |
-| fleet_ready | 26 | 18% |
+| backup | 65 | 40% |
+| reject | 64 | 39% |
+| fleet_ready | 32 | 20% |
 | excluded | 2 | 1% |
 
 Tier-1 cost: **$0.52** of a $5.00 ceiling across 433 Web Unlocker calls (ceiling hit: False).
 
 ## Locked fleet
 
-Locked 2026-08-19. This is the decision, held in `fleet.lock.json`; the tables further down are the evidence behind it. Drawn from 25 fleet-ready stores (16 US, 9 PH) with 59 more on the bench.
+Locked 2026-08-19. This is the decision, held in `fleet.lock.json`; the tables further down are the evidence behind it. Drawn from 31 fleet-ready stores (22 US, 9 PH) with 61 more on the bench.
 
-Eight real stores, four per country, spanning five extraction shapes (json-ld, graphql, bare-html, spa-with-state, spa-opaque) so a breakage in one does not resemble a breakage in another. Weighted toward genuine grocers over online pantries per docs/prd.md section 2.6, and toward sites already proven end to end. Clears the PRD bar of 4+ US scrapers plus the clone store, with PH included. Members split into two roles. Index contributors supply the basket and are all PH, because after four discovery rounds and 103 US candidates no US retailer was found publishing plain staples publicly. Reliability subjects scrape cleanly across different markup shapes and carry the self-healing story without feeding the index.
+Eight real stores, four per country, spanning five extraction shapes (json-ld, graphql, bare-html, spa-with-state, spa-opaque) so a breakage in one does not resemble a breakage in another. Weighted toward genuine grocers over online pantries per docs/prd.md section 2.6, and toward sites already proven end to end. Clears the PRD bar of 4+ US scrapers plus the clone store, with PH included. Members split into two roles. Index contributors supply the basket on both sides. The US source is ethnic grocers, which stock generic staples and fresh produce where the supermarket chains publish nothing and the online pantries sell diet goods. Reliability subjects scrape cleanly across different markup shapes and carry the self-healing story without feeding the index.
 
 Lock audit: all locked sites still fleet-ready, robots-clean, and present in the registry.
 
@@ -58,10 +58,12 @@ Members do one of two jobs. **Index contributors** supply the basket. **Reliabil
 | 4 | **SM Markets** `ph-smmarkets` | PH | index | graphql | low | yes | Largest PH supermarket network and the broadest PH catalogue. Pages are a client-rendered shell, but the public Magento GraphQL endpoint is a structured fallback no selector change can break. Proven end to end. |
 | 5 | **MerryMart Wholesale** `ph-merrymartwholesale` | PH | index | bare-html | medium | - | Fully server-rendered PHP prices with no structured data at all - the bare-HTML shape the fleet otherwise lacks on the PH side, and the one most likely to break on a redesign, which makes it a good heal subject. |
 | 6 | **Landers Superstore** `ph-landers` | PH | index | spa-opaque | high | - | 10/10 basket categories from a 17,032-URL sitemap - the deepest basket coverage of any PH site - and a well-known consumer name for the demo. |
-| 7 | **Dierbergs** `us-dierbergs` | US | reliability | json-ld | low | yes | Authentic St. Louis regional grocer with clean json-ld and real basket staples. Proven end to end on a bread SKU. |
-| 8 | **The Fresh Market** `us-thefreshmarket` | US | reliability | json-ld | low | - | Specialty national grocer, 9/10 basket categories, server-rendered json-ld reachable without the Unlocker. Highest-scoring authentic US grocer after Dierbergs. |
-| 9 | **Wegmans** `us-wegmans` | US | reliability | spa-with-state | medium | - | Major regional grocer that ships prices inside embedded page state rather than markup - a distinct extraction shape from the json-ld sites, and a realistic breakage mode. |
-| 10 | **Meijer** `us-meijer` | US | reliability | bare-html | medium | - | Midwest supercenter, 8/10 basket categories, plain HTML pricing with no structured data - the bare-HTML shape on the US side. Promoted from the bench after Grocery Outlet failed the lock audit. |
+| 7 | **Kesar Grocery** `us-kesargrocery` | US | index | bare-html | medium | - | The US index source. 13 of 20 items settled, 7/10 core, every one unit-priced, and genuinely generic goods including fresh produce: Basmati 4LB, whole wheat bread 24oz, Great Value elbow pasta 1LB, Amul cheese 1KG, organic bananas 3lb, beefsteak tomatoes, white onions, gala apples, navel oranges. 11,987 products in its sitemap and no structured data at all, which is why it needed bare-HTML extraction to surface. |
+| 8 | **MexGrocer** `us-mexgrocer` | US | index | json-ld | medium | - | Second US index source and a different cuisine, so the two do not share supply. 9 items settled, 5/10 core, Shopify search for reliable selection. Mahatma Long Grain Rice and Cafe de Olla ground coffee are real staples. |
+| 9 | **Dierbergs** `us-dierbergs` | US | reliability | json-ld | low | yes | Authentic St. Louis regional grocer with clean json-ld and real basket staples. Proven end to end on a bread SKU. |
+| 10 | **The Fresh Market** `us-thefreshmarket` | US | reliability | json-ld | low | - | Specialty national grocer, 9/10 basket categories, server-rendered json-ld reachable without the Unlocker. Highest-scoring authentic US grocer after Dierbergs. |
+| 11 | **Wegmans** `us-wegmans` | US | reliability | spa-with-state | medium | - | Major regional grocer that ships prices inside embedded page state rather than markup - a distinct extraction shape from the json-ld sites, and a realistic breakage mode. |
+| 12 | **Meijer** `us-meijer` | US | reliability | bare-html | medium | - | Midwest supercenter, 8/10 basket categories, plain HTML pricing with no structured data - the bare-HTML shape on the US side. Promoted from the bench after Grocery Outlet failed the lock audit. |
 | + | **Parker's Pantry** `clone-parkers-pantry` | US | heal rig | local | none | n/a | The clone store on the VPS subdomain. Disclosed test rig with a layout-mutation switch; it is the scripted break-detect-heal demo centerpiece per docs/prd.md section 2.5, not a real retailer, so it is not scored in the registry. |
 
 Caveats carried by locked sites:
@@ -70,6 +72,8 @@ Caveats carried by locked sites:
 - **Shop Suki** - Its chicken pick is Marca Manok Sinandomeng Rice - 'manok' is the brand, not the contents - and its eggs pick is salted egg. Both need curating in manual-basket.json before use.
 - **MerryMart Wholesale** - Wholesale case pricing. Needs per-unit normalisation before its numbers enter the basket index.
 - **Landers Superstore** - Highest-risk member. Prices render client-side and the backing APIs (api.landers.ph, Unbxd search) are private, so there is no non-browser fallback. If its Studio scraper proves flaky, swap in Southstar Drug, which is server-rendered microdata.
+- **Kesar Grocery** - Its cooking-oil pick is almond oil rather than a neutral cooking oil; curate before use. Bare-HTML extraction means no structured data to fall back on, so a redesign hits harder here than on a json-ld site - which also makes it a good heal subject.
+- **MexGrocer** - Blocked on plain HTTP for page fetches but its Shopify search API answers fine. Chicken resolves to bouillon and bananas to banana leaves; both need curating.
 - **Wegmans** - Only 4/10 basket categories surfaced from its sitemap; confirm SKU coverage before relying on it for the index.
 - **Meijer** - Needs the Web Unlocker on every run, so it is the only locked site with a per-run credit cost. Budget for it in the scheduler.
 
@@ -83,18 +87,24 @@ Bench (vetted, promote without re-running discovery): **PH** `ph-southstar`, `ph
 |---:|---|---|---|---|---|---|---|---|
 | 100 | PH | Shop Gaisano | `ph-shopgaisano` | server_rendered | direct | json-ld | 10/10 | bananas, bread, chicken, coffee, cooking_oil, eggs, milk, pasta, rice, sugar |
 | 100 | PH | Shop Suki | `ph-shopsuki` | server_rendered | direct | json-ld | 10/10 | bananas, bread, chicken, coffee, cooking_oil, eggs, milk, pasta, rice, sugar |
+| 100 | US | Amigo Foods | `us-amigofoods` | server_rendered | direct | json-ld | 10/10 | bananas, bread, chicken, coffee, cooking_oil, eggs, milk, pasta, rice, sugar |
+| 100 | US | Kalustyan's | `us-kalustyans` | server_rendered | direct | json-ld | 10/10 | bananas, bread, chicken, coffee, cooking_oil, eggs, milk, pasta, rice, sugar |
+| 100 | US | MexMax | `us-mexmax` | server_rendered | direct | json-ld | 10/10 | bananas, bread, chicken, coffee, cooking_oil, eggs, milk, pasta, rice, sugar |
 | 100 | US | Netrition | `us-netrition` | server_rendered | direct | json-ld | 10/10 | bananas, bread, chicken, coffee, cooking_oil, eggs, milk, pasta, rice, sugar |
 | 100 | US | Sukli | `us-sukli` | server_rendered | direct | json-ld | 10/10 | bananas, bread, chicken, coffee, cooking_oil, eggs, milk, pasta, rice, sugar |
 | 100 | US | Thrive Market | `us-thrivemarket` | server_rendered | direct | json-ld | 10/10 | bananas, bread, chicken, coffee, cooking_oil, eggs, milk, pasta, rice, sugar |
+| 99 | US | Latimex Market | `us-latimex` | server_rendered | direct | json-ld | 9/10 | bread, chicken, coffee, cooking_oil, eggs, milk, pasta, rice, sugar |
 | 99 | US | Vitacost | `us-vitacost` | server_rendered | direct | json-ld | 9/10 | bananas, bread, chicken, coffee, cooking_oil, milk, pasta, rice, sugar |
 | 97 | US | H Mart | `us-hmart` | server_rendered | direct | json-ld | 8/10 | bread, coffee, cooking_oil, eggs, milk, pasta, rice, sugar |
 | 97 | US | Lili Mart | `us-lilimart` | server_rendered | direct | json-ld | 10/10 | bananas, bread, chicken, coffee, cooking_oil, eggs, milk, pasta, rice, sugar |
 | 96 | US | Swanson Health | `us-swanson` | server_rendered | direct | microdata | 9/10 | bananas, bread, chicken, coffee, cooking_oil, eggs, milk, rice, sugar |
+| 95 | US | Cypress Indian Grocery | `us-cypressindian` | server_rendered | direct | json-ld | 7/10 | bananas, chicken, coffee, cooking_oil, milk, rice, sugar |
 | 95 | US | Dierbergs | `us-dierbergs` | server_rendered | direct | json-ld | 7/10 | bananas, bread, chicken, cooking_oil, eggs, milk, pasta |
 | 95 | US | Nuts.com | `us-nuts` | server_rendered | direct | json-ld | 7/10 | bananas, bread, chicken, coffee, milk, rice, sugar |
 | 95 | US | Piping Rock | `us-pipingrock` | server_rendered | direct | json-ld | 7/10 | chicken, coffee, cooking_oil, eggs, milk, rice, sugar |
 | 91 | PH | MedsGo | `ph-medsgo` | server_rendered | direct | json-ld | 4/10 | coffee, milk, rice, sugar |
 | 91 | PH | Rose Pharmacy | `ph-rosepharmacy` | server_rendered | direct | json-ld | 4/10 | coffee, milk, rice, sugar |
+| 91 | US | Kesar Grocery | `us-kesargrocery` | server_rendered | direct | bare-html | 10/10 | bananas, bread, chicken, coffee, cooking_oil, eggs, milk, pasta, rice, sugar |
 | 89 | PH | Southstar Drug | `ph-southstar` | server_rendered | direct | json-ld | 3/10 | coffee, milk, sugar |
 | 85 | US | Misfits Market | `us-misfitsmarket` | server_rendered | direct | spa-with-state | 7/10 | bread, chicken, coffee, cooking_oil, eggs, milk, pasta |
 | 83 | PH | MerryMart Wholesale | `ph-merrymartwholesale` | server_rendered | direct | bare-html | 7/10 | bread, chicken, coffee, cooking_oil, eggs, milk, pasta |
@@ -107,7 +117,7 @@ Bench (vetted, promote without re-running discovery): **PH** `ph-southstar`, `ph
 | 72 | US | Hungryroot | `us-hungryroot` | spa_empty | direct | spa-opaque | 10/10 | bananas, bread, chicken, coffee, cooking_oil, eggs, milk, pasta, rice, sugar |
 | 72 | US | Meijer | `us-meijer` | server_rendered | unlocker | bare-html | 8/10 | bread, chicken, coffee, eggs, milk, pasta, rice, sugar |
 
-Structural spread across the fleet-ready set: json-ld 16, spa-with-state 3, spa-opaque 3, bare-html 2, microdata 1.
+Structural spread across the fleet-ready set: json-ld 21, bare-html 3, spa-with-state 3, spa-opaque 3, microdata 1.
 
 ## Backup
 
@@ -124,6 +134,7 @@ Workable, but weaker on structure, basket coverage, or access cost. Promote from
 | 81 | PH | The Generics Pharmacy | `ph-tgp` | server_rendered | direct | json-ld | 1/10 | sugar |
 | 81 | US | Wegmans | `us-wegmans` | server_rendered | direct | spa-with-state | 2/10 | chicken, pasta |
 | 81 | US | Wheatsville Co-op | `us-wheatsville` | server_rendered | direct | json-ld | 1/10 | pasta |
+| 79 | US | Quicklly | `us-quicklly` | server_rendered | direct | bare-html | 2/10 | coffee, sugar |
 | 73 | US | Cardenas Markets | `us-cardenas` | server_rendered | direct | bare-html | 0/10 | - |
 | 73 | US | Park Slope Food Coop | `us-parkslopefoodcoop` | server_rendered | direct | bare-html | 0/10 | - |
 | 72 | US | Mark Cuban Cost Plus Drugs | `us-costplusdrugs` | server_rendered | unlocker | spa-with-state | 0/10 | - |
@@ -172,6 +183,7 @@ Workable, but weaker on structure, basket coverage, or access cost. Promote from
 | 51 | PH | Pick.A.Roo store catalogues | `ph-pickaroo-stores` | spa_empty | direct | spa-opaque | 0/10 | - |
 | 51 | PH | Shopwise | `ph-shopwise` | spa_empty | unlocker | spa-with-state | 1/10 | pasta |
 | 51 | PH | WalterMart Delivery | `ph-waltermart` | spa_empty | direct | spa-opaque | 0/10 | - |
+| 51 | US | India Cash & Carry | `us-indiacashcarry` | spa_empty | direct | spa-opaque | 0/10 | - |
 | 51 | US | Tops Markets | `us-topsmarkets` | spa_empty | direct | spa-opaque | 0/10 | - |
 | 51 | US | Westside Market NYC | `us-wmarketnyc` | spa_empty | direct | spa-opaque | 0/10 | - |
 

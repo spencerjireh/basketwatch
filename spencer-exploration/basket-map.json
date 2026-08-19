@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-19T11:50:30+00:00",
+  "generated_at": "2026-08-19T12:13:04+00:00",
   "items": {
     "rice": {
       "key": "rice",
@@ -3726,6 +3726,906 @@
       "unit_priced_count": 0,
       "core_settled": 2
     },
+    "us-kesargrocery": {
+      "id": "us-kesargrocery",
+      "name": "Kesar Grocery",
+      "country": "US",
+      "structural_class": "bare-html",
+      "items": {
+        "rice": {
+          "url": "https://www.kesargrocery.com/basmati-rice-4-lb-sku475551/",
+          "name": "Kesar Dehraduni Basmati Rice - 4 LB",
+          "price": 8.49,
+          "currency": null,
+          "size": {
+            "raw": "4 LB",
+            "value": 4.0,
+            "uom": "lb",
+            "approximate": false,
+            "form": "plain",
+            "quantity": 1814.368,
+            "base_uom": "g"
+          },
+          "status": "verified",
+          "via": "bare-html",
+          "target_size": "5 lb",
+          "tier": "core",
+          "label": "Rice (white)",
+          "normal_unit": "g",
+          "unit_price": {
+            "per_base_unit": 0.004679,
+            "base_uom": "g",
+            "basis": "per_kg",
+            "value": 4.6793,
+            "approximate": false
+          }
+        },
+        "bread": {
+          "url": "https://www.kesargrocery.com/100-whole-wheat-bread-24-oz./",
+          "name": "100% Whole Wheat Bread (24 Oz.)",
+          "price": 6.49,
+          "currency": null,
+          "size": {
+            "raw": "24 Oz",
+            "value": 24.0,
+            "uom": "oz",
+            "approximate": false,
+            "form": "plain",
+            "quantity": 680.388,
+            "base_uom": "g"
+          },
+          "status": "verified",
+          "via": "bare-html",
+          "target_size": "500 g loaf",
+          "tier": "core",
+          "label": "White bread (loaf)",
+          "normal_unit": "g",
+          "unit_price": {
+            "per_base_unit": 0.009539,
+            "base_uom": "g",
+            "basis": "per_kg",
+            "value": 9.5387,
+            "approximate": false
+          }
+        },
+        "pasta": {
+          "url": "https://www.kesargrocery.com/great-value-elbows-pasta-1-lb-454-gm/",
+          "name": "Great Value Elbows Pasta (1 LB - 454 GM)",
+          "price": 2.74,
+          "currency": null,
+          "size": {
+            "raw": "1 LB",
+            "value": 1.0,
+            "uom": "lb",
+            "approximate": false,
+            "form": "plain",
+            "quantity": 453.592,
+            "base_uom": "g"
+          },
+          "status": "verified",
+          "via": "bare-html",
+          "target_size": "1 lb",
+          "tier": "core",
+          "label": "Pasta (spaghetti)",
+          "normal_unit": "g",
+          "unit_price": {
+            "per_base_unit": 0.006041,
+            "base_uom": "g",
+            "basis": "per_kg",
+            "value": 6.0407,
+            "approximate": false
+          }
+        },
+        "chicken": {
+          "url": "https://www.kesargrocery.com/shahnawaz-chicken-shami-kebab-10-oz/",
+          "name": null,
+          "price": null,
+          "currency": null,
+          "size": {
+            "raw": "10 oz",
+            "value": 10.0,
+            "uom": "oz",
+            "approximate": false,
+            "form": "plain",
+            "quantity": 283.495,
+            "base_uom": "g"
+          },
+          "status": "candidate_unverified",
+          "note": "URL selected from the sitemap but the page serves no price over plain HTTP - confirm with a Studio run",
+          "target_size": "per lb",
+          "tier": "core",
+          "label": "Chicken breast",
+          "normal_unit": "g",
+          "unit_price": null
+        },
+        "eggs": {
+          "url": "https://www.kesargrocery.com/kcb-cake-rusk-10-oz-no-eggs-sku447011/",
+          "name": null,
+          "price": null,
+          "currency": null,
+          "size": {
+            "raw": "10 oz",
+            "value": 10.0,
+            "uom": "oz",
+            "approximate": false,
+            "form": "plain",
+            "quantity": 283.495,
+            "base_uom": "g"
+          },
+          "status": "candidate_unverified",
+          "note": "URL selected from the sitemap but the page serves no price over plain HTTP - confirm with a Studio run",
+          "target_size": "dozen",
+          "tier": "core",
+          "label": "Eggs (12)",
+          "normal_unit": "count",
+          "unit_price": null
+        },
+        "milk": {
+          "url": "https://www.kesargrocery.com/deep-dahi-whole-milk-2-lb/",
+          "name": null,
+          "price": null,
+          "currency": null,
+          "size": {
+            "raw": "2 lb",
+            "value": 2.0,
+            "uom": "lb",
+            "approximate": false,
+            "form": "plain",
+            "quantity": 907.184,
+            "base_uom": "g"
+          },
+          "status": "candidate_unverified",
+          "note": "URL selected from the sitemap but the page serves no price over plain HTTP - confirm with a Studio run",
+          "target_size": "1 gal",
+          "tier": "core",
+          "label": "Milk (1 L)",
+          "normal_unit": "ml",
+          "unit_price": null
+        },
+        "coffee": {
+          "url": "https://www.kesargrocery.com/cothas-coffee-1lbs-sku392851/",
+          "name": "Cothas Coffee Speciality Bland - 16 Oz (454 Gm)",
+          "price": 10.99,
+          "currency": null,
+          "size": {
+            "raw": "16 Oz",
+            "value": 16.0,
+            "uom": "oz",
+            "approximate": false,
+            "form": "plain",
+            "quantity": 453.592,
+            "base_uom": "g"
+          },
+          "status": "verified",
+          "via": "bare-html",
+          "target_size": "12 oz ground",
+          "tier": "core",
+          "label": "Coffee (ground or instant)",
+          "normal_unit": "g",
+          "unit_price": {
+            "per_base_unit": 0.024229,
+            "base_uom": "g",
+            "basis": "per_kg",
+            "value": 24.2288,
+            "approximate": false
+          }
+        },
+        "sugar": {
+          "url": "https://www.kesargrocery.com/indian-sugar-2-lb-sku475761/",
+          "name": "Indian Sugar (2 LB)",
+          "price": 3.99,
+          "currency": null,
+          "size": {
+            "raw": "2 LB",
+            "value": 2.0,
+            "uom": "lb",
+            "approximate": false,
+            "form": "plain",
+            "quantity": 907.184,
+            "base_uom": "g"
+          },
+          "status": "verified",
+          "via": "bare-html",
+          "target_size": "4 lb",
+          "tier": "core",
+          "label": "Sugar (white or brown)",
+          "normal_unit": "g",
+          "unit_price": {
+            "per_base_unit": 0.004398,
+            "base_uom": "g",
+            "basis": "per_kg",
+            "value": 4.3982,
+            "approximate": false
+          }
+        },
+        "cooking_oil": {
+          "url": "https://www.kesargrocery.com/swad-almond-oil-473-ml/",
+          "name": "Swad Almond Oil 473 ml",
+          "price": 10.99,
+          "currency": null,
+          "size": {
+            "raw": "473 ml",
+            "value": 473.0,
+            "uom": "ml",
+            "approximate": false,
+            "form": "plain",
+            "quantity": 473.0,
+            "base_uom": "ml"
+          },
+          "status": "verified",
+          "via": "bare-html",
+          "target_size": "48 oz",
+          "tier": "core",
+          "label": "Cooking oil",
+          "normal_unit": "ml",
+          "unit_price": {
+            "per_base_unit": 0.023235,
+            "base_uom": "ml",
+            "basis": "per_litre",
+            "value": 23.2347,
+            "approximate": false
+          }
+        },
+        "bananas": {
+          "url": "https://www.kesargrocery.com/organic-bananas-3-lbs./",
+          "name": "Organic Bananas (3 Lbs.)",
+          "price": 5.39,
+          "currency": null,
+          "size": {
+            "raw": "3 Lbs",
+            "value": 3.0,
+            "uom": "lbs",
+            "approximate": false,
+            "form": "plain",
+            "quantity": 1360.776,
+            "base_uom": "g"
+          },
+          "status": "verified",
+          "via": "bare-html",
+          "target_size": "per lb",
+          "tier": "core",
+          "label": "Bananas (1 kg)",
+          "normal_unit": "g",
+          "unit_price": {
+            "per_base_unit": 0.003961,
+            "base_uom": "g",
+            "basis": "per_kg",
+            "value": 3.961,
+            "approximate": false
+          }
+        },
+        "pork": {
+          "status": "not_found",
+          "note": "no candidate URL in pool",
+          "target_size": "per lb",
+          "tier": "stretch",
+          "label": "Pork (lean cut)",
+          "normal_unit": "g",
+          "unit_price": null
+        },
+        "fish": {
+          "url": "https://www.kesargrocery.com/aachi-fish-fry-masala-7-oz-200-gm/",
+          "name": null,
+          "price": null,
+          "currency": null,
+          "size": {
+            "raw": "7 oz",
+            "value": 7.0,
+            "uom": "oz",
+            "approximate": false,
+            "form": "plain",
+            "quantity": 198.4465,
+            "base_uom": "g"
+          },
+          "status": "candidate_unverified",
+          "note": "URL selected from the sitemap but the page serves no price over plain HTTP - confirm with a Studio run",
+          "target_size": "per lb",
+          "tier": "stretch",
+          "label": "Fish (tilapia or round scad)",
+          "normal_unit": "g",
+          "unit_price": null
+        },
+        "cheese": {
+          "url": "https://www.kesargrocery.com/amul-cheese-block-1-kg-sku393561/",
+          "name": "Amul Cheese Block - 1 KG",
+          "price": 19.99,
+          "currency": null,
+          "size": {
+            "raw": "1 KG",
+            "value": 1.0,
+            "uom": "kg",
+            "approximate": false,
+            "form": "plain",
+            "quantity": 1000.0,
+            "base_uom": "g"
+          },
+          "status": "verified",
+          "via": "bare-html",
+          "target_size": "1 lb",
+          "tier": "stretch",
+          "label": "Cheese (local)",
+          "normal_unit": "g",
+          "unit_price": {
+            "per_base_unit": 0.01999,
+            "base_uom": "g",
+            "basis": "per_kg",
+            "value": 19.99,
+            "approximate": false
+          }
+        },
+        "tomatoes": {
+          "url": "https://www.kesargrocery.com/beefsteak-tomatoes-6-ct./",
+          "name": "Beefsteak Tomatoes (3 Lbs)",
+          "price": 11.99,
+          "currency": null,
+          "size": {
+            "raw": "3 Lbs",
+            "value": 3.0,
+            "uom": "lbs",
+            "approximate": false,
+            "form": "plain",
+            "quantity": 1360.776,
+            "base_uom": "g"
+          },
+          "status": "verified",
+          "via": "bare-html",
+          "target_size": "per lb",
+          "tier": "stretch",
+          "label": "Tomatoes (1 kg)",
+          "normal_unit": "g",
+          "unit_price": {
+            "per_base_unit": 0.008811,
+            "base_uom": "g",
+            "basis": "per_kg",
+            "value": 8.8111,
+            "approximate": false
+          }
+        },
+        "potatoes": {
+          "url": "https://www.kesargrocery.com/dynamic-duo-fresh-creamer-potatoes-5-lb./",
+          "name": "Dynamic Duo Fresh Creamer Potatoes (5 Lb.)",
+          "price": 11.39,
+          "currency": null,
+          "size": {
+            "raw": "5 Lb",
+            "value": 5.0,
+            "uom": "lb",
+            "approximate": false,
+            "form": "plain",
+            "quantity": 2267.96,
+            "base_uom": "g"
+          },
+          "status": "verified",
+          "via": "bare-html",
+          "target_size": "per lb",
+          "tier": "stretch",
+          "label": "Potatoes (1 kg)",
+          "normal_unit": "g",
+          "unit_price": {
+            "per_base_unit": 0.005022,
+            "base_uom": "g",
+            "basis": "per_kg",
+            "value": 5.0221,
+            "approximate": false
+          }
+        },
+        "onions": {
+          "url": "https://www.kesargrocery.com/white-onions-3-lb/",
+          "name": "White Onions - 3 Lb.",
+          "price": 6.99,
+          "currency": null,
+          "size": {
+            "raw": "3 Lb",
+            "value": 3.0,
+            "uom": "lb",
+            "approximate": false,
+            "form": "plain",
+            "quantity": 1360.776,
+            "base_uom": "g"
+          },
+          "status": "verified",
+          "via": "bare-html",
+          "target_size": "per lb",
+          "tier": "stretch",
+          "label": "Onions (1 kg)",
+          "normal_unit": "g",
+          "unit_price": {
+            "per_base_unit": 0.005137,
+            "base_uom": "g",
+            "basis": "per_kg",
+            "value": 5.1368,
+            "approximate": false
+          }
+        },
+        "apples": {
+          "url": "https://www.kesargrocery.com/freshness-guaranteed-gala-apples-3-lb/",
+          "name": "Freshness Guaranteed Gala Apples (3 LB)",
+          "price": 7.99,
+          "currency": null,
+          "size": {
+            "raw": "3 LB",
+            "value": 3.0,
+            "uom": "lb",
+            "approximate": false,
+            "form": "plain",
+            "quantity": 1360.776,
+            "base_uom": "g"
+          },
+          "status": "verified",
+          "via": "bare-html",
+          "target_size": "per lb",
+          "tier": "stretch",
+          "label": "Apples (1 kg)",
+          "normal_unit": "g",
+          "unit_price": {
+            "per_base_unit": 0.005872,
+            "base_uom": "g",
+            "basis": "per_kg",
+            "value": 5.8716,
+            "approximate": false
+          }
+        },
+        "oranges": {
+          "url": "https://www.kesargrocery.com/fresh-navel-oranges-3-lb-sku561691/",
+          "name": "Fresh Navel Oranges (3 LB)",
+          "price": 7.99,
+          "currency": null,
+          "size": {
+            "raw": "3 LB",
+            "value": 3.0,
+            "uom": "lb",
+            "approximate": false,
+            "form": "plain",
+            "quantity": 1360.776,
+            "base_uom": "g"
+          },
+          "status": "verified",
+          "via": "bare-html",
+          "target_size": "per lb",
+          "tier": "stretch",
+          "label": "Oranges (1 kg)",
+          "normal_unit": "g",
+          "unit_price": {
+            "per_base_unit": 0.005872,
+            "base_uom": "g",
+            "basis": "per_kg",
+            "value": 5.8716,
+            "approximate": false
+          }
+        },
+        "canned_fish": {
+          "status": "not_found",
+          "note": "no candidate URL in pool",
+          "target_size": "155 g tin",
+          "tier": "stretch",
+          "label": "Canned sardines",
+          "normal_unit": "g",
+          "unit_price": null
+        },
+        "bottled_water": {
+          "url": "https://www.kesargrocery.com/woodwards-gripe-water-130-ml/",
+          "name": null,
+          "price": null,
+          "currency": null,
+          "size": {
+            "raw": "130 ml",
+            "value": 130.0,
+            "uom": "ml",
+            "approximate": false,
+            "form": "plain",
+            "quantity": 130.0,
+            "base_uom": "ml"
+          },
+          "status": "candidate_unverified",
+          "note": "URL selected from the sitemap but the page serves no price over plain HTTP - confirm with a Studio run",
+          "target_size": "1.5 L",
+          "tier": "stretch",
+          "label": "Bottled water (1.5 L)",
+          "normal_unit": "ml",
+          "unit_price": null
+        }
+      },
+      "unresolved": [
+        "chicken",
+        "eggs",
+        "milk",
+        "pork",
+        "fish",
+        "canned_fish",
+        "bottled_water"
+      ],
+      "pool_size": 9825,
+      "discovery": "sitemap",
+      "verified_count": 13,
+      "chosen_url_count": 18,
+      "unit_priced_count": 13,
+      "core_settled": 7
+    },
+    "us-mexgrocer": {
+      "id": "us-mexgrocer",
+      "name": "MexGrocer",
+      "country": "US",
+      "structural_class": "json-ld",
+      "items": {
+        "rice": {
+          "url": "https://www.mexgrocer.com/products/arroz-mahatma-long-grain-rice-poly",
+          "name": "Arroz - Mahatma Long Grain Rice Poly - 2 lb",
+          "price": 8.95,
+          "currency": null,
+          "size": {
+            "raw": "2 lb",
+            "value": 2.0,
+            "uom": "lb",
+            "approximate": false,
+            "form": "plain",
+            "quantity": 907.184,
+            "base_uom": "g"
+          },
+          "status": "verified",
+          "via": "shopify-search",
+          "store_taxonomy": "Arroz b2b20 GROCERY MAHATMA RICE GROCERY",
+          "target_size": "5 lb",
+          "tier": "core",
+          "label": "Rice (white)",
+          "normal_unit": "g",
+          "unit_price": {
+            "per_base_unit": 0.009866,
+            "base_uom": "g",
+            "basis": "per_kg",
+            "value": 9.8657,
+            "approximate": false
+          }
+        },
+        "bread": {
+          "status": "not_found",
+          "note": "search returned no plain staple",
+          "target_size": "500 g loaf",
+          "tier": "core",
+          "label": "White bread (loaf)",
+          "normal_unit": "g",
+          "unit_price": null
+        },
+        "pasta": {
+          "status": "not_found",
+          "note": "search returned no plain staple",
+          "target_size": "1 lb",
+          "tier": "core",
+          "label": "Pasta (spaghetti)",
+          "normal_unit": "g",
+          "unit_price": null
+        },
+        "chicken": {
+          "url": "https://www.mexgrocer.com/products/knorr-tomato-chicken-boullion",
+          "name": "Knorr Tomato/Chicken Boullion - 15.9 oz",
+          "price": 13.95,
+          "currency": null,
+          "size": {
+            "raw": "15.9 oz",
+            "value": 15.9,
+            "uom": "oz",
+            "approximate": false,
+            "form": "plain",
+            "quantity": 450.757,
+            "base_uom": "g"
+          },
+          "status": "verified",
+          "via": "shopify-search",
+          "store_taxonomy": "b2b20 BOULLION GROCERY KNORR SEASONINGS GROCERY",
+          "target_size": "per lb",
+          "tier": "core",
+          "label": "Chicken breast",
+          "normal_unit": "g",
+          "unit_price": {
+            "per_base_unit": 0.030948,
+            "base_uom": "g",
+            "basis": "per_kg",
+            "value": 30.9479,
+            "approximate": false
+          }
+        },
+        "eggs": {
+          "status": "not_found",
+          "note": "search returned no plain staple",
+          "target_size": "dozen",
+          "tier": "core",
+          "label": "Eggs (12)",
+          "normal_unit": "count",
+          "unit_price": null
+        },
+        "milk": {
+          "status": "not_found",
+          "note": "search returned no plain staple",
+          "target_size": "1 gal",
+          "tier": "core",
+          "label": "Milk (1 L)",
+          "normal_unit": "ml",
+          "unit_price": null
+        },
+        "coffee": {
+          "url": "https://www.mexgrocer.com/products/cafe-de-olla-mexican-coffee-ground-by-mexgrocer-com",
+          "name": "Cafe de Olla Mexican Coffee Ground by Mexgrocer.com - 12 oz",
+          "price": 18.95,
+          "currency": null,
+          "size": {
+            "raw": "12 oz",
+            "value": 12.0,
+            "uom": "oz",
+            "approximate": false,
+            "form": "plain",
+            "quantity": 340.194,
+            "base_uom": "g"
+          },
+          "status": "verified",
+          "via": "shopify-search",
+          "store_taxonomy": "b2b20 BEVERAGES / COFFEE COFFEE COFFEE / TEAS GROCERY HOTDRINKS MEXGROCER GROCERY",
+          "target_size": "12 oz ground",
+          "tier": "core",
+          "label": "Coffee (ground or instant)",
+          "normal_unit": "g",
+          "unit_price": {
+            "per_base_unit": 0.055704,
+            "base_uom": "g",
+            "basis": "per_kg",
+            "value": 55.7035,
+            "approximate": false
+          }
+        },
+        "sugar": {
+          "url": "https://www.mexgrocer.com/products/zulka-spicy-sweet-shaker-cane-sugar-with-chili-powder-and-lime",
+          "name": "Zulka Spicy Sweet Shaker - Cane Sugar with Chili Powder and Lime - 8.82 oz",
+          "price": 9.95,
+          "currency": null,
+          "size": {
+            "raw": "8.82 oz",
+            "value": 8.82,
+            "uom": "oz",
+            "approximate": false,
+            "form": "plain",
+            "quantity": 250.0426,
+            "base_uom": "g"
+          },
+          "status": "verified",
+          "via": "shopify-search",
+          "store_taxonomy": "b2b20 GROCERY Spicy SUGARS ZULKA GROCERY",
+          "target_size": "4 lb",
+          "tier": "core",
+          "label": "Sugar (white or brown)",
+          "normal_unit": "g",
+          "unit_price": {
+            "per_base_unit": 0.039793,
+            "base_uom": "g",
+            "basis": "per_kg",
+            "value": 39.7932,
+            "approximate": false
+          }
+        },
+        "cooking_oil": {
+          "status": "not_found",
+          "note": "search returned no plain staple",
+          "target_size": "48 oz",
+          "tier": "core",
+          "label": "Cooking oil",
+          "normal_unit": "ml",
+          "unit_price": null
+        },
+        "bananas": {
+          "url": "https://www.mexgrocer.com/products/banana-leaves-hojas-de-platano",
+          "name": "Goya Banana Leaves - Hojas de Platano - 3 lb",
+          "price": 48.95,
+          "currency": null,
+          "size": {
+            "raw": "3 lb",
+            "value": 3.0,
+            "uom": "lb",
+            "approximate": false,
+            "form": "plain",
+            "quantity": 1360.776,
+            "base_uom": "g"
+          },
+          "status": "verified",
+          "via": "shopify-search",
+          "store_taxonomy": "b2b20 FRESH FRESH PRODUCE GOYA GOYA FOODS HOJATAMAL IOTM PRODUCE RETAIL-ONLY FRESH",
+          "target_size": "per lb",
+          "tier": "core",
+          "label": "Bananas (1 kg)",
+          "normal_unit": "g",
+          "unit_price": {
+            "per_base_unit": 0.035972,
+            "base_uom": "g",
+            "basis": "per_kg",
+            "value": 35.9721,
+            "approximate": false
+          }
+        },
+        "pork": {
+          "status": "not_found",
+          "note": "search returned no plain staple",
+          "target_size": "per lb",
+          "tier": "stretch",
+          "label": "Pork (lean cut)",
+          "normal_unit": "g",
+          "unit_price": null
+        },
+        "fish": {
+          "status": "not_found",
+          "note": "search returned no plain staple",
+          "target_size": "per lb",
+          "tier": "stretch",
+          "label": "Fish (tilapia or round scad)",
+          "normal_unit": "g",
+          "unit_price": null
+        },
+        "cheese": {
+          "url": "https://www.mexgrocer.com/products/el-mexicano-queso-panela-whole-milk-cheese-10-oz",
+          "name": "El Mexicano Queso Panela Whole Milk Cheese - 10 oz",
+          "price": 28.95,
+          "currency": null,
+          "size": {
+            "raw": "10 oz",
+            "value": 10.0,
+            "uom": "oz",
+            "approximate": false,
+            "form": "plain",
+            "quantity": 283.495,
+            "base_uom": "g"
+          },
+          "status": "verified",
+          "via": "shopify-search",
+          "store_taxonomy": "b2b20 CHEESES EL MEXICANO FRESH HEALTHY RETAIL-ONLY FRESH",
+          "target_size": "1 lb",
+          "tier": "stretch",
+          "label": "Cheese (local)",
+          "normal_unit": "g",
+          "unit_price": {
+            "per_base_unit": 0.102118,
+            "base_uom": "g",
+            "basis": "per_kg",
+            "value": 102.1182,
+            "approximate": false
+          }
+        },
+        "tomatoes": {
+          "url": "https://www.mexgrocer.com/products/knorr-tomato-chicken-boullion",
+          "name": "Knorr Tomato/Chicken Boullion - 15.9 oz",
+          "price": 13.95,
+          "currency": null,
+          "size": {
+            "raw": "15.9 oz",
+            "value": 15.9,
+            "uom": "oz",
+            "approximate": false,
+            "form": "plain",
+            "quantity": 450.757,
+            "base_uom": "g"
+          },
+          "status": "verified",
+          "via": "shopify-search",
+          "store_taxonomy": "b2b20 BOULLION GROCERY KNORR SEASONINGS GROCERY",
+          "target_size": "per lb",
+          "tier": "stretch",
+          "label": "Tomatoes (1 kg)",
+          "normal_unit": "g",
+          "unit_price": {
+            "per_base_unit": 0.030948,
+            "base_uom": "g",
+            "basis": "per_kg",
+            "value": 30.9479,
+            "approximate": false
+          }
+        },
+        "potatoes": {
+          "status": "not_found",
+          "note": "search returned no plain staple",
+          "target_size": "per lb",
+          "tier": "stretch",
+          "label": "Potatoes (1 kg)",
+          "normal_unit": "g",
+          "unit_price": null
+        },
+        "onions": {
+          "url": "https://www.mexgrocer.com/products/herdez-whole-jalapenos",
+          "name": "Herdez Whole Jalape\u00f1os Pickled with Carrots & Onions \u2013 27 oz",
+          "price": 7.95,
+          "currency": null,
+          "size": {
+            "raw": "27 oz",
+            "value": 27.0,
+            "uom": "oz",
+            "approximate": false,
+            "form": "plain",
+            "quantity": 765.4365,
+            "base_uom": "g"
+          },
+          "status": "verified",
+          "via": "shopify-search",
+          "store_taxonomy": "b2b20 CHILI PEPPERS HERDEZ JALAPE\u00d1OS CHILI PEPPERS",
+          "target_size": "per lb",
+          "tier": "stretch",
+          "label": "Onions (1 kg)",
+          "normal_unit": "g",
+          "unit_price": {
+            "per_base_unit": 0.010386,
+            "base_uom": "g",
+            "basis": "per_kg",
+            "value": 10.3862,
+            "approximate": false
+          }
+        },
+        "apples": {
+          "status": "not_found",
+          "note": "search returned no plain staple",
+          "target_size": "per lb",
+          "tier": "stretch",
+          "label": "Apples (1 kg)",
+          "normal_unit": "g",
+          "unit_price": null
+        },
+        "oranges": {
+          "url": "https://www.mexgrocer.com/products/goya-naranja-agria-bitter-orange-marinade",
+          "name": "Goya Naranja Agria - Bitter Orange Marinade - 24 oz",
+          "price": 6.95,
+          "currency": null,
+          "size": {
+            "raw": "24 oz",
+            "value": 24.0,
+            "uom": "oz",
+            "approximate": false,
+            "form": "plain",
+            "quantity": 680.388,
+            "base_uom": "g"
+          },
+          "status": "verified",
+          "via": "shopify-search",
+          "store_taxonomy": "b2b20 GOYA GOYA FOODS GROCERY MARINADE SALE sale-price GROCERY",
+          "target_size": "per lb",
+          "tier": "stretch",
+          "label": "Oranges (1 kg)",
+          "normal_unit": "g",
+          "unit_price": {
+            "per_base_unit": 0.010215,
+            "base_uom": "g",
+            "basis": "per_kg",
+            "value": 10.2148,
+            "approximate": false
+          }
+        },
+        "canned_fish": {
+          "status": "not_found",
+          "note": "search returned no plain staple",
+          "target_size": "155 g tin",
+          "tier": "stretch",
+          "label": "Canned sardines",
+          "normal_unit": "g",
+          "unit_price": null
+        },
+        "bottled_water": {
+          "status": "not_found",
+          "note": "search returned no plain staple",
+          "target_size": "1.5 L",
+          "tier": "stretch",
+          "label": "Bottled water (1.5 L)",
+          "normal_unit": "ml",
+          "unit_price": null
+        }
+      },
+      "unresolved": [
+        "bread",
+        "pasta",
+        "eggs",
+        "milk",
+        "cooking_oil",
+        "pork",
+        "fish",
+        "potatoes",
+        "apples",
+        "canned_fish",
+        "bottled_water"
+      ],
+      "verified_count": 9,
+      "chosen_url_count": 9,
+      "unit_priced_count": 9,
+      "core_settled": 5
+    },
     "us-dierbergs": {
       "id": "us-dierbergs",
       "name": "Dierbergs",
@@ -4720,9 +5620,9 @@
     }
   },
   "totals": {
-    "stores": 10,
-    "verified_items": 50,
-    "possible_items": 200,
+    "stores": 12,
+    "verified_items": 72,
+    "possible_items": 240,
     "unit_price_outliers": 1,
     "core_items": 10,
     "tracked_items": 20
