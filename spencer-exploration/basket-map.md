@@ -13,82 +13,133 @@ store's public catalogue has no such staple.
 
 | Item | Target | Status | Size | Price | Product |
 |---|---|---|---|---|---|
-| rice | 5 kg | verified | 5kg | 378.00 | Great Value V-160 Rice 5KG |
-| eggs | tray | verified | - | 125.00 | Great Value Farm Fresh Eggs Medium 12's |
-| milk | 1 L | verified | 300g | 94.30 | BIRCH TREE FORTIFIED MILK DRINK 300G |
-| bread | loaf | not_found | - | - | search returned no plain staple |
-| coffee | sachets | verified | 200g | 949.95 | Nescafe Original Coffee 200g |
-| sugar | 1 kg | verified | 1/4kg | 19.00 | Great Value Brown Sugar 1/4 Kg |
-| chicken | per kg | verified | 18.5oz | 219.95 | Progresso Rich & Hearty Chicken Pot Pie Style With Dumplings 18.5oz 52 |
-| cooking_oil | 1 L | verified | 2l | 260.00 | UFC Golden Fiesta Canola Oil 2L |
+| rice | 5 kg | verified | {'raw': '5KG', 'value': 5.0, 'uom': 'kg', 'approximate': False, 'form': 'plain', 'quantity': 5000.0, 'base_uom': 'g'} | 378.00 | Great Value V-160 Rice 5KG |
+| bread | 500 g loaf | not_found | - | - | search returned no plain staple |
 | pasta | 500 g | not_found | - | - | search returned no plain staple |
-| bananas | per kg | not_found | - | - | search returned no plain staple |
+| chicken | 1 kg | not_stocked | - | - | Searched its Shopify catalogue for chicken and whole chicken: only spr |
+| eggs | tray (30) or dozen | verified | {'raw': "12's", 'value': 12.0, 'uom': 'count', 'approximate': False, 'form': 'count', 'quantity': 12.0, 'base_uom': 'count'} | 125.00 | Great Value Farm Fresh Eggs Medium 12's |
+| milk | 1 L | verified | {'raw': '1L', 'value': 1.0, 'uom': 'l', 'approximate': False, 'form': 'plain', 'quantity': 1000.0, 'base_uom': 'ml'} | 117.75 | Nestle Non Fat Milk 1L |
+| coffee | ground or instant refill | curated | {'raw': '50g', 'value': 50.0, 'uom': 'g', 'approximate': False, 'form': 'plain', 'quantity': 50.0, 'base_uom': 'g'} | - | Nescafe Classic Tipid Pack 50g |
+| sugar | 1 kg | verified | {'raw': '1/4 Kg', 'value': 0.25, 'uom': 'kg', 'approximate': False, 'form': 'fraction', 'quantity': 250.0, 'base_uom': 'g'} | 19.00 | Great Value Brown Sugar 1/4 Kg |
+| cooking_oil | 1 L | verified | {'raw': '1L', 'value': 1.0, 'uom': 'l', 'approximate': False, 'form': 'plain', 'quantity': 1000.0, 'base_uom': 'ml'} | 177.00 | Golden Fiesta Canola Oil 1L |
+| bananas | 1 kg | not_found | - | - | search returned no plain staple |
+| pork | 1 kg | not_found | - | - | search returned no plain staple |
+| fish | 1 kg | not_found | - | - | search returned no plain staple |
+| cheese | 500 g | not_found | - | - | search returned no plain staple |
+| tomatoes | 1 kg | not_found | - | - | search returned no plain staple |
+| potatoes | 1 kg | not_found | - | - | search returned no plain staple |
+| onions | 1 kg | not_found | - | - | search returned no plain staple |
+| apples | 1 kg | not_found | - | - | search returned no plain staple |
+| oranges | 1 kg | not_found | - | - | search returned no plain staple |
+| canned_fish | 155 g tin | verified | {'raw': '155G', 'value': 155.0, 'uom': 'g', 'approximate': False, 'form': 'plain', 'quantity': 155.0, 'base_uom': 'g'} | 24.80 | FAMILYS EOC SARDINES GREEN 155G |
+| bottled_water | 1.5 L | not_found | - | - | search returned no plain staple |
 
+- **coffee** curated: Automation picked Nescafe Original 200g at PHP 949.95, which works out to PHP 4,750/kg - roughly 4.5x every other instant coffee in the same catalogue, so it is almost certainly a case or a mispriced line. The Tipid Pack is the standard instant refill and the representative PH form named in items.json.
 
-## SM Markets (PH) - 8/10 settled, 8/10 with a chosen URL
+## SM Markets (PH) - 9/10 settled, 9/10 with a chosen URL
 
 | Item | Target | Status | Size | Price | Product |
 |---|---|---|---|---|---|
-| rice | 5 kg | verified | 104g | 99.50 | Hop Polvoron Crisped Rice | 104g 8pcs |
-| eggs | tray | verified | 170g | 169.95 | Lays Salted Egg | 170g |
-| milk | 1 L | verified | 3kg | 1549.50 | Nido 3+ Growing Up Milk |3kg |
-| bread | loaf | not_found | - | - | 12 results, none a plain staple |
-| coffee | sachets | verified | - | 599.00 | Maxwear Men's Feeling Good Bear Embroidered Tee in Dark Coffee |
-| sugar | 1 kg | verified | - | 699.00 | Sugar Kids Girls' Grace Sandals |
-| chicken | per kg | verified | 450g | 204.00 | Rosa Foods Chicken Tocino Boneless | 450g |
+| rice | 5 kg | not_found | - | - | 12 results, none a plain staple |
+| bread | 500 g loaf | not_found | - | - | 12 results, none a plain staple |
+| pasta | 500 g | verified | {'raw': '1kg', 'value': 1.0, 'uom': 'kg', 'approximate': False, 'form': 'plain', 'quantity': 1000.0, 'base_uom': 'g'} | 227.50 | Pasta Zara Spaghetti | 1kg |
+| chicken | 1 kg | verified | {'raw': '500g', 'value': 500.0, 'uom': 'g', 'approximate': False, 'form': 'plain', 'quantity': 500.0, 'base_uom': 'g'} | 123.00 | Purefoods Tender Juicy Chicken N Chili | 500g |
+| eggs | tray (30) or dozen | verified | {'raw': '4pcs', 'value': 4.0, 'uom': 'pcs', 'approximate': False, 'form': 'plain', 'quantity': 4.0, 'base_uom': 'count'} | 85.00 | SM Bonus Salted Duck Eggs | 4pcs |
+| milk | 1 L | not_found | - | - | 12 results, none a plain staple |
+| coffee | ground or instant refill | not_found | - | - | 12 results, none a plain staple |
+| sugar | 1 kg | not_found | - | - | 12 results, none a plain staple |
 | cooking_oil | 1 L | not_found | - | - | 12 results, none a plain staple |
-| pasta | 500 g | verified | - | 365.00 | Oh My Premium Pasta With Cod Roe & Squid | pc |
-| bananas | per kg | verified | - | 399.50 | BALENO MEN'S PAJAMA SET FOOD BANANA PRINT |
+| bananas | 1 kg | not_found | - | - | 12 results, none a plain staple |
+| pork | 1 kg | not_found | - | - | 12 results, none a plain staple |
+| fish | 1 kg | verified | {'raw': '350g-500g', 'value': 425.0, 'uom': 'g', 'approximate': True, 'form': 'range', 'quantity': 425.0, 'base_uom': 'g'} | 115.00 | NSJ Promo Tilapia Large | 350g-500g |
+| cheese | 500 g | verified | {'raw': '500g', 'value': 500.0, 'uom': 'g', 'approximate': False, 'form': 'plain', 'quantity': 500.0, 'base_uom': 'g'} | 105.00 | Winner Footlong Hotdog With Cheese | 500g |
+| tomatoes | 1 kg | verified | {'raw': '350g-400g', 'value': 375.0, 'uom': 'g', 'approximate': True, 'form': 'range', 'quantity': 375.0, 'base_uom': 'g'} | 192.00 | Elrich Tomato Baguio | 350g-400g |
+| potatoes | 1 kg | verified | {'raw': '450g-500g', 'value': 475.0, 'uom': 'g', 'approximate': True, 'form': 'range', 'quantity': 475.0, 'base_uom': 'g'} | 79.50 | SS Potato Jumbo | 450g-500g |
+| onions | 1 kg | verified | {'raw': '400g', 'value': 400.0, 'uom': 'g', 'approximate': False, 'form': 'plain', 'quantity': 400.0, 'base_uom': 'g'} | 189.50 | SK Kitchen Stuffed Paratha Om and Onion | 400g |
+| apples | 1 kg | verified | {'raw': '700g-800g', 'value': 750.0, 'uom': 'g', 'approximate': True, 'form': 'range', 'quantity': 750.0, 'base_uom': 'g'} | 144.00 | Elrich Green Apple | 700g-800g |
+| oranges | 1 kg | not_found | - | - | 12 results, none a plain staple |
+| canned_fish | 155 g tin | not_found | - | - | 12 results, none a plain staple |
+| bottled_water | 1.5 L | not_found | - | - | 12 results, none a plain staple |
 
 
-## MerryMart Wholesale (PH) - 0/10 settled, 6/10 with a chosen URL
+## MerryMart Wholesale (PH) - 0/10 settled, 9/10 with a chosen URL
 
 | Item | Target | Status | Size | Price | Product |
 |---|---|---|---|---|---|
 | rice | 5 kg | not_found | - | - | no candidate URL in pool |
-| eggs | tray | candidate_unverified | 200g | - | URL selected from the sitemap but the page serves no price over plain  |
-| milk | 1 L | candidate_unverified | 360ml | - | URL selected from the sitemap but the page serves no price over plain  |
-| bread | loaf | not_found | - | - | no candidate URL in pool |
-| coffee | sachets | candidate_unverified | 30g | - | URL selected from the sitemap but the page serves no price over plain  |
+| bread | 500 g loaf | not_found | - | - | no candidate URL in pool |
+| pasta | 500 g | candidate_unverified | {'raw': '900g', 'value': 900.0, 'uom': 'g', 'approximate': False, 'form': 'plain', 'quantity': 900.0, 'base_uom': 'g'} | - | URL selected from the sitemap but the page serves no price over plain  |
+| chicken | 1 kg | candidate_unverified | {'raw': '27ml', 'value': 27.0, 'uom': 'ml', 'approximate': False, 'form': 'plain', 'quantity': 27.0, 'base_uom': 'ml'} | - | URL selected from the sitemap but the page serves no price over plain  |
+| eggs | tray (30) or dozen | candidate_unverified | {'raw': '200g', 'value': 200.0, 'uom': 'g', 'approximate': False, 'form': 'plain', 'quantity': 200.0, 'base_uom': 'g'} | - | URL selected from the sitemap but the page serves no price over plain  |
+| milk | 1 L | candidate_unverified | {'raw': '360ml', 'value': 360.0, 'uom': 'ml', 'approximate': False, 'form': 'plain', 'quantity': 360.0, 'base_uom': 'ml'} | - | URL selected from the sitemap but the page serves no price over plain  |
+| coffee | ground or instant refill | candidate_unverified | {'raw': '30g', 'value': 30.0, 'uom': 'g', 'approximate': False, 'form': 'plain', 'quantity': 30.0, 'base_uom': 'g'} | - | URL selected from the sitemap but the page serves no price over plain  |
 | sugar | 1 kg | not_found | - | - | no candidate URL in pool |
-| chicken | per kg | candidate_unverified | 27ml | - | URL selected from the sitemap but the page serves no price over plain  |
-| cooking_oil | 1 L | candidate_unverified | 425g | - | URL selected from the sitemap but the page serves no price over plain  |
-| pasta | 500 g | candidate_unverified | 900g | - | URL selected from the sitemap but the page serves no price over plain  |
-| bananas | per kg | not_found | - | - | no candidate URL in pool |
+| cooking_oil | 1 L | candidate_unverified | {'raw': '425g', 'value': 425.0, 'uom': 'g', 'approximate': False, 'form': 'plain', 'quantity': 425.0, 'base_uom': 'g'} | - | URL selected from the sitemap but the page serves no price over plain  |
+| bananas | 1 kg | not_found | - | - | no candidate URL in pool |
+| pork | 1 kg | not_found | - | - | no candidate URL in pool |
+| fish | 1 kg | not_found | - | - | no candidate URL in pool |
+| cheese | 500 g | not_found | - | - | no candidate URL in pool |
+| tomatoes | 1 kg | not_found | - | - | no candidate URL in pool |
+| potatoes | 1 kg | not_found | - | - | no candidate URL in pool |
+| onions | 1 kg | not_found | - | - | no candidate URL in pool |
+| apples | 1 kg | not_found | - | - | no candidate URL in pool |
+| oranges | 1 kg | candidate_unverified | {'raw': '500ml', 'value': 500.0, 'uom': 'ml', 'approximate': False, 'form': 'plain', 'quantity': 500.0, 'base_uom': 'ml'} | - | URL selected from the sitemap but the page serves no price over plain  |
+| canned_fish | 155 g tin | candidate_unverified | {'raw': '155g', 'value': 155.0, 'uom': 'g', 'approximate': False, 'form': 'plain', 'quantity': 155.0, 'base_uom': 'g'} | - | URL selected from the sitemap but the page serves no price over plain  |
+| bottled_water | 1.5 L | candidate_unverified | {'raw': '2000ml', 'value': 2000.0, 'uom': 'ml', 'approximate': False, 'form': 'plain', 'quantity': 2000.0, 'base_uom': 'ml'} | - | URL selected from the sitemap but the page serves no price over plain  |
 
 
-## Landers Superstore (PH) - 2/10 settled, 10/10 with a chosen URL
+## Landers Superstore (PH) - 2/10 settled, 20/10 with a chosen URL
 
 | Item | Target | Status | Size | Price | Product |
 |---|---|---|---|---|---|
-| rice | 5 kg | candidate_unverified | 10kg | - | URL selected from the sitemap but the page serves no price over plain  |
-| eggs | tray | candidate_unverified | 30pcs | - | URL selected from the sitemap but the page serves no price over plain  |
-| milk | 1 L | candidate_unverified | 1l | - | URL selected from the sitemap but the page serves no price over plain  |
-| bread | loaf | candidate_unverified | 600g | - | URL selected from the sitemap but the page serves no price over plain  |
-| coffee | sachets | curated | 1.23kg | - | Folgers Classic Roast Ground Coffee 1.23kg |
-| sugar | 1 kg | candidate_unverified | 1kg | - | URL selected from the sitemap but the page serves no price over plain  |
-| chicken | per kg | curated | 1.4kg | - | Bounty Chicken Breast approx 1.4kg |
-| cooking_oil | 1 L | candidate_unverified | 5l | - | URL selected from the sitemap but the page serves no price over plain  |
-| pasta | 500 g | candidate_unverified | 900g | - | URL selected from the sitemap but the page serves no price over plain  |
-| bananas | per kg | candidate_unverified | 4kg | - | URL selected from the sitemap but the page serves no price over plain  |
+| rice | 5 kg | candidate_unverified | {'raw': '10kg', 'value': 10.0, 'uom': 'kg', 'approximate': False, 'form': 'plain', 'quantity': 10000.0, 'base_uom': 'g'} | - | URL selected from the sitemap but the page serves no price over plain  |
+| bread | 500 g loaf | candidate_unverified | {'raw': '600g', 'value': 600.0, 'uom': 'g', 'approximate': False, 'form': 'plain', 'quantity': 600.0, 'base_uom': 'g'} | - | URL selected from the sitemap but the page serves no price over plain  |
+| pasta | 500 g | candidate_unverified | {'raw': '900g', 'value': 900.0, 'uom': 'g', 'approximate': False, 'form': 'plain', 'quantity': 900.0, 'base_uom': 'g'} | - | URL selected from the sitemap but the page serves no price over plain  |
+| chicken | 1 kg | curated | {'raw': '1.4kg', 'value': 1.4, 'uom': 'kg', 'approximate': True, 'form': 'plain', 'quantity': 1400.0, 'base_uom': 'g'} | - | Bounty Chicken Breast approx 1.4kg |
+| eggs | tray (30) or dozen | candidate_unverified | {'raw': '30pcs', 'value': 30.0, 'uom': 'pcs', 'approximate': False, 'form': 'plain', 'quantity': 30.0, 'base_uom': 'count'} | - | URL selected from the sitemap but the page serves no price over plain  |
+| milk | 1 L | candidate_unverified | {'raw': '1l', 'value': 1.0, 'uom': 'l', 'approximate': False, 'form': 'plain', 'quantity': 1000.0, 'base_uom': 'ml'} | - | URL selected from the sitemap but the page serves no price over plain  |
+| coffee | ground or instant refill | curated | {'raw': '1.23kg', 'value': 1.23, 'uom': 'kg', 'approximate': False, 'form': 'plain', 'quantity': 1230.0, 'base_uom': 'g'} | - | Folgers Classic Roast Ground Coffee 1.23kg |
+| sugar | 1 kg | candidate_unverified | {'raw': '1kg', 'value': 1.0, 'uom': 'kg', 'approximate': False, 'form': 'plain', 'quantity': 1000.0, 'base_uom': 'g'} | - | URL selected from the sitemap but the page serves no price over plain  |
+| cooking_oil | 1 L | candidate_unverified | {'raw': '5l', 'value': 5.0, 'uom': 'l', 'approximate': False, 'form': 'plain', 'quantity': 5000.0, 'base_uom': 'ml'} | - | URL selected from the sitemap but the page serves no price over plain  |
+| bananas | 1 kg | candidate_unverified | {'raw': '200g', 'value': 200.0, 'uom': 'g', 'approximate': False, 'form': 'plain', 'quantity': 200.0, 'base_uom': 'g'} | - | URL selected from the sitemap but the page serves no price over plain  |
+| pork | 1 kg | candidate_unverified | {'raw': '250g', 'value': 250.0, 'uom': 'g', 'approximate': False, 'form': 'plain', 'quantity': 250.0, 'base_uom': 'g'} | - | URL selected from the sitemap but the page serves no price over plain  |
+| fish | 1 kg | candidate_unverified | {'raw': '500g', 'value': 500.0, 'uom': 'g', 'approximate': False, 'form': 'plain', 'quantity': 500.0, 'base_uom': 'g'} | - | URL selected from the sitemap but the page serves no price over plain  |
+| cheese | 500 g | candidate_unverified | {'raw': '440g', 'value': 440.0, 'uom': 'g', 'approximate': False, 'form': 'plain', 'quantity': 440.0, 'base_uom': 'g'} | - | URL selected from the sitemap but the page serves no price over plain  |
+| tomatoes | 1 kg | candidate_unverified | {'raw': '400g', 'value': 400.0, 'uom': 'g', 'approximate': False, 'form': 'plain', 'quantity': 400.0, 'base_uom': 'g'} | - | URL selected from the sitemap but the page serves no price over plain  |
+| potatoes | 1 kg | candidate_unverified | {'raw': '350g', 'value': 350.0, 'uom': 'g', 'approximate': True, 'form': 'plain', 'quantity': 350.0, 'base_uom': 'g'} | - | URL selected from the sitemap but the page serves no price over plain  |
+| onions | 1 kg | candidate_unverified | {'raw': '30g', 'value': 30.0, 'uom': 'g', 'approximate': False, 'form': 'plain', 'quantity': 30.0, 'base_uom': 'g'} | - | URL selected from the sitemap but the page serves no price over plain  |
+| apples | 1 kg | candidate_unverified | {'raw': '286g', 'value': 286.0, 'uom': 'g', 'approximate': False, 'form': 'plain', 'quantity': 286.0, 'base_uom': 'g'} | - | URL selected from the sitemap but the page serves no price over plain  |
+| oranges | 1 kg | candidate_unverified | {'raw': '800g', 'value': 800.0, 'uom': 'g', 'approximate': True, 'form': 'plain', 'quantity': 800.0, 'base_uom': 'g'} | - | URL selected from the sitemap but the page serves no price over plain  |
+| canned_fish | 155 g tin | candidate_unverified | {'raw': '120g', 'value': 120.0, 'uom': 'g', 'approximate': False, 'form': 'plain', 'quantity': 120.0, 'base_uom': 'g'} | - | URL selected from the sitemap but the page serves no price over plain  |
+| bottled_water | 1.5 L | candidate_unverified | {'raw': '354g', 'value': 354.0, 'uom': 'g', 'approximate': False, 'form': 'plain', 'quantity': 354.0, 'base_uom': 'g'} | - | URL selected from the sitemap but the page serves no price over plain  |
 
-- **coffee** curated: Automation picked Binggrae Coffee Milk, a ready-to-drink beverage. Folgers ground is the closest analogue to the US 12oz ground-coffee basket item, and the same brand exists on both sides, which makes the cross-country comparison honest.
 - **chicken** curated: Automation picked frozen Ajinomoto Chicken Karaage, a prepared product. This is raw chicken breast sold by weight, matching the PRD basket item.
+- **coffee** curated: Automation picked Binggrae Coffee Milk, a ready-to-drink beverage. Folgers ground is the closest analogue to the US 12oz ground-coffee basket item, and the same brand exists on both sides, which makes the cross-country comparison honest.
 
-## Dierbergs (US) - 4/10 settled, 5/10 with a chosen URL
+## Dierbergs (US) - 0/10 settled, 12/10 with a chosen URL
 
 | Item | Target | Status | Size | Price | Product |
 |---|---|---|---|---|---|
 | rice | 5 lb | not_found | - | - | no candidate URL in pool |
-| eggs | dozen | verified | - | 4.99 | Deviled Eggs |
-| milk | 1 gal | not_found | - | - | no candidate URL in pool |
-| bread | loaf | verified | - | 3.99 | Supremo Italian Bread |
-| coffee | 12 oz | not_found | - | - | no candidate URL in pool |
-| sugar | 4 lb | not_found | - | - | no candidate URL in pool |
-| chicken | per lb | verified | - | 12.99 | Bob&apos;s Smokehouse Pulled Chicken Plain |
-| cooking_oil | 48 oz | verified | - | 5.49 | Oil &amp; Vinegar Cole Slaw |
+| bread | 500 g loaf | candidate_unverified | - | - | URL selected from the sitemap but the page serves no price over plain  |
 | pasta | 1 lb | candidate_unverified | - | - | URL selected from the sitemap but the page serves no price over plain  |
+| chicken | per lb | candidate_unverified | - | - | URL selected from the sitemap but the page serves no price over plain  |
+| eggs | dozen | not_found | - | - | no candidate URL in pool |
+| milk | 1 gal | not_found | - | - | no candidate URL in pool |
+| coffee | 12 oz ground | not_found | - | - | no candidate URL in pool |
+| sugar | 4 lb | not_found | - | - | no candidate URL in pool |
+| cooking_oil | 48 oz | candidate_unverified | - | - | URL selected from the sitemap but the page serves no price over plain  |
 | bananas | per lb | not_found | - | - | no candidate URL in pool |
+| pork | per lb | candidate_unverified | - | - | URL selected from the sitemap but the page serves no price over plain  |
+| fish | per lb | candidate_unverified | - | - | URL selected from the sitemap but the page serves no price over plain  |
+| cheese | 1 lb | candidate_unverified | - | - | URL selected from the sitemap but the page serves no price over plain  |
+| tomatoes | per lb | candidate_unverified | - | - | URL selected from the sitemap but the page serves no price over plain  |
+| potatoes | per lb | candidate_unverified | - | - | URL selected from the sitemap but the page serves no price over plain  |
+| onions | per lb | not_found | - | - | no candidate URL in pool |
+| apples | per lb | candidate_unverified | {'raw': '4ct', 'value': 4.0, 'uom': 'ct', 'approximate': False, 'form': 'plain', 'quantity': 4.0, 'base_uom': 'count'} | - | URL selected from the sitemap but the page serves no price over plain  |
+| oranges | per lb | candidate_unverified | {'raw': '4ct', 'value': 4.0, 'uom': 'ct', 'approximate': False, 'form': 'plain', 'quantity': 4.0, 'base_uom': 'count'} | - | URL selected from the sitemap but the page serves no price over plain  |
+| canned_fish | 155 g tin | not_found | - | - | no candidate URL in pool |
+| bottled_water | 1.5 L | candidate_unverified | - | - | URL selected from the sitemap but the page serves no price over plain  |
 
 
 ## The Fresh Market (US) - 0/10 settled, 1/10 with a chosen URL
@@ -96,31 +147,51 @@ store's public catalogue has no such staple.
 | Item | Target | Status | Size | Price | Product |
 |---|---|---|---|---|---|
 | rice | 5 lb | not_found | - | - | no candidate URL in pool |
+| bread | 500 g loaf | not_found | - | - | no candidate URL in pool |
+| pasta | 1 lb | not_found | - | - | no candidate URL in pool |
+| chicken | per lb | candidate_unverified | - | - | URL selected from the sitemap but the page serves no price over plain  |
 | eggs | dozen | not_found | - | - | no candidate URL in pool |
 | milk | 1 gal | not_found | - | - | no candidate URL in pool |
-| bread | loaf | not_found | - | - | no candidate URL in pool |
-| coffee | 12 oz | not_found | - | - | no candidate URL in pool |
+| coffee | 12 oz ground | not_found | - | - | no candidate URL in pool |
 | sugar | 4 lb | not_found | - | - | no candidate URL in pool |
-| chicken | per lb | candidate_unverified | - | - | URL selected from the sitemap but the page serves no price over plain  |
 | cooking_oil | 48 oz | not_found | - | - | no candidate URL in pool |
-| pasta | 1 lb | not_found | - | - | no candidate URL in pool |
 | bananas | per lb | not_found | - | - | no candidate URL in pool |
+| pork | per lb | not_found | - | - | no candidate URL in pool |
+| fish | per lb | not_found | - | - | no candidate URL in pool |
+| cheese | 1 lb | not_found | - | - | no candidate URL in pool |
+| tomatoes | per lb | not_found | - | - | no candidate URL in pool |
+| potatoes | per lb | not_found | - | - | no candidate URL in pool |
+| onions | per lb | not_found | - | - | no candidate URL in pool |
+| apples | per lb | not_found | - | - | no candidate URL in pool |
+| oranges | per lb | not_found | - | - | no candidate URL in pool |
+| canned_fish | 155 g tin | not_found | - | - | no candidate URL in pool |
+| bottled_water | 1.5 L | not_found | - | - | no candidate URL in pool |
 
 
-## Wegmans (US) - 0/10 settled, 3/10 with a chosen URL
+## Wegmans (US) - 0/10 settled, 6/10 with a chosen URL
 
 | Item | Target | Status | Size | Price | Product |
 |---|---|---|---|---|---|
 | rice | 5 lb | not_found | - | - | no candidate URL in pool |
+| bread | 500 g loaf | not_found | - | - | no candidate URL in pool |
+| pasta | 1 lb | candidate_unverified | - | - | URL selected from the sitemap but the page serves no price over plain  |
+| chicken | per lb | candidate_unverified | - | - | URL selected from the sitemap but the page serves no price over plain  |
 | eggs | dozen | not_found | - | - | no candidate URL in pool |
 | milk | 1 gal | not_found | - | - | no candidate URL in pool |
-| bread | loaf | not_found | - | - | no candidate URL in pool |
-| coffee | 12 oz | not_found | - | - | no candidate URL in pool |
-| sugar | 4 lb | not_found | - | - | no candidate URL in pool |
-| chicken | per lb | candidate_unverified | - | - | URL selected from the sitemap but the page serves no price over plain  |
+| coffee | 12 oz ground | not_found | - | - | no candidate URL in pool |
+| sugar | 4 lb | candidate_unverified | - | - | URL selected from the sitemap but the page serves no price over plain  |
 | cooking_oil | 48 oz | candidate_unverified | - | - | URL selected from the sitemap but the page serves no price over plain  |
-| pasta | 1 lb | candidate_unverified | - | - | URL selected from the sitemap but the page serves no price over plain  |
 | bananas | per lb | not_found | - | - | no candidate URL in pool |
+| pork | per lb | not_found | - | - | no candidate URL in pool |
+| fish | per lb | candidate_unverified | - | - | URL selected from the sitemap but the page serves no price over plain  |
+| cheese | 1 lb | candidate_unverified | - | - | URL selected from the sitemap but the page serves no price over plain  |
+| tomatoes | per lb | not_found | - | - | no candidate URL in pool |
+| potatoes | per lb | not_found | - | - | no candidate URL in pool |
+| onions | per lb | not_found | - | - | no candidate URL in pool |
+| apples | per lb | not_found | - | - | no candidate URL in pool |
+| oranges | per lb | not_found | - | - | no candidate URL in pool |
+| canned_fish | 155 g tin | not_found | - | - | no candidate URL in pool |
+| bottled_water | 1.5 L | not_found | - | - | no candidate URL in pool |
 
 
 ## Meijer (US) - 0/10 settled, 0/10 with a chosen URL
@@ -128,13 +199,23 @@ store's public catalogue has no such staple.
 | Item | Target | Status | Size | Price | Product |
 |---|---|---|---|---|---|
 | rice | 5 lb | not_found | - | - | no candidate URL in pool |
+| bread | 500 g loaf | not_found | - | - | no candidate URL in pool |
+| pasta | 1 lb | not_found | - | - | no candidate URL in pool |
+| chicken | per lb | not_found | - | - | no candidate URL in pool |
 | eggs | dozen | not_found | - | - | no candidate URL in pool |
 | milk | 1 gal | not_found | - | - | no candidate URL in pool |
-| bread | loaf | not_found | - | - | no candidate URL in pool |
-| coffee | 12 oz | not_found | - | - | no candidate URL in pool |
+| coffee | 12 oz ground | not_found | - | - | no candidate URL in pool |
 | sugar | 4 lb | not_found | - | - | no candidate URL in pool |
-| chicken | per lb | not_found | - | - | no candidate URL in pool |
 | cooking_oil | 48 oz | not_found | - | - | no candidate URL in pool |
-| pasta | 1 lb | not_found | - | - | no candidate URL in pool |
 | bananas | per lb | not_found | - | - | no candidate URL in pool |
+| pork | per lb | not_found | - | - | no candidate URL in pool |
+| fish | per lb | not_found | - | - | no candidate URL in pool |
+| cheese | 1 lb | not_found | - | - | no candidate URL in pool |
+| tomatoes | per lb | not_found | - | - | no candidate URL in pool |
+| potatoes | per lb | not_found | - | - | no candidate URL in pool |
+| onions | per lb | not_found | - | - | no candidate URL in pool |
+| apples | per lb | not_found | - | - | no candidate URL in pool |
+| oranges | per lb | not_found | - | - | no candidate URL in pool |
+| canned_fish | 155 g tin | not_found | - | - | no candidate URL in pool |
+| bottled_water | 1.5 L | not_found | - | - | no candidate URL in pool |
 

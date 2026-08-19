@@ -136,6 +136,7 @@ def score_site(t0: dict, t1: dict | None, manual: dict | None = None) -> dict:
         "render_class": final,
         "access_path": access,
         "structural_class": struct,
+        "search_api": (t0.get("search_api") or {}).get("kind"),
         "needs_unlocker": access == "unlocker",
         "robots_allows_product": t0.get("robots_allows_product"),
         "robots_disallow_sample": t0.get("robots", {}).get("disallow_star", [])[:5],
@@ -177,6 +178,13 @@ def audit_lock(lock: dict, sites: list[dict]) -> list[dict]:
             problems.append({"id": sid, "severity": "error",
                              "issue": "robots.txt now disallows the product path"})
         if site["verdict"] == "fleet_ready":
+            continue
+        # Reliability subjects are locked for scraper health, not for the basket, so
+        # a thin-basket demotion is the expected state rather than drift. Anything
+        # that makes them unscrapeable still counts.
+        if (not entry.get("index_contributor", True)
+                and site["verdict"] == "backup"
+                and site["render_class"] in ("server_rendered", "spa_empty")):
             continue
         problems.append({
             "id": sid,
@@ -292,17 +300,22 @@ def write_report(registry: dict) -> str:
                  "in the registry.")
         L.append("")
 
-    L.append("| # | Site | C | Structure | Risk | Proven | Why it is in |")
-    L.append("|---:|---|---|---|---|---|---|")
+    L.append("Members do one of two jobs. **Index contributors** supply the basket. "
+             "**Reliability subjects** scrape cleanly and carry a distinct markup shape "
+             "for the self-healing story, but their public catalogues hold no plain "
+             "staples, so they feed scraper health rather than the price index.")
+    L.append("")
+    L.append("| # | Site | C | Role | Structure | Risk | Proven | Why it is in |")
+    L.append("|---:|---|---|---|---|---|---|---|")
     for i, entry in enumerate(lock.get("fleet", []), 1):
-        site = by_id.get(entry["id"], {})
         proven = "yes" if entry.get("studio_collector_id") else "-"
+        role = "index" if entry.get("index_contributor") else "reliability"
         L.append(f"| {i} | **{entry['name']}** `{entry['id']}` | {entry['country']} | "
-                 f"{entry['structural_class']} | {entry['risk']} | {proven} | "
+                 f"{role} | {entry['structural_class']} | {entry['risk']} | {proven} | "
                  f"{entry['why_locked']} |")
     for entry in lock.get("always_in_fleet", []):
         L.append(f"| + | **{entry['name']}** `{entry['id']}` | {entry['country']} | "
-                 f"local rig | {entry['risk']} | n/a | {entry['why_locked']} |")
+                 f"heal rig | local | {entry['risk']} | n/a | {entry['why_locked']} |")
     L.append("")
 
     caveats = [e for e in lock.get("fleet", []) if e.get("caveat")]
@@ -502,6 +515,9 @@ def main() -> int:
             print(f"  {pr['severity'].upper():<8} {pr['id']}: {pr['issue']}")
     else:
         print("lock audit: clean")
+    from collections import Counter as _C2
+    apis = _C2(s_["search_api"] for s_ in sites if s_.get("search_api"))
+    print("search APIs detected:", dict(apis) or "none")
     print("\nstructural classes among fleet_ready:",
           dict(Counter(s["structural_class"] for s in fleet)))
     print("\ntop 20:")

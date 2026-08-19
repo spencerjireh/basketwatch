@@ -47,16 +47,25 @@ RETRY_STATUSES = {429, 500, 502, 503, 504}
 NEEDS_TIER1 = {"blocked", "spa_empty", "no_product_urls"}
 
 
-def read_balance() -> float | None:
-    """Authoritative spend check, straight from the account."""
-    try:
-        out = subprocess.run(
-            ["bdata", "budget"], capture_output=True, text=True, timeout=60
-        ).stdout
-    except Exception:  # noqa: BLE001
-        return None
-    m = re.search(r"Balance\s+\$([0-9.,]+)", out)
-    return float(m.group(1).replace(",", "")) if m else None
+def read_balance(attempts: int = 3) -> float | None:
+    """Authoritative spend check, straight from the account.
+
+    Retried, because a single slow CLI call should not look like a dead account -
+    refusing to spend blind is right, but only after actually trying.
+    """
+    for i in range(attempts):
+        try:
+            out = subprocess.run(
+                ["bdata", "budget"], capture_output=True, text=True, timeout=90
+            ).stdout
+            m = re.search(r"Balance\s+\$([0-9.,]+)", out)
+            if m:
+                return float(m.group(1).replace(",", ""))
+        except Exception:  # noqa: BLE001
+            pass
+        if i < attempts - 1:
+            time.sleep(2 * (i + 1))
+    return None
 
 
 class Budget:

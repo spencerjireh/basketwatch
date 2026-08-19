@@ -109,6 +109,8 @@ NON_GROCERY = (
     "supplement", "capsule", "tablet", "softgel", "vitamin", "extract", "powder-blend",
     "scented", "fragrance", "body-wash", "face", "hair", "nail", "makeup", "lipstick",
     "pet", "dog", "cat", "litter", "feed",
+    "tee", "tshirt", "pumps", "sandals", "shorts", "pajama", "pyjama", "sneakers",
+    "slippers", "dress", "blouse", "jeans", "socks", "cap", "bag", "wallet",
     "flavor", "flavour", "syrup", "suspension", "drops", "lozenge",
     "cleansing", "cleanser", "micellar", "moisturizer", "conditioner",
     "scrub", "mask", "toner", "balm", "wax", "spray",
@@ -483,6 +485,49 @@ async def crawl_for_products(
     return list(dict.fromkeys(products)), visited
 
 
+# A store's own search API beats every keyword heuristic: it returns the store's
+# relevance ranking over its real catalogue. Shop Gaisano only mapped cleanly because
+# it is Shopify. So platform is a stronger targeting signal than brand.
+#
+# Status alone is worthless here - Landers and Meijer answer 200 on all three probe
+# paths because their SPA serves index.html for anything. The body has to be parsed
+# and shaped like the API it claims to be.
+SEARCH_API_PROBES = (
+    ("shopify", "/search/suggest.json?q=rice&resources%5Btype%5D=product&resources%5Blimit%5D=5"),
+    ("magento-graphql", "/graphql?query=%7B__typename%7D"),
+    ("woocommerce", "/wp-json/wc/store/products?search=rice&per_page=5"),
+)
+
+
+def _api_body_is_real(kind: str, body: str) -> bool:
+    try:
+        data = json.loads(body)
+    except (json.JSONDecodeError, ValueError):
+        return False
+    if kind == "shopify":
+        try:
+            return isinstance(data["resources"]["results"]["products"], list)
+        except (KeyError, TypeError):
+            return False
+    if kind == "magento-graphql":
+        return isinstance(data.get("data"), dict) and "__typename" in data["data"]
+    if kind == "woocommerce":
+        return isinstance(data, list) and (not data or "prices" in data[0] or "id" in data[0])
+    return False
+
+
+async def detect_search_api(base: str, f: Fetcher) -> dict:
+    """Which queryable product API, if any, this store exposes publicly."""
+    tried = []
+    for kind, path in SEARCH_API_PROBES:
+        r = await f.get(urljoin(base, path), "searchapi", timeout=20)
+        ok = r["status"] == 200 and _api_body_is_real(kind, r["body"])
+        tried.append({"kind": kind, "status": r["status"], "valid": ok})
+        if ok:
+            return {"kind": kind, "endpoint": urljoin(base, path.split("?")[0]), "tried": tried}
+    return {"kind": None, "endpoint": None, "tried": tried}
+
+
 async def discover_urls(cand: dict, f: Fetcher) -> dict:
     """Find a site's page and product URLs: robots -> sitemaps -> crawl fallback.
 
@@ -557,6 +602,7 @@ async def discover_urls(cand: dict, f: Fetcher) -> dict:
 async def probe_site(cand: dict, f: Fetcher, sem: asyncio.Semaphore) -> dict:
     async with sem:
         home = cand["homepage"]
+        base = f"{urlparse(home).scheme}://{urlparse(home).netloc}"
         rec: dict = {
             "id": cand["id"],
             "name": cand["name"],
@@ -575,6 +621,8 @@ async def probe_site(cand: dict, f: Fetcher, sem: asyncio.Semaphore) -> dict:
             "waf": waf_fingerprint(hp["headers"]),
         }
         rec["home_class"] = classify(hp)["class"]
+
+        rec["search_api"] = await detect_search_api(base, f)
 
         disc = await discover_urls(cand, f)
         robots = disc["robots"]
@@ -642,8 +690,9 @@ async def probe_site(cand: dict, f: Fetcher, sem: asyncio.Semaphore) -> dict:
 
         print(
             f"  {cand['id']:<24} {rec['verdict_class']:<16} "
-            f"basket={rec['basket_coverage']}/10 sitemap={rec['sitemap']['total_urls']:<6} "
-            f"struct={rec['structural_class']}",
+            f"basket={rec['basket_coverage']:>2} sitemap={rec['sitemap']['total_urls']:<6} "
+            f"struct={rec['structural_class']:<15} "
+            f"api={rec['search_api']['kind'] or '-'}",
             flush=True,
         )
         return rec
