@@ -328,3 +328,15 @@ def test_bare_html_ignores_currency_outside_a_price_element():
 
 def test_bare_html_needs_a_name():
     assert extract_bare_html('<div class="price">$9.99</div>') is None
+
+
+def test_bare_html_falls_back_to_a_price_near_the_heading():
+    # MerryMart labels nothing as a price; the product's own price follows its <h1>.
+    html = "<h1>555 Carne Norte 100g</h1><div><span>₱45.50</span></div>"
+    out = extract_bare_html(html)
+    assert out["price"] == pytest.approx(45.50) and out["via"] == "bare-html-near-h1"
+
+
+def test_near_heading_fallback_ignores_prices_far_down_the_page():
+    html = "<h1>Item</h1>" + ("x" * 6000) + "<span>₱999.00</span>"
+    assert extract_bare_html(html) is None

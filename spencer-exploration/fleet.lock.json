@@ -15,7 +15,12 @@
       "substitute": null,
       "search_api": "shopify",
       "index_contributor": true,
-      "role": "index-contributor"
+      "role": "index-contributor",
+      "catalogue": {
+        "method": "shopify",
+        "endpoint": "https://shopgaisano.com/products.json",
+        "max_pages": 20
+      }
     },
     {
       "id": "ph-ever",
@@ -30,7 +35,12 @@
       "why_locked": "Best basket coverage of any store in the registry: 10/10 core items, 19/20 tracked, every one with a computed unit price, and genuine staples throughout - Farmboy Pandan Rice 5kg, whole chicken 1kg, a 30-egg tray. Shopify search makes selection reliable.",
       "risk": "low",
       "substitute": "ph-snr",
-      "caveat": "Was scored 85/backup on sitemap-derived basket coverage of 0/10. Its catalogue was only visible through Shopify search - a reminder that sitemap coverage understates any store with a search API."
+      "caveat": "Was scored 85/backup on sitemap-derived basket coverage of 0/10. Its catalogue was only visible through Shopify search - a reminder that sitemap coverage understates any store with a search API.",
+      "catalogue": {
+        "method": "shopify",
+        "endpoint": "https://ever.ph/products.json",
+        "max_pages": 20
+      }
     },
     {
       "id": "ph-shopsuki",
@@ -45,7 +55,12 @@
       "why_locked": "16 of 20 items settled with strong picks - Nestle Fresh Milk 1L, Angelina Super Loaf 640g, Balducci Spaghetti 500g, real white onions sold by weight, Absolute Distilled Water 6L. Server-rendered json-ld and a broad staples catalogue.",
       "risk": "low",
       "substitute": "ph-marketfresh",
-      "caveat": "Its chicken pick is Marca Manok Sinandomeng Rice - 'manok' is the brand, not the contents - and its eggs pick is salted egg. Both need curating in manual-basket.json before use."
+      "caveat": "Its chicken pick is Marca Manok Sinandomeng Rice - 'manok' is the brand, not the contents - and its eggs pick is salted egg. Both need curating in manual-basket.json before use.",
+      "catalogue": {
+        "method": "shopify",
+        "endpoint": "https://shopsuki.ph/products.json",
+        "max_pages": 20
+      }
     },
     {
       "id": "ph-smmarkets",
@@ -59,7 +74,12 @@
       "substitute": null,
       "search_api": "magento-graphql",
       "index_contributor": true,
-      "role": "index-contributor"
+      "role": "index-contributor",
+      "catalogue": {
+        "method": "magento-graphql",
+        "endpoint": "https://smmarkets.ph/graphql",
+        "max_pages": 20
+      }
     },
     {
       "id": "ph-merrymartwholesale",
@@ -73,7 +93,13 @@
       "substitute": "ph-snr",
       "caveat": "Wholesale case pricing. Needs per-unit normalisation before its numbers enter the basket index.",
       "index_contributor": true,
-      "role": "index-contributor"
+      "role": "index-contributor",
+      "catalogue": {
+        "method": "sitemap",
+        "endpoint": null,
+        "max_pages": 150,
+        "note": "no sitemap; product URLs come from the homepage-to-category crawl in vet.py"
+      }
     },
     {
       "id": "ph-landers",
@@ -87,7 +113,25 @@
       "substitute": "ph-southstar",
       "caveat": "Highest-risk member. Prices render client-side and the backing APIs (api.landers.ph, Unbxd search) are private, so there is no non-browser fallback. If its Studio scraper proves flaky, swap in Southstar Drug, which is server-rendered microdata.",
       "index_contributor": true,
-      "role": "index-contributor"
+      "role": "index-contributor",
+      "catalogue": {
+        "method": "sitemap-bounded",
+        "endpoint": null,
+        "max_pages": 300,
+        "coverage": "partial",
+        "coverage_reason": "17,032 products and client-rendered pages; a full pull would dominate the budget",
+        "category_priority": [
+          "food-cupboard",
+          "dairy-chilled",
+          "bakery",
+          "fruits-vegetables",
+          "rotisserie-meat-poultry-seafood",
+          "beverages",
+          "frozen"
+        ],
+        "needs_browser": true,
+        "note": "Prices render client-side, so a plain-HTTP pull returns 0 rows from 300 pages - confirmed. Its catalogue needs the Studio transport, which drives a real browser. Pinned basket items still work today."
+      }
     },
     {
       "id": "us-kesargrocery",
@@ -102,7 +146,24 @@
       "why_locked": "The US index source. 13 of 20 items settled, 7/10 core, every one unit-priced, and genuinely generic goods including fresh produce: Basmati 4LB, whole wheat bread 24oz, Great Value elbow pasta 1LB, Amul cheese 1KG, organic bananas 3lb, beefsteak tomatoes, white onions, gala apples, navel oranges. 11,987 products in its sitemap and no structured data at all, which is why it needed bare-HTML extraction to surface.",
       "risk": "medium",
       "substitute": "us-mexgrocer",
-      "caveat": "Its cooking-oil pick is almond oil rather than a neutral cooking oil; curate before use. Bare-HTML extraction means no structured data to fall back on, so a redesign hits harder here than on a json-ld site - which also makes it a good heal subject."
+      "caveat": "Its cooking-oil pick is almond oil rather than a neutral cooking oil; curate before use. Bare-HTML extraction means no structured data to fall back on, so a redesign hits harder here than on a json-ld site - which also makes it a good heal subject.",
+      "catalogue": {
+        "method": "sitemap-bounded",
+        "endpoint": null,
+        "max_pages": 300,
+        "coverage": "partial",
+        "coverage_reason": "11,987 products; a bounded slice keeps the cost sane",
+        "category_priority": [
+          "grocery",
+          "rice",
+          "flour",
+          "oil",
+          "dairy",
+          "vegetable",
+          "fruit",
+          "snacks"
+        ]
+      }
     },
     {
       "id": "us-mexgrocer",
@@ -117,7 +178,14 @@
       "why_locked": "Second US index source and a different cuisine, so the two do not share supply. 9 items settled, 5/10 core, Shopify search for reliable selection. Mahatma Long Grain Rice and Cafe de Olla ground coffee are real staples.",
       "risk": "medium",
       "substitute": "us-kalustyans",
-      "caveat": "Blocked on plain HTTP for page fetches but its Shopify search API answers fine. Chicken resolves to bouillon and bananas to banana leaves; both need curating."
+      "caveat": "Blocked on plain HTTP for page fetches but its Shopify search API answers fine. Chicken resolves to bouillon and bananas to banana leaves; both need curating.",
+      "catalogue": {
+        "method": "shopify",
+        "endpoint": "https://www.mexgrocer.com/products.json",
+        "max_pages": 20,
+        "needs_unlocker": true,
+        "note": "blocked on plain HTTP; its Shopify endpoints answer through the Unlocker"
+      }
     },
     {
       "id": "us-dierbergs",
@@ -131,7 +199,12 @@
       "substitute": null,
       "index_contributor": false,
       "role": "reliability-subject",
-      "role_note": "Scrapes cleanly and carries a distinct markup shape for the heal story, but its public catalogue does not contain plain staples, so it feeds scraper health and self-healing evidence rather than the price index. Interview decision: keep in fleet, exclude from index."
+      "role_note": "Scrapes cleanly and carries a distinct markup shape for the heal story, but its public catalogue does not contain plain staples, so it feeds scraper health and self-healing evidence rather than the price index. Interview decision: keep in fleet, exclude from index.",
+      "catalogue": {
+        "method": "sitemap",
+        "endpoint": null,
+        "max_pages": 400
+      }
     },
     {
       "id": "us-thefreshmarket",
@@ -145,7 +218,14 @@
       "substitute": "us-hmart",
       "index_contributor": false,
       "role": "reliability-subject",
-      "role_note": "Scrapes cleanly and carries a distinct markup shape for the heal story, but its public catalogue does not contain plain staples, so it feeds scraper health and self-healing evidence rather than the price index. Interview decision: keep in fleet, exclude from index."
+      "role_note": "Scrapes cleanly and carries a distinct markup shape for the heal story, but its public catalogue does not contain plain staples, so it feeds scraper health and self-healing evidence rather than the price index. Interview decision: keep in fleet, exclude from index.",
+      "catalogue": {
+        "method": "sitemap",
+        "endpoint": null,
+        "max_pages": 400,
+        "needs_browser": true,
+        "note": "Sitemap pull returned 0 extractable prices; pages carry no price in raw HTML. Needs the Studio transport or a per-store extractor."
+      }
     },
     {
       "id": "us-wegmans",
@@ -160,7 +240,14 @@
       "caveat": "Only 4/10 basket categories surfaced from its sitemap; confirm SKU coverage before relying on it for the index.",
       "index_contributor": false,
       "role": "reliability-subject",
-      "role_note": "Scrapes cleanly and carries a distinct markup shape for the heal story, but its public catalogue does not contain plain staples, so it feeds scraper health and self-healing evidence rather than the price index. Interview decision: keep in fleet, exclude from index."
+      "role_note": "Scrapes cleanly and carries a distinct markup shape for the heal story, but its public catalogue does not contain plain staples, so it feeds scraper health and self-healing evidence rather than the price index. Interview decision: keep in fleet, exclude from index.",
+      "catalogue": {
+        "method": "sitemap",
+        "endpoint": null,
+        "max_pages": 400,
+        "needs_browser": true,
+        "note": "Sitemap pull returned 0 extractable prices; pages carry no price in raw HTML. Needs the Studio transport or a per-store extractor."
+      }
     },
     {
       "id": "us-meijer",
@@ -175,7 +262,52 @@
       "caveat": "Needs the Web Unlocker on every run, so it is the only locked site with a per-run credit cost. Budget for it in the scheduler.",
       "index_contributor": false,
       "role": "reliability-subject",
-      "role_note": "Scrapes cleanly and carries a distinct markup shape for the heal story, but its public catalogue does not contain plain staples, so it feeds scraper health and self-healing evidence rather than the price index. Interview decision: keep in fleet, exclude from index."
+      "role_note": "Scrapes cleanly and carries a distinct markup shape for the heal story, but its public catalogue does not contain plain staples, so it feeds scraper health and self-healing evidence rather than the price index. Interview decision: keep in fleet, exclude from index.",
+      "catalogue": {
+        "method": "none",
+        "endpoint": null,
+        "max_pages": 0,
+        "note": "no public catalogue at all - excluded from the pull"
+      }
+    },
+    {
+      "id": "us-cypressindian",
+      "name": "Cypress Indian Grocery",
+      "country": "US",
+      "vertical": "ethnic-grocery",
+      "structural_class": "json-ld",
+      "search_api": "shopify",
+      "studio_collector_id": null,
+      "index_contributor": true,
+      "role": "index-contributor",
+      "why_locked": "The most realistic US prices found anywhere in the registry: Royal Basmati 10lb at $3.75/kg, Domino Brown Sugar 2lb at $4.62/kg, Aara Sunflower Oil 5L at $3.40/L. Ordinary supermarket-level pricing on generic staples, not specialty markups.",
+      "risk": "low",
+      "substitute": "us-kalustyans",
+      "catalogue": {
+        "method": "shopify",
+        "endpoint": "https://cypressindiangrocery.com/products.json",
+        "max_pages": 20
+      }
+    },
+    {
+      "id": "us-latimex",
+      "name": "Latimex Market",
+      "country": "US",
+      "vertical": "ethnic-grocery",
+      "structural_class": "json-ld",
+      "search_api": "shopify",
+      "studio_collector_id": null,
+      "index_contributor": true,
+      "role": "index-contributor",
+      "why_locked": "Latin American grocer, 9 items settled with clean unit prices and a different cuisine from MexGrocer, so the two do not share supply.",
+      "risk": "medium",
+      "substitute": "us-mexmax",
+      "caveat": "Skews premium - Bomba rice at $19.99/kg and extra virgin olive oil rather than a neutral cooking oil. Good for breadth, not for the cheapest-basket claim.",
+      "catalogue": {
+        "method": "shopify",
+        "endpoint": "https://latimexmarket.com/products.json",
+        "max_pages": 20
+      }
     }
   ],
   "always_in_fleet": [
@@ -229,6 +361,17 @@
       "date": "2026-08-19",
       "change": "Added Kesar Grocery and MexGrocer as US index contributors",
       "why": "The earlier conclusion that no US retailer publishes plain staples was drawn from the wrong segment. Rounds 1-4 tested supermarket chains, diet pantries and snack importers; US ethnic grocers were never tested through their own search or with bare-HTML extraction. Kesar Grocery sells generic staples and fresh produce with 11,987 products in its sitemap, and publishes no structured data at all - which is exactly why it stayed invisible. The US side now contributes to the index."
+    },
+    {
+      "date": "2026-08-19",
+      "change": "Added Cypress Indian Grocery and Latimex Market",
+      "why": "Round 6 basket-tested the round-5 candidates that had Shopify APIs but had only ever been judged on their sitemaps - the same measurement error that hid Ever Supermarket. Cypress Indian returned the most realistic US prices in the registry. US index contributors go from 2 to 4."
     }
-  ]
+  ],
+  "catalogue_policy": {
+    "max_pages_semantics": "API methods count pages of ~250 products; sitemap methods count individual product pages. Both are hard stops, checked before each fetch.",
+    "why_bounded": "An unbounded Studio description once crawled ~150 pages and 4,470 rows (docs/hackathon-brief.md). Declaring the ceiling here makes a runaway impossible by construction and keeps the bound visible in the file that records fleet decisions.",
+    "tuning": "These are starting values chosen to prove the pipeline, not final. Raise max_pages per store once per-run cost is measured.",
+    "history": "A price row is written only when a product's price changes. Every run also writes a summary row (rows, pages, coverage) so checkRowCount can tell a truncated pull from a real price move."
+  }
 }

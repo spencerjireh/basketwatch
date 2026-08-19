@@ -98,3 +98,28 @@ When these move into Postgres, they map onto the existing `products` and
 contract and must change together or not at all. Items 1 and 2 change
 `packages/shared`, so `mock.ts` moves in the same commit. That is the whole reason
 this handoff is a document instead of a patch.
+
+## 6. The catalogue layer
+
+`catalogue.py` produces the tracker data the app will actually serve: 17,746 products
+across 13 stores, 15,260 with a computed unit price. Rows carry the `priceRecordSchema`
+fields plus `store_id`, `country`, `category`, `size` and `unit_price`.
+
+Rows were validated against the real contract, and doing so caught two bugs worth
+knowing about when porting:
+
+- **Timestamps must end in `Z`.** Zod's `.datetime()` rejects a `+00:00` offset unless
+  `offset: true` is set, and the fleet contract does not set it. Every row failed until
+  the format changed.
+- **Shopify publishes no currency.** `/products.json` has no currency field at all, so
+  it is derived from the store's country. A source-provided value always wins.
+
+Two files carry the durable record and should map onto Postgres directly:
+
+- `catalogue/runs.jsonl` - one row per store per run (rows, pages, ceiling reached,
+  coverage). This is the input `checkRowCount` needs; without it a truncated pull is
+  indistinguishable from a mass price change.
+- `catalogue/changes.jsonl` - one row per price move, carrying the previous price and
+  delta. This is the price history.
+
+Per-store catalogue JSON is regenerable and gitignored.
