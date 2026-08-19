@@ -128,7 +128,8 @@
         "studio_collector_id": "c_mszan6wx1bgpc7941r",
         "why_locked": "Top-scoring site in the whole registry. Server-rendered json-ld, 10/10 basket categories off a 1,406-URL sitemap, Visayas/Mindanao regional chain with no prebuilt scraper anywhere. Proven end to end on rice 5kg, the PH basket anchor item.",
         "risk": "low",
-        "substitute": null
+        "substitute": null,
+        "search_api": "shopify"
       },
       {
         "id": "ph-smmarkets",
@@ -139,7 +140,8 @@
         "studio_collector_id": "c_msyxrpa82470hx65c9",
         "why_locked": "Largest PH supermarket network and the broadest PH catalogue. Pages are a client-rendered shell, but the public Magento GraphQL endpoint is a structured fallback no selector change can break. Proven end to end.",
         "risk": "low",
-        "substitute": null
+        "substitute": null,
+        "search_api": "magento-graphql"
       },
       {
         "id": "ph-merrymartwholesale",

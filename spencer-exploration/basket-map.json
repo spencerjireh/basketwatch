@@ -1,0 +1,874 @@
+{
+  "generated_at": "2026-08-19T01:09:19+00:00",
+  "spec": {
+    "rice": {
+      "target_us": "5 lb",
+      "target_ph": "5 kg",
+      "must": [
+        "rice",
+        "bigas"
+      ]
+    },
+    "eggs": {
+      "target_us": "dozen",
+      "target_ph": "tray",
+      "must": [
+        "egg",
+        "eggs",
+        "itlog"
+      ]
+    },
+    "milk": {
+      "target_us": "1 gal",
+      "target_ph": "1 L",
+      "must": [
+        "milk",
+        "gatas"
+      ]
+    },
+    "bread": {
+      "target_us": "loaf",
+      "target_ph": "loaf",
+      "must": [
+        "bread",
+        "loaf",
+        "tinapay",
+        "pandesal"
+      ]
+    },
+    "coffee": {
+      "target_us": "12 oz",
+      "target_ph": "sachets",
+      "must": [
+        "coffee",
+        "kape"
+      ]
+    },
+    "sugar": {
+      "target_us": "4 lb",
+      "target_ph": "1 kg",
+      "must": [
+        "sugar",
+        "asukal"
+      ]
+    },
+    "chicken": {
+      "target_us": "per lb",
+      "target_ph": "per kg",
+      "must": [
+        "chicken",
+        "manok"
+      ]
+    },
+    "cooking_oil": {
+      "target_us": "48 oz",
+      "target_ph": "1 L",
+      "must": [
+        "oil",
+        "mantika"
+      ]
+    },
+    "pasta": {
+      "target_us": "1 lb",
+      "target_ph": "500 g",
+      "must": [
+        "pasta",
+        "spaghetti",
+        "macaroni",
+        "penne"
+      ]
+    },
+    "bananas": {
+      "target_us": "per lb",
+      "target_ph": "per kg",
+      "must": [
+        "banana",
+        "bananas",
+        "saging"
+      ]
+    }
+  },
+  "stores": {
+    "ph-shopgaisano": {
+      "id": "ph-shopgaisano",
+      "name": "Shop Gaisano",
+      "country": "PH",
+      "structural_class": "json-ld",
+      "items": {
+        "rice": {
+          "url": "https://shopgaisano.com/products/great-value-v-160-rice-5kg",
+          "name": "Great Value V-160 Rice 5KG",
+          "price": 378.0,
+          "currency": null,
+          "size": "5kg",
+          "status": "verified",
+          "via": "shopify-search",
+          "store_taxonomy": "Great Value Grocery",
+          "target_size": "5 kg"
+        },
+        "eggs": {
+          "url": "https://shopgaisano.com/products/great-value-farm-fresh-eggs-medium-12s",
+          "name": "Great Value Farm Fresh Eggs Medium 12's",
+          "price": 125.0,
+          "currency": null,
+          "size": null,
+          "status": "verified",
+          "via": "shopify-search",
+          "store_taxonomy": "Great Value grocery",
+          "target_size": "tray"
+        },
+        "milk": {
+          "url": "https://shopgaisano.com/products/birch-tree-fortified-milk-drink-300g",
+          "name": "BIRCH TREE FORTIFIED MILK DRINK 300G",
+          "price": 94.3,
+          "currency": null,
+          "size": "300g",
+          "status": "verified",
+          "via": "shopify-search",
+          "store_taxonomy": "grocery POWDERED MILK DAIRY & EGGS",
+          "target_size": "1 L"
+        },
+        "bread": {
+          "status": "not_found",
+          "note": "search returned no plain staple",
+          "target_size": "loaf"
+        },
+        "coffee": {
+          "url": "https://shopgaisano.com/products/nescafe-original-coffee-200g",
+          "name": "Nescafe Original Coffee 200g",
+          "price": 949.95,
+          "currency": null,
+          "size": "200g",
+          "status": "verified",
+          "via": "shopify-search",
+          "store_taxonomy": "beverages grocery",
+          "target_size": "sachets"
+        },
+        "sugar": {
+          "url": "https://shopgaisano.com/products/great-value-brown-sugar-1-4-kg",
+          "name": "Great Value Brown Sugar 1/4 Kg",
+          "price": 19.0,
+          "currency": null,
+          "size": "1/4kg",
+          "status": "verified",
+          "via": "shopify-search",
+          "store_taxonomy": "Great Value grocery",
+          "target_size": "1 kg"
+        },
+        "chicken": {
+          "url": "https://shopgaisano.com/products/progresso-rich-hearty-chicken-pot-pie-style-with-dumplings-18-5oz-524g",
+          "name": "Progresso Rich & Hearty Chicken Pot Pie Style With Dumplings 18.5oz 524g",
+          "price": 219.95,
+          "currency": null,
+          "size": "18.5oz",
+          "status": "verified",
+          "via": "shopify-search",
+          "store_taxonomy": "CANNED GOODS grocery NEW",
+          "target_size": "per kg"
+        },
+        "cooking_oil": {
+          "url": "https://shopgaisano.com/products/ufc-golden-fiesta-canola-oil-2l",
+          "name": "UFC Golden Fiesta Canola Oil 2L",
+          "price": 260.0,
+          "currency": null,
+          "size": "2l",
+          "status": "verified",
+          "via": "shopify-search",
+          "store_taxonomy": "cooking and pantry essentials grocery nutriasia",
+          "target_size": "1 L"
+        },
+        "pasta": {
+          "status": "not_found",
+          "note": "search returned no plain staple",
+          "target_size": "500 g"
+        },
+        "bananas": {
+          "status": "not_found",
+          "note": "search returned no plain staple",
+          "target_size": "per kg"
+        }
+      },
+      "unresolved": [
+        "bread",
+        "pasta",
+        "bananas"
+      ],
+      "verified_count": 7,
+      "chosen_url_count": 7
+    },
+    "ph-smmarkets": {
+      "id": "ph-smmarkets",
+      "name": "SM Markets",
+      "country": "PH",
+      "structural_class": "graphql",
+      "items": {
+        "rice": {
+          "url": "https://smmarkets.ph/hop-polvoron-crisped-rice-104g-8pcs-20591217.html",
+          "name": "Hop Polvoron Crisped Rice | 104g 8pcs",
+          "price": 99.5,
+          "currency": "PHP",
+          "size": "104g",
+          "status": "verified",
+          "via": "graphql",
+          "target_size": "5 kg"
+        },
+        "eggs": {
+          "url": "https://smmarkets.ph/lays-salted-egg-170g-20590666.html",
+          "name": "Lays Salted Egg | 170g",
+          "price": 169.95,
+          "currency": "PHP",
+          "size": "170g",
+          "status": "verified",
+          "via": "graphql",
+          "target_size": "tray"
+        },
+        "milk": {
+          "url": "https://smmarkets.ph/nido-3-growing-up-milk-3kg.html",
+          "name": "Nido 3+ Growing Up Milk |3kg",
+          "price": 1549.5,
+          "currency": "PHP",
+          "size": "3kg",
+          "status": "verified",
+          "via": "graphql",
+          "target_size": "1 L"
+        },
+        "bread": {
+          "status": "not_found",
+          "note": "12 results, none a plain staple",
+          "target_size": "loaf"
+        },
+        "coffee": {
+          "url": "https://smmarkets.ph/maxwear-men-s-feeling-good-bear-embroidered-tee-in-dark-coffee-pfp-30526889.html",
+          "name": "Maxwear Men's Feeling Good Bear Embroidered Tee in Dark Coffee",
+          "price": 599.0,
+          "currency": "PHP",
+          "size": null,
+          "status": "verified",
+          "via": "graphql",
+          "target_size": "sachets"
+        },
+        "sugar": {
+          "url": "https://smmarkets.ph/sugar-kids-girls-grace-sandals-lsp-20386282.html",
+          "name": "Sugar Kids Girls' Grace Sandals",
+          "price": 699.0,
+          "currency": "PHP",
+          "size": null,
+          "status": "verified",
+          "via": "graphql",
+          "target_size": "1 kg"
+        },
+        "chicken": {
+          "url": "https://smmarkets.ph/rosa-foods-chicken-tocino-boneless-450g.html",
+          "name": "Rosa Foods Chicken Tocino Boneless | 450g",
+          "price": 204.0,
+          "currency": "PHP",
+          "size": "450g",
+          "status": "verified",
+          "via": "graphql",
+          "target_size": "per kg"
+        },
+        "cooking_oil": {
+          "status": "not_found",
+          "note": "12 results, none a plain staple",
+          "target_size": "1 L"
+        },
+        "pasta": {
+          "url": "https://smmarkets.ph/oh-my-premium-pasta-with-cod-roe-squid-pc.html",
+          "name": "Oh My Premium Pasta With Cod Roe & Squid | pc",
+          "price": 365.0,
+          "currency": "PHP",
+          "size": null,
+          "status": "verified",
+          "via": "graphql",
+          "target_size": "500 g"
+        },
+        "bananas": {
+          "url": "https://smmarkets.ph/baleno-men-s-pajama-set-food-banana-print-pfp-30478714.html",
+          "name": "BALENO MEN'S PAJAMA SET FOOD BANANA PRINT",
+          "price": 399.5,
+          "currency": "PHP",
+          "size": null,
+          "status": "verified",
+          "via": "graphql",
+          "target_size": "per kg"
+        }
+      },
+      "unresolved": [
+        "bread",
+        "cooking_oil"
+      ],
+      "verified_count": 8,
+      "chosen_url_count": 8
+    },
+    "ph-merrymartwholesale": {
+      "id": "ph-merrymartwholesale",
+      "name": "MerryMart Wholesale",
+      "country": "PH",
+      "structural_class": "bare-html",
+      "items": {
+        "rice": {
+          "status": "not_found",
+          "note": "no candidate URL in pool",
+          "target_size": "5 kg"
+        },
+        "eggs": {
+          "url": "https://www.merrymartwholesale.com/products/excellent-egg-noodles-200g-1-case-includes-18-pcs-200g",
+          "name": null,
+          "price": null,
+          "currency": null,
+          "size": "200g",
+          "status": "candidate_unverified",
+          "note": "URL selected from the sitemap but the page serves no price over plain HTTP - confirm with a Studio run",
+          "target_size": "tray"
+        },
+        "milk": {
+          "url": "https://www.merrymartwholesale.com/products/alaska-evaporada-filled-milk-360ml-1-case-includes-48pcs-360ml",
+          "name": null,
+          "price": null,
+          "currency": null,
+          "size": "360ml",
+          "status": "candidate_unverified",
+          "note": "URL selected from the sitemap but the page serves no price over plain HTTP - confirm with a Studio run",
+          "target_size": "1 L"
+        },
+        "bread": {
+          "status": "not_found",
+          "note": "no candidate URL in pool",
+          "target_size": "loaf"
+        },
+        "coffee": {
+          "url": "https://www.merrymartwholesale.com/products/nash-white-coffee-30g-twin-pack-1-case-includes-100-pcs-30g",
+          "name": null,
+          "price": null,
+          "currency": null,
+          "size": "30g",
+          "status": "candidate_unverified",
+          "note": "URL selected from the sitemap but the page serves no price over plain HTTP - confirm with a Studio run",
+          "target_size": "sachets"
+        },
+        "sugar": {
+          "status": "not_found",
+          "note": "no candidate URL in pool",
+          "target_size": "1 kg"
+        },
+        "chicken": {
+          "url": "https://www.merrymartwholesale.com/products/ladys-choice-chicken-27ml-1-case-includes-72-pcs-27ml",
+          "name": null,
+          "price": null,
+          "currency": null,
+          "size": "27ml",
+          "status": "candidate_unverified",
+          "note": "URL selected from the sitemap but the page serves no price over plain HTTP - confirm with a Studio run",
+          "target_size": "per kg"
+        },
+        "cooking_oil": {
+          "url": "https://www.merrymartwholesale.com/products/555-mackerel-natural-oil-eoc-425g-1-case-includes-48-pcs-425g",
+          "name": null,
+          "price": null,
+          "currency": null,
+          "size": "425g",
+          "status": "candidate_unverified",
+          "note": "URL selected from the sitemap but the page serves no price over plain HTTP - confirm with a Studio run",
+          "target_size": "1 L"
+        },
+        "pasta": {
+          "url": "https://www.merrymartwholesale.com/products/del-monte-spaghetti-900g-1-case-includes-20-pcs-900g",
+          "name": null,
+          "price": null,
+          "currency": null,
+          "size": "900g",
+          "status": "candidate_unverified",
+          "note": "URL selected from the sitemap but the page serves no price over plain HTTP - confirm with a Studio run",
+          "target_size": "500 g"
+        },
+        "bananas": {
+          "status": "not_found",
+          "note": "no candidate URL in pool",
+          "target_size": "per kg"
+        }
+      },
+      "unresolved": [
+        "rice",
+        "eggs",
+        "milk",
+        "bread",
+        "coffee",
+        "sugar",
+        "chicken",
+        "cooking_oil",
+        "pasta",
+        "bananas"
+      ],
+      "pool_size": 129,
+      "discovery": "crawl",
+      "verified_count": 0,
+      "chosen_url_count": 6
+    },
+    "ph-landers": {
+      "id": "ph-landers",
+      "name": "Landers Superstore",
+      "country": "PH",
+      "structural_class": "spa-opaque",
+      "items": {
+        "rice": {
+          "url": "https://www.landers.ph/food-cupboard/don-quijote-premium-japanese-rice-10kg-140705-34162",
+          "name": null,
+          "price": null,
+          "currency": null,
+          "size": "10kg",
+          "status": "candidate_unverified",
+          "note": "URL selected from the sitemap but the page serves no price over plain HTTP - confirm with a Studio run",
+          "target_size": "5 kg"
+        },
+        "eggs": {
+          "url": "https://www.landers.ph/dairy-chilled/jw-fresh-egg-medium-30pcs-113551-20022",
+          "name": null,
+          "price": null,
+          "currency": null,
+          "size": "30pcs",
+          "status": "candidate_unverified",
+          "note": "URL selected from the sitemap but the page serves no price over plain HTTP - confirm with a Studio run",
+          "target_size": "tray"
+        },
+        "milk": {
+          "url": "https://www.landers.ph/beverages/lactel-whole-milk-1l-129172-27064",
+          "name": null,
+          "price": null,
+          "currency": null,
+          "size": "1l",
+          "status": "candidate_unverified",
+          "note": "URL selected from the sitemap but the page serves no price over plain HTTP - confirm with a Studio run",
+          "target_size": "1 L"
+        },
+        "bread": {
+          "url": "https://www.landers.ph/bakery/ichipan-white-bread-600g-131479-23495",
+          "name": null,
+          "price": null,
+          "currency": null,
+          "size": "600g",
+          "status": "candidate_unverified",
+          "note": "URL selected from the sitemap but the page serves no price over plain HTTP - confirm with a Studio run",
+          "target_size": "loaf"
+        },
+        "coffee": {
+          "url": "https://www.landers.ph/beverages/folgers-classic-roast-ground-coffee-1-23kg-119051-6581",
+          "name": "Folgers Classic Roast Ground Coffee 1.23kg",
+          "price": null,
+          "currency": null,
+          "size": "1.23kg",
+          "status": "curated",
+          "via": "manual",
+          "why": "Automation picked Binggrae Coffee Milk, a ready-to-drink beverage. Folgers ground is the closest analogue to the US 12oz ground-coffee basket item, and the same brand exists on both sides, which makes the cross-country comparison honest.",
+          "target_size": "sachets"
+        },
+        "sugar": {
+          "url": "https://www.landers.ph/food-cupboard/eagle-refined-sugar-1kg-112960-27080",
+          "name": null,
+          "price": null,
+          "currency": null,
+          "size": "1kg",
+          "status": "candidate_unverified",
+          "note": "URL selected from the sitemap but the page serves no price over plain HTTP - confirm with a Studio run",
+          "target_size": "1 kg"
+        },
+        "chicken": {
+          "url": "https://www.landers.ph/rotisserie-meat-poultry-seafood/bounty-chicken-breast-approx-1-4kg-800776-7916",
+          "name": "Bounty Chicken Breast approx 1.4kg",
+          "price": null,
+          "currency": null,
+          "size": "1.4kg",
+          "status": "curated",
+          "via": "manual",
+          "why": "Automation picked frozen Ajinomoto Chicken Karaage, a prepared product. This is raw chicken breast sold by weight, matching the PRD basket item.",
+          "target_size": "per kg"
+        },
+        "cooking_oil": {
+          "url": "https://www.landers.ph/food-cupboard/bertolli-classic-olive-oil-1-5l-130283-22728",
+          "name": null,
+          "price": null,
+          "currency": null,
+          "size": "5l",
+          "status": "candidate_unverified",
+          "note": "URL selected from the sitemap but the page serves no price over plain HTTP - confirm with a Studio run",
+          "target_size": "1 L"
+        },
+        "pasta": {
+          "url": "https://www.landers.ph/food-cupboard/royal-premium-spaghetti-900g-109581-17994",
+          "name": null,
+          "price": null,
+          "currency": null,
+          "size": "900g",
+          "status": "candidate_unverified",
+          "note": "URL selected from the sitemap but the page serves no price over plain HTTP - confirm with a Studio run",
+          "target_size": "500 g"
+        },
+        "bananas": {
+          "url": "https://www.landers.ph/fruits-vegetables/banana-cardava-rs-approx-1-4kg-806447-42073",
+          "name": null,
+          "price": null,
+          "currency": null,
+          "size": "4kg",
+          "status": "candidate_unverified",
+          "note": "URL selected from the sitemap but the page serves no price over plain HTTP - confirm with a Studio run",
+          "target_size": "per kg"
+        }
+      },
+      "unresolved": [
+        "rice",
+        "eggs",
+        "milk",
+        "bread",
+        "sugar",
+        "cooking_oil",
+        "pasta",
+        "bananas"
+      ],
+      "pool_size": 17002,
+      "discovery": "sitemap",
+      "verified_count": 2,
+      "chosen_url_count": 10
+    },
+    "us-dierbergs": {
+      "id": "us-dierbergs",
+      "name": "Dierbergs",
+      "country": "US",
+      "structural_class": "json-ld",
+      "items": {
+        "rice": {
+          "status": "not_found",
+          "note": "no candidate URL in pool",
+          "target_size": "5 lb"
+        },
+        "eggs": {
+          "url": "https://www.dierbergs.com/item/deviled-eggs-holiday-appetizers-99990853",
+          "name": "Deviled Eggs",
+          "price": 4.99,
+          "currency": "USD",
+          "size": null,
+          "status": "verified",
+          "via": "json-ld",
+          "target_size": "dozen"
+        },
+        "milk": {
+          "status": "not_found",
+          "note": "no candidate URL in pool",
+          "target_size": "1 gal"
+        },
+        "bread": {
+          "url": "https://www.dierbergs.com/item/bakehouse-italian-supremo-bread-37509",
+          "name": "Supremo Italian Bread",
+          "price": 3.99,
+          "currency": "USD",
+          "size": null,
+          "status": "verified",
+          "via": "json-ld",
+          "target_size": "loaf"
+        },
+        "coffee": {
+          "status": "not_found",
+          "note": "no candidate URL in pool",
+          "target_size": "12 oz"
+        },
+        "sugar": {
+          "status": "not_found",
+          "note": "no candidate URL in pool",
+          "target_size": "4 lb"
+        },
+        "chicken": {
+          "url": "https://www.dierbergs.com/item/bobs-smokehouse-pulled-chicken-plain-242904",
+          "name": "Bob&apos;s Smokehouse Pulled Chicken Plain",
+          "price": 12.99,
+          "currency": "USD",
+          "size": null,
+          "status": "verified",
+          "via": "json-ld",
+          "target_size": "per lb"
+        },
+        "cooking_oil": {
+          "url": "https://www.dierbergs.com/item/oil-and-vinegar-cole-slaw-243805",
+          "name": "Oil &amp; Vinegar Cole Slaw",
+          "price": 5.49,
+          "currency": "USD",
+          "size": null,
+          "status": "verified",
+          "via": "json-ld",
+          "target_size": "48 oz"
+        },
+        "pasta": {
+          "url": "https://www.dierbergs.com/item/caprese-pasta-243574",
+          "name": null,
+          "price": null,
+          "currency": null,
+          "size": null,
+          "status": "candidate_unverified",
+          "note": "URL selected from the sitemap but the page serves no price over plain HTTP - confirm with a Studio run",
+          "target_size": "1 lb"
+        },
+        "bananas": {
+          "status": "not_found",
+          "note": "no candidate URL in pool",
+          "target_size": "per lb"
+        }
+      },
+      "unresolved": [
+        "rice",
+        "milk",
+        "coffee",
+        "sugar",
+        "pasta",
+        "bananas"
+      ],
+      "pool_size": 874,
+      "discovery": "sitemap",
+      "verified_count": 4,
+      "chosen_url_count": 5
+    },
+    "us-thefreshmarket": {
+      "id": "us-thefreshmarket",
+      "name": "The Fresh Market",
+      "country": "US",
+      "structural_class": "json-ld",
+      "items": {
+        "rice": {
+          "status": "not_found",
+          "note": "no candidate URL in pool",
+          "target_size": "5 lb"
+        },
+        "eggs": {
+          "status": "not_found",
+          "note": "no candidate URL in pool",
+          "target_size": "dozen"
+        },
+        "milk": {
+          "status": "not_found",
+          "note": "no candidate URL in pool",
+          "target_size": "1 gal"
+        },
+        "bread": {
+          "status": "not_found",
+          "note": "no candidate URL in pool",
+          "target_size": "loaf"
+        },
+        "coffee": {
+          "status": "not_found",
+          "note": "no candidate URL in pool",
+          "target_size": "12 oz"
+        },
+        "sugar": {
+          "status": "not_found",
+          "note": "no candidate URL in pool",
+          "target_size": "4 lb"
+        },
+        "chicken": {
+          "url": "https://www.thefreshmarket.com/specials/meals/little-big-meals/seafood-cakes-or-crispy-chicken",
+          "name": null,
+          "price": null,
+          "currency": null,
+          "size": null,
+          "status": "candidate_unverified",
+          "note": "URL selected from the sitemap but the page serves no price over plain HTTP - confirm with a Studio run",
+          "target_size": "per lb"
+        },
+        "cooking_oil": {
+          "status": "not_found",
+          "note": "no candidate URL in pool",
+          "target_size": "48 oz"
+        },
+        "pasta": {
+          "status": "not_found",
+          "note": "no candidate URL in pool",
+          "target_size": "1 lb"
+        },
+        "bananas": {
+          "status": "not_found",
+          "note": "no candidate URL in pool",
+          "target_size": "per lb"
+        }
+      },
+      "unresolved": [
+        "rice",
+        "eggs",
+        "milk",
+        "bread",
+        "coffee",
+        "sugar",
+        "chicken",
+        "cooking_oil",
+        "pasta",
+        "bananas"
+      ],
+      "pool_size": 50,
+      "discovery": "sitemap",
+      "verified_count": 0,
+      "chosen_url_count": 1
+    },
+    "us-wegmans": {
+      "id": "us-wegmans",
+      "name": "Wegmans",
+      "country": "US",
+      "structural_class": "spa-with-state",
+      "items": {
+        "rice": {
+          "status": "not_found",
+          "note": "no candidate URL in pool",
+          "target_size": "5 lb"
+        },
+        "eggs": {
+          "status": "not_found",
+          "note": "no candidate URL in pool",
+          "target_size": "dozen"
+        },
+        "milk": {
+          "status": "not_found",
+          "note": "no candidate URL in pool",
+          "target_size": "1 gal"
+        },
+        "bread": {
+          "status": "not_found",
+          "note": "no candidate URL in pool",
+          "target_size": "loaf"
+        },
+        "coffee": {
+          "status": "not_found",
+          "note": "no candidate URL in pool",
+          "target_size": "12 oz"
+        },
+        "sugar": {
+          "status": "not_found",
+          "note": "no candidate URL in pool",
+          "target_size": "4 lb"
+        },
+        "chicken": {
+          "url": "https://www.wegmans.com/shop/featured/summer12026-mailer-Chicken",
+          "name": null,
+          "price": null,
+          "currency": null,
+          "size": null,
+          "status": "candidate_unverified",
+          "note": "URL selected from the sitemap but the page serves no price over plain HTTP - confirm with a Studio run",
+          "target_size": "per lb"
+        },
+        "cooking_oil": {
+          "url": "https://www.wegmans.com/cooking-techniques/grilling-seafood-with-basting-oil",
+          "name": null,
+          "price": null,
+          "currency": null,
+          "size": null,
+          "status": "candidate_unverified",
+          "note": "URL selected from the sitemap but the page serves no price over plain HTTP - confirm with a Studio run",
+          "target_size": "48 oz"
+        },
+        "pasta": {
+          "url": "https://www.wegmans.com/shop/featured/summer12026-mailer-Pasta-night",
+          "name": null,
+          "price": null,
+          "currency": null,
+          "size": null,
+          "status": "candidate_unverified",
+          "note": "URL selected from the sitemap but the page serves no price over plain HTTP - confirm with a Studio run",
+          "target_size": "1 lb"
+        },
+        "bananas": {
+          "status": "not_found",
+          "note": "no candidate URL in pool",
+          "target_size": "per lb"
+        }
+      },
+      "unresolved": [
+        "rice",
+        "eggs",
+        "milk",
+        "bread",
+        "coffee",
+        "sugar",
+        "chicken",
+        "cooking_oil",
+        "pasta",
+        "bananas"
+      ],
+      "pool_size": 175,
+      "discovery": "sitemap",
+      "verified_count": 0,
+      "chosen_url_count": 3
+    },
+    "us-meijer": {
+      "id": "us-meijer",
+      "name": "Meijer",
+      "country": "US",
+      "structural_class": "bare-html",
+      "items": {
+        "rice": {
+          "status": "not_found",
+          "note": "no candidate URL in pool",
+          "target_size": "5 lb"
+        },
+        "eggs": {
+          "status": "not_found",
+          "note": "no candidate URL in pool",
+          "target_size": "dozen"
+        },
+        "milk": {
+          "status": "not_found",
+          "note": "no candidate URL in pool",
+          "target_size": "1 gal"
+        },
+        "bread": {
+          "status": "not_found",
+          "note": "no candidate URL in pool",
+          "target_size": "loaf"
+        },
+        "coffee": {
+          "status": "not_found",
+          "note": "no candidate URL in pool",
+          "target_size": "12 oz"
+        },
+        "sugar": {
+          "status": "not_found",
+          "note": "no candidate URL in pool",
+          "target_size": "4 lb"
+        },
+        "chicken": {
+          "status": "not_found",
+          "note": "no candidate URL in pool",
+          "target_size": "per lb"
+        },
+        "cooking_oil": {
+          "status": "not_found",
+          "note": "no candidate URL in pool",
+          "target_size": "48 oz"
+        },
+        "pasta": {
+          "status": "not_found",
+          "note": "no candidate URL in pool",
+          "target_size": "1 lb"
+        },
+        "bananas": {
+          "status": "not_found",
+          "note": "no candidate URL in pool",
+          "target_size": "per lb"
+        }
+      },
+      "unresolved": [
+        "rice",
+        "eggs",
+        "milk",
+        "bread",
+        "coffee",
+        "sugar",
+        "chicken",
+        "cooking_oil",
+        "pasta",
+        "bananas"
+      ],
+      "pool_size": 0,
+      "discovery": "none",
+      "verified_count": 0,
+      "chosen_url_count": 0
+    }
+  },
+  "totals": {
+    "stores": 8,
+    "verified_items": 21,
+    "possible_items": 80
+  }
+}

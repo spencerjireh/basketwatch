@@ -349,11 +349,19 @@ NON_PRODUCT_PATHS = (
     "community", "recall", "recalls", "spotlight", "promo", "promos", "sale",
     "deals", "flyer", "circular", "careers", "info", "landing",
     "home-page", "homepage", "assets", "static", "uploads", "banners",
+    "inspiration", "ideas", "learn", "discover", "explore", "meal", "menu",
 )
 
 # Slug fragments that mark a marketing asset rather than a product. Grocery Outlet
 # was scored server-rendered off "012126_eggs_websitebanner_", a homepage image.
 RE_ASSET_SLUG = re.compile(r"banner|logo|hero|thumbnail|placeholder|sprite|favicon", re.I)
+
+# Words that make a slug editorial wherever they appear, unlike softer terms such
+# as "sale" or "info" which can show up inside a real product name.
+EDITORIAL_WORDS = {
+    "recipe", "recipes", "article", "articles", "blog", "news", "guide", "guides",
+    "inspiration", "ideas", "story", "stories",
+}
 
 RE_UNIT = re.compile(
     r"\b\d+(?:\.\d+)?\s?-?\s?(?:oz|lb|lbs|ml|l|g|kg|ct|pk|pack|packs|dozen|count|gal|qt|pcs|pc)\b"
@@ -371,9 +379,18 @@ def product_score(url: str, hints: list[str]) -> int:
     segs = [s for s in path.strip("/").split("/") if s]
     if not segs:
         return -100
-    if any(seg in NON_PRODUCT_PATHS for seg in segs[:-1]):
+    # Match on words inside a segment, not the whole segment: The Fresh Market files
+    # editorial under "/inspiration/recipe-and-ideas/", which whole-segment equality
+    # let straight through.
+    def seg_words(seg: str) -> set[str]:
+        return {w for w in re.split(r"[^a-z0-9]+", seg) if w}
+
+    non_product = set(NON_PRODUCT_PATHS)
+    if any(seg in non_product or seg_words(seg) & non_product for seg in segs[:-1]):
         return -100
-    if segs[-1] in NON_PRODUCT_PATHS:
+    # The final segment is the product slug, so only unambiguous editorial words
+    # disqualify it - a staple can legitimately be called "sale-rice-5kg".
+    if segs[-1] in non_product or seg_words(segs[-1]) & EDITORIAL_WORDS:
         return -100
 
     if RE_ASSET_SLUG.search(segs[-1]):
@@ -466,10 +483,80 @@ async def crawl_for_products(
     return list(dict.fromkeys(products)), visited
 
 
+async def discover_urls(cand: dict, f: Fetcher) -> dict:
+    """Find a site's page and product URLs: robots -> sitemaps -> crawl fallback.
+
+    Shared by the tier-0 probe and the basket builder so both see the same pool.
+    """
+    home = cand["homepage"]
+    base = f"{urlparse(home).scheme}://{urlparse(home).netloc}"
+    hints = cand.get("product_hint", [])
+
+    rb = await f.get(urljoin(base, "/robots.txt"), "robots", timeout=12)
+    robots = {"fetched": rb["status"] == 200, "sitemaps": [], "disallow_star": [], "allow_star": []}
+    if rb["status"] == 200 and rb["body"].strip() and "<html" not in rb["body"][:300].lower():
+        robots.update(parse_robots(rb["body"]))
+
+    sm_candidates = list(robots["sitemaps"])
+    for guess in ("/sitemap.xml", "/sitemap_index.xml", "/sitemap.txt", "/sitemap-index.xml"):
+        sm_candidates.append(urljoin(base, guess))
+
+    page_urls: list[str] = []
+    tried, nested_done = [], 0
+    for sm in sm_candidates[:6]:
+        if len(page_urls) > 3000:
+            break
+        r = await f.get(sm, "sitemap", timeout=45, max_body=6_000_000)
+        tried.append({"url": sm, "status": r["status"], "bytes": r["bytes"]})
+        if r["status"] != 200 or not r["body"].strip():
+            continue
+        pages, nested = parse_sitemap(r["body"])
+        page_urls.extend(pages)
+        for n in nested[:4]:
+            if nested_done >= 4:
+                break
+            nr = await f.get(n, "sitemap", timeout=45, max_body=6_000_000)
+            nested_done += 1
+            tried.append({"url": n, "status": nr["status"], "bytes": nr["bytes"], "nested": True})
+            if nr["status"] == 200:
+                p2, _ = parse_sitemap(nr["body"])
+                page_urls.extend(p2)
+        if page_urls:
+            break
+
+    page_urls = list(dict.fromkeys(page_urls))
+    scored = ((product_score(u, hints), u) for u in page_urls)
+    product_urls = [u for sc, u in sorted((t for t in scored if t[0] >= 3), key=lambda t: -t[0])]
+
+    crawled: list[str] = []
+    if not product_urls:
+        crawl_found, crawled = await crawl_for_products(f, home, hints)
+        if crawl_found:
+            product_urls = [u for sc, u in sorted(
+                ((product_score(u, hints), u) for u in crawl_found), key=lambda t: -t[0]
+            )]
+            page_urls = page_urls or product_urls
+
+    if crawled:
+        via = "crawl" if product_urls else "none"
+    elif page_urls:
+        via = "sitemap"
+    else:
+        via = "none"
+
+    return {
+        "robots": robots,
+        "page_urls": page_urls,
+        "product_urls": product_urls,
+        "tried": tried,
+        "crawled": crawled,
+        "via": via,
+    }
+
+
 async def probe_site(cand: dict, f: Fetcher, sem: asyncio.Semaphore) -> dict:
     async with sem:
         home = cand["homepage"]
-        base = f"{urlparse(home).scheme}://{urlparse(home).netloc}"
         rec: dict = {
             "id": cand["id"],
             "name": cand["name"],
@@ -489,62 +576,11 @@ async def probe_site(cand: dict, f: Fetcher, sem: asyncio.Semaphore) -> dict:
         }
         rec["home_class"] = classify(hp)["class"]
 
-        # robots
-        rb = await f.get(urljoin(base, "/robots.txt"), "robots", timeout=12)
-        robots = {"fetched": rb["status"] == 200, "sitemaps": [], "disallow_star": [], "allow_star": []}
-        if rb["status"] == 200 and rb["body"].strip() and "<html" not in rb["body"][:300].lower():
-            robots.update(parse_robots(rb["body"]))
+        disc = await discover_urls(cand, f)
+        robots = disc["robots"]
+        page_urls, product_urls = disc["page_urls"], disc["product_urls"]
+        tried, crawled, via = disc["tried"], disc["crawled"], disc["via"]
         rec["robots"] = robots
-
-        # sitemaps
-        sm_candidates = list(robots["sitemaps"]) or []
-        for guess in ("/sitemap.xml", "/sitemap_index.xml", "/sitemap.txt", "/sitemap-index.xml"):
-            sm_candidates.append(urljoin(base, guess))
-
-        page_urls: list[str] = []
-        tried, nested_done = [], 0
-        for sm in sm_candidates[:6]:
-            if len(page_urls) > 3000:
-                break
-            r = await f.get(sm, "sitemap", timeout=45, max_body=6_000_000)
-            tried.append({"url": sm, "status": r["status"], "bytes": r["bytes"]})
-            if r["status"] != 200 or not r["body"].strip():
-                continue
-            pages, nested = parse_sitemap(r["body"])
-            page_urls.extend(pages)
-            for n in nested[:4]:
-                if nested_done >= 4:
-                    break
-                nr = await f.get(n, "sitemap", timeout=45, max_body=6_000_000)
-                nested_done += 1
-                tried.append({"url": n, "status": nr["status"], "bytes": nr["bytes"], "nested": True})
-                if nr["status"] == 200:
-                    p2, _ = parse_sitemap(nr["body"])
-                    page_urls.extend(p2)
-            if page_urls:
-                break
-
-        page_urls = list(dict.fromkeys(page_urls))
-        hints = cand.get("product_hint", [])
-        crawled: list[str] = []
-        scored = ((product_score(u, hints), u) for u in page_urls)
-        product_urls = [u for sc, u in sorted(
-            (t for t in scored if t[0] >= 3), key=lambda t: -t[0]
-        )]
-        if not product_urls:
-            crawl_found, crawled = await crawl_for_products(f, home, hints)
-            if crawl_found:
-                product_urls = [u for sc, u in sorted(
-                    ((product_score(u, hints), u) for u in crawl_found), key=lambda t: -t[0]
-                )]
-                page_urls = page_urls or product_urls
-
-        if crawled:
-            via = "crawl" if product_urls else "none"
-        elif page_urls:
-            via = "sitemap"
-        else:
-            via = "none"
         rec["discovery"] = {"via": via, "categories_crawled": crawled}
         rec["sitemap"] = {
             "tried": tried,
