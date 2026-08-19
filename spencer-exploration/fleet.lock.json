@@ -1,7 +1,7 @@
 {
   "_comment": "The LOCKED Basketwatch fleet. This file is the decision, not a suggestion: score.py renders registry.md from it and fails loudly if a locked site is no longer fleet-ready. Change the fleet by editing this file, never by re-running a picker.",
   "locked_on": "2026-08-19",
-  "rationale": "Eight real stores, four per country, spanning five extraction shapes (json-ld, graphql, bare-html, spa-with-state, spa-opaque) so a breakage in one does not resemble a breakage in another. Weighted toward genuine grocers over online pantries per docs/prd.md section 2.6, and toward sites already proven end to end. Clears the PRD bar of 4+ US scrapers plus the clone store, with PH included.",
+  "rationale": "Eight real stores, four per country, spanning five extraction shapes (json-ld, graphql, bare-html, spa-with-state, spa-opaque) so a breakage in one does not resemble a breakage in another. Weighted toward genuine grocers over online pantries per docs/prd.md section 2.6, and toward sites already proven end to end. Clears the PRD bar of 4+ US scrapers plus the clone store, with PH included. Members split into two roles. Index contributors supply the basket and are all PH, because after four discovery rounds and 103 US candidates no US retailer was found publishing plain staples publicly. Reliability subjects scrape cleanly across different markup shapes and carry the self-healing story without feeding the index.",
   "fleet": [
     {
       "id": "ph-shopgaisano",
@@ -13,7 +13,9 @@
       "why_locked": "Top-scoring site in the whole registry. Server-rendered json-ld, 10/10 basket categories off a 1,406-URL sitemap, Visayas/Mindanao regional chain with no prebuilt scraper anywhere. Proven end to end on rice 5kg, the PH basket anchor item.",
       "risk": "low",
       "substitute": null,
-      "search_api": "shopify"
+      "search_api": "shopify",
+      "index_contributor": true,
+      "role": "index-contributor"
     },
     {
       "id": "ph-smmarkets",
@@ -25,7 +27,9 @@
       "why_locked": "Largest PH supermarket network and the broadest PH catalogue. Pages are a client-rendered shell, but the public Magento GraphQL endpoint is a structured fallback no selector change can break. Proven end to end.",
       "risk": "low",
       "substitute": null,
-      "search_api": "magento-graphql"
+      "search_api": "magento-graphql",
+      "index_contributor": true,
+      "role": "index-contributor"
     },
     {
       "id": "ph-merrymartwholesale",
@@ -37,7 +41,9 @@
       "why_locked": "Fully server-rendered PHP prices with no structured data at all - the bare-HTML shape the fleet otherwise lacks on the PH side, and the one most likely to break on a redesign, which makes it a good heal subject.",
       "risk": "medium",
       "substitute": "ph-snr",
-      "caveat": "Wholesale case pricing. Needs per-unit normalisation before its numbers enter the basket index."
+      "caveat": "Wholesale case pricing. Needs per-unit normalisation before its numbers enter the basket index.",
+      "index_contributor": true,
+      "role": "index-contributor"
     },
     {
       "id": "ph-landers",
@@ -49,7 +55,9 @@
       "why_locked": "10/10 basket categories from a 17,032-URL sitemap - the deepest basket coverage of any PH site - and a well-known consumer name for the demo.",
       "risk": "high",
       "substitute": "ph-southstar",
-      "caveat": "Highest-risk member. Prices render client-side and the backing APIs (api.landers.ph, Unbxd search) are private, so there is no non-browser fallback. If its Studio scraper proves flaky, swap in Southstar Drug, which is server-rendered microdata."
+      "caveat": "Highest-risk member. Prices render client-side and the backing APIs (api.landers.ph, Unbxd search) are private, so there is no non-browser fallback. If its Studio scraper proves flaky, swap in Southstar Drug, which is server-rendered microdata.",
+      "index_contributor": true,
+      "role": "index-contributor"
     },
     {
       "id": "us-dierbergs",
@@ -60,7 +68,10 @@
       "studio_collector_id": "c_msyxuy2519vvn3139s",
       "why_locked": "Authentic St. Louis regional grocer with clean json-ld and real basket staples. Proven end to end on a bread SKU.",
       "risk": "low",
-      "substitute": null
+      "substitute": null,
+      "index_contributor": false,
+      "role": "reliability-subject",
+      "role_note": "Scrapes cleanly and carries a distinct markup shape for the heal story, but its public catalogue does not contain plain staples, so it feeds scraper health and self-healing evidence rather than the price index. Interview decision: keep in fleet, exclude from index."
     },
     {
       "id": "us-thefreshmarket",
@@ -71,7 +82,10 @@
       "studio_collector_id": null,
       "why_locked": "Specialty national grocer, 9/10 basket categories, server-rendered json-ld reachable without the Unlocker. Highest-scoring authentic US grocer after Dierbergs.",
       "risk": "low",
-      "substitute": "us-hmart"
+      "substitute": "us-hmart",
+      "index_contributor": false,
+      "role": "reliability-subject",
+      "role_note": "Scrapes cleanly and carries a distinct markup shape for the heal story, but its public catalogue does not contain plain staples, so it feeds scraper health and self-healing evidence rather than the price index. Interview decision: keep in fleet, exclude from index."
     },
     {
       "id": "us-wegmans",
@@ -83,7 +97,10 @@
       "why_locked": "Major regional grocer that ships prices inside embedded page state rather than markup - a distinct extraction shape from the json-ld sites, and a realistic breakage mode.",
       "risk": "medium",
       "substitute": "us-hmart",
-      "caveat": "Only 4/10 basket categories surfaced from its sitemap; confirm SKU coverage before relying on it for the index."
+      "caveat": "Only 4/10 basket categories surfaced from its sitemap; confirm SKU coverage before relying on it for the index.",
+      "index_contributor": false,
+      "role": "reliability-subject",
+      "role_note": "Scrapes cleanly and carries a distinct markup shape for the heal story, but its public catalogue does not contain plain staples, so it feeds scraper health and self-healing evidence rather than the price index. Interview decision: keep in fleet, exclude from index."
     },
     {
       "id": "us-meijer",
@@ -95,7 +112,10 @@
       "why_locked": "Midwest supercenter, 8/10 basket categories, plain HTML pricing with no structured data - the bare-HTML shape on the US side. Promoted from the bench after Grocery Outlet failed the lock audit.",
       "risk": "medium",
       "substitute": "us-keyfood",
-      "caveat": "Needs the Web Unlocker on every run, so it is the only locked site with a per-run credit cost. Budget for it in the scheduler."
+      "caveat": "Needs the Web Unlocker on every run, so it is the only locked site with a per-run credit cost. Budget for it in the scheduler.",
+      "index_contributor": false,
+      "role": "reliability-subject",
+      "role_note": "Scrapes cleanly and carries a distinct markup shape for the heal story, but its public catalogue does not contain plain staples, so it feeds scraper health and self-healing evidence rather than the price index. Interview decision: keep in fleet, exclude from index."
     }
   ],
   "always_in_fleet": [
@@ -129,6 +149,11 @@
       "date": "2026-08-19",
       "change": "Replaced us-groceryoutlet with us-meijer",
       "why": "A clean no-cache re-probe with TLS verification and a tightened price regex reclassified Grocery Outlet from server_rendered to spa_empty. Its original verdict rested on a homepage banner asset (012126_eggs_websitebanner_) that the product-URL scorer mistook for a product page; vet.py now rejects marketing-asset slugs. Meijer was the named bench substitute for the bare-HTML slot."
+    },
+    {
+      "date": "2026-08-19",
+      "change": "Split the fleet into index contributors and reliability subjects",
+      "why": "Building the per-store basket showed the four US members settle 0-4 of the core 10 items - not a scraping failure but a catalogue one. Round 4 hunted specifically for US retailers publishing staples and found none across co-ops, Hispanic and Asian grocers, delivery-first grocers and US Filipino grocers. Sukli and Lili Mart both looked ideal on structure and both turned out to sell snacks and specialty goods. Rather than drop working scrapers or pretend they feed the index, each member now declares which job it does."
     }
   ]
 }

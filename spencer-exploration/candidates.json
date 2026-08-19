@@ -1457,6 +1457,209 @@
         "/products/",
         "/product"
       ]
+    },
+    {
+      "id": "us-unitedsupermarkets",
+      "name": "United Supermarkets",
+      "country": "US",
+      "vertical": "grocery",
+      "homepage": "https://www.shopunitedsupermarkets.com",
+      "why": "Round 4: Texas regional grocer with a dedicated shop subdomain - the pattern that works when the main site gates its catalogue",
+      "product_hint": [
+        "/product",
+        "/p/"
+      ]
+    },
+    {
+      "id": "us-goodeggs",
+      "name": "Good Eggs",
+      "country": "US",
+      "vertical": "grocery",
+      "homepage": "https://www.goodeggs.com",
+      "why": "Round 4: delivery-first SF grocer, catalogue is the whole product",
+      "product_hint": [
+        "/product",
+        "/sku"
+      ]
+    },
+    {
+      "id": "us-wholefoods",
+      "name": "Whole Foods Market",
+      "country": "US",
+      "vertical": "grocery",
+      "homepage": "https://www.wholefoodsmarket.com",
+      "why": "Round 4: national grocer; control for whether majors ever publish staples",
+      "product_hint": [
+        "/product/"
+      ]
+    },
+    {
+      "id": "us-sukli",
+      "name": "Sukli",
+      "country": "US",
+      "vertical": "ethnic-grocery",
+      "homepage": "https://sukli.com",
+      "why": "Round 4: US Filipino online grocery - sells the same PH brands as Landers and SM Markets, so cross-country compares identical products",
+      "product_hint": [
+        "/products/"
+      ]
+    },
+    {
+      "id": "us-lilimart",
+      "name": "Lili Mart",
+      "country": "US",
+      "vertical": "ethnic-grocery",
+      "homepage": "https://shoplilimart.com",
+      "why": "Round 4: US Filipino grocery storefront, same brand-overlap argument as Sukli",
+      "product_hint": [
+        "/products/"
+      ]
+    },
+    {
+      "id": "us-umamicart",
+      "name": "Umamicart",
+      "country": "US",
+      "vertical": "ethnic-grocery",
+      "homepage": "https://www.umamicart.com",
+      "why": "Round 4: US Asian grocery, delivery-first with a public catalogue",
+      "product_hint": [
+        "/products/"
+      ]
+    },
+    {
+      "id": "us-yamibuy",
+      "name": "Yamibuy",
+      "country": "US",
+      "vertical": "ethnic-grocery",
+      "homepage": "https://www.yamibuy.com",
+      "why": "Round 4: US Asian grocery marketplace, rice and pantry depth",
+      "product_hint": [
+        "/product/",
+        "/p/"
+      ]
+    },
+    {
+      "id": "us-wheatsville",
+      "name": "Wheatsville Co-op",
+      "country": "US",
+      "vertical": "grocery",
+      "homepage": "https://wheatsville.coop",
+      "why": "Round 4: Austin food co-op",
+      "product_hint": [
+        "/product"
+      ]
+    },
+    {
+      "id": "us-willystreet",
+      "name": "Willy Street Co-op",
+      "country": "US",
+      "vertical": "grocery",
+      "homepage": "https://www.willystreet.coop",
+      "why": "Round 4: Madison food co-op, publishes product and price listings",
+      "product_hint": [
+        "/product"
+      ]
+    },
+    {
+      "id": "us-parkslopefoodcoop",
+      "name": "Park Slope Food Coop",
+      "country": "US",
+      "vertical": "grocery",
+      "homepage": "https://www.foodcoop.com",
+      "why": "Round 4: Brooklyn co-op known for publishing member price lists",
+      "product_hint": [
+        "/product",
+        "/price"
+      ]
+    },
+    {
+      "id": "us-weaversway",
+      "name": "Weavers Way Co-op",
+      "country": "US",
+      "vertical": "grocery",
+      "homepage": "https://www.weaversway.coop",
+      "why": "Round 4: Philadelphia co-op",
+      "product_hint": [
+        "/product"
+      ]
+    },
+    {
+      "id": "us-hungermountain",
+      "name": "Hunger Mountain Co-op",
+      "country": "US",
+      "vertical": "grocery",
+      "homepage": "https://hungermountain.coop",
+      "why": "Round 4: Vermont co-op",
+      "product_hint": [
+        "/product"
+      ]
+    },
+    {
+      "id": "us-elsuper",
+      "name": "El Super",
+      "country": "US",
+      "vertical": "ethnic-grocery",
+      "homepage": "https://www.elsupermarkets.com",
+      "why": "Round 4: Hispanic-American chain, staple-heavy catalogue",
+      "product_hint": [
+        "/product"
+      ]
+    },
+    {
+      "id": "us-hungryroot",
+      "name": "Hungryroot",
+      "country": "US",
+      "vertical": "grocery",
+      "homepage": "https://www.hungryroot.com",
+      "why": "Round 4: delivery-first grocer",
+      "product_hint": [
+        "/product"
+      ]
+    },
+    {
+      "id": "us-imperfectfoods",
+      "name": "Imperfect Foods",
+      "country": "US",
+      "vertical": "grocery",
+      "homepage": "https://www.imperfectfoods.com",
+      "why": "Round 4: surplus grocery delivery, staples at a discount",
+      "product_hint": [
+        "/product"
+      ]
+    },
+    {
+      "id": "us-freshdirect2",
+      "name": "FreshDirect (round 4 retry)",
+      "country": "US",
+      "vertical": "grocery",
+      "homepage": "https://www.freshdirect.com",
+      "why": "Round 4: retry the PRD authenticity anchor now that search-API detection exists",
+      "product_hint": [
+        "/pdp.jsp",
+        "/product"
+      ]
+    },
+    {
+      "id": "us-instacart",
+      "name": "Instacart",
+      "country": "US",
+      "vertical": "grocery-aggregator",
+      "homepage": "https://www.instacart.com",
+      "why": "Round 4: aggregator carrying many US chains - the US analogue of MetroMart, and possibly the only public route to chain prices",
+      "product_hint": [
+        "/products/"
+      ]
+    },
+    {
+      "id": "us-bostonorganics",
+      "name": "Boston Organics",
+      "country": "US",
+      "vertical": "grocery",
+      "homepage": "https://www.bostonorganics.com",
+      "why": "Round 4: small independent delivery grocer, likely a simple stack",
+      "product_hint": [
+        "/product"
+      ]
     }
   ]
 }

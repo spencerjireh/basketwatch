@@ -23,6 +23,11 @@ anywhere, direct or through the Unlocker.
 | File | What it is |
 |---|---|
 | `fleet.lock.json` | **the locked fleet** - the decision about what ships, held by hand |
+| `items.json` | **the item registry** - 20 tracked items, units, per-country match terms |
+| `basket.py` | picks one concrete product per item per store, and computes unit price |
+| `basket-map.json` / `.md` | the per-store pin table - which product each store is tracked on |
+| `manual-basket.json` | hand corrections where automated selection chose a lookalike |
+| `HANDOFF.md` | what the app has to absorb; deliberately not applied here |
 | `candidates.json` | the seed list - hand-authored, expanded by SERP discovery |
 | `vet.py` | tier 0: free HTTP probes, robots, sitemaps, basket mapping, classification |
 | `bd_tier1.py` | tier 1: Web Unlocker sweep over what tier 0 could not settle, with a hard credit ceiling |
@@ -30,7 +35,8 @@ anywhere, direct or through the Unlocker.
 | `registry.json` | **the deliverable** - every candidate, scored, with evidence |
 | `registry.md` | human scorecard, PH gate verdict, recommended fleet |
 | `tier0.json` / `tier1.json` | raw evidence behind the registry |
-| `test_vet.py` | tests for the pure logic - every case is a bug this harness shipped |
+| `test_vet.py` | tests for the pure vetting logic - every case is a bug this harness shipped |
+| `test_basket.py` | tests for size parsing, unit-price maths and staple matching |
 | `raw/` | cached HTTP responses (gitignored) so re-runs cost nothing |
 
 ## Running it
@@ -49,8 +55,13 @@ uv run spencer-exploration/bd_tier1.py --cap-usd 5.0
 # score, audit the lock, and build the registry
 uv run spencer-exploration/score.py
 
+# build the per-store basket from items.json
+uv run spencer-exploration/basket.py
+uv run spencer-exploration/basket.py --ids ph-shopgaisano
+
 # tests
-uv run --with pytest --with 'httpx[http2]' pytest spencer-exploration/test_vet.py -q
+uv run --with pytest --with 'httpx[http2]' pytest \
+  spencer-exploration/test_vet.py spencer-exploration/test_basket.py -q
 ```
 
 `bd_tier1.py` reads the live account balance before it starts and re-checks it as
@@ -74,6 +85,65 @@ Outlet from `server_rendered` to `spa_empty` - its original verdict rested on a
 homepage banner image the product-URL scorer mistook for a product page. The audit
 flagged it and Meijer, the named bench substitute for that slot, took its place. The
 swap is recorded in the lock's `changelog`.
+
+## The item registry and unit pricing
+
+`items.json` holds the tracked items - 20 of them, with units, per-country target
+sizes, localised match terms (bigas, itlog, gatas, mantika) and category hints.
+Nothing about the basket lives in code, so adding an item or a country is a data edit.
+
+The **core tier is exactly the `docs/prd.md` section 5 basket**, so the headline index
+is unchanged and nothing already built is invalidated. The **stretch tier** adds ten
+more - pork, fish, cheese, produce, canned sardines, bottled water - which broadens
+the tool from a basket index into a price checker.
+
+Item selection follows the CPI Manual and ONS criteria: expenditure weight, price
+variability within the group, representativeness, continuous availability, and a
+precise specification. Allocation uses PH FIES 2018 food shares (bread and cereals
+11.0%, meat 5.7%, fish 5.0%). Units mirror Numbeo's published specs wherever an item
+overlaps, so their figures stay usable as an external sanity check. Fish is included
+despite Numbeo omitting it entirely, because it is near parity with meat in PH
+spending.
+
+**Unit price is the comparison primitive.** Raw prices across different pack sizes are
+not comparable, which is why unit pricing is legally mandated on grocery shelves in
+the EU, Australia and ~17 US states. Almost nobody publishes it in markup - of every
+cached product page here, only Dierbergs and WebstaurantStore do - so `basket.py`
+parses size out of the product title and computes it. It handles fractions ("1/4 Kg"
+is 250 g, not 4 kg), multipacks ("12 x 2g" is 24 g), ranges, fluid ounces and bare
+counts, and **refuses to guess** when a unit names a bundle of unknown contents such
+as "6 Pack". A missing unit price beats a wrong one.
+
+Two guards keep the picks honest beyond keyword lists:
+
+- **Category gating** - a store's own taxonomy is stronger than any word list.
+  "Sugar Kids Girls' Grace Sandals" reads as sugar to a text matcher; its category
+  path never does.
+- **Unit-family matching** - bottled water is measured in millilitres, so a 200 g pick
+  is the wrong product whatever its title claims. This catches a class of lookalikes
+  that no word list would.
+
+Beyond those, two more gates were forced by real false positives. A weighed or
+measured item **must state a size** - SM Markets answers "sugar" with girls' shoes and
+"coffee" with a tee in Dark Coffee, and neither names a pack size, while food sold by
+the gram always does. And a parsed size must be **plausible for the staple**: Pringles
+Sweet Onion is 100 g, Piknik Potato is 55 g, and produce is not sold that way. Brand
+blocklists never converge on this; pack size separates the two cleanly.
+
+Unit prices are also cross-checked against the same item at other stores in the same
+country. A pick far off its peers is usually a case or multipack sold as one line -
+flagged for review, never auto-dropped.
+
+## Search APIs
+
+A store's own search beats every keyword heuristic, because it ranks over the real
+catalogue. Shop Gaisano only mapped cleanly because it is Shopify. `vet.py` therefore
+probes each candidate for Shopify (`/search/suggest.json`), Magento (`/graphql`) and
+WooCommerce (`/wp-json/wc/store/products`), and `basket.py` uses whichever it finds.
+
+The probe **parses the response body** rather than trusting the status code. Landers
+and Meijer answer 200 on all three paths because their SPA serves `index.html` for
+anything; only reading the body reveals there is no API there.
 
 ## Scoring
 
@@ -140,5 +210,9 @@ rather than suppressed, since a broken cert is a real finding about a site. Pass
   sample, so their category counts read low relative to sitemap sites.
 - Basket mapping is URL-slug keyword matching with a non-grocery blocklist. It is
   a discovery aid, not a product catalogue: confirm items before wiring a scraper.
+- Automated selection settles roughly half the items; the rest need curation.
+  `manual-basket.json` holds hand-picked corrections and a `not_available` list for
+  staples a store genuinely does not stock, so the index can tell a real gap from a
+  scraper fault and nobody re-investigates the same dead end.
 - The prebuilt-scraper check is a judgement call from a hand-maintained list, not
   a live query against Bright Data's library.
