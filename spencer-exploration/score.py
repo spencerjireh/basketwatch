@@ -91,9 +91,11 @@ def score_site(t0: dict, t1: dict | None, manual: dict | None = None) -> dict:
     manual = manual or {}
     bonus = manual.get("score_bonus", 0)
     if bonus:
-        s["verified_api"] = bonus
+        s["verified_api_bonus"] = bonus
 
-    total = sum(s.values())
+    # Weights sum to 100; the API bonus is a tie-breaker on top, so clamp rather
+    # than publish scores above the scale the report documents.
+    total = min(100, sum(s.values()))
     robots_excluded = not t0.get("robots_allows_product")
     role = "reference" if t0["vertical"] in REFERENCE_VERTICALS else "store"
     note = f"{final} via {access}, {coverage}/10 basket items"
@@ -150,57 +152,47 @@ def score_site(t0: dict, t1: dict | None, manual: dict | None = None) -> dict:
 
 
 
-# docs/prd.md section 2.6 wants the US fleet authenticity-weighted: real grocers
-# and pharmacies ahead of online pantries, even at a slightly lower score.
-AUTHENTIC_VERTICALS = ("grocery", "ethnic-grocery", "pharmacy", "convenience")
+def load_lock() -> dict:
+    lp = HERE / "fleet.lock.json"
+    return json.loads(lp.read_text()) if lp.exists() else {"fleet": [], "always_in_fleet": []}
 
 
-def suggest_fleet(fleet: list[dict], proven: set[str], size: int = 6) -> list[dict]:
-    """Greedy pick: strongest sites, but spread across countries and markup styles.
+def audit_lock(lock: dict, sites: list[dict]) -> list[dict]:
+    """Check every locked site still holds up. Drift is reported, never silently kept.
 
-    A fleet of six JSON-LD Shopify stores would prove almost nothing about
-    self-healing - every breakage would look the same. Diversity is the point.
+    The lock is a decision made against a snapshot of evidence. Re-probing can move
+    a site - a redesign, a new WAF, a robots change - and the whole point of locking
+    is that such a move surfaces instead of quietly changing what ships.
     """
-    pool = sorted(
-        fleet,
-        key=lambda x: (
-            x["id"] not in proven,                          # proven end to end first
-            x["vertical"] not in AUTHENTIC_VERTICALS,       # then real stores
-            -x["score"],
-            -x["basket_coverage"],
-        ),
-    )
-    picked: list[dict] = []
-    seen_struct: set[str] = set()
-
-    # PH first: the gate is the scarce constraint, so spend the slots there first.
-    for country in ("PH", "US"):
-        for s_ in pool:
-            if len(picked) >= size:
-                break
-            if s_["country"] != country or s_ in picked:
-                continue
-            key = (s_["country"], s_["structural_class"])
-            if key in seen_struct:
-                continue
-            seen_struct.add(key)
-            picked.append(s_)
-            if country == "PH" and len([x for x in picked if x["country"] == "PH"]) >= 3:
-                break
-
-    for s_ in pool:  # top up on raw score
-        if len(picked) >= size:
-            break
-        if s_ not in picked:
-            picked.append(s_)
-    return picked[:size]
+    by_id = {x["id"]: x for x in sites}
+    problems = []
+    for entry in lock.get("fleet", []):
+        sid = entry["id"]
+        site = by_id.get(sid)
+        if site is None:
+            problems.append({"id": sid, "severity": "error",
+                             "issue": "locked site is not in the registry at all"})
+            continue
+        if not site["robots_allows_product"]:
+            problems.append({"id": sid, "severity": "error",
+                             "issue": "robots.txt now disallows the product path"})
+        if site["verdict"] == "fleet_ready":
+            continue
+        problems.append({
+            "id": sid,
+            "severity": "error" if site["verdict"] in ("reject", "excluded") else "warning",
+            "issue": f"verdict is now '{site['verdict']}' (score {site['score']}): "
+                     f"{site['verdict_reason']}",
+            "substitute": entry.get("substitute"),
+        })
+    return problems
 
 
 def pct(n: int, d: int) -> str:
     return f"{100 * n / d:.0f}%" if d else "-"
 
 
-def write_report(registry: dict, fleet_size: int = 10) -> str:
+def write_report(registry: dict) -> str:
     sites = registry["sites"]
     fleet = [s for s in sites if s["verdict"] == "fleet_ready" and s["role"] == "store"]
     backup = [s for s in sites if s["verdict"] == "backup" and s["role"] == "store"]
@@ -271,39 +263,63 @@ def write_report(registry: dict, fleet_size: int = 10) -> str:
                  f"(ceiling hit: {b.get('ceiling_hit')}).")
         L.append("")
 
-    suggested = suggest_fleet(fleet, set(registry.get("studio_proofs", {})), fleet_size)
-    L.append("## Suggested starting fleet")
-    L.append("")
+    lock = registry.get("locked_fleet", {})
+    problems = registry.get("lock_audit", [])
+    by_id = {x["id"]: x for x in sites}
     n_us = len([x for x in fleet if x["country"] == "US"])
     n_ph = len([x for x in fleet if x["country"] == "PH"])
-    L.append(f"A starting subset of {len(suggested)}, drawn from **{len(fleet)} fleet-ready "
-             f"stores** ({n_us} US, {n_ph} PH) with {len(backup)} more on the backup bench. "
-             "This is a suggestion, not the ceiling - resize it with "
-             "`score.py --fleet-size N`.")
+
+    L.append("## Locked fleet")
     L.append("")
-    L.append("Picked for spread, not just score: different countries and different markup "
-             "styles, so a breakage in one does not look like a breakage in another. "
-             "`docs/prd.md` asks for 4+ US scrapers plus the clone store; this clears that "
-             "with PH included.")
+    L.append(f"Locked {lock.get('locked_on', '-')}. This is the decision, held in "
+             "`fleet.lock.json`; the tables further down are the evidence behind it. "
+             f"Drawn from {len(fleet)} fleet-ready stores ({n_us} US, {n_ph} PH) with "
+             f"{len(backup)} more on the bench.")
     L.append("")
-    for s_ in suggested:
-        why = []
-        if s_["verified_api"]:
-            why.append(f"public {s_['api_kind']} endpoint")
-        if s_["id"] in registry.get("studio_proofs", {}):
-            why.append("already proven end to end")
-        why.append(f"{s_['structural_class']} markup")
-        why.append(f"{s_['basket_coverage']}/10 basket categories")
-        if s_["needs_unlocker"]:
-            why.append("needs Web Unlocker on every run")
-        if s_["vertical"] in AUTHENTIC_VERTICALS:
-            why.append(f"real {s_['vertical'].replace('-', ' ')}")
-        L.append(f"- **{s_['name']}** ({s_['country']}, `{s_['id']}`, score {s_['score']}) - "
-                 + "; ".join(why))
+    L.append(lock.get("rationale", ""))
     L.append("")
-    L.append("Plus Parker's Pantry, the clone store, which stays in the fleet as the "
-             "scripted break-and-heal rig.")
+
+    if problems:
+        L.append("> **Lock drift detected.** A locked site no longer matches the evidence "
+                 "it was locked against:")
+        L.append(">")
+        for pr in problems:
+            sub = f" Substitute on the bench: `{pr['substitute']}`." if pr.get("substitute") else ""
+            L.append(f"> - **{pr['severity'].upper()}** `{pr['id']}` - {pr['issue']}.{sub}")
+        L.append("")
+    else:
+        L.append("Lock audit: all locked sites still fleet-ready, robots-clean, and present "
+                 "in the registry.")
+        L.append("")
+
+    L.append("| # | Site | C | Structure | Risk | Proven | Why it is in |")
+    L.append("|---:|---|---|---|---|---|---|")
+    for i, entry in enumerate(lock.get("fleet", []), 1):
+        site = by_id.get(entry["id"], {})
+        proven = "yes" if entry.get("studio_collector_id") else "-"
+        L.append(f"| {i} | **{entry['name']}** `{entry['id']}` | {entry['country']} | "
+                 f"{entry['structural_class']} | {entry['risk']} | {proven} | "
+                 f"{entry['why_locked']} |")
+    for entry in lock.get("always_in_fleet", []):
+        L.append(f"| + | **{entry['name']}** `{entry['id']}` | {entry['country']} | "
+                 f"local rig | {entry['risk']} | n/a | {entry['why_locked']} |")
     L.append("")
+
+    caveats = [e for e in lock.get("fleet", []) if e.get("caveat")]
+    if caveats:
+        L.append("Caveats carried by locked sites:")
+        L.append("")
+        for e in caveats:
+            L.append(f"- **{e['name']}** - {e['caveat']}")
+        L.append("")
+
+    bench = lock.get("bench", {})
+    if bench:
+        L.append("Bench (vetted, promote without re-running discovery): "
+                 + "; ".join(f"**{k}** {', '.join(f'`{i}`' for i in v)}"
+                             for k, v in bench.items() if not k.startswith("_"))
+                 + ".")
+        L.append("")
 
     L.append("## Fleet-ready")
     L.append("")
@@ -418,8 +434,6 @@ def write_report(registry: dict, fleet_size: int = 10) -> str:
 
 def main() -> int:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--fleet-size", type=int, default=10,
-                    help="how many sites the suggested starting fleet should name")
     args = ap.parse_args()
 
     t0 = json.loads((HERE / "tier0.json").read_text())["results"]
@@ -433,6 +447,9 @@ def main() -> int:
     proofs = {k: v for k, v in mf.get("studio_proofs", {}).items() if not k.startswith("_")}
     sites = [score_site(r, t1_by_id.get(r["id"]), manual.get(r["id"])) for r in t0]
     sites.sort(key=lambda x: (-x["score"], x["country"], x["id"]))
+
+    lock = load_lock()
+    lock_problems = audit_lock(lock, sites)
 
     counts = Counter(s["verdict"] for s in sites)
     by_country: dict[str, Counter] = defaultdict(Counter)
@@ -464,10 +481,12 @@ def main() -> int:
         },
         "budget": t1_doc.get("budget", {}),
         "studio_proofs": proofs,
+        "locked_fleet": lock,
+        "lock_audit": lock_problems,
         "sites": sites,
     }
     (HERE / "registry.json").write_text(json.dumps(registry, indent=2))
-    (HERE / "registry.md").write_text(write_report(registry, args.fleet_size))
+    (HERE / "registry.md").write_text(write_report(registry))
 
     print(f"scored {len(sites)} candidates")
     for v, n in counts.most_common():
@@ -475,6 +494,14 @@ def main() -> int:
     print(f"\nUS fleet_ready: {len(us_ready)}   PH fleet_ready: {len(ph_ready)}")
     print(f"PH GATE: {'PASS' if len(ph_ready) >= 2 else 'FAIL'}")
     print(f"reference feeds usable: {len(refs)}")
+    print(f"\nlocked fleet: {len(lock.get('fleet', []))} stores + "
+          f"{len(lock.get('always_in_fleet', []))} local rig")
+    if lock_problems:
+        print("LOCK DRIFT:")
+        for pr in lock_problems:
+            print(f"  {pr['severity'].upper():<8} {pr['id']}: {pr['issue']}")
+    else:
+        print("lock audit: clean")
     print("\nstructural classes among fleet_ready:",
           dict(Counter(s["structural_class"] for s in fleet)))
     print("\ntop 20:")

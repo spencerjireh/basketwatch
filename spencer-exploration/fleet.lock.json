@@ -1,0 +1,132 @@
+{
+  "_comment": "The LOCKED Basketwatch fleet. This file is the decision, not a suggestion: score.py renders registry.md from it and fails loudly if a locked site is no longer fleet-ready. Change the fleet by editing this file, never by re-running a picker.",
+  "locked_on": "2026-08-19",
+  "rationale": "Eight real stores, four per country, spanning five extraction shapes (json-ld, graphql, bare-html, spa-with-state, spa-opaque) so a breakage in one does not resemble a breakage in another. Weighted toward genuine grocers over online pantries per docs/prd.md section 2.6, and toward sites already proven end to end. Clears the PRD bar of 4+ US scrapers plus the clone store, with PH included.",
+  "fleet": [
+    {
+      "id": "ph-shopgaisano",
+      "name": "Shop Gaisano",
+      "country": "PH",
+      "vertical": "grocery",
+      "structural_class": "json-ld",
+      "studio_collector_id": "c_mszan6wx1bgpc7941r",
+      "why_locked": "Top-scoring site in the whole registry. Server-rendered json-ld, 10/10 basket categories off a 1,406-URL sitemap, Visayas/Mindanao regional chain with no prebuilt scraper anywhere. Proven end to end on rice 5kg, the PH basket anchor item.",
+      "risk": "low",
+      "substitute": null
+    },
+    {
+      "id": "ph-smmarkets",
+      "name": "SM Markets",
+      "country": "PH",
+      "vertical": "grocery",
+      "structural_class": "graphql",
+      "studio_collector_id": "c_msyxrpa82470hx65c9",
+      "why_locked": "Largest PH supermarket network and the broadest PH catalogue. Pages are a client-rendered shell, but the public Magento GraphQL endpoint is a structured fallback no selector change can break. Proven end to end.",
+      "risk": "low",
+      "substitute": null
+    },
+    {
+      "id": "ph-merrymartwholesale",
+      "name": "MerryMart Wholesale",
+      "country": "PH",
+      "vertical": "grocery",
+      "structural_class": "bare-html",
+      "studio_collector_id": null,
+      "why_locked": "Fully server-rendered PHP prices with no structured data at all - the bare-HTML shape the fleet otherwise lacks on the PH side, and the one most likely to break on a redesign, which makes it a good heal subject.",
+      "risk": "medium",
+      "substitute": "ph-snr",
+      "caveat": "Wholesale case pricing. Needs per-unit normalisation before its numbers enter the basket index."
+    },
+    {
+      "id": "ph-landers",
+      "name": "Landers Superstore",
+      "country": "PH",
+      "vertical": "grocery",
+      "structural_class": "spa-opaque",
+      "studio_collector_id": null,
+      "why_locked": "10/10 basket categories from a 17,032-URL sitemap - the deepest basket coverage of any PH site - and a well-known consumer name for the demo.",
+      "risk": "high",
+      "substitute": "ph-southstar",
+      "caveat": "Highest-risk member. Prices render client-side and the backing APIs (api.landers.ph, Unbxd search) are private, so there is no non-browser fallback. If its Studio scraper proves flaky, swap in Southstar Drug, which is server-rendered microdata."
+    },
+    {
+      "id": "us-dierbergs",
+      "name": "Dierbergs",
+      "country": "US",
+      "vertical": "grocery",
+      "structural_class": "json-ld",
+      "studio_collector_id": "c_msyxuy2519vvn3139s",
+      "why_locked": "Authentic St. Louis regional grocer with clean json-ld and real basket staples. Proven end to end on a bread SKU.",
+      "risk": "low",
+      "substitute": null
+    },
+    {
+      "id": "us-thefreshmarket",
+      "name": "The Fresh Market",
+      "country": "US",
+      "vertical": "grocery",
+      "structural_class": "json-ld",
+      "studio_collector_id": null,
+      "why_locked": "Specialty national grocer, 9/10 basket categories, server-rendered json-ld reachable without the Unlocker. Highest-scoring authentic US grocer after Dierbergs.",
+      "risk": "low",
+      "substitute": "us-hmart"
+    },
+    {
+      "id": "us-wegmans",
+      "name": "Wegmans",
+      "country": "US",
+      "vertical": "grocery",
+      "structural_class": "spa-with-state",
+      "studio_collector_id": null,
+      "why_locked": "Major regional grocer that ships prices inside embedded page state rather than markup - a distinct extraction shape from the json-ld sites, and a realistic breakage mode.",
+      "risk": "medium",
+      "substitute": "us-hmart",
+      "caveat": "Only 4/10 basket categories surfaced from its sitemap; confirm SKU coverage before relying on it for the index."
+    },
+    {
+      "id": "us-meijer",
+      "name": "Meijer",
+      "country": "US",
+      "vertical": "grocery",
+      "structural_class": "bare-html",
+      "studio_collector_id": null,
+      "why_locked": "Midwest supercenter, 8/10 basket categories, plain HTML pricing with no structured data - the bare-HTML shape on the US side. Promoted from the bench after Grocery Outlet failed the lock audit.",
+      "risk": "medium",
+      "substitute": "us-keyfood",
+      "caveat": "Needs the Web Unlocker on every run, so it is the only locked site with a per-run credit cost. Budget for it in the scheduler."
+    }
+  ],
+  "always_in_fleet": [
+    {
+      "id": "clone-parkers-pantry",
+      "name": "Parker's Pantry",
+      "country": "US",
+      "source": "local",
+      "why_locked": "The clone store on the VPS subdomain. Disclosed test rig with a layout-mutation switch; it is the scripted break-detect-heal demo centerpiece per docs/prd.md section 2.5, not a real retailer, so it is not scored in the registry.",
+      "risk": "none"
+    }
+  ],
+  "bench": {
+    "_comment": "Named substitutes, already vetted, promote without re-running discovery.",
+    "PH": [
+      "ph-southstar",
+      "ph-snr",
+      "ph-medsgo",
+      "ph-rosepharmacy"
+    ],
+    "US": [
+      "us-hmart",
+      "us-keyfood",
+      "us-netrition",
+      "us-swanson",
+      "us-smartandfinal"
+    ]
+  },
+  "changelog": [
+    {
+      "date": "2026-08-19",
+      "change": "Replaced us-groceryoutlet with us-meijer",
+      "why": "A clean no-cache re-probe with TLS verification and a tightened price regex reclassified Grocery Outlet from server_rendered to spa_empty. Its original verdict rested on a homepage banner asset (012126_eggs_websitebanner_) that the product-URL scorer mistook for a product page; vet.py now rejects marketing-asset slugs. Meijer was the named bench substitute for the bare-HTML slot."
+    }
+  ]
+}

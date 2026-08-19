@@ -1,4 +1,7 @@
 {
+  "generated_at": "2026-08-19T00:22:40+00:00",
+  "tls_verified": true,
+  "candidates_probed": 129,
   "results": [
     {
       "id": "us-freshdirect",
@@ -11,7 +14,7 @@
         "status": 0,
         "final_url": "https://www.freshdirect.com",
         "bytes": 0,
-        "error": "RemoteProtocolError: <StreamReset stream_id:1, error_code:2, remote_reset:True>",
+        "error": "RemoteProtocolError: <StreamReset stream_id:3, error_code:2, remote_reset:True>",
         "waf": []
       },
       "home_class": "blocked",
@@ -69,7 +72,7 @@
       "home": {
         "status": 200,
         "final_url": "https://www.weee.com/en",
-        "bytes": 468289,
+        "bytes": 470151,
         "error": null,
         "waf": [
           "x-amz-cf-id"
@@ -214,7 +217,7 @@
           "x-akamai-transformed"
         ]
       },
-      "home_class": "server_rendered",
+      "home_class": "spa_empty",
       "robots": {
         "fetched": true,
         "sitemaps": [
@@ -250,7 +253,7 @@
           }
         ],
         "total_urls": 2321,
-        "product_like_urls": 361
+        "product_like_urls": 360
       },
       "basket": {
         "chicken": {
@@ -289,7 +292,7 @@
         {
           "url": "https://www.wegmans.com/shop/featured/summer12026-mailer-Chicken",
           "status": 200,
-          "bytes": 220462,
+          "bytes": 220562,
           "class": "server_rendered",
           "reason": "price present in raw HTML",
           "signals": {
@@ -297,16 +300,16 @@
             "jsonld_price": false,
             "microdata_price": false,
             "meta_price": false,
-            "distinct_currency_strings": 5,
+            "distinct_currency_strings": 3,
             "embedded_state": true,
             "api_paths": [],
-            "bytes": 220462
+            "bytes": 220562
           }
         },
         {
           "url": "https://www.wegmans.com/shop/featured/summer12026-mailer-Pasta-night",
           "status": 200,
-          "bytes": 212320,
+          "bytes": 212220,
           "class": "server_rendered",
           "reason": "price present in raw HTML",
           "signals": {
@@ -314,10 +317,10 @@
             "jsonld_price": false,
             "microdata_price": false,
             "meta_price": false,
-            "distinct_currency_strings": 5,
+            "distinct_currency_strings": 3,
             "embedded_state": true,
             "api_paths": [],
-            "bytes": 212320
+            "bytes": 212220
           }
         },
         {
@@ -344,11 +347,10 @@
       "home": {
         "status": 200,
         "final_url": "https://www.hy-vee.com",
-        "bytes": 56687,
+        "bytes": 56723,
         "error": null,
         "waf": [
           "cf-ray",
-          "cookie:__cf_bm",
           "server:cloudflare"
         ]
       },
@@ -400,7 +402,7 @@
         {
           "url": "https://www.hy-vee.com/aisles-online/browse/bakery/bakery-desserts/bakery-cakes",
           "status": 200,
-          "bytes": 119793,
+          "bytes": 120045,
           "class": "spa_empty",
           "reason": "200 but no price in raw HTML",
           "signals": {
@@ -411,13 +413,13 @@
             "distinct_currency_strings": 0,
             "embedded_state": true,
             "api_paths": [],
-            "bytes": 119793
+            "bytes": 120045
           }
         },
         {
           "url": "https://www.hy-vee.com/aisles-online/api/user-details",
           "status": 200,
-          "bytes": 93,
+          "bytes": 144,
           "class": "spa_empty",
           "reason": "200 but no price in raw HTML",
           "signals": {
@@ -428,7 +430,7 @@
             "distinct_currency_strings": 0,
             "embedded_state": false,
             "api_paths": [],
-            "bytes": 93
+            "bytes": 144
           }
         },
         {
@@ -442,7 +444,7 @@
             "jsonld_price": false,
             "microdata_price": false,
             "meta_price": false,
-            "distinct_currency_strings": 1,
+            "distinct_currency_strings": 0,
             "embedded_state": false,
             "api_paths": [],
             "bytes": 52143
@@ -523,7 +525,7 @@
       "home": {
         "status": 200,
         "final_url": "https://www.gianteagle.com",
-        "bytes": 12916,
+        "bytes": 12787,
         "error": null,
         "waf": [
           "x-amz-cf-id"
@@ -792,9 +794,9 @@
         ]
       },
       "discovery": {
-        "via": "sitemap",
+        "via": "none",
         "categories_crawled": [
-          "https://www.gianteagle.com/assets/shoppingCart-DkyP4oHr.js"
+          "https://www.gianteagle.com/assets/shoppingCart-spqVaYb_.js"
         ]
       },
       "sitemap": {
@@ -830,7 +832,6 @@
         "error": null,
         "waf": [
           "cf-ray",
-          "cookie:__cf_bm",
           "server:cloudflare"
         ]
       },
@@ -1069,7 +1070,7 @@
       "home": {
         "status": 200,
         "final_url": "https://www.sprouts.com",
-        "bytes": 251015,
+        "bytes": 251210,
         "error": null,
         "waf": [
           "cf-ray",
@@ -1186,7 +1187,7 @@
         }
       ],
       "verdict_class": "spa_empty",
-      "structural_class": "unknown",
+      "structural_class": "spa-opaque",
       "evidence_url": "https://www.sprouts.com/store/tx/san-antonio/161-san-antonio-hwy-151/",
       "robots_allows_product": true
     },
@@ -1200,7 +1201,7 @@
       "home": {
         "status": 200,
         "final_url": "https://www.shopmarketbasket.com",
-        "bytes": 73545,
+        "bytes": 73563,
         "error": null,
         "waf": [
           "cf-ray",
@@ -1254,7 +1255,7 @@
           }
         ],
         "total_urls": 2776,
-        "product_like_urls": 2292
+        "product_like_urls": 2283
       },
       "basket": {
         "cooking_oil": {
@@ -1351,7 +1352,7 @@
         {
           "url": "https://www.shopmarketbasket.com/product/tessera-extra-virgin-greek-olive-oil-101-4-oz/",
           "status": 200,
-          "bytes": 69518,
+          "bytes": 69522,
           "class": "blocked",
           "reason": "http 200 challenge:access denied",
           "signals": {}
@@ -1359,7 +1360,7 @@
         {
           "url": "https://www.shopmarketbasket.com/product/market-basket-large-brown-cage-free-eggs-18-pack/",
           "status": 200,
-          "bytes": 69748,
+          "bytes": 69744,
           "class": "blocked",
           "reason": "http 200 challenge:access denied",
           "signals": {}
@@ -1367,7 +1368,7 @@
         {
           "url": "https://www.shopmarketbasket.com/product/snuggle-fabric-softener-sheets-200-count/",
           "status": 200,
-          "bytes": 69504,
+          "bytes": 69501,
           "class": "blocked",
           "reason": "http 200 challenge:access denied",
           "signals": {}
@@ -1571,7 +1572,7 @@
         }
       ],
       "verdict_class": "spa_empty",
-      "structural_class": "unknown",
+      "structural_class": "spa-opaque",
       "evidence_url": "https://www.pricechopper.com/about-us/customer-service/product-recalls/",
       "robots_allows_product": true
     },
@@ -1585,7 +1586,7 @@
       "home": {
         "status": 200,
         "final_url": "https://www.groceryoutlet.com",
-        "bytes": 235162,
+        "bytes": 235160,
         "error": null,
         "waf": [
           "cf-ray",
@@ -1594,7 +1595,7 @@
           "x-amz-cf-id"
         ]
       },
-      "home_class": "server_rendered",
+      "home_class": "spa_empty",
       "robots": {
         "fetched": true,
         "sitemaps": [
@@ -1644,94 +1645,82 @@
           }
         ],
         "total_urls": 2230,
-        "product_like_urls": 1035
+        "product_like_urls": 792
       },
       "basket": {
-        "eggs": {
-          "count": 3,
-          "samples": [
-            "https://www.groceryoutlet.com/home-page-grocery-outlet/012126_eggs_websitebanner_",
-            "https://www.groceryoutlet.com/home-page-grocery-outlet/031126_eggs_websitebanner",
-            "https://www.groceryoutlet.com/home-page-grocery-outlet/081426_egg_chicken_websitebanner"
-          ],
-          "sample": "https://www.groceryoutlet.com/home-page-grocery-outlet/012126_eggs_websitebanner_"
-        },
-        "chicken": {
-          "count": 4,
-          "samples": [
-            "https://www.groceryoutlet.com/home-page-grocery-outlet/031126_chicken_websitebanner",
-            "https://www.groceryoutlet.com/home-page-grocery-outlet/051326_chicken_drumsticks_websitebanner",
-            "https://www.groceryoutlet.com/home-page-grocery-outlet/061026_chicken_wings_websitebanner"
-          ],
-          "sample": "https://www.groceryoutlet.com/home-page-grocery-outlet/031126_chicken_websitebanner"
-        },
         "pasta": {
-          "count": 4,
+          "count": 2,
           "samples": [
             "https://www.groceryoutlet.com/home-page-grocery-outlet/app-only_b1g1-pasta_webslider",
-            "https://www.groceryoutlet.com/app-old/pasta_promo_app_landing_page",
-            "https://www.groceryoutlet.com/home-page-grocery-outlet/simplygo-pasta-sauce_websitebanner"
+            "https://www.groceryoutlet.com/app-old/pasta_promo_app_landing_page"
           ],
           "sample": "https://www.groceryoutlet.com/home-page-grocery-outlet/app-only_b1g1-pasta_webslider"
+        },
+        "chicken": {
+          "count": 1,
+          "samples": [
+            "https://www.groceryoutlet.com/xvstockupshow/buffalo-chicken-recipe-image"
+          ],
+          "sample": "https://www.groceryoutlet.com/xvstockupshow/buffalo-chicken-recipe-image"
         }
       },
-      "basket_coverage": 3,
+      "basket_coverage": 2,
       "product_probes": [
         {
-          "url": "https://www.groceryoutlet.com/home-page-grocery-outlet/012126_eggs_websitebanner_",
+          "url": "https://www.groceryoutlet.com/home-page-grocery-outlet/app-only_b1g1-pasta_webslider",
           "status": 200,
-          "bytes": 223672,
-          "class": "server_rendered",
-          "reason": "price present in raw HTML",
+          "bytes": 223784,
+          "class": "spa_empty",
+          "reason": "200 but no price in raw HTML",
           "signals": {
             "jsonld_product": false,
             "jsonld_price": false,
             "microdata_price": false,
             "meta_price": false,
-            "distinct_currency_strings": 3,
+            "distinct_currency_strings": 1,
             "embedded_state": false,
             "api_paths": [],
-            "bytes": 223672
+            "bytes": 223784
           }
         },
         {
-          "url": "https://www.groceryoutlet.com/home-page-grocery-outlet/031126_chicken_websitebanner",
+          "url": "https://www.groceryoutlet.com/xvstockupshow/buffalo-chicken-recipe-image",
           "status": 200,
-          "bytes": 223778,
-          "class": "server_rendered",
-          "reason": "price present in raw HTML",
+          "bytes": 223552,
+          "class": "spa_empty",
+          "reason": "200 but no price in raw HTML",
           "signals": {
             "jsonld_product": false,
             "jsonld_price": false,
             "microdata_price": false,
             "meta_price": false,
-            "distinct_currency_strings": 4,
+            "distinct_currency_strings": 1,
             "embedded_state": false,
             "api_paths": [],
-            "bytes": 223778
+            "bytes": 223552
           }
         },
         {
           "url": "https://www.groceryoutlet.com/home-page-grocery-outlet/grocery_outlet_circular_template_080316",
           "status": 200,
-          "bytes": 223963,
-          "class": "server_rendered",
-          "reason": "price present in raw HTML",
+          "bytes": 223964,
+          "class": "spa_empty",
+          "reason": "200 but no price in raw HTML",
           "signals": {
             "jsonld_product": false,
             "jsonld_price": false,
             "microdata_price": false,
             "meta_price": false,
-            "distinct_currency_strings": 3,
+            "distinct_currency_strings": 1,
             "embedded_state": false,
             "api_paths": [],
-            "bytes": 223963
+            "bytes": 223964
           }
         }
       ],
-      "verdict_class": "server_rendered",
-      "structural_class": "bare-html",
-      "evidence_url": "https://www.groceryoutlet.com/home-page-grocery-outlet/012126_eggs_websitebanner_",
+      "verdict_class": "spa_empty",
+      "structural_class": "spa-opaque",
+      "evidence_url": "https://www.groceryoutlet.com/home-page-grocery-outlet/app-only_b1g1-pasta_webslider",
       "robots_allows_product": true
     },
     {
@@ -1744,15 +1733,13 @@
       "home": {
         "status": 200,
         "final_url": "https://www.heb.com",
-        "bytes": 212,
+        "bytes": 1033,
         "error": null,
         "waf": [
-          "cookie:incap_ses",
-          "cookie:visid_incap",
           "x-iinfo"
         ]
       },
-      "home_class": "spa_empty",
+      "home_class": "blocked",
       "robots": {
         "fetched": true,
         "sitemaps": [
@@ -1811,7 +1798,7 @@
           {
             "url": "https://www.heb.com/sitemap.txt",
             "status": 404,
-            "bytes": 120864
+            "bytes": 121115
           },
           {
             "url": "https://www.heb.com/sitemap-index.xml",
@@ -1825,7 +1812,7 @@
       "basket": {},
       "basket_coverage": 0,
       "product_probes": [],
-      "verdict_class": "no_product_urls",
+      "verdict_class": "blocked",
       "structural_class": "unknown",
       "evidence_url": null,
       "robots_allows_product": true
@@ -1905,7 +1892,6 @@
         "error": null,
         "waf": [
           "cf-ray",
-          "cookie:__cf_bm",
           "server:cloudflare"
         ]
       },
@@ -1968,7 +1954,6 @@
         "error": null,
         "waf": [
           "cf-ray",
-          "cookie:__cf_bm",
           "server:cloudflare"
         ]
       },
@@ -2090,7 +2075,7 @@
         "status": 0,
         "final_url": "https://www.harristeeter.com",
         "bytes": 0,
-        "error": "RemoteProtocolError: <StreamReset stream_id:1, error_code:2, remote_reset:True>",
+        "error": "RemoteProtocolError: <StreamReset stream_id:3, error_code:2, remote_reset:True>",
         "waf": []
       },
       "home_class": "blocked",
@@ -2246,7 +2231,7 @@
         }
       ],
       "verdict_class": "spa_empty",
-      "structural_class": "unknown",
+      "structural_class": "spa-opaque",
       "evidence_url": "https://www.topsmarkets.com/Wellness/Refills_And_Transfers/",
       "robots_allows_product": true
     },
@@ -2302,13 +2287,13 @@
           {
             "url": "https://lidl.com/p/export/US/en/product_sitemap.xml.gz",
             "status": 200,
-            "bytes": 64657,
+            "bytes": 65548,
             "nested": true
           },
           {
             "url": "https://www.lidl.com/explore/assets/s/pages_en-US_us.xml.gz",
             "status": 200,
-            "bytes": 6938,
+            "bytes": 6945,
             "nested": true
           },
           {
@@ -2353,7 +2338,7 @@
       "home": {
         "status": 200,
         "final_url": "https://www.aldi.us/store/aldi/storefront",
-        "bytes": 1047791,
+        "bytes": 1048894,
         "error": null,
         "waf": [
           "server:nginx",
@@ -2408,7 +2393,7 @@
           }
         ],
         "total_urls": 16465,
-        "product_like_urls": 13993
+        "product_like_urls": 13984
       },
       "basket": {
         "milk": {
@@ -2448,7 +2433,7 @@
           "sample": "https://www.aldi.us/store/aldi/products/16290734-senor-rico-rice-pudding-15-oz"
         },
         "bananas": {
-          "count": 37,
+          "count": 36,
           "samples": [
             "https://www.aldi.us/store/aldi/products/30437-barnana-organic-chewy-chocolate-banana-bites-3-5-oz",
             "https://www.aldi.us/store/aldi/products/20123045-friendly-farms-strawberry-banana-original-lowfat-yogurt-6-oz",
@@ -2484,7 +2469,7 @@
           "sample": "https://www.aldi.us/store/aldi/products/46081445-fishwife-limmed-seafood-co-wild-caught-albacore-tuna-in-spicy-olive-oil-3-2-oz"
         },
         "eggs": {
-          "count": 88,
+          "count": 85,
           "samples": [
             "https://www.aldi.us/store/aldi/products/17498616-simply-nature-organic-cage-free-brown-eggs-12-ct",
             "https://www.aldi.us/store/aldi/products/19873761-goldhen-large-grade-a-free-range-brown-eggs-12-ct",
@@ -2507,7 +2492,7 @@
         {
           "url": "https://www.aldi.us/store/aldi/products/5643-m-m-s-peanuts-milk-chocolate-candies-1-7-oz",
           "status": 200,
-          "bytes": 472438,
+          "bytes": 473488,
           "class": "server_rendered",
           "reason": "price present in raw HTML",
           "signals": {
@@ -2515,16 +2500,16 @@
             "jsonld_price": true,
             "microdata_price": false,
             "meta_price": false,
-            "distinct_currency_strings": 3,
+            "distinct_currency_strings": 2,
             "embedded_state": false,
             "api_paths": [],
-            "bytes": 472438
+            "bytes": 473488
           }
         },
         {
           "url": "https://www.aldi.us/store/aldi/products/20391805-kellogg-s-pop-tarts-toaster-pastries-breakfast-foods-baked-in-the-usa-frosted-brown-sugar-20-3-oz",
           "status": 200,
-          "bytes": 329131,
+          "bytes": 330208,
           "class": "spa_empty",
           "reason": "200 but no price in raw HTML",
           "signals": {
@@ -2532,16 +2517,16 @@
             "jsonld_price": false,
             "microdata_price": false,
             "meta_price": false,
-            "distinct_currency_strings": 1,
+            "distinct_currency_strings": 0,
             "embedded_state": false,
             "api_paths": [],
-            "bytes": 329131
+            "bytes": 330208
           }
         },
         {
           "url": "https://www.aldi.us/store/aldi/products/212877-taj-n-classic-seasoning-with-lime-5-oz",
           "status": 200,
-          "bytes": 449039,
+          "bytes": 450231,
           "class": "server_rendered",
           "reason": "price present in raw HTML",
           "signals": {
@@ -2549,10 +2534,10 @@
             "jsonld_price": true,
             "microdata_price": false,
             "meta_price": false,
-            "distinct_currency_strings": 3,
+            "distinct_currency_strings": 2,
             "embedded_state": false,
             "api_paths": [],
-            "bytes": 449039
+            "bytes": 450231
           }
         }
       ],
@@ -2571,7 +2556,7 @@
       "home": {
         "status": 200,
         "final_url": "https://www.naturalgrocers.com",
-        "bytes": 211318,
+        "bytes": 211126,
         "error": null,
         "waf": [
           "cf-ray",
@@ -2671,11 +2656,11 @@
           {
             "url": "http://www.naturalgrocers.com/events/sitemap.xml",
             "status": 200,
-            "bytes": 111904,
+            "bytes": 115001,
             "nested": true
           }
         ],
-        "total_urls": 1588,
+        "total_urls": 1603,
         "product_like_urls": 7
       },
       "basket": {},
@@ -2684,7 +2669,7 @@
         {
           "url": "http://www.naturalgrocers.com/health-hotline-issue/august-2026-health-hotline-magazine-issue-109",
           "status": 200,
-          "bytes": 261913,
+          "bytes": 261902,
           "class": "spa_empty",
           "reason": "200 but no price in raw HTML",
           "signals": {
@@ -2695,13 +2680,13 @@
             "distinct_currency_strings": 0,
             "embedded_state": false,
             "api_paths": [],
-            "bytes": 261913
+            "bytes": 261902
           }
         },
         {
           "url": "http://www.naturalgrocers.com/standards/100-organic-produce-standards",
           "status": 200,
-          "bytes": 203209,
+          "bytes": 203205,
           "class": "spa_empty",
           "reason": "200 but no price in raw HTML",
           "signals": {
@@ -2712,13 +2697,13 @@
             "distinct_currency_strings": 0,
             "embedded_state": false,
             "api_paths": [],
-            "bytes": 203209
+            "bytes": 203205
           }
         },
         {
           "url": "http://www.naturalgrocers.com/standards/bulk-product-standards",
           "status": 200,
-          "bytes": 206896,
+          "bytes": 206895,
           "class": "spa_empty",
           "reason": "200 but no price in raw HTML",
           "signals": {
@@ -2729,12 +2714,12 @@
             "distinct_currency_strings": 0,
             "embedded_state": false,
             "api_paths": [],
-            "bytes": 206896
+            "bytes": 206895
           }
         }
       ],
       "verdict_class": "spa_empty",
-      "structural_class": "unknown",
+      "structural_class": "spa-opaque",
       "evidence_url": "http://www.naturalgrocers.com/health-hotline-issue/august-2026-health-hotline-magazine-issue-109",
       "robots_allows_product": true
     },
@@ -2924,11 +2909,11 @@
       "home": {
         "status": 200,
         "final_url": "https://savemart.com",
-        "bytes": 580805,
+        "bytes": 579152,
         "error": null,
         "waf": []
       },
-      "home_class": "server_rendered",
+      "home_class": "spa_empty",
       "robots": {
         "fetched": true,
         "sitemaps": [
@@ -2965,14 +2950,14 @@
           "url": "https://savemart.com/wp/consumer-information",
           "status": 200,
           "bytes": 438129,
-          "class": "server_rendered",
-          "reason": "price present in raw HTML",
+          "class": "spa_empty",
+          "reason": "200 but no price in raw HTML",
           "signals": {
             "jsonld_product": false,
             "jsonld_price": false,
             "microdata_price": false,
             "meta_price": false,
-            "distinct_currency_strings": 4,
+            "distinct_currency_strings": 2,
             "embedded_state": true,
             "api_paths": [],
             "bytes": 438129
@@ -2981,39 +2966,39 @@
         {
           "url": "https://savemart.com/wp/pick-5-or-more-for-5-each",
           "status": 200,
-          "bytes": 554125,
-          "class": "server_rendered",
-          "reason": "price present in raw HTML",
+          "bytes": 554587,
+          "class": "spa_empty",
+          "reason": "200 but no price in raw HTML",
           "signals": {
             "jsonld_product": false,
             "jsonld_price": false,
             "microdata_price": false,
             "meta_price": false,
-            "distinct_currency_strings": 4,
+            "distinct_currency_strings": 2,
             "embedded_state": true,
             "api_paths": [],
-            "bytes": 554125
+            "bytes": 554587
           }
         },
         {
           "url": "https://savemart.com/wp/californias-proposition-65-warnings",
           "status": 200,
           "bytes": 440839,
-          "class": "server_rendered",
-          "reason": "price present in raw HTML",
+          "class": "spa_empty",
+          "reason": "200 but no price in raw HTML",
           "signals": {
             "jsonld_product": false,
             "jsonld_price": false,
             "microdata_price": false,
             "meta_price": false,
-            "distinct_currency_strings": 3,
+            "distinct_currency_strings": 1,
             "embedded_state": true,
             "api_paths": [],
             "bytes": 440839
           }
         }
       ],
-      "verdict_class": "server_rendered",
+      "verdict_class": "spa_empty",
       "structural_class": "spa-with-state",
       "evidence_url": "https://savemart.com/wp/consumer-information",
       "robots_allows_product": true
@@ -3087,7 +3072,7 @@
       "home": {
         "status": 503,
         "final_url": "https://www.festfoods.com",
-        "bytes": 18072,
+        "bytes": 18070,
         "error": null,
         "waf": [
           "server:nginx"
@@ -3109,22 +3094,22 @@
           {
             "url": "https://www.festfoods.com/sitemap.xml",
             "status": 503,
-            "bytes": 18072
+            "bytes": 18070
           },
           {
             "url": "https://www.festfoods.com/sitemap_index.xml",
             "status": 503,
-            "bytes": 18072
+            "bytes": 18070
           },
           {
             "url": "https://www.festfoods.com/sitemap.txt",
             "status": 503,
-            "bytes": 18072
+            "bytes": 18070
           },
           {
             "url": "https://www.festfoods.com/sitemap-index.xml",
             "status": 503,
-            "bytes": 18072
+            "bytes": 18070
           }
         ],
         "total_urls": 0,
@@ -3148,7 +3133,7 @@
       "home": {
         "status": 200,
         "final_url": "https://www.gelsons.com",
-        "bytes": 204685,
+        "bytes": 206235,
         "error": null,
         "waf": []
       },
@@ -3177,11 +3162,11 @@
           {
             "url": "https://www.gelsons.com/sitemap-0.xml",
             "status": 200,
-            "bytes": 69777,
+            "bytes": 69951,
             "nested": true
           }
         ],
-        "total_urls": 401,
+        "total_urls": 402,
         "product_like_urls": 101
       },
       "basket": {
@@ -3220,7 +3205,7 @@
         {
           "url": "https://www.gelsons.com/recipes-wine-and-food/gelsons-most-popular-coffee-brands",
           "status": 200,
-          "bytes": 92918,
+          "bytes": 93650,
           "class": "spa_empty",
           "reason": "200 but no price in raw HTML",
           "signals": {
@@ -3231,13 +3216,13 @@
             "distinct_currency_strings": 1,
             "embedded_state": true,
             "api_paths": [],
-            "bytes": 92918
+            "bytes": 93650
           }
         },
         {
           "url": "https://www.gelsons.com/announcements/super-special-chicken-recipes",
           "status": 200,
-          "bytes": 97133,
+          "bytes": 97836,
           "class": "spa_empty",
           "reason": "200 but no price in raw HTML",
           "signals": {
@@ -3248,13 +3233,13 @@
             "distinct_currency_strings": 1,
             "embedded_state": true,
             "api_paths": [],
-            "bytes": 97133
+            "bytes": 97836
           }
         },
         {
           "url": "https://www.gelsons.com/announcements/product-recall-announcements",
           "status": 200,
-          "bytes": 79496,
+          "bytes": 80198,
           "class": "spa_empty",
           "reason": "200 but no price in raw HTML",
           "signals": {
@@ -3265,7 +3250,7 @@
             "distinct_currency_strings": 1,
             "embedded_state": true,
             "api_paths": [],
-            "bytes": 79496
+            "bytes": 80198
           }
         }
       ],
@@ -3284,7 +3269,7 @@
       "home": {
         "status": 200,
         "final_url": "https://www.bristolfarms.com",
-        "bytes": 79711,
+        "bytes": 79751,
         "error": null,
         "waf": []
       },
@@ -3308,11 +3293,11 @@
           {
             "url": "https://www.bristolfarms.com/sitemap.xml",
             "status": 200,
-            "bytes": 117140
+            "bytes": 117292
           }
         ],
-        "total_urls": 869,
-        "product_like_urls": 587
+        "total_urls": 870,
+        "product_like_urls": 588
       },
       "basket": {
         "pasta": {
@@ -3429,7 +3414,7 @@
         {
           "url": "https://www.bristolfarms.com/recipes-container/herb-and-lemon-roasted-chicken",
           "status": 200,
-          "bytes": 70725,
+          "bytes": 70268,
           "class": "spa_empty",
           "reason": "200 but no price in raw HTML",
           "signals": {
@@ -3444,13 +3429,13 @@
               "/api/favoritestore/getstore",
               "/api/favoritestore/setstore"
             ],
-            "bytes": 70725
+            "bytes": 70268
           }
         },
         {
-          "url": "https://www.bristolfarms.com/blogs/charcuterie-plate-101",
+          "url": "https://www.bristolfarms.com/recipes-container/froze-227a25c73ec3e7e039a2b3580e44a320",
           "status": 200,
-          "bytes": 62139,
+          "bytes": 66939,
           "class": "spa_empty",
           "reason": "200 but no price in raw HTML",
           "signals": {
@@ -3465,12 +3450,12 @@
               "/api/favoritestore/getstore",
               "/api/favoritestore/setstore"
             ],
-            "bytes": 62139
+            "bytes": 66939
           }
         }
       ],
       "verdict_class": "spa_empty",
-      "structural_class": "unknown",
+      "structural_class": "spa-opaque",
       "evidence_url": "https://www.bristolfarms.com/recipes-container/bell-pepper-and-mozzarella-pasta",
       "robots_allows_product": true
     },
@@ -3549,7 +3534,6 @@
         "error": null,
         "waf": [
           "cf-ray",
-          "cookie:__cf_bm",
           "server:cloudflare"
         ]
       },
@@ -3732,7 +3716,7 @@
       "home": {
         "status": 200,
         "final_url": "https://www.walgreens.com",
-        "bytes": 344833,
+        "bytes": 344888,
         "error": null,
         "waf": [
           "x-akamai-transformed"
@@ -3841,7 +3825,7 @@
         {
           "url": "https://www.walgreens.com/store/c/contact-lenses/ID=350006-tier3contactlens",
           "status": 200,
-          "bytes": 733158,
+          "bytes": 733388,
           "class": "server_rendered",
           "reason": "price present in raw HTML",
           "signals": {
@@ -3849,16 +3833,16 @@
             "jsonld_price": false,
             "microdata_price": false,
             "meta_price": false,
-            "distinct_currency_strings": 15,
+            "distinct_currency_strings": 14,
             "embedded_state": false,
             "api_paths": [],
-            "bytes": 733158
+            "bytes": 733388
           }
         },
         {
           "url": "https://www.walgreens.com/store/c/solutions-drops-and-cases/ID=360305-tier3contactlens",
           "status": 200,
-          "bytes": 686495,
+          "bytes": 686555,
           "class": "server_rendered",
           "reason": "price present in raw HTML",
           "signals": {
@@ -3866,16 +3850,16 @@
             "jsonld_price": false,
             "microdata_price": false,
             "meta_price": false,
-            "distinct_currency_strings": 21,
+            "distinct_currency_strings": 17,
             "embedded_state": false,
             "api_paths": [],
-            "bytes": 686495
+            "bytes": 686555
           }
         },
         {
           "url": "https://www.walgreens.com/store/c/contact-lenses-eye-health-supplements/ID=360307-tier3contactlens",
           "status": 200,
-          "bytes": 648955,
+          "bytes": 648994,
           "class": "server_rendered",
           "reason": "price present in raw HTML",
           "signals": {
@@ -3883,10 +3867,10 @@
             "jsonld_price": false,
             "microdata_price": false,
             "meta_price": false,
-            "distinct_currency_strings": 22,
+            "distinct_currency_strings": 19,
             "embedded_state": false,
             "api_paths": [],
-            "bytes": 648955
+            "bytes": 648994
           }
         }
       ],
@@ -4018,7 +4002,7 @@
           {
             "url": "https://www.healthwarehouse.com/sitemap-index.xml",
             "status": 403,
-            "bytes": 5806
+            "bytes": 5764
           }
         ],
         "total_urls": 0,
@@ -4141,7 +4125,6 @@
         "error": null,
         "waf": [
           "cf-ray",
-          "cookie:__cf_bm",
           "server:cloudflare"
         ]
       },
@@ -4269,13 +4252,13 @@
           {
             "url": "https://www.goodrx.com/sitemaps/drug-price.xml",
             "status": 200,
-            "bytes": 1135275,
+            "bytes": 1135399,
             "nested": true
           },
           {
             "url": "https://www.goodrx.com/sitemaps/drug-info.xml",
             "status": 200,
-            "bytes": 458818,
+            "bytes": 459001,
             "nested": true
           },
           {
@@ -4287,11 +4270,11 @@
           {
             "url": "https://www.goodrx.com/sitemaps/medicare.xml",
             "status": 200,
-            "bytes": 813776,
+            "bytes": 813780,
             "nested": true
           }
         ],
-        "total_urls": 15037,
+        "total_urls": 15038,
         "product_like_urls": 11
       },
       "basket": {},
@@ -4396,7 +4379,7 @@
       "home": {
         "status": 200,
         "final_url": "https://www.vitacost.com",
-        "bytes": 1035888,
+        "bytes": 1035602,
         "error": null,
         "waf": [
           "cf-ray",
@@ -4450,7 +4433,7 @@
           }
         ],
         "total_urls": 3002,
-        "product_like_urls": 3000
+        "product_like_urls": 2999
       },
       "basket": {
         "coffee": {
@@ -4538,7 +4521,7 @@
         {
           "url": "https://www.vitacost.com/products/chike-nutrition-high-protein-iced-coffee-mocha-mint-14-8-oz-420-g-157435",
           "status": 200,
-          "bytes": 681540,
+          "bytes": 681637,
           "class": "server_rendered",
           "reason": "price present in raw HTML",
           "signals": {
@@ -4549,13 +4532,13 @@
             "distinct_currency_strings": 0,
             "embedded_state": false,
             "api_paths": [],
-            "bytes": 681540
+            "bytes": 681637
           }
         },
         {
           "url": "https://www.vitacost.com/products/native-forest-organic-coconut-milk-simple-unsweetened-13-5-fl-oz-398-ml-157913",
           "status": 200,
-          "bytes": 685181,
+          "bytes": 685018,
           "class": "server_rendered",
           "reason": "price present in raw HTML",
           "signals": {
@@ -4566,13 +4549,13 @@
             "distinct_currency_strings": 0,
             "embedded_state": false,
             "api_paths": [],
-            "bytes": 685181
+            "bytes": 685018
           }
         },
         {
           "url": "https://www.vitacost.com/products/zeroid-pimprove-toner-for-oily-troubled-skin-6-76-fl-oz-200-ml-159245",
           "status": 200,
-          "bytes": 664104,
+          "bytes": 663941,
           "class": "server_rendered",
           "reason": "price present in raw HTML",
           "signals": {
@@ -4583,7 +4566,7 @@
             "distinct_currency_strings": 0,
             "embedded_state": false,
             "api_paths": [],
-            "bytes": 664104
+            "bytes": 663941
           }
         }
       ],
@@ -4685,7 +4668,6 @@
           "/*/2132Nature$",
           "/r/*/events",
           "/r/*/eventQueue",
-          "/user/products/recentlyviewed/",
           "/*?*storeid=",
           "/*?*lac=",
           "/*?*ctcpref=",
@@ -4827,7 +4809,7 @@
       "home": {
         "status": 200,
         "final_url": "https://www.swansonvitamins.com/",
-        "bytes": 943278,
+        "bytes": 943851,
         "error": null,
         "waf": [
           "cf-ray",
@@ -4953,7 +4935,7 @@
           }
         ],
         "total_urls": 2736,
-        "product_like_urls": 2734
+        "product_like_urls": 2727
       },
       "basket": {
         "eggs": {
@@ -5038,7 +5020,7 @@
         {
           "url": "https://www.swansonvitamins.com/p/bobs-red-mill-gluten-free-egg-replacer-12-oz-340-grams-pwdr",
           "status": 200,
-          "bytes": 758420,
+          "bytes": 758993,
           "class": "server_rendered",
           "reason": "price present in raw HTML",
           "signals": {
@@ -5051,13 +5033,13 @@
             "api_paths": [
               "/api/check-promo"
             ],
-            "bytes": 758420
+            "bytes": 758993
           }
         },
         {
           "url": "https://www.swansonvitamins.com/p/bobs-red-mill-organic-whole-grain-brown-rice-flour-24-oz-pkg-bob297",
           "status": 200,
-          "bytes": 751235,
+          "bytes": 751808,
           "class": "server_rendered",
           "reason": "price present in raw HTML",
           "signals": {
@@ -5070,13 +5052,13 @@
             "api_paths": [
               "/api/check-promo"
             ],
-            "bytes": 751235
+            "bytes": 751808
           }
         },
         {
           "url": "https://www.swansonvitamins.com/p/ancient-nutrition-bone-broth-collagen-pure-15-9-oz-450-grams-pwdr",
           "status": 200,
-          "bytes": 781009,
+          "bytes": 781582,
           "class": "server_rendered",
           "reason": "price present in raw HTML",
           "signals": {
@@ -5089,7 +5071,7 @@
             "api_paths": [
               "/api/check-promo"
             ],
-            "bytes": 781009
+            "bytes": 781582
           }
         }
       ],
@@ -5108,7 +5090,7 @@
       "home": {
         "status": 200,
         "final_url": "https://netrition.com/",
-        "bytes": 1994635,
+        "bytes": 1994460,
         "error": null,
         "waf": [
           "cf-ray",
@@ -5191,13 +5173,13 @@
           {
             "url": "https://netrition.com/sitemap_products_1.xml?from=7298604204214&amp;to=7298680357046",
             "status": 200,
-            "bytes": 488288,
+            "bytes": 488228,
             "nested": true
           },
           {
             "url": "https://netrition.com/sitemap_products_2.xml?from=7298680488118&amp;to=7640615190710",
             "status": 200,
-            "bytes": 568715,
+            "bytes": 568635,
             "nested": true
           },
           {
@@ -5208,7 +5190,7 @@
           }
         ],
         "total_urls": 2761,
-        "product_like_urls": 2755
+        "product_like_urls": 2746
       },
       "basket": {
         "pasta": {
@@ -5266,7 +5248,7 @@
           "sample": "https://netrition.com/products/proti-diet-15g-hot-protein-breakfast-banana-nut-oatmeal"
         },
         "bread": {
-          "count": 35,
+          "count": 34,
           "samples": [
             "https://netrition.com/products/proti-diet-15g-protein-bars-banana-bread-breakfast",
             "https://netrition.com/products/schmidt-old-tyme-647-bread",
@@ -5275,7 +5257,7 @@
           "sample": "https://netrition.com/products/proti-diet-15g-protein-bars-banana-bread-breakfast"
         },
         "milk": {
-          "count": 15,
+          "count": 14,
           "samples": [
             "https://netrition.com/products/choczero-oasis-milk-chocolate-candy-bar-8-oz",
             "https://netrition.com/products/choczero-bestie-milk-chocolate-candy-bar-8-oz",
@@ -5305,7 +5287,7 @@
         {
           "url": "https://netrition.com/products/kaizen-food-company-low-carb-plant-based-pasta-8-oz-226g",
           "status": 200,
-          "bytes": 1625538,
+          "bytes": 1625524,
           "class": "server_rendered",
           "reason": "price present in raw HTML",
           "signals": {
@@ -5313,10 +5295,10 @@
             "jsonld_price": true,
             "microdata_price": false,
             "meta_price": true,
-            "distinct_currency_strings": 2,
+            "distinct_currency_strings": 0,
             "embedded_state": false,
             "api_paths": [],
-            "bytes": 1625538
+            "bytes": 1625524
           }
         },
         {
@@ -5339,7 +5321,7 @@
         {
           "url": "https://netrition.com/products/bariatric-advantage-chewable-calcium-citrate-tablet-600mg-180ct",
           "status": 200,
-          "bytes": 1504236,
+          "bytes": 1504223,
           "class": "server_rendered",
           "reason": "price present in raw HTML",
           "signals": {
@@ -5350,7 +5332,7 @@
             "distinct_currency_strings": 2,
             "embedded_state": false,
             "api_paths": [],
-            "bytes": 1504236
+            "bytes": 1504223
           }
         }
       ],
@@ -5369,14 +5351,14 @@
       "home": {
         "status": 200,
         "final_url": "https://nuts.com",
-        "bytes": 2054783,
+        "bytes": 2057018,
         "error": null,
         "waf": [
           "cf-ray",
           "server:cloudflare"
         ]
       },
-      "home_class": "server_rendered",
+      "home_class": "spa_empty",
       "robots": {
         "fetched": true,
         "sitemaps": [
@@ -5456,9 +5438,9 @@
             "nested": true
           },
           {
-            "url": "https://nuts.com/sitemap_products_2.xml?from=15088298688534&amp;to=15240152088598",
+            "url": "https://nuts.com/sitemap_products_2.xml?from=15088298688534&amp;to=15241529688086",
             "status": 200,
-            "bytes": 240801,
+            "bytes": 242030,
             "nested": true
           },
           {
@@ -5468,8 +5450,8 @@
             "nested": true
           }
         ],
-        "total_urls": 1513,
-        "product_like_urls": 1447
+        "total_urls": 1515,
+        "product_like_urls": 1449
       },
       "basket": {
         "bananas": {
@@ -5538,7 +5520,7 @@
         {
           "url": "https://nuts.com/products/sweetened-banana-chips",
           "status": 200,
-          "bytes": 2115939,
+          "bytes": 2118801,
           "class": "server_rendered",
           "reason": "price present in raw HTML",
           "signals": {
@@ -5546,18 +5528,18 @@
             "jsonld_price": true,
             "microdata_price": false,
             "meta_price": true,
-            "distinct_currency_strings": 3,
+            "distinct_currency_strings": 2,
             "embedded_state": false,
             "api_paths": [
               "/api/allocator/web/public/v2/allocate"
             ],
-            "bytes": 2115939
+            "bytes": 2118801
           }
         },
         {
           "url": "https://nuts.com/products/milk-chocolate-gummy-bears-single-serve",
           "status": 200,
-          "bytes": 2112428,
+          "bytes": 2115290,
           "class": "server_rendered",
           "reason": "price present in raw HTML",
           "signals": {
@@ -5565,18 +5547,18 @@
             "jsonld_price": true,
             "microdata_price": false,
             "meta_price": true,
-            "distinct_currency_strings": 3,
+            "distinct_currency_strings": 2,
             "embedded_state": false,
             "api_paths": [
               "/api/allocator/web/public/v2/allocate"
             ],
-            "bytes": 2112428
+            "bytes": 2115290
           }
         },
         {
           "url": "https://nuts.com/products/the-worlds-finest-mixed-nuts-2-lbs",
           "status": 200,
-          "bytes": 2064809,
+          "bytes": 2067046,
           "class": "server_rendered",
           "reason": "price present in raw HTML",
           "signals": {
@@ -5584,12 +5566,12 @@
             "jsonld_price": true,
             "microdata_price": false,
             "meta_price": true,
-            "distinct_currency_strings": 3,
+            "distinct_currency_strings": 2,
             "embedded_state": false,
             "api_paths": [
               "/api/allocator/web/public/v2/allocate"
             ],
-            "bytes": 2064809
+            "bytes": 2067046
           }
         }
       ],
@@ -5643,12 +5625,12 @@
           {
             "url": "https://www.luckyvitamin.com/sitemap.txt",
             "status": 403,
-            "bytes": 5888
+            "bytes": 5931
           },
           {
             "url": "https://www.luckyvitamin.com/sitemap-index.xml",
             "status": 403,
-            "bytes": 5906
+            "bytes": 5949
           }
         ],
         "total_urls": 0,
@@ -5672,7 +5654,7 @@
       "home": {
         "status": 200,
         "final_url": "https://thrivemarket.com",
-        "bytes": 710788,
+        "bytes": 708135,
         "error": null,
         "waf": [
           "server:nginx",
@@ -5708,11 +5690,11 @@
           {
             "url": "https://thrivemarket.com/sitemap.xml",
             "status": 200,
-            "bytes": 2691291
+            "bytes": 2686432
           }
         ],
-        "total_urls": 15732,
-        "product_like_urls": 9100
+        "total_urls": 15702,
+        "product_like_urls": 9062
       },
       "basket": {
         "chicken": {
@@ -5778,15 +5760,6 @@
           ],
           "sample": "https://thrivemarket.com/p/kabrita-goat-milk-infant-formula-0-12-months-28-oz-container"
         },
-        "bread": {
-          "count": 87,
-          "samples": [
-            "https://thrivemarket.com/p/hero-bread-hero-classic-burger-buns-8ct",
-            "https://thrivemarket.com/p/hero-bread-hero-hawaiian-rolls-12ct",
-            "https://thrivemarket.com/p/brazi-bites-brazilian-cheese-bread-garlic-asiago-21350"
-          ],
-          "sample": "https://thrivemarket.com/p/hero-bread-hero-classic-burger-buns-8ct"
-        },
         "eggs": {
           "count": 22,
           "samples": [
@@ -5797,13 +5770,22 @@
           "sample": "https://thrivemarket.com/p/mason-dixie-foods-croissant-sandwich-with-sausage-egg-cheese-2-pack"
         },
         "bananas": {
-          "count": 83,
+          "count": 82,
           "samples": [
             "https://thrivemarket.com/p/thats-it-mini-fruit-bar-variety-pack-banana-blueberry-mango-36ct-25-2-ounces",
             "https://thrivemarket.com/p/bark-bistro-barkin-banana-peanut-buddy-budder-for-dogs-4-oz-pouch",
             "https://thrivemarket.com/p/mamma-chia-chia-squeeze-strawberry-banana"
           ],
           "sample": "https://thrivemarket.com/p/thats-it-mini-fruit-bar-variety-pack-banana-blueberry-mango-36ct-25-2-ounces"
+        },
+        "bread": {
+          "count": 82,
+          "samples": [
+            "https://thrivemarket.com/p/brazi-bites-brazilian-cheese-bread-garlic-asiago-21350",
+            "https://thrivemarket.com/p/simple-mills-almond-flour-artisan-bread-mix",
+            "https://thrivemarket.com/p/schar-artisan-baker-white-bread"
+          ],
+          "sample": "https://thrivemarket.com/p/brazi-bites-brazilian-cheese-bread-garlic-asiago-21350"
         }
       },
       "basket_coverage": 10,
@@ -5811,7 +5793,7 @@
         {
           "url": "https://thrivemarket.com/p/serenity-kids-free-range-chicken-with-organic-peas-and-carrots-6-pack-six-3-5-oz-pouches",
           "status": 200,
-          "bytes": 1366481,
+          "bytes": 1366566,
           "class": "server_rendered",
           "reason": "price present in raw HTML",
           "signals": {
@@ -5819,16 +5801,16 @@
             "jsonld_price": true,
             "microdata_price": false,
             "meta_price": true,
-            "distinct_currency_strings": 7,
+            "distinct_currency_strings": 3,
             "embedded_state": true,
             "api_paths": [],
-            "bytes": 1366481
+            "bytes": 1366566
           }
         },
         {
           "url": "https://thrivemarket.com/p/wandering-bear-coffee-cold-brew-coffee-on-tap-straight-black-96-oz",
           "status": 200,
-          "bytes": 1317686,
+          "bytes": 1317778,
           "class": "server_rendered",
           "reason": "price present in raw HTML",
           "signals": {
@@ -5836,16 +5818,16 @@
             "jsonld_price": true,
             "microdata_price": false,
             "meta_price": true,
-            "distinct_currency_strings": 5,
+            "distinct_currency_strings": 1,
             "embedded_state": true,
             "api_paths": [],
-            "bytes": 1317686
+            "bytes": 1317778
           }
         },
         {
           "url": "https://thrivemarket.com/p/nordic-naturals-nordic-berries-200ct",
           "status": 200,
-          "bytes": 1236427,
+          "bytes": 1236514,
           "class": "server_rendered",
           "reason": "price present in raw HTML",
           "signals": {
@@ -5853,10 +5835,10 @@
             "jsonld_price": true,
             "microdata_price": false,
             "meta_price": true,
-            "distinct_currency_strings": 6,
+            "distinct_currency_strings": 2,
             "embedded_state": true,
             "api_paths": [],
-            "bytes": 1236427
+            "bytes": 1236514
           }
         }
       ],
@@ -5875,7 +5857,7 @@
       "home": {
         "status": 200,
         "final_url": "https://www.publicgoods.com",
-        "bytes": 946598,
+        "bytes": 946639,
         "error": null,
         "waf": [
           "cf-ray",
@@ -6053,7 +6035,7 @@
         {
           "url": "https://www.publicgoods.com/products/vacuum-bottle-17oz-white",
           "status": 200,
-          "bytes": 743107,
+          "bytes": 743187,
           "class": "server_rendered",
           "reason": "price present in raw HTML",
           "signals": {
@@ -6064,7 +6046,7 @@
             "distinct_currency_strings": 11,
             "embedded_state": false,
             "api_paths": [],
-            "bytes": 743107
+            "bytes": 743187
           }
         }
       ],
@@ -6083,7 +6065,7 @@
       "home": {
         "status": 200,
         "final_url": "https://www.pipingrock.com/en-ph",
-        "bytes": 2169915,
+        "bytes": 2169919,
         "error": null,
         "waf": [
           "cf-ray",
@@ -6175,18 +6157,18 @@
           {
             "url": "https://www.pipingrock.com/sitemap_products_2.xml?from=8126829428974&amp;to=9167097594094",
             "status": 200,
-            "bytes": 572449,
+            "bytes": 572543,
             "nested": true
           },
           {
             "url": "https://www.pipingrock.com/sitemap_products_3.xml?from=9167098904814&amp;to=9473612579054",
             "status": 200,
-            "bytes": 86686,
+            "bytes": 86604,
             "nested": true
           }
         ],
         "total_urls": 2147,
-        "product_like_urls": 2144
+        "product_like_urls": 2138
       },
       "basket": {
         "sugar": {
@@ -6251,7 +6233,7 @@
         {
           "url": "https://www.pipingrock.com/products/meal-replacement-shake-nutrafit-vanilla-sugar-cookie-228-lb-1035-kg-bottle-20111",
           "status": 200,
-          "bytes": 2004358,
+          "bytes": 1994418,
           "class": "server_rendered",
           "reason": "price present in raw HTML",
           "signals": {
@@ -6262,7 +6244,7 @@
             "distinct_currency_strings": 1,
             "embedded_state": false,
             "api_paths": [],
-            "bytes": 2004358
+            "bytes": 1994418
           }
         },
         {
@@ -6276,7 +6258,7 @@
             "jsonld_price": true,
             "microdata_price": false,
             "meta_price": true,
-            "distinct_currency_strings": 2,
+            "distinct_currency_strings": 1,
             "embedded_state": false,
             "api_paths": [],
             "bytes": 1947908
@@ -6293,7 +6275,7 @@
             "jsonld_price": true,
             "microdata_price": false,
             "meta_price": true,
-            "distinct_currency_strings": 2,
+            "distinct_currency_strings": 1,
             "embedded_state": false,
             "api_paths": [],
             "bytes": 1985069
@@ -6600,7 +6582,6 @@
         "error": null,
         "waf": [
           "cf-ray",
-          "cookie:__cf_bm",
           "server:cloudflare"
         ]
       },
@@ -6813,7 +6794,7 @@
         {
           "url": "https://www.webstaurantstore.com/53/coffee-and-espresso.html",
           "status": 200,
-          "bytes": 588384,
+          "bytes": 588064,
           "class": "server_rendered",
           "reason": "price present in raw HTML",
           "signals": {
@@ -6824,7 +6805,7 @@
             "distinct_currency_strings": 20,
             "embedded_state": false,
             "api_paths": [],
-            "bytes": 588384
+            "bytes": 588064
           }
         },
         {
@@ -6855,7 +6836,7 @@
             "jsonld_price": true,
             "microdata_price": false,
             "meta_price": true,
-            "distinct_currency_strings": 5,
+            "distinct_currency_strings": 4,
             "embedded_state": false,
             "api_paths": [],
             "bytes": 298024
@@ -6877,7 +6858,7 @@
       "home": {
         "status": 200,
         "final_url": "https://www.hmart.com",
-        "bytes": 4774824,
+        "bytes": 4800411,
         "error": null,
         "waf": [
           "server:nginx",
@@ -7010,7 +6991,7 @@
         {
           "url": "https://www.hmart.com/rice---grain/rice-up-to-10lb",
           "status": 200,
-          "bytes": 1776338,
+          "bytes": 1778709,
           "class": "server_rendered",
           "reason": "price present in raw HTML",
           "signals": {
@@ -7021,7 +7002,7 @@
             "distinct_currency_strings": 2,
             "embedded_state": false,
             "api_paths": [],
-            "bytes": 1776338
+            "bytes": 1778709
           }
         },
         {
@@ -7280,7 +7261,7 @@
         }
       ],
       "verdict_class": "spa_empty",
-      "structural_class": "unknown",
+      "structural_class": "spa-opaque",
       "evidence_url": "https://www.patelbros.com/indian-recipes/achari-chicken-recipe-spicy-achar-curry-with-chicken-traditional-north-indian-recipe",
       "robots_allows_product": true
     },
@@ -7448,7 +7429,7 @@
         }
       ],
       "verdict_class": "spa_empty",
-      "structural_class": "unknown",
+      "structural_class": "spa-opaque",
       "evidence_url": "http://www.seafoodcity.com/sugar-land",
       "robots_allows_product": true
     },
@@ -7612,7 +7593,7 @@
           }
         ],
         "total_urls": 17032,
-        "product_like_urls": 17032
+        "product_like_urls": 17013
       },
       "basket": {
         "cooking_oil": {
@@ -7652,7 +7633,7 @@
           "sample": "https://www.landers.ph/baby-kids-toys/anmum-materna-chocolate-powdered-milk-drink-375g-131210-24360"
         },
         "bananas": {
-          "count": 40,
+          "count": 39,
           "samples": [
             "https://www.landers.ph/baby-kids-toys/gerber-banana-blueberry-puree-99g-136788-29971",
             "https://www.landers.ph/baby-kids-toys/gerber-puffs-banana-cereal-snack-42g-102916-11585",
@@ -7688,7 +7669,7 @@
           "sample": "https://www.landers.ph/bakery/nature-s-intent-sugar-free-keto-bombs-350g-145592-39889"
         },
         "eggs": {
-          "count": 55,
+          "count": 54,
           "samples": [
             "https://www.landers.ph/chocolates-candies-sweets/4d-gummy-egg-hunt-flavored-candy-48g-146133-40178",
             "https://www.landers.ph/chocolates-candies-sweets/cadbury-mini-eggs-milk-chocolate-1-19kg-141239-34402",
@@ -7761,7 +7742,7 @@
         }
       ],
       "verdict_class": "spa_empty",
-      "structural_class": "unknown",
+      "structural_class": "spa-opaque",
       "evidence_url": "https://www.landers.ph/anti-hoarding-and-anti-panic-buying-list/baguio-canola-oil-1-5l-115977-6990",
       "robots_allows_product": true
     },
@@ -7833,18 +7814,18 @@
           {
             "url": "https://smmarkets.ph/media/sitemap-1-1.xml",
             "status": 200,
-            "bytes": 10496458,
+            "bytes": 10495870,
             "nested": true
           },
           {
             "url": "https://smmarkets.ph/media/sitemap-1-2.xml",
             "status": 200,
-            "bytes": 2524688,
+            "bytes": 2525524,
             "nested": true
           }
         ],
         "total_urls": 9414,
-        "product_like_urls": 9084
+        "product_like_urls": 9076
       },
       "basket": {
         "bananas": {
@@ -7866,7 +7847,7 @@
           "sample": "https://smmarkets.ph/10192436-nestle-cerelac-baby-food-wheat-banana-milk-120g.html"
         },
         "sugar": {
-          "count": 48,
+          "count": 46,
           "samples": [
             "https://smmarkets.ph/20021955-peotraco-regular-confectioners-sugar-450g.html",
             "https://smmarkets.ph/20021956-peotraco-premium-confectioners-sugar-450g.html",
@@ -7929,7 +7910,7 @@
           "sample": "https://smmarkets.ph/20079012-del-monte-carbonara-pasta-sauce-200g.html"
         },
         "eggs": {
-          "count": 56,
+          "count": 55,
           "samples": [
             "https://smmarkets.ph/10217516-lauras-egg-cracklet-20g-10pcs.html",
             "https://smmarkets.ph/10060885-laurias-egg-cracklet-150g.html",
@@ -7993,7 +7974,7 @@
         }
       ],
       "verdict_class": "spa_empty",
-      "structural_class": "unknown",
+      "structural_class": "spa-opaque",
       "evidence_url": "https://smmarkets.ph/20078619-gerber-baby-food-banana-puree-80g.html",
       "robots_allows_product": true
     },
@@ -8094,7 +8075,7 @@
         }
       ],
       "verdict_class": "spa_empty",
-      "structural_class": "unknown",
+      "structural_class": "spa-opaque",
       "evidence_url": "https://www.robinsonssupermarket.com.ph/news-press/order-your-robinsons-supermarket-groceries-online",
       "robots_allows_product": true
     },
@@ -8106,123 +8087,55 @@
       "homepage": "https://www.puregold.com.ph",
       "why": "PH mass-market grocer; confirmed 200 but Joomla corporate site - find the shop subdomain",
       "home": {
-        "status": 200,
+        "status": 0,
         "final_url": "https://www.puregold.com.ph",
-        "bytes": 47869,
-        "error": null,
+        "bytes": 0,
+        "error": "ConnectError: [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1010)",
         "waf": []
       },
-      "home_class": "spa_empty",
+      "home_class": "blocked",
       "robots": {
-        "fetched": true,
+        "fetched": false,
         "sitemaps": [],
-        "disallow_star": [
-          "/administrator/",
-          "/api/",
-          "/bin/",
-          "/cache/",
-          "/cli/",
-          "/components/",
-          "/includes/",
-          "/installation/",
-          "/language/",
-          "/layouts/",
-          "/libraries/",
-          "/logs/",
-          "/modules/",
-          "/plugins/",
-          "/tmp/"
-        ],
+        "disallow_star": [],
         "allow_star": []
       },
       "discovery": {
-        "via": "sitemap",
+        "via": "none",
         "categories_crawled": []
       },
       "sitemap": {
         "tried": [
           {
             "url": "https://www.puregold.com.ph/sitemap.xml",
-            "status": 404,
-            "bytes": 282
+            "status": 0,
+            "bytes": 0
           },
           {
             "url": "https://www.puregold.com.ph/sitemap_index.xml",
-            "status": 404,
-            "bytes": 282
+            "status": 0,
+            "bytes": 0
           },
           {
             "url": "https://www.puregold.com.ph/sitemap.txt",
-            "status": 404,
-            "bytes": 282
+            "status": 0,
+            "bytes": 0
           },
           {
             "url": "https://www.puregold.com.ph/sitemap-index.xml",
-            "status": 404,
-            "bytes": 282
+            "status": 0,
+            "bytes": 0
           }
         ],
-        "total_urls": 22,
-        "product_like_urls": 22
+        "total_urls": 0,
+        "product_like_urls": 0
       },
       "basket": {},
       "basket_coverage": 0,
-      "product_probes": [
-        {
-          "url": "https://www.puregold.com.ph/index.php/corporate/share-information/top-100-stockholders",
-          "status": 200,
-          "bytes": 51555,
-          "class": "spa_empty",
-          "reason": "200 but no price in raw HTML",
-          "signals": {
-            "jsonld_product": false,
-            "jsonld_price": false,
-            "microdata_price": false,
-            "meta_price": false,
-            "distinct_currency_strings": 0,
-            "embedded_state": false,
-            "api_paths": [],
-            "bytes": 51555
-          }
-        },
-        {
-          "url": "https://www.puregold.com.ph/index.php/news-room/official-statement-november-29-2018",
-          "status": 200,
-          "bytes": 39221,
-          "class": "spa_empty",
-          "reason": "200 but no price in raw HTML",
-          "signals": {
-            "jsonld_product": false,
-            "jsonld_price": false,
-            "microdata_price": false,
-            "meta_price": false,
-            "distinct_currency_strings": 0,
-            "embedded_state": false,
-            "api_paths": [],
-            "bytes": 39221
-          }
-        },
-        {
-          "url": "https://www.puregold.com.ph/index.php/corporate/iacgr/integrated-annual-corporate-governance-report",
-          "status": 200,
-          "bytes": 40620,
-          "class": "spa_empty",
-          "reason": "200 but no price in raw HTML",
-          "signals": {
-            "jsonld_product": false,
-            "jsonld_price": false,
-            "microdata_price": false,
-            "meta_price": false,
-            "distinct_currency_strings": 0,
-            "embedded_state": false,
-            "api_paths": [],
-            "bytes": 40620
-          }
-        }
-      ],
-      "verdict_class": "spa_empty",
+      "product_probes": [],
+      "verdict_class": "blocked",
       "structural_class": "unknown",
-      "evidence_url": "https://www.puregold.com.ph/index.php/corporate/share-information/top-100-stockholders",
+      "evidence_url": null,
       "robots_allows_product": true
     },
     {
@@ -8233,19 +8146,17 @@
       "homepage": "https://alldaysupermarket.com.ph",
       "why": "Villar-group PH supermarket",
       "home": {
-        "status": 200,
+        "status": 0,
         "final_url": "https://alldaysupermarket.com.ph",
-        "bytes": 4685,
-        "error": null,
+        "bytes": 0,
+        "error": "ConnectError: [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1010)",
         "waf": []
       },
-      "home_class": "spa_empty",
+      "home_class": "blocked",
       "robots": {
-        "fetched": true,
+        "fetched": false,
         "sitemaps": [],
-        "disallow_star": [
-          "/"
-        ],
+        "disallow_star": [],
         "allow_star": []
       },
       "discovery": {
@@ -8281,10 +8192,10 @@
       "basket": {},
       "basket_coverage": 0,
       "product_probes": [],
-      "verdict_class": "no_product_urls",
+      "verdict_class": "blocked",
       "structural_class": "unknown",
       "evidence_url": null,
-      "robots_allows_product": false
+      "robots_allows_product": true
     },
     {
       "id": "ph-merrymart",
@@ -8355,7 +8266,7 @@
       "home": {
         "status": 200,
         "final_url": "https://www.waltermartdelivery.com.ph",
-        "bytes": 83731,
+        "bytes": 83948,
         "error": null,
         "waf": [
           "server:nginx"
@@ -8390,24 +8301,24 @@
           {
             "url": "https://www.waltermartdelivery.com.ph/sitemap.xml",
             "status": 200,
-            "bytes": 1144
+            "bytes": 1145
           },
           {
             "url": "https://www.waltermartdelivery.com.ph/sitemap-misc.xml",
             "status": 200,
-            "bytes": 1078,
+            "bytes": 1079,
             "nested": true
           },
           {
             "url": "https://www.waltermartdelivery.com.ph/post-sitemap.xml",
             "status": 200,
-            "bytes": 2398,
+            "bytes": 2396,
             "nested": true
           },
           {
             "url": "https://www.waltermartdelivery.com.ph/page-sitemap.xml",
             "status": 200,
-            "bytes": 8510,
+            "bytes": 8511,
             "nested": true
           }
         ],
@@ -8420,7 +8331,7 @@
         {
           "url": "https://www.waltermartdelivery.com.ph/demo-category/pr-events-and-partnerships",
           "status": 200,
-          "bytes": 54835,
+          "bytes": 54808,
           "class": "spa_empty",
           "reason": "200 but no price in raw HTML",
           "signals": {
@@ -8431,13 +8342,13 @@
             "distinct_currency_strings": 0,
             "embedded_state": false,
             "api_paths": [],
-            "bytes": 54835
+            "bytes": 54808
           }
         },
         {
           "url": "https://www.waltermartdelivery.com.ph/main-demo-library/demo-library-category-2",
           "status": 200,
-          "bytes": 84871,
+          "bytes": 85088,
           "class": "spa_empty",
           "reason": "200 but no price in raw HTML",
           "signals": {
@@ -8448,13 +8359,13 @@
             "distinct_currency_strings": 0,
             "embedded_state": false,
             "api_paths": [],
-            "bytes": 84871
+            "bytes": 85088
           }
         },
         {
           "url": "https://www.waltermartdelivery.com.ph/main-demo-library/demo-library-category-1",
           "status": 200,
-          "bytes": 72009,
+          "bytes": 72226,
           "class": "spa_empty",
           "reason": "200 but no price in raw HTML",
           "signals": {
@@ -8465,12 +8376,12 @@
             "distinct_currency_strings": 0,
             "embedded_state": false,
             "api_paths": [],
-            "bytes": 72009
+            "bytes": 72226
           }
         }
       ],
       "verdict_class": "spa_empty",
-      "structural_class": "unknown",
+      "structural_class": "spa-opaque",
       "evidence_url": "https://www.waltermartdelivery.com.ph/demo-category/pr-events-and-partnerships",
       "robots_allows_product": true
     },
@@ -8484,7 +8395,7 @@
       "home": {
         "status": 200,
         "final_url": "https://www.snrshopping.com",
-        "bytes": 496256,
+        "bytes": 493778,
         "error": null,
         "waf": [
           "cf-ray",
@@ -8611,7 +8522,7 @@
         "error": null,
         "waf": []
       },
-      "home_class": "server_rendered",
+      "home_class": "spa_empty",
       "robots": {
         "fetched": true,
         "sitemaps": [
@@ -8699,68 +8610,55 @@
       "homepage": "https://www.shopwise.com.ph",
       "why": "PH value grocery banner",
       "home": {
-        "status": 200,
+        "status": 0,
         "final_url": "https://www.shopwise.com.ph",
-        "bytes": 761051,
-        "error": null,
-        "waf": [
-          "server:nginx"
-        ]
+        "bytes": 0,
+        "error": "ConnectError: [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: Hostname mismatch, certificate is not valid for 'www.shopwise.com.ph'. (_ssl.c:1010)",
+        "waf": []
       },
-      "home_class": "spa_empty",
+      "home_class": "blocked",
       "robots": {
-        "fetched": true,
+        "fetched": false,
         "sitemaps": [],
         "disallow_star": [],
         "allow_star": []
       },
       "discovery": {
-        "via": "sitemap",
+        "via": "none",
         "categories_crawled": []
       },
       "sitemap": {
         "tried": [
           {
             "url": "https://www.shopwise.com.ph/sitemap.xml",
-            "status": 200,
-            "bytes": 3664
+            "status": 0,
+            "bytes": 0
+          },
+          {
+            "url": "https://www.shopwise.com.ph/sitemap_index.xml",
+            "status": 0,
+            "bytes": 0
+          },
+          {
+            "url": "https://www.shopwise.com.ph/sitemap.txt",
+            "status": 0,
+            "bytes": 0
+          },
+          {
+            "url": "https://www.shopwise.com.ph/sitemap-index.xml",
+            "status": 0,
+            "bytes": 0
           }
         ],
-        "total_urls": 29,
+        "total_urls": 0,
         "product_like_urls": 0
       },
-      "basket": {
-        "pasta": {
-          "count": 1,
-          "samples": [
-            "https://shopwise.com.ph/wise-recipes/pasta"
-          ],
-          "sample": "https://shopwise.com.ph/wise-recipes/pasta"
-        }
-      },
-      "basket_coverage": 1,
-      "product_probes": [
-        {
-          "url": "https://shopwise.com.ph/wise-recipes/pasta",
-          "status": 200,
-          "bytes": 743829,
-          "class": "spa_empty",
-          "reason": "200 but no price in raw HTML",
-          "signals": {
-            "jsonld_product": false,
-            "jsonld_price": false,
-            "microdata_price": false,
-            "meta_price": false,
-            "distinct_currency_strings": 0,
-            "embedded_state": false,
-            "api_paths": [],
-            "bytes": 743829
-          }
-        }
-      ],
-      "verdict_class": "spa_empty",
+      "basket": {},
+      "basket_coverage": 0,
+      "product_probes": [],
+      "verdict_class": "blocked",
       "structural_class": "unknown",
-      "evidence_url": "https://shopwise.com.ph/wise-recipes/pasta",
+      "evidence_url": null,
       "robots_allows_product": true
     },
     {
@@ -8777,7 +8675,7 @@
         "error": null,
         "waf": []
       },
-      "home_class": "server_rendered",
+      "home_class": "spa_empty",
       "robots": {
         "fetched": false,
         "sitemaps": [],
@@ -8832,7 +8730,7 @@
       "home": {
         "status": 200,
         "final_url": "https://pickaroo.com/",
-        "bytes": 156609,
+        "bytes": 156909,
         "error": null,
         "waf": [
           "cf-ray",
@@ -8896,7 +8794,7 @@
         {
           "url": "https://www.pickaroo.com/robinsons/products/robinsons-supermarket-b-hive-mall-valenzuela",
           "status": 200,
-          "bytes": 689801,
+          "bytes": 689808,
           "class": "spa_empty",
           "reason": "200 but no price in raw HTML",
           "signals": {
@@ -8907,13 +8805,13 @@
             "distinct_currency_strings": 0,
             "embedded_state": false,
             "api_paths": [],
-            "bytes": 689801
+            "bytes": 689808
           }
         },
         {
           "url": "https://www.pickaroo.com/the-marketplace/products/the-marketplace-venice-grand-mckinley-2",
           "status": 200,
-          "bytes": 861437,
+          "bytes": 861444,
           "class": "spa_empty",
           "reason": "200 but no price in raw HTML",
           "signals": {
@@ -8924,13 +8822,13 @@
             "distinct_currency_strings": 0,
             "embedded_state": false,
             "api_paths": [],
-            "bytes": 861437
+            "bytes": 861444
           }
         },
         {
-          "url": "https://www.pickaroo.com/sr/products/sr-paranaque",
+          "url": "https://www.pickaroo.com/shopwise/products/shopwise-san-roque-antipolo",
           "status": 200,
-          "bytes": 826842,
+          "bytes": 766480,
           "class": "spa_empty",
           "reason": "200 but no price in raw HTML",
           "signals": {
@@ -8941,12 +8839,12 @@
             "distinct_currency_strings": 0,
             "embedded_state": false,
             "api_paths": [],
-            "bytes": 826842
+            "bytes": 766480
           }
         }
       ],
       "verdict_class": "spa_empty",
-      "structural_class": "unknown",
+      "structural_class": "spa-opaque",
       "evidence_url": "https://www.pickaroo.com/robinsons/products/robinsons-supermarket-b-hive-mall-valenzuela",
       "robots_allows_product": true
     },
@@ -9017,122 +8915,55 @@
       "homepage": "https://www.princeretail.com",
       "why": "Visayas/Mindanao regional grocer, deep long-tail",
       "home": {
-        "status": 200,
+        "status": 0,
         "final_url": "https://www.princeretail.com",
-        "bytes": 75548,
-        "error": null,
+        "bytes": 0,
+        "error": "ConnectError: [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1010)",
         "waf": []
       },
-      "home_class": "spa_empty",
+      "home_class": "blocked",
       "robots": {
-        "fetched": true,
-        "sitemaps": [
-          "https://www.princeretail.com/wp-sitemap.xml"
-        ],
-        "disallow_star": [
-          "/wp-admin/"
-        ],
-        "allow_star": [
-          "/wp-admin/admin-ajax.php"
-        ]
+        "fetched": false,
+        "sitemaps": [],
+        "disallow_star": [],
+        "allow_star": []
       },
       "discovery": {
-        "via": "sitemap",
+        "via": "none",
         "categories_crawled": []
       },
       "sitemap": {
         "tried": [
           {
-            "url": "https://www.princeretail.com/wp-sitemap.xml",
-            "status": 200,
-            "bytes": 562
+            "url": "https://www.princeretail.com/sitemap.xml",
+            "status": 0,
+            "bytes": 0
           },
           {
-            "url": "https://www.princeretail.com/wp-sitemap-posts-post-1.xml",
-            "status": 200,
-            "bytes": 1002,
-            "nested": true
+            "url": "https://www.princeretail.com/sitemap_index.xml",
+            "status": 0,
+            "bytes": 0
           },
           {
-            "url": "https://www.princeretail.com/wp-sitemap-posts-page-1.xml",
-            "status": 200,
-            "bytes": 7015,
-            "nested": true
+            "url": "https://www.princeretail.com/sitemap.txt",
+            "status": 0,
+            "bytes": 0
           },
           {
-            "url": "https://www.princeretail.com/wp-sitemap-taxonomies-category-1.xml",
-            "status": 200,
-            "bytes": 341,
-            "nested": true
-          },
-          {
-            "url": "https://www.princeretail.com/wp-sitemap-users-1.xml",
-            "status": 200,
-            "bytes": 326,
-            "nested": true
+            "url": "https://www.princeretail.com/sitemap-index.xml",
+            "status": 0,
+            "bytes": 0
           }
         ],
-        "total_urls": 100,
-        "product_like_urls": 4
+        "total_urls": 0,
+        "product_like_urls": 0
       },
       "basket": {},
       "basket_coverage": 0,
-      "product_probes": [
-        {
-          "url": "https://www.princeretail.com/mid-year-clearance-sale-2019/",
-          "status": 200,
-          "bytes": 55112,
-          "class": "spa_empty",
-          "reason": "200 but no price in raw HTML",
-          "signals": {
-            "jsonld_product": false,
-            "jsonld_price": false,
-            "microdata_price": false,
-            "meta_price": false,
-            "distinct_currency_strings": 0,
-            "embedded_state": false,
-            "api_paths": [],
-            "bytes": 55112
-          }
-        },
-        {
-          "url": "https://www.princeretail.com/prince-hypermart-opening-in-q1-of-2019/",
-          "status": 200,
-          "bytes": 56239,
-          "class": "spa_empty",
-          "reason": "200 but no price in raw HTML",
-          "signals": {
-            "jsonld_product": false,
-            "jsonld_price": false,
-            "microdata_price": false,
-            "meta_price": false,
-            "distinct_currency_strings": 0,
-            "embedded_state": false,
-            "api_paths": [],
-            "bytes": 56239
-          }
-        },
-        {
-          "url": "https://www.princeretail.com/massive-mega-bodega-sale-2019/",
-          "status": 200,
-          "bytes": 56331,
-          "class": "spa_empty",
-          "reason": "200 but no price in raw HTML",
-          "signals": {
-            "jsonld_product": false,
-            "jsonld_price": false,
-            "microdata_price": false,
-            "meta_price": false,
-            "distinct_currency_strings": 0,
-            "embedded_state": false,
-            "api_paths": [],
-            "bytes": 56331
-          }
-        }
-      ],
-      "verdict_class": "spa_empty",
+      "product_probes": [],
+      "verdict_class": "blocked",
       "structural_class": "unknown",
-      "evidence_url": "https://www.princeretail.com/mid-year-clearance-sale-2019/",
+      "evidence_url": null,
       "robots_allows_product": true
     },
     {
@@ -9193,7 +9024,7 @@
       "home": {
         "status": 200,
         "final_url": "https://www.suysing.com",
-        "bytes": 94197,
+        "bytes": 94240,
         "error": null,
         "waf": []
       },
@@ -9244,7 +9075,7 @@
             "jsonld_price": false,
             "microdata_price": false,
             "meta_price": false,
-            "distinct_currency_strings": 2,
+            "distinct_currency_strings": 0,
             "embedded_state": true,
             "api_paths": [],
             "bytes": 56588
@@ -9266,7 +9097,7 @@
       "home": {
         "status": 200,
         "final_url": "https://www.lazada.com.ph",
-        "bytes": 429172,
+        "bytes": 423060,
         "error": null,
         "waf": []
       },
@@ -9285,14 +9116,14 @@
       "discovery": {
         "via": "crawl",
         "categories_crawled": [
+          "https://www.lazada.com.ph/shop-Groceries-ChocolateSnacksSweets-Snacks-DriedFruitNutsSeeds-NutsPeasSeeds",
           "https://www.lazada.com.ph/shop-baking-tools-accessories/wilton/",
           "https://www.lazada.com.ph/shop-beverages/nestle/",
           "https://www.lazada.com.ph/shop-coffee/nescafe/",
           "https://www.lazada.com.ph/shop-beverages/nestea/",
           "https://www.lazada.com.ph/shop-tea/healthy-tropics/",
           "https://www.lazada.com.ph/shop/nike",
-          "https://www.lazada.com.ph/shop/moose-gear",
-          "https://www.lazada.com.ph/shop/samsung-home-appliance"
+          "https://www.lazada.com.ph/shop/moose-gear"
         ]
       },
       "sitemap": {
@@ -9351,7 +9182,7 @@
         {
           "url": "https://www.lazada.com.ph/products/pdp-i214964794-s278754803.html",
           "status": 200,
-          "bytes": 247571,
+          "bytes": 247470,
           "class": "spa_empty",
           "reason": "200 but no price in raw HTML",
           "signals": {
@@ -9359,16 +9190,16 @@
             "jsonld_price": false,
             "microdata_price": false,
             "meta_price": false,
-            "distinct_currency_strings": 2,
+            "distinct_currency_strings": 1,
             "embedded_state": false,
             "api_paths": [],
-            "bytes": 247571
+            "bytes": 247470
           }
         },
         {
-          "url": "https://www.lazada.com.ph/products/pdp-i224634737-s8695627819.html",
+          "url": "https://www.lazada.com.ph/products/pdp-i976778063-s3223026366.html",
           "status": 200,
-          "bytes": 290045,
+          "bytes": 238287,
           "class": "spa_empty",
           "reason": "200 but no price in raw HTML",
           "signals": {
@@ -9376,16 +9207,16 @@
             "jsonld_price": false,
             "microdata_price": false,
             "meta_price": false,
-            "distinct_currency_strings": 2,
+            "distinct_currency_strings": 1,
             "embedded_state": false,
             "api_paths": [],
-            "bytes": 290045
+            "bytes": 238287
           }
         },
         {
-          "url": "https://www.lazada.com.ph/products/pdp-i261356391-s360394758.html",
+          "url": "https://www.lazada.com.ph/products/pdp-i1290604981-s4687836557.html",
           "status": 200,
-          "bytes": 252499,
+          "bytes": 240276,
           "class": "spa_empty",
           "reason": "200 but no price in raw HTML",
           "signals": {
@@ -9393,15 +9224,15 @@
             "jsonld_price": false,
             "microdata_price": false,
             "meta_price": false,
-            "distinct_currency_strings": 2,
+            "distinct_currency_strings": 1,
             "embedded_state": false,
             "api_paths": [],
-            "bytes": 252499
+            "bytes": 240276
           }
         }
       ],
       "verdict_class": "spa_empty",
-      "structural_class": "unknown",
+      "structural_class": "spa-opaque",
       "evidence_url": "https://www.lazada.com.ph/products/pdp-i214964794-s278754803.html",
       "robots_allows_product": true
     },
@@ -9552,14 +9383,14 @@
       "home": {
         "status": 200,
         "final_url": "https://southstardrug.com.ph/",
-        "bytes": 5372069,
+        "bytes": 5373207,
         "error": null,
         "waf": [
           "cf-ray",
           "server:cloudflare"
         ]
       },
-      "home_class": "spa_empty",
+      "home_class": "server_rendered",
       "robots": {
         "fetched": true,
         "sitemaps": [
@@ -9657,13 +9488,6 @@
         "product_like_urls": 3000
       },
       "basket": {
-        "bananas": {
-          "count": 1,
-          "samples": [
-            "https://southstardrug.com.ph/products/hydrite-banana-4-1-g-granules-for-solution-600-in-house-trade-account"
-          ],
-          "sample": "https://southstardrug.com.ph/products/hydrite-banana-4-1-g-granules-for-solution-600-in-house-trade-account"
-        },
         "milk": {
           "count": 12,
           "samples": [
@@ -9689,46 +9513,46 @@
           "sample": "https://southstardrug.com.ph/products/ensure-gold-coffee-can-850-g-600-in-house-trade-account"
         }
       },
-      "basket_coverage": 4,
+      "basket_coverage": 3,
       "product_probes": [
-        {
-          "url": "https://southstardrug.com.ph/products/hydrite-banana-4-1-g-granules-for-solution-600-in-house-trade-account",
-          "status": 200,
-          "bytes": 4796761,
-          "class": "server_rendered",
-          "reason": "price present in raw HTML",
-          "signals": {
-            "jsonld_product": false,
-            "jsonld_price": false,
-            "microdata_price": false,
-            "meta_price": true,
-            "distinct_currency_strings": 36,
-            "embedded_state": false,
-            "api_paths": [],
-            "bytes": 4796761
-          }
-        },
         {
           "url": "https://southstardrug.com.ph/products/johnsons-bath-milk-plus-oat-ref-600-ml-600-in-house-trade-account",
           "status": 200,
-          "bytes": 4786756,
+          "bytes": 4788042,
           "class": "server_rendered",
           "reason": "price present in raw HTML",
           "signals": {
             "jsonld_product": false,
-            "jsonld_price": false,
+            "jsonld_price": true,
             "microdata_price": false,
             "meta_price": true,
-            "distinct_currency_strings": 3,
+            "distinct_currency_strings": 1,
             "embedded_state": false,
             "api_paths": [],
-            "bytes": 4786756
+            "bytes": 4788042
+          }
+        },
+        {
+          "url": "https://southstardrug.com.ph/products/colgate-plus-sugar-acid-neutralizer-buy-2-for-149-toothpaste-2-x-122-ml",
+          "status": 200,
+          "bytes": 4788085,
+          "class": "server_rendered",
+          "reason": "price present in raw HTML",
+          "signals": {
+            "jsonld_product": false,
+            "jsonld_price": true,
+            "microdata_price": false,
+            "meta_price": true,
+            "distinct_currency_strings": 1,
+            "embedded_state": false,
+            "api_paths": [],
+            "bytes": 4788085
           }
         },
         {
           "url": "https://southstardrug.com.ph/products/cherifer-immunomax-for-kids-120-ml-syrup-600-in-house-trade-account",
           "status": 200,
-          "bytes": 4788009,
+          "bytes": 4789295,
           "class": "server_rendered",
           "reason": "price present in raw HTML",
           "signals": {
@@ -9736,16 +9560,16 @@
             "jsonld_price": false,
             "microdata_price": false,
             "meta_price": true,
-            "distinct_currency_strings": 8,
+            "distinct_currency_strings": 6,
             "embedded_state": false,
             "api_paths": [],
-            "bytes": 4788009
+            "bytes": 4789295
           }
         }
       ],
       "verdict_class": "server_rendered",
-      "structural_class": "microdata",
-      "evidence_url": "https://southstardrug.com.ph/products/hydrite-banana-4-1-g-granules-for-solution-600-in-house-trade-account",
+      "structural_class": "json-ld",
+      "evidence_url": "https://southstardrug.com.ph/products/johnsons-bath-milk-plus-oat-ref-600-ml-600-in-house-trade-account",
       "robots_allows_product": true
     },
     {
@@ -9867,7 +9691,7 @@
         }
       ],
       "verdict_class": "spa_empty",
-      "structural_class": "unknown",
+      "structural_class": "spa-opaque",
       "evidence_url": "https://www.mercurydrug.com/tfgh/Essential Post Run Recovery Tips.html",
       "robots_allows_product": true
     },
@@ -9923,18 +9747,18 @@
           {
             "url": "https://www.rosepharmacy.com/product-sitemap.xml",
             "status": 200,
-            "bytes": 273354,
+            "bytes": 273339,
             "nested": true
           },
           {
             "url": "https://www.rosepharmacy.com/product-sitemap2.xml",
             "status": 200,
-            "bytes": 270461,
+            "bytes": 270426,
             "nested": true
           }
         ],
-        "total_urls": 2224,
-        "product_like_urls": 1973
+        "total_urls": 2226,
+        "product_like_urls": 1975
       },
       "basket": {
         "milk": {
@@ -9954,13 +9778,6 @@
           ],
           "sample": "https://www.rosepharmacy.com/product/fitbar-crispy-rice-bar-chocolate-24g/"
         },
-        "bananas": {
-          "count": 1,
-          "samples": [
-            "https://www.rosepharmacy.com/product/hydrite-granules-banana-sachet-4-1g/"
-          ],
-          "sample": "https://www.rosepharmacy.com/product/hydrite-granules-banana-sachet-4-1g/"
-        },
         "coffee": {
           "count": 1,
           "samples": [
@@ -9978,12 +9795,12 @@
           "sample": "https://www.rosepharmacy.com/product/fishermans-friend-mint-sugar/"
         }
       },
-      "basket_coverage": 5,
+      "basket_coverage": 4,
       "product_probes": [
         {
           "url": "https://www.rosepharmacy.com/product/hipp-organic-kinder-milk-cs-3yrs-800g/",
           "status": 200,
-          "bytes": 221664,
+          "bytes": 221785,
           "class": "server_rendered",
           "reason": "price present in raw HTML",
           "signals": {
@@ -9994,13 +9811,13 @@
             "distinct_currency_strings": 1,
             "embedded_state": false,
             "api_paths": [],
-            "bytes": 221664
+            "bytes": 221785
           }
         },
         {
           "url": "https://www.rosepharmacy.com/product/fitbar-crispy-rice-bar-chocolate-24g/",
           "status": 200,
-          "bytes": 152631,
+          "bytes": 152753,
           "class": "server_rendered",
           "reason": "price present in raw HTML",
           "signals": {
@@ -10011,13 +9828,13 @@
             "distinct_currency_strings": 1,
             "embedded_state": false,
             "api_paths": [],
-            "bytes": 152631
+            "bytes": 152753
           }
         },
         {
           "url": "https://www.rosepharmacy.com/product/guardian-nature-dream-hand-wash-500ml/",
           "status": 200,
-          "bytes": 179630,
+          "bytes": 179751,
           "class": "server_rendered",
           "reason": "price present in raw HTML",
           "signals": {
@@ -10028,7 +9845,7 @@
             "distinct_currency_strings": 1,
             "embedded_state": false,
             "api_paths": [],
-            "bytes": 179630
+            "bytes": 179751
           }
         }
       ],
@@ -10119,7 +9936,7 @@
         {
           "url": "https://tgp.com.ph/product/difflam-benzydamine-hcl-3mg-sugar-free-mint-8-lozenges/",
           "status": 200,
-          "bytes": 399201,
+          "bytes": 398361,
           "class": "server_rendered",
           "reason": "price present in raw HTML",
           "signals": {
@@ -10130,13 +9947,13 @@
             "distinct_currency_strings": 0,
             "embedded_state": false,
             "api_paths": [],
-            "bytes": 399201
+            "bytes": 398361
           }
         },
         {
           "url": "https://tgp.com.ph/product/fludex-paracetamol-phenylpropanolamine-chlorphenamine-tablet-325mg-25mg-2mg-100pcs/",
           "status": 200,
-          "bytes": 399897,
+          "bytes": 398305,
           "class": "server_rendered",
           "reason": "price present in raw HTML",
           "signals": {
@@ -10147,13 +9964,13 @@
             "distinct_currency_strings": 0,
             "embedded_state": false,
             "api_paths": [],
-            "bytes": 399897
+            "bytes": 398305
           }
         },
         {
           "url": "https://tgp.com.ph/product/tru-e-vitamin-e-capsule-400-iu-100pcs/",
           "status": 200,
-          "bytes": 395906,
+          "bytes": 395952,
           "class": "server_rendered",
           "reason": "price present in raw HTML",
           "signals": {
@@ -10164,7 +9981,7 @@
             "distinct_currency_strings": 0,
             "embedded_state": false,
             "api_paths": [],
-            "bytes": 395906
+            "bytes": 395952
           }
         }
       ],
@@ -10184,7 +10001,7 @@
         "status": 0,
         "final_url": "https://getwellpharmacy.com.ph",
         "bytes": 0,
-        "error": "ConnectError: [SSL: TLSV1_ALERT_INTERNAL_ERROR] tlsv1 alert internal error (_ssl.c:1010)",
+        "error": "ConnectError: [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1010)",
         "waf": []
       },
       "home_class": "blocked",
@@ -10470,7 +10287,7 @@
         }
       ],
       "verdict_class": "spa_empty",
-      "structural_class": "unknown",
+      "structural_class": "spa-opaque",
       "evidence_url": "https://www.da.gov.ph/palawan-governor-pledges-100000-hectares-of-new-rice-area/",
       "robots_allows_product": true
     },
@@ -10542,7 +10359,7 @@
       "home": {
         "status": 200,
         "final_url": "https://doe.gov.ph/",
-        "bytes": 237651,
+        "bytes": 239802,
         "error": null,
         "waf": [
           "cf-ray",
@@ -10600,7 +10417,7 @@
         }
       ],
       "verdict_class": "spa_empty",
-      "structural_class": "unknown",
+      "structural_class": "spa-opaque",
       "evidence_url": "https://www.doe.gov.ph/_nuxt/manifest.2e923986.json",
       "robots_allows_product": true
     },
@@ -10618,7 +10435,6 @@
         "error": null,
         "waf": [
           "cf-ray",
-          "cookie:__cf_bm",
           "server:cloudflare"
         ]
       },
@@ -10638,7 +10454,7 @@
           {
             "url": "https://doh.gov.ph/sitemap.xml",
             "status": 403,
-            "bytes": 5732
+            "bytes": 5754
           },
           {
             "url": "https://doh.gov.ph/sitemap_index.xml",
@@ -10937,7 +10753,7 @@
             "jsonld_price": false,
             "microdata_price": false,
             "meta_price": false,
-            "distinct_currency_strings": 10,
+            "distinct_currency_strings": 9,
             "embedded_state": false,
             "api_paths": [],
             "bytes": 41647
@@ -11055,11 +10871,20 @@
       "product_probes": [
         {
           "url": "https://www.eia.gov/petroleum/heatingoilpropane/",
-          "status": 503,
-          "bytes": 27,
-          "class": "blocked",
-          "reason": "http 503",
-          "signals": {}
+          "status": 200,
+          "bytes": 103917,
+          "class": "spa_empty",
+          "reason": "200 but no price in raw HTML",
+          "signals": {
+            "jsonld_product": false,
+            "jsonld_price": false,
+            "microdata_price": false,
+            "meta_price": false,
+            "distinct_currency_strings": 0,
+            "embedded_state": false,
+            "api_paths": [],
+            "bytes": 103917
+          }
         },
         {
           "url": "https://www.eia.gov/petroleum/transportation/",
@@ -11080,16 +10905,25 @@
         },
         {
           "url": "https://www.eia.gov/petroleum/imports/companylevel/",
-          "status": 503,
-          "bytes": 27,
-          "class": "blocked",
-          "reason": "http 503",
-          "signals": {}
+          "status": 200,
+          "bytes": 74563,
+          "class": "spa_empty",
+          "reason": "200 but no price in raw HTML",
+          "signals": {
+            "jsonld_product": false,
+            "jsonld_price": false,
+            "microdata_price": false,
+            "meta_price": false,
+            "distinct_currency_strings": 0,
+            "embedded_state": false,
+            "api_paths": [],
+            "bytes": 74563
+          }
         }
       ],
       "verdict_class": "spa_empty",
-      "structural_class": "unknown",
-      "evidence_url": "https://www.eia.gov/petroleum/transportation/",
+      "structural_class": "spa-opaque",
+      "evidence_url": "https://www.eia.gov/petroleum/heatingoilpropane/",
       "robots_allows_product": true
     },
     {
@@ -11106,7 +10940,6 @@
         "error": null,
         "waf": [
           "cf-ray",
-          "cookie:__cf_bm",
           "server:cloudflare"
         ]
       },
@@ -11187,12 +11020,12 @@
           {
             "url": "https://company.meralco.com.ph/sitemap.xml",
             "status": 200,
-            "bytes": 215884
+            "bytes": 215883
           },
           {
             "url": "https://company.meralco.com.ph/sitemap_index.xml",
             "status": 200,
-            "bytes": 215884
+            "bytes": 215883
           },
           {
             "url": "https://company.meralco.com.ph/sitemap.txt",
@@ -11264,7 +11097,7 @@
         }
       ],
       "verdict_class": "spa_empty",
-      "structural_class": "unknown",
+      "structural_class": "spa-opaque",
       "evidence_url": "https://company.meralco.com.ph/news-and-advisories/1h-2024-operational-highlights",
       "robots_allows_product": true
     },
@@ -11556,32 +11389,32 @@
           {
             "url": "https://www.generika.com.ph/sitemap.xml",
             "status": 200,
-            "bytes": 839
+            "bytes": 838
           },
           {
             "url": "https://www.generika.com.ph/sitemap.rss",
             "status": 200,
-            "bytes": 15267
+            "bytes": 15266
           },
           {
             "url": "https://www.generika.com.ph/sitemap.xml",
             "status": 200,
-            "bytes": 839
+            "bytes": 838
           },
           {
             "url": "https://www.generika.com.ph/sitemap_index.xml",
             "status": 200,
-            "bytes": 839
+            "bytes": 838
           },
           {
             "url": "https://www.generika.com.ph/sitemap.txt",
             "status": 200,
-            "bytes": 839
+            "bytes": 838
           },
           {
             "url": "https://www.generika.com.ph/sitemap-index.xml",
             "status": 200,
-            "bytes": 839
+            "bytes": 838
           }
         ],
         "total_urls": 1,
@@ -11609,7 +11442,7 @@
         }
       ],
       "verdict_class": "spa_empty",
-      "structural_class": "unknown",
+      "structural_class": "spa-opaque",
       "evidence_url": "https://www.generika.com.ph/product-and-services/",
       "robots_allows_product": true
     },
@@ -11686,7 +11519,7 @@
         }
       ],
       "verdict_class": "spa_empty",
-      "structural_class": "unknown",
+      "structural_class": "spa-opaque",
       "evidence_url": "https://www.medexpress.com.ph/about-us/terms-and-conditions",
       "robots_allows_product": true
     },
@@ -11784,7 +11617,7 @@
           {
             "url": "https://medsgo.ph/products1.xml",
             "status": 200,
-            "bytes": 1835818,
+            "bytes": 1836660,
             "nested": true
           },
           {
@@ -11802,23 +11635,14 @@
           {
             "url": "https://medsgo.ph/feature_variants1.xml",
             "status": 200,
-            "bytes": 181754,
+            "bytes": 182369,
             "nested": true
           }
         ],
-        "total_urls": 8973,
-        "product_like_urls": 7475
+        "total_urls": 8980,
+        "product_like_urls": 7478
       },
       "basket": {
-        "bananas": {
-          "count": 6,
-          "samples": [
-            "https://medsgo.ph/prescription-medicines/antibiotics/oxeed-cloxacillin-sodium-250mg-5ml-powder-for-oral-solution-60ml-banana/?vendor_id=253",
-            "https://medsgo.ph/prescription-medicines/antibiotics/oxeed-cloxacillin-sodium-250mg-5ml-powder-for-oral-solution-60ml-banana/?vendor_id=557",
-            "https://medsgo.ph/prescription-medicines/antibiotics/oxeed-cloxacillin-sodium-250mg-5ml-powder-for-oral-solution-60ml-banana/?vendor_id=556"
-          ],
-          "sample": "https://medsgo.ph/prescription-medicines/antibiotics/oxeed-cloxacillin-sodium-250mg-5ml-powder-for-oral-solution-60ml-banana/?vendor_id=253"
-        },
         "milk": {
           "count": 140,
           "samples": [
@@ -11852,29 +11676,12 @@
           "sample": "https://medsgo.ph/vitamins-and-supplements/by-property/immunity-and-protection/poten-cee-ascorbic-acid-500mg-orange-and-sugar-free-182-tablets-promo-pack/?vendor_id=553"
         }
       },
-      "basket_coverage": 5,
+      "basket_coverage": 4,
       "product_probes": [
-        {
-          "url": "https://medsgo.ph/prescription-medicines/antibiotics/oxeed-cloxacillin-sodium-250mg-5ml-powder-for-oral-solution-60ml-banana/?vendor_id=253",
-          "status": 200,
-          "bytes": 221225,
-          "class": "server_rendered",
-          "reason": "price present in raw HTML",
-          "signals": {
-            "jsonld_product": true,
-            "jsonld_price": true,
-            "microdata_price": true,
-            "meta_price": false,
-            "distinct_currency_strings": 2,
-            "embedded_state": false,
-            "api_paths": [],
-            "bytes": 221225
-          }
-        },
         {
           "url": "https://medsgo.ph/mom-and-baby/baby-and-kids-nutrition/milk-formula/lactum-1-3-years-old-milk-plain-350g/?vendor_id=529",
           "status": 200,
-          "bytes": 203769,
+          "bytes": 205057,
           "class": "server_rendered",
           "reason": "price present in raw HTML",
           "signals": {
@@ -11885,13 +11692,30 @@
             "distinct_currency_strings": 2,
             "embedded_state": false,
             "api_paths": [],
-            "bytes": 203769
+            "bytes": 205057
+          }
+        },
+        {
+          "url": "https://medsgo.ph/mom-and-baby/baby-and-kids-nutrition/food/cerelac-infant-cereals-rice-and-soya-6-months-to-2-years-120g/?vendor_id=546",
+          "status": 200,
+          "bytes": 193308,
+          "class": "server_rendered",
+          "reason": "price present in raw HTML",
+          "signals": {
+            "jsonld_product": true,
+            "jsonld_price": true,
+            "microdata_price": true,
+            "meta_price": false,
+            "distinct_currency_strings": 2,
+            "embedded_state": false,
+            "api_paths": [],
+            "bytes": 193308
           }
         },
         {
           "url": "https://medsgo.ph/prescription-medicines/diabetes/lantus-insulin-glargine-100-iu-ml-3-64-mg-insulin-glargine-solution-for-injection-s-c-10ml/?vendor_id=253",
           "status": 200,
-          "bytes": 412915,
+          "bytes": 413653,
           "class": "server_rendered",
           "reason": "price present in raw HTML",
           "signals": {
@@ -11902,13 +11726,13 @@
             "distinct_currency_strings": 2,
             "embedded_state": false,
             "api_paths": [],
-            "bytes": 412915
+            "bytes": 413653
           }
         }
       ],
       "verdict_class": "server_rendered",
       "structural_class": "json-ld",
-      "evidence_url": "https://medsgo.ph/prescription-medicines/antibiotics/oxeed-cloxacillin-sodium-250mg-5ml-powder-for-oral-solution-60ml-banana/?vendor_id=253",
+      "evidence_url": "https://medsgo.ph/mom-and-baby/baby-and-kids-nutrition/milk-formula/lactum-1-3-years-old-milk-plain-350g/?vendor_id=529",
       "robots_allows_product": true
     },
     {
@@ -12025,7 +11849,7 @@
         }
       ],
       "verdict_class": "spa_empty",
-      "structural_class": "unknown",
+      "structural_class": "spa-opaque",
       "evidence_url": "https://getmeds.ph/cancer-medicines/pacliget-paclitaxel-100mg-16.7ml-injection",
       "robots_allows_product": true
     },
@@ -12039,7 +11863,7 @@
       "home": {
         "status": 200,
         "final_url": "https://xalmeds.com",
-        "bytes": 309406,
+        "bytes": 309405,
         "error": null,
         "waf": [
           "cf-ray",
@@ -12157,40 +11981,15 @@
           }
         ],
         "total_urls": 1202,
-        "product_like_urls": 1183
+        "product_like_urls": 1182
       },
-      "basket": {
-        "sugar": {
-          "count": 1,
-          "samples": [
-            "https://xalmeds.com/products/oral-rehydration-salts-ors-are-a-mixture-of-electrolytes-salts-and-carbohydrates-in-the-form-of-sugar-which-are-dissolved-in-water-they-are-u-sachet-for-250ml-solution-x-1"
-          ],
-          "sample": "https://xalmeds.com/products/oral-rehydration-salts-ors-are-a-mixture-of-electrolytes-salts-and-carbohydrates-in-the-form-of-sugar-which-are-dissolved-in-water-they-are-u-sachet-for-250ml-solution-x-1"
-        }
-      },
-      "basket_coverage": 1,
+      "basket": {},
+      "basket_coverage": 0,
       "product_probes": [
-        {
-          "url": "https://xalmeds.com/products/oral-rehydration-salts-ors-are-a-mixture-of-electrolytes-salts-and-carbohydrates-in-the-form-of-sugar-which-are-dissolved-in-water-they-are-u-sachet-for-250ml-solution-x-1",
-          "status": 200,
-          "bytes": 286067,
-          "class": "server_rendered",
-          "reason": "price present in raw HTML",
-          "signals": {
-            "jsonld_product": true,
-            "jsonld_price": true,
-            "microdata_price": false,
-            "meta_price": true,
-            "distinct_currency_strings": 1,
-            "embedded_state": false,
-            "api_paths": [],
-            "bytes": 286067
-          }
-        },
         {
           "url": "https://xalmeds.com/products/acetylcysteine-200mg-sachet-6g-x-1",
           "status": 200,
-          "bytes": 289285,
+          "bytes": 289307,
           "class": "server_rendered",
           "reason": "price present in raw HTML",
           "signals": {
@@ -12201,13 +12000,13 @@
             "distinct_currency_strings": 1,
             "embedded_state": false,
             "api_paths": [],
-            "bytes": 289285
+            "bytes": 289307
           }
         },
         {
           "url": "https://xalmeds.com/products/acetylcysteine-600mg-sachet-6g-x-1",
           "status": 200,
-          "bytes": 303530,
+          "bytes": 303529,
           "class": "server_rendered",
           "reason": "price present in raw HTML",
           "signals": {
@@ -12218,13 +12017,30 @@
             "distinct_currency_strings": 1,
             "embedded_state": false,
             "api_paths": [],
-            "bytes": 303530
+            "bytes": 303529
+          }
+        },
+        {
+          "url": "https://xalmeds.com/products/amoxicillin-100-mg-ml-15-ml-drops",
+          "status": 200,
+          "bytes": 273207,
+          "class": "server_rendered",
+          "reason": "price present in raw HTML",
+          "signals": {
+            "jsonld_product": true,
+            "jsonld_price": true,
+            "microdata_price": false,
+            "meta_price": true,
+            "distinct_currency_strings": 1,
+            "embedded_state": false,
+            "api_paths": [],
+            "bytes": 273207
           }
         }
       ],
       "verdict_class": "server_rendered",
       "structural_class": "json-ld",
-      "evidence_url": "https://xalmeds.com/products/oral-rehydration-salts-ors-are-a-mixture-of-electrolytes-salts-and-carbohydrates-in-the-form-of-sugar-which-are-dissolved-in-water-they-are-u-sachet-for-250ml-solution-x-1",
+      "evidence_url": "https://xalmeds.com/products/acetylcysteine-200mg-sachet-6g-x-1",
       "robots_allows_product": true
     },
     {
@@ -12317,7 +12133,7 @@
         }
       ],
       "verdict_class": "spa_empty",
-      "structural_class": "unknown",
+      "structural_class": "spa-opaque",
       "evidence_url": "https://www.robinsonseasymart.com.ph/news-and-promos/bpi-cash-deposits-and-withdrawals-at-robinsons-easymart-lfrm",
       "robots_allows_product": true
     },
@@ -12331,7 +12147,7 @@
       "home": {
         "status": 200,
         "final_url": "https://www.thefreshmarket.com",
-        "bytes": 373469,
+        "bytes": 373465,
         "error": null,
         "waf": [
           "x-amz-cf-id"
@@ -12601,12 +12417,12 @@
           {
             "url": "https://www.lundsandbyerlys.com/sitemap.xml",
             "status": 403,
-            "bytes": 4555
+            "bytes": 4579
           },
           {
             "url": "https://www.lundsandbyerlys.com/sitemap_index.xml",
             "status": 403,
-            "bytes": 4555
+            "bytes": 4579
           },
           {
             "url": "https://www.lundsandbyerlys.com/sitemap.txt",
@@ -12684,7 +12500,7 @@
           }
         ],
         "total_urls": 1816,
-        "product_like_urls": 885
+        "product_like_urls": 883
       },
       "basket": {
         "bananas": {
@@ -12750,7 +12566,7 @@
         {
           "url": "https://www.dierbergs.com/item/bakehouse-banana-chocolate-chip-muffins-4ct-37993",
           "status": 200,
-          "bytes": 111548,
+          "bytes": 111967,
           "class": "server_rendered",
           "reason": "price present in raw HTML",
           "signals": {
@@ -12761,13 +12577,13 @@
             "distinct_currency_strings": 0,
             "embedded_state": true,
             "api_paths": [],
-            "bytes": 111548
+            "bytes": 111967
           }
         },
         {
           "url": "https://www.dierbergs.com/item/bakehouse-italian-supremo-bread-37509",
           "status": 200,
-          "bytes": 109912,
+          "bytes": 110331,
           "class": "server_rendered",
           "reason": "price present in raw HTML",
           "signals": {
@@ -12778,13 +12594,13 @@
             "distinct_currency_strings": 0,
             "embedded_state": true,
             "api_paths": [],
-            "bytes": 109912
+            "bytes": 110331
           }
         },
         {
           "url": "https://www.dierbergs.com/item/bakehouse-orange-cranberry-muffins-4ct-37996",
           "status": 200,
-          "bytes": 111478,
+          "bytes": 111898,
           "class": "server_rendered",
           "reason": "price present in raw HTML",
           "signals": {
@@ -12795,7 +12611,7 @@
             "distinct_currency_strings": 0,
             "embedded_state": true,
             "api_paths": [],
-            "bytes": 111478
+            "bytes": 111898
           }
         }
       ],
@@ -12986,7 +12802,7 @@
         }
       ],
       "verdict_class": "spa_empty",
-      "structural_class": "unknown",
+      "structural_class": "spa-opaque",
       "evidence_url": "https://www.newseasonsmarket.com/product-recalls",
       "robots_allows_product": true
     },
@@ -13062,7 +12878,7 @@
       "home": {
         "status": 200,
         "final_url": "https://www.cardenasmarkets.com",
-        "bytes": 140647,
+        "bytes": 137056,
         "error": null,
         "waf": [
           "cf-ray",
@@ -13233,7 +13049,7 @@
           {
             "url": "https://vallartasupermarkets.com/career-sitemap.xml",
             "status": 200,
-            "bytes": 44716,
+            "bytes": 44577,
             "nested": true
           },
           {
@@ -13243,7 +13059,7 @@
             "nested": true
           }
         ],
-        "total_urls": 617,
+        "total_urls": 616,
         "product_like_urls": 93
       },
       "basket": {
@@ -13317,7 +13133,7 @@
         }
       ],
       "verdict_class": "spa_empty",
-      "structural_class": "unknown",
+      "structural_class": "spa-opaque",
       "evidence_url": "https://vallartasupermarkets.com/en/2023/09/l-a-coffee-shops-putting-a-local-artisanal-spin-on-the-pumpkin-spice-latte/",
       "robots_allows_product": true
     },
@@ -13407,16 +13223,16 @@
       "homepage": "https://www.superiorgrocers.com",
       "why": "SoCal value grocer, long-tail",
       "home": {
-        "status": 502,
+        "status": 200,
         "final_url": "https://superiorgrocers.com/",
-        "bytes": 6437,
+        "bytes": 49394,
         "error": null,
         "waf": [
           "cf-ray",
           "server:cloudflare"
         ]
       },
-      "home_class": "blocked",
+      "home_class": "spa_empty",
       "robots": {
         "fetched": true,
         "sitemaps": [
@@ -13433,16 +13249,6 @@
         "tried": [
           {
             "url": "https://superiorgrocers.com/sitemap_index.xml",
-            "status": 502,
-            "bytes": 6437
-          },
-          {
-            "url": "https://www.superiorgrocers.com/sitemap.xml",
-            "status": 502,
-            "bytes": 6437
-          },
-          {
-            "url": "https://www.superiorgrocers.com/sitemap_index.xml",
             "status": 200,
             "bytes": 410
           },
@@ -13503,7 +13309,7 @@
         }
       ],
       "verdict_class": "spa_empty",
-      "structural_class": "unknown",
+      "structural_class": "spa-opaque",
       "evidence_url": "https://superiorgrocers.com/the-market/about-us/policies-and-disclosers/",
       "robots_allows_product": true
     },
@@ -13593,7 +13399,7 @@
         {
           "url": "https://www.fiestamart.com/es/ensalada-mediterranea-con-pasta/",
           "status": 200,
-          "bytes": 181514,
+          "bytes": 181536,
           "class": "spa_empty",
           "reason": "200 but no price in raw HTML",
           "signals": {
@@ -13604,7 +13410,7 @@
             "distinct_currency_strings": 0,
             "embedded_state": false,
             "api_paths": [],
-            "bytes": 181514
+            "bytes": 181536
           }
         },
         {
@@ -13643,7 +13449,7 @@
         }
       ],
       "verdict_class": "spa_empty",
-      "structural_class": "unknown",
+      "structural_class": "spa-opaque",
       "evidence_url": "https://www.fiestamart.com/es/ensalada-mediterranea-con-pasta/",
       "robots_allows_product": true
     },
@@ -13753,7 +13559,7 @@
         }
       ],
       "verdict_class": "spa_empty",
-      "structural_class": "unknown",
+      "structural_class": "spa-opaque",
       "evidence_url": "https://www.azurestandard.com/shop/product/food/beans-peas/lentils/dry/green/lentils-green-organic/8887",
       "robots_allows_product": true
     },
@@ -13866,7 +13672,7 @@
             "jsonld_price": false,
             "microdata_price": false,
             "meta_price": false,
-            "distinct_currency_strings": 7,
+            "distinct_currency_strings": 4,
             "embedded_state": true,
             "api_paths": [],
             "bytes": 111965
@@ -13883,7 +13689,7 @@
             "jsonld_price": false,
             "microdata_price": false,
             "meta_price": false,
-            "distinct_currency_strings": 8,
+            "distinct_currency_strings": 5,
             "embedded_state": true,
             "api_paths": [],
             "bytes": 87157
@@ -13905,7 +13711,7 @@
       "home": {
         "status": 200,
         "final_url": "https://www.keyfood.com",
-        "bytes": 509093,
+        "bytes": 509325,
         "error": null,
         "waf": []
       },
@@ -14003,7 +13809,6 @@
         "error": null,
         "waf": [
           "cf-ray",
-          "cookie:__cf_bm",
           "server:cloudflare"
         ]
       },
@@ -14117,7 +13922,7 @@
         {
           "url": "https://www.wmarketnyc.com/location/1407-lexington-avenue/",
           "status": 200,
-          "bytes": 120815,
+          "bytes": 120854,
           "class": "spa_empty",
           "reason": "200 but no price in raw HTML",
           "signals": {
@@ -14128,7 +13933,7 @@
             "distinct_currency_strings": 0,
             "embedded_state": false,
             "api_paths": [],
-            "bytes": 120815
+            "bytes": 120854
           }
         },
         {
@@ -14151,7 +13956,7 @@
         {
           "url": "https://www.wmarketnyc.com/location/2589-broadway/",
           "status": 200,
-          "bytes": 120640,
+          "bytes": 120680,
           "class": "spa_empty",
           "reason": "200 but no price in raw HTML",
           "signals": {
@@ -14162,12 +13967,12 @@
             "distinct_currency_strings": 0,
             "embedded_state": false,
             "api_paths": [],
-            "bytes": 120640
+            "bytes": 120680
           }
         }
       ],
       "verdict_class": "spa_empty",
-      "structural_class": "unknown",
+      "structural_class": "spa-opaque",
       "evidence_url": "https://www.wmarketnyc.com/location/1407-lexington-avenue/",
       "robots_allows_product": true
     },
@@ -14484,7 +14289,7 @@
           }
         ],
         "total_urls": 1406,
-        "product_like_urls": 1365
+        "product_like_urls": 1364
       },
       "basket": {
         "milk": {
@@ -14794,7 +14599,7 @@
         }
       ],
       "verdict_class": "spa_empty",
-      "structural_class": "unknown",
+      "structural_class": "spa-opaque",
       "evidence_url": "https://marketfresh.ph/product/native-chicken-dressed/",
       "robots_allows_product": true
     },
@@ -14968,7 +14773,7 @@
         }
       ],
       "verdict_class": "spa_empty",
-      "structural_class": "unknown",
+      "structural_class": "spa-opaque",
       "evidence_url": "https://pickaroo.com/robinsons/products/robinsons-supermarket-b-hive-mall-valenzuela",
       "robots_allows_product": true
     }

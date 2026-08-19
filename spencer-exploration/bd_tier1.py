@@ -77,30 +77,30 @@ class Budget:
             raise SystemExit("could not read Bright Data balance - refusing to spend blind")
 
     def spent(self, force: bool = True) -> float:
-        """Spend so far. Re-reads the account balance; cached briefly when polling."""
+        """Spend so far, from the live account balance. Cached briefly when polling."""
         if not force and time.monotonic() - self._last_read < self.POLL_SECONDS:
             return self._last_spent
         now = read_balance()
         self._last_read = time.monotonic()
         if now is not None:
             self._last_spent = max(0.0, self.start - now)
+            self._calls_at_read = self.calls
         return self._last_spent
 
     def check(self) -> bool:
         """True if it is still safe to spend. Trips permanently once breached.
 
-        Balance reads are throttled - each one is a CLI round-trip - but the
-        ceiling is also enforced on a local call estimate so a burst between
-        reads cannot blow past it.
+        Balance reads are throttled - each is a CLI round-trip - so between reads
+        the ceiling is also enforced against a deliberately pessimistic per-call
+        estimate. That way a burst of calls cannot slip past the cap in the gap.
         """
         if self.tripped:
             return False
         est = self._last_spent + (self.calls - self._calls_at_read) * self.EST_PER_CALL
-        s = self.spent(force=est >= self.cap * 0.8)
-        self._calls_at_read = self.calls if self._last_read else self._calls_at_read
-        if s >= self.cap or est >= self.cap:
+        actual = self.spent(force=est >= self.cap * 0.8)
+        if actual >= self.cap or est >= self.cap:
             self.tripped = True
-            print(f"\n!! BUDGET CEILING HIT: spent ${s:.2f} (est ${est:.2f}) "
+            print(f"\n!! BUDGET CEILING HIT: ${actual:.2f} spent (est ${est:.2f}) "
                   f"of ${self.cap:.2f} after {self.calls} calls - stopping tier 1")
         return not self.tripped
 
