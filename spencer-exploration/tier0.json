@@ -1,7 +1,7 @@
 {
-  "generated_at": "2026-08-19T09:46:32+00:00",
+  "generated_at": "2026-08-19T11:51:07+00:00",
   "tls_verified": true,
-  "candidates_probed": 147,
+  "candidates_probed": 148,
   "results": [
     {
       "id": "us-freshdirect",
@@ -2888,7 +2888,7 @@
       },
       "basket": {
         "milk": {
-          "count": 109,
+          "count": 108,
           "samples": [
             "https://www.aldi.us/store/aldi/products/5643-m-m-s-peanuts-milk-chocolate-candies-1-7-oz",
             "https://www.aldi.us/store/aldi/products/16752296-pepperidge-farm-milano-milano-milk-chocolate-cookies-6-oz",
@@ -2906,7 +2906,7 @@
           "sample": "https://www.aldi.us/store/aldi/products/20391805-kellogg-s-pop-tarts-toaster-pastries-breakfast-foods-baked-in-the-usa-frosted-brown-sugar-20-3-oz"
         },
         "chicken": {
-          "count": 291,
+          "count": 289,
           "samples": [
             "https://www.aldi.us/store/aldi/products/20742008-kevin-s-natural-foods-cilantro-lime-chicken-16-0-oz",
             "https://www.aldi.us/store/aldi/products/20037080-giovanni-rana-signature-meal-kit-chicken-alfredo-39-0-oz",
@@ -5804,7 +5804,7 @@
           "sample": "https://www.swansonvitamins.com/p/garden-of-life-mykind-organics-golden-milk-3-7-oz-105-g-pwdr"
         },
         "sugar": {
-          "count": 17,
+          "count": 16,
           "samples": [
             "https://www.swansonvitamins.com/p/health-direct-aminosculpt-anti-aging-collagen-peptides-sugar-free-cherry-15-fl-oz-444-ml-liquid",
             "https://www.swansonvitamins.com/p/biochem-whey-protein-sugar-free-vanilla-13-7-oz-pwdr",
@@ -6053,7 +6053,7 @@
           "sample": "https://netrition.com/products/kaizen-food-company-low-carb-plant-based-seasoned-rice-8-oz-226g"
         },
         "sugar": {
-          "count": 166,
+          "count": 163,
           "samples": [
             "https://netrition.com/products/allmax-flavored-creatine-monohydrate-sugar-free-190g",
             "https://netrition.com/products/proti-diet-15g-hot-protein-breakfast-jar-maple-brown-sugar-oatmeal-20-servings",
@@ -6062,7 +6062,7 @@
           "sample": "https://netrition.com/products/allmax-flavored-creatine-monohydrate-sugar-free-190g"
         },
         "coffee": {
-          "count": 57,
+          "count": 53,
           "samples": [
             "https://netrition.com/products/alexs-low-acid-organic-coffee-fresh-ground-decaf-12oz",
             "https://netrition.com/products/alexs-low-acid-organic-coffee-decaf-fresh-ground-5lbs",
@@ -6601,7 +6601,7 @@
           "sample": "https://thrivemarket.com/p/serenity-kids-free-range-chicken-with-organic-peas-and-carrots-6-pack-six-3-5-oz-pouches"
         },
         "coffee": {
-          "count": 168,
+          "count": 166,
           "samples": [
             "https://thrivemarket.com/p/wandering-bear-coffee-cold-brew-coffee-on-tap-straight-black-96-oz",
             "https://thrivemarket.com/p/kicking-horse-454-horse-power-ground-coffee-dark-roast",
@@ -6664,7 +6664,7 @@
           "sample": "https://thrivemarket.com/p/mason-dixie-foods-croissant-sandwich-with-sausage-egg-cheese-2-pack"
         },
         "bananas": {
-          "count": 82,
+          "count": 81,
           "samples": [
             "https://thrivemarket.com/p/thats-it-mini-fruit-bar-variety-pack-banana-blueberry-mango-36ct-25-2-ounces",
             "https://thrivemarket.com/p/bark-bistro-barkin-banana-peanut-buddy-budder-for-dogs-4-oz-pouch",
@@ -8757,7 +8757,7 @@
           "sample": "https://www.landers.ph/anti-hoarding-and-anti-panic-buying-list/baguio-canola-oil-1-5l-115977-6990"
         },
         "coffee": {
-          "count": 167,
+          "count": 165,
           "samples": [
             "https://www.landers.ph/anti-hoarding-and-anti-panic-buying-list/kopiko-black-3-in-1-coffee-mix-30-x-30g-104451-11374",
             "https://www.landers.ph/anti-hoarding-and-anti-panic-buying-list/kopiko-brown-coffee-mix-30-x-27-5g-104448-12808",
@@ -8775,7 +8775,7 @@
           "sample": "https://www.landers.ph/anti-hoarding-and-anti-panic-buying-list/lucky-me-chicken-na-chicken-instant-mami-6pcs-104894-11465"
         },
         "milk": {
-          "count": 394,
+          "count": 392,
           "samples": [
             "https://www.landers.ph/baby-kids-toys/anmum-materna-chocolate-powdered-milk-drink-375g-131210-24360",
             "https://www.landers.ph/baby-kids-toys/enfagrow-a-four-powdered-milk-drink-for-3-years-old-2-4kg-130931-23757",
@@ -8811,7 +8811,7 @@
           "sample": "https://www.landers.ph/bakery/alec-s-artisan-country-loaf-approx-350g-804417-13538"
         },
         "sugar": {
-          "count": 106,
+          "count": 105,
           "samples": [
             "https://www.landers.ph/bakery/nature-s-intent-sugar-free-keto-bombs-350g-145592-39889",
             "https://www.landers.ph/beer-wine-spirits/coca-cola-zero-sugar-vanilla-24-x-320ml-143064-36688",
@@ -17515,7 +17515,7 @@
           "sample": "https://sukli.com/products/la-pacita-egg-cracklet-crackers-130-g"
         },
         "coffee": {
-          "count": 63,
+          "count": 59,
           "samples": [
             "https://sukli.com/products/nescafe-original-coffee-mix-30-pack-sachet-servings-840-g",
             "https://sukli.com/products/nescafe-instant-coffee-beverage-mild-coffee-mix-100-pouches-2-42-lbs",
@@ -19902,6 +19902,298 @@
       "verdict_class": "no_product_urls",
       "structural_class": "unknown",
       "evidence_url": null,
+      "robots_allows_product": true
+    },
+    {
+      "id": "ph-shopsuki",
+      "name": "Shop Suki",
+      "country": "PH",
+      "vertical": "grocery",
+      "homepage": "https://shopsuki.ph",
+      "why": "Round 5: PH online grocery delivery surfaced while hunting for more stores on queryable platforms",
+      "home": {
+        "status": 200,
+        "final_url": "https://shopsuki.ph",
+        "bytes": 1189950,
+        "error": null,
+        "waf": [
+          "cf-ray",
+          "server:cloudflare"
+        ]
+      },
+      "home_class": "spa_empty",
+      "search_api": {
+        "kind": "shopify",
+        "endpoint": "https://shopsuki.ph/search/suggest.json",
+        "tried": [
+          {
+            "kind": "shopify",
+            "status": 200,
+            "valid": true
+          }
+        ]
+      },
+      "robots": {
+        "fetched": true,
+        "sitemaps": [
+          "https://shopsuki.ph/sitemap.xml"
+        ],
+        "disallow_star": [
+          "/admin",
+          "/cart/",
+          "/*/cart/",
+          "/checkout",
+          "/*/checkout",
+          "/checkouts/",
+          "/*/checkouts/",
+          "/orders",
+          "/*/orders",
+          "/account",
+          "/*/account",
+          "/35813359748",
+          "/cdn/wpm/*.js",
+          "/services",
+          "/sf_*",
+          "/cart.js",
+          "/*/cart.js",
+          "/recommendations/products",
+          "/*/recommendations/products",
+          "/collections/*sort_by*",
+          "/*/collections/*sort_by*",
+          "/collections/*+*",
+          "/collections/*%2B*",
+          "/collections/*%2b*",
+          "/*/collections/*+*",
+          "/*/collections/*%2B*",
+          "/*/collections/*%2b*",
+          "/collections/*filter*&*filter*",
+          "/*/collections/*filter*&*filter*",
+          "/blogs/*+*",
+          "/blogs/*%2B*",
+          "/blogs/*%2b*",
+          "/*/blogs/*+*",
+          "/*/blogs/*%2B*",
+          "/*/blogs/*%2b*",
+          "/*?*ls=*&ls=*",
+          "/*?*ls%3*ls%3*",
+          "/*?*oseid=*",
+          "/*?*preview_theme_id=*",
+          "/*?*preview_script_id=*"
+        ],
+        "allow_star": [
+          "/",
+          "/products/account",
+          "/products/orders",
+          "/products/checkout",
+          "/*/products/account",
+          "/*/products/orders",
+          "/*/products/checkout",
+          "/collections/account",
+          "/collections/orders",
+          "/collections/checkout",
+          "/*/collections/account",
+          "/*/collections/orders",
+          "/*/collections/checkout",
+          "/pages/checkout",
+          "/*/pages/checkout",
+          "/blogs/*account",
+          "/blogs/*orders",
+          "/blogs/*checkout",
+          "/*/blogs/*account",
+          "/*/blogs/*orders",
+          "/*/blogs/*checkout",
+          "/account/login",
+          "/*/account/login"
+        ]
+      },
+      "discovery": {
+        "via": "sitemap",
+        "categories_crawled": []
+      },
+      "sitemap": {
+        "tried": [
+          {
+            "url": "https://shopsuki.ph/sitemap.xml",
+            "status": 200,
+            "bytes": 3082
+          },
+          {
+            "url": "https://shopsuki.ph/sitemap_agentic_discovery.xml",
+            "status": 200,
+            "bytes": 208,
+            "nested": true
+          },
+          {
+            "url": "https://shopsuki.ph/sitemap_products_1.xml?from=4678013288580&amp;to=4686353334404",
+            "status": 200,
+            "bytes": 449778,
+            "nested": true
+          },
+          {
+            "url": "https://shopsuki.ph/sitemap_products_2.xml?from=4686353432708&amp;to=4705860976772",
+            "status": 200,
+            "bytes": 450716,
+            "nested": true
+          },
+          {
+            "url": "https://shopsuki.ph/sitemap_products_3.xml?from=4705861042308&amp;to=4792692605060",
+            "status": 200,
+            "bytes": 451847,
+            "nested": true
+          }
+        ],
+        "total_urls": 3002,
+        "product_like_urls": 2989
+      },
+      "basket": {
+        "bread": {
+          "count": 44,
+          "samples": [
+            "https://shopsuki.ph/products/argentina-beef-loaf-150g",
+            "https://shopsuki.ph/products/holiday-beef-loaf-150g",
+            "https://shopsuki.ph/products/winner-beef-loaf-150g"
+          ],
+          "sample": "https://shopsuki.ph/products/argentina-beef-loaf-150g"
+        },
+        "coffee": {
+          "count": 36,
+          "samples": [
+            "https://shopsuki.ph/products/coffeemate-coffee-creamer-the-original-sup-150g",
+            "https://shopsuki.ph/products/davao-coffee-arabica-500g",
+            "https://shopsuki.ph/products/angel-coffee-creamer-200g"
+          ],
+          "sample": "https://shopsuki.ph/products/coffeemate-coffee-creamer-the-original-sup-150g"
+        },
+        "milk": {
+          "count": 130,
+          "samples": [
+            "https://shopsuki.ph/products/milo-activ-go-powdered-choco-malt-milk-drink-300g",
+            "https://shopsuki.ph/products/nestle-chuckie-chocolate-milk-drink-110ml",
+            "https://shopsuki.ph/products/nestle-chuckie-chocolate-milk-drink-180ml"
+          ],
+          "sample": "https://shopsuki.ph/products/milo-activ-go-powdered-choco-malt-milk-drink-300g"
+        },
+        "bananas": {
+          "count": 15,
+          "samples": [
+            "https://shopsuki.ph/products/papa-banana-ketchup-sup-200g",
+            "https://shopsuki.ph/products/papa-banana-ketchup-320g",
+            "https://shopsuki.ph/products/ufc-banana-catsup-sup-100g"
+          ],
+          "sample": "https://shopsuki.ph/products/papa-banana-ketchup-sup-200g"
+        },
+        "cooking_oil": {
+          "count": 35,
+          "samples": [
+            "https://shopsuki.ph/products/frito-plus-vegetable-oil-sup-900ml-by-2s-budget-pack",
+            "https://shopsuki.ph/products/hapi-fiesta-vegetable-oil-sup-900ml",
+            "https://shopsuki.ph/products/hapi-fiesta-vegetable-oil-sup-500ml"
+          ],
+          "sample": "https://shopsuki.ph/products/frito-plus-vegetable-oil-sup-900ml-by-2s-budget-pack"
+        },
+        "eggs": {
+          "count": 11,
+          "samples": [
+            "https://shopsuki.ph/products/bakers-square-egg-bread-600g",
+            "https://shopsuki.ph/products/good-life-instant-egg-noodles-pancit-canton-200g",
+            "https://shopsuki.ph/products/neco-food-color-powder-egg-yellow-125g"
+          ],
+          "sample": "https://shopsuki.ph/products/bakers-square-egg-bread-600g"
+        },
+        "chicken": {
+          "count": 32,
+          "samples": [
+            "https://shopsuki.ph/products/ladys-choice-chicken-spread-220ml",
+            "https://shopsuki.ph/products/nissin-instant-noodle-chicken-100g",
+            "https://shopsuki.ph/products/besuto-chicken-crackers-500g"
+          ],
+          "sample": "https://shopsuki.ph/products/ladys-choice-chicken-spread-220ml"
+        },
+        "sugar": {
+          "count": 11,
+          "samples": [
+            "https://shopsuki.ph/products/alter-trade-mascobado-sugar-500g",
+            "https://shopsuki.ph/products/ecb-white-sugar-sachet-7g-by-100s",
+            "https://shopsuki.ph/products/kcc-brown-sugar-1-2kg"
+          ],
+          "sample": "https://shopsuki.ph/products/alter-trade-mascobado-sugar-500g"
+        },
+        "pasta": {
+          "count": 45,
+          "samples": [
+            "https://shopsuki.ph/products/royal-premium-elbow-macaroni-400g",
+            "https://shopsuki.ph/products/white-king-fiesta-spaghetti-400g",
+            "https://shopsuki.ph/products/del-monte-spaghetti-sauce-creamy-and-cheesy-sup-500g"
+          ],
+          "sample": "https://shopsuki.ph/products/royal-premium-elbow-macaroni-400g"
+        },
+        "rice": {
+          "count": 10,
+          "samples": [
+            "https://shopsuki.ph/products/nestle-cerelac-baby-food-rice-and-soya-250g",
+            "https://shopsuki.ph/products/banay-banay-rice-wmr-5kg",
+            "https://shopsuki.ph/products/7-tonner-rice-wmr-5kg"
+          ],
+          "sample": "https://shopsuki.ph/products/nestle-cerelac-baby-food-rice-and-soya-250g"
+        }
+      },
+      "basket_coverage": 10,
+      "product_probes": [
+        {
+          "url": "https://shopsuki.ph/products/argentina-beef-loaf-150g",
+          "status": 200,
+          "bytes": 721653,
+          "class": "server_rendered",
+          "reason": "price present in raw HTML",
+          "signals": {
+            "jsonld_product": true,
+            "jsonld_price": true,
+            "microdata_price": false,
+            "meta_price": true,
+            "distinct_currency_strings": 0,
+            "embedded_state": false,
+            "api_paths": [],
+            "bytes": 721653
+          }
+        },
+        {
+          "url": "https://shopsuki.ph/products/coffeemate-coffee-creamer-the-original-sup-150g",
+          "status": 200,
+          "bytes": 714736,
+          "class": "server_rendered",
+          "reason": "price present in raw HTML",
+          "signals": {
+            "jsonld_product": true,
+            "jsonld_price": true,
+            "microdata_price": false,
+            "meta_price": true,
+            "distinct_currency_strings": 0,
+            "embedded_state": false,
+            "api_paths": [],
+            "bytes": 714736
+          }
+        },
+        {
+          "url": "https://shopsuki.ph/products/coke-swakto-sakto-200ml",
+          "status": 200,
+          "bytes": 714024,
+          "class": "server_rendered",
+          "reason": "price present in raw HTML",
+          "signals": {
+            "jsonld_product": true,
+            "jsonld_price": true,
+            "microdata_price": false,
+            "meta_price": true,
+            "distinct_currency_strings": 1,
+            "embedded_state": false,
+            "api_paths": [],
+            "bytes": 714024
+          }
+        }
+      ],
+      "verdict_class": "server_rendered",
+      "structural_class": "json-ld",
+      "evidence_url": "https://shopsuki.ph/products/argentina-beef-loaf-150g",
       "robots_allows_product": true
     }
   ],
