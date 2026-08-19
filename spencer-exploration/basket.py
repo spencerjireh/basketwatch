@@ -350,7 +350,15 @@ RE_PRICE_ELEMENT = re.compile(
     r"""<[^>]*(?:class|id)\s*=\s*["'][^"']*\bprice\b[^"']*["'][^>]*>(.{0,200}?)</""",
     re.I | re.S,
 )
-RE_ANY_CURRENCY = re.compile(r"(?:[$₱]|PHP|USD|Rs\.?)\s?([0-9][0-9,]*(?:\.[0-9]{2})?)")
+# Same bar as the classifier: 2+ digits or explicit cents, so "Save $5 today" in
+# promo copy is not mistaken for a price.
+RE_ANY_CURRENCY = re.compile(
+    r"(?:[$₱]|PHP|USD|Rs\.?)\s?("
+    r"[0-9]{1,3}(?:,[0-9]{3})+(?:\.[0-9]{2})?"   # 1,039 / 1,039.50
+    r"|[0-9]{2,}(?:\.[0-9]{2})?"                 # 45 / 45.50
+    r"|[0-9]\.[0-9]{2}"                          # 4.49
+    r")"
+)
 RE_H1 = re.compile(r"<h1[^>]*>(.*?)</h1>", re.I | re.S)
 RE_TITLE_TAG = re.compile(r"<title[^>]*>(.*?)</title>", re.I | re.S)
 RE_TAGS = re.compile(r"<[^>]+>")
@@ -384,6 +392,22 @@ def extract_bare_html(html: str) -> dict | None:
                 continue
             if value > 0:
                 return {"name": name, "price": value, "currency": None, "via": "bare-html"}
+
+    # Some storefronts label nothing as a price - MerryMart Wholesale among them. A
+    # product's own price sits near its heading, so take the first currency string in
+    # the window just after the <h1> and ignore the rest of the page, which on a
+    # 334KB listing is mostly other products.
+    h1 = RE_H1.search(html)
+    if h1:
+        window = html[h1.end(): h1.end() + 4000]
+        m = RE_ANY_CURRENCY.search(_text(window))
+        if m:
+            try:
+                value = float(m.group(1).replace(",", ""))
+            except ValueError:
+                return None
+            if value > 0:
+                return {"name": name, "price": value, "currency": None, "via": "bare-html-near-h1"}
     return None
 
 

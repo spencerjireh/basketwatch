@@ -22,6 +22,8 @@ anywhere, direct or through the Unlocker.
 
 | File | What it is |
 |---|---|
+| `catalogue.py` | **the bulk puller** - every product a store sells, priced |
+| `catalogue/` | per-store catalogue JSON (gitignored), plus `runs.jsonl` and `changes.jsonl` |
 | `fleet.lock.json` | **the locked fleet** - the decision about what ships, held by hand |
 | `items.json` | **the item registry** - 20 tracked items, units, per-country match terms |
 | `basket.py` | picks one concrete product per item per store, and computes unit price |
@@ -55,6 +57,10 @@ uv run spencer-exploration/bd_tier1.py --cap-usd 5.0
 # score, audit the lock, and build the registry
 uv run spencer-exploration/score.py
 
+# pull whole catalogues
+uv run spencer-exploration/catalogue.py --transport http
+uv run spencer-exploration/catalogue.py --ids ph-ever --max-pages 2
+
 # build the per-store basket from items.json
 uv run spencer-exploration/basket.py
 uv run spencer-exploration/basket.py --ids ph-shopgaisano
@@ -85,6 +91,34 @@ Outlet from `server_rendered` to `spa_empty` - its original verdict rested on a
 homepage banner image the product-URL scorer mistook for a product page. The audit
 flagged it and Meijer, the named bench substitute for that slot, took its place. The
 swap is recorded in the lock's `changelog`.
+
+## Tracker and index
+
+Two layers, and they compose.
+
+The **tracker** is `catalogue.py`: it pulls every product a store sells, priced and
+unit-priced. 17,746 products across 13 stores at last run, 15,260 with a unit price.
+Method per store comes from the `catalogue` block in `fleet.lock.json` - Shopify
+`/products.json`, Magento GraphQL, WooCommerce, or a sitemap walk.
+
+The **index** is the 20 pinned items in `items.json`, which become a selection over
+those catalogue rows rather than a separate scrape. The basket can never disagree with
+the catalogue it is drawn from.
+
+Every store declares a **page ceiling** in the lock, checked before each fetch. That is
+a hard stop regardless of what the store serves, and it is the direct answer to the
+unbounded description that once crawled ~150 pages and 4,470 rows. `max_pages` counts
+API pages (~250 products each) for API methods and individual product pages for sitemap
+methods.
+
+History is **change-only**: a price row is written when a product's price moves. Every
+run also appends a summary to `runs.jsonl` - rows, pages, coverage, ceiling reached -
+which is what lets `checkRowCount` tell a truncated pull from a genuine mass price move.
+Without it a short pull would look like everything went free.
+
+Stores whose prices need a browser (Landers, The Fresh Market, Wegmans) are flagged
+`needs_browser` in the lock and return zero rows over plain HTTP. That is correct
+behaviour, not a silent failure - their catalogues need the Studio transport.
 
 ## The item registry and unit pricing
 
