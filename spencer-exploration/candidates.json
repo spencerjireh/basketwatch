@@ -1672,6 +1672,179 @@
         "/products/",
         "/product"
       ]
+    },
+    {
+      "id": "us-kesargrocery",
+      "name": "Kesar Grocery",
+      "country": "US",
+      "vertical": "ethnic-grocery",
+      "homepage": "https://www.kesargrocery.com",
+      "why": "Round 5: US Indian grocery, staple-heavy (basmati 20lb, atta, oil)",
+      "product_hint": [
+        "/products/",
+        "/product"
+      ]
+    },
+    {
+      "id": "us-cypressindian",
+      "name": "Cypress Indian Grocery",
+      "country": "US",
+      "vertical": "ethnic-grocery",
+      "homepage": "https://cypressindiangrocery.com",
+      "why": "Round 5: US Indian grocery storefront",
+      "product_hint": [
+        "/products/"
+      ]
+    },
+    {
+      "id": "us-desiclik",
+      "name": "DesiClik",
+      "country": "US",
+      "vertical": "ethnic-grocery",
+      "homepage": "https://www.desiclik.com",
+      "why": "Round 5: US Indian grocery, long-running online store",
+      "product_hint": [
+        "/product",
+        "-p-"
+      ]
+    },
+    {
+      "id": "us-desigabbar",
+      "name": "Desi Gabbar",
+      "country": "US",
+      "vertical": "ethnic-grocery",
+      "homepage": "https://www.desigabbar.com",
+      "why": "Round 5: US Indian grocery with nationwide shipping",
+      "product_hint": [
+        "/products/"
+      ]
+    },
+    {
+      "id": "us-indiacashcarry",
+      "name": "India Cash & Carry",
+      "country": "US",
+      "vertical": "ethnic-grocery",
+      "homepage": "https://www.indiacashandcarry.com",
+      "why": "Round 5: Bay Area Indian grocery chain with online ordering",
+      "product_hint": [
+        "/products/",
+        "/product"
+      ]
+    },
+    {
+      "id": "us-quicklly",
+      "name": "Quicklly",
+      "country": "US",
+      "vertical": "ethnic-grocery",
+      "homepage": "https://www.quicklly.com",
+      "why": "Round 5: US Indian grocery delivery marketplace",
+      "product_hint": [
+        "/products/",
+        "/p/"
+      ]
+    },
+    {
+      "id": "us-mexmax",
+      "name": "MexMax",
+      "country": "US",
+      "vertical": "ethnic-grocery",
+      "homepage": "https://mexmax.com",
+      "why": "Round 5: US Mexican grocery wholesaler with public catalogue",
+      "product_hint": [
+        "/products/"
+      ]
+    },
+    {
+      "id": "us-ranchomarkets",
+      "name": "Rancho Markets",
+      "country": "US",
+      "vertical": "ethnic-grocery",
+      "homepage": "https://www.ranchomarkets.com",
+      "why": "Round 5: Hispanic supermarket chain, real staples",
+      "product_hint": [
+        "/product",
+        "/products/"
+      ]
+    },
+    {
+      "id": "us-latimex",
+      "name": "Latimex Market",
+      "country": "US",
+      "vertical": "ethnic-grocery",
+      "homepage": "https://latimexmarket.com",
+      "why": "Round 5: US Latin American grocery storefront",
+      "product_hint": [
+        "/products/"
+      ]
+    },
+    {
+      "id": "us-mexgrocer",
+      "name": "MexGrocer",
+      "country": "US",
+      "vertical": "ethnic-grocery",
+      "homepage": "https://www.mexgrocer.com",
+      "why": "Round 5: long-running US Mexican grocery, staple-heavy",
+      "product_hint": [
+        "/product",
+        "/products/"
+      ]
+    },
+    {
+      "id": "us-amigofoods",
+      "name": "Amigo Foods",
+      "country": "US",
+      "vertical": "ethnic-grocery",
+      "homepage": "https://www.amigofoods.com",
+      "why": "Round 5: US Latin grocery, broad staples catalogue",
+      "product_hint": [
+        "/products/",
+        "/product"
+      ]
+    },
+    {
+      "id": "us-ishopindian",
+      "name": "iShopIndian",
+      "country": "US",
+      "vertical": "ethnic-grocery",
+      "homepage": "https://www.ishopindian.com",
+      "why": "Round 5: US Indian grocery, bulk rice and flour",
+      "product_hint": [
+        "/products/",
+        "/product"
+      ]
+    },
+    {
+      "id": "us-kalustyans",
+      "name": "Kalustyan's",
+      "country": "US",
+      "vertical": "ethnic-grocery",
+      "homepage": "https://foodsofnations.com",
+      "why": "Round 5: NYC specialty grocer with deep pantry staples",
+      "product_hint": [
+        "/products/"
+      ]
+    },
+    {
+      "id": "us-asianfoodgrocer",
+      "name": "Asian Food Grocer",
+      "country": "US",
+      "vertical": "ethnic-grocery",
+      "homepage": "https://www.asianfoodgrocer.com",
+      "why": "Round 5: US Asian grocery, rice and oil",
+      "product_hint": [
+        "/products/"
+      ]
+    },
+    {
+      "id": "us-weeeshop",
+      "name": "Weee! (round 5 retry)",
+      "country": "US",
+      "vertical": "ethnic-grocery",
+      "homepage": "https://www.sayweee.com",
+      "why": "Round 5: retry the PRD anchor now that search-API detection exists",
+      "product_hint": [
+        "/product/"
+      ]
     }
   ]
 }

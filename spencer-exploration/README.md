@@ -200,6 +200,28 @@ TLS certificates are verified by default. A cert failure is recorded as `blocked
 rather than suppressed, since a broken cert is a real finding about a site. Pass
 `--insecure` to skip verification; `tier0.json` records which mode produced it.
 
+## Two mistakes worth not repeating
+
+Both hid good stores for days, and both were harness limits mistaken for facts about
+the world.
+
+**Judging a store by its sitemap.** Sitemap keyword coverage reads 0/10 for a store
+whose catalogue is only reachable by query. Ever Supermarket scored 85/backup that way
+and turned out to have the best basket coverage of any store here once tested through
+its own Shopify search. Test every store through its search API before believing a
+coverage number.
+
+**Assuming no structured data means no prices.** Kesar Grocery publishes 11,987
+products and not one line of JSON-LD. It looked unusable until `extract_bare_html`
+read the price out of an element that says it is a price. It is now the US index
+source, carrying real fresh produce.
+
+The second one also overturned a conclusion stated confidently five times over - that
+no US retailer publishes plain staples. That held for the segments actually tested
+(supermarket chains, online pantries, snack importers) and not for US ethnic grocers,
+which were never tested properly. The superseded finding is kept in
+`manual-findings.json` rather than deleted.
+
 ## Known limits
 
 - Probes run from a Manila IP, so a US tier-0 failure is not conclusive - that is

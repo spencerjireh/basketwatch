@@ -304,3 +304,27 @@ def test_staple_sized_packs_pass(item, name):
 
 def test_plausibility_is_skipped_when_no_size_parses():
     assert size_is_plausible("onions", None)
+
+
+# --- bare-HTML extraction ----------------------------------------------------
+# Kesar Grocery and MerryMart carry ~12,000 products between them and publish no
+# structured data at all.
+
+from basket import extract_bare_html  # noqa: E402
+
+
+def test_bare_html_reads_heading_and_priced_element():
+    html = """<h1>Zafarani Basmati Rice 20 LB</h1>
+              <div class="product-price">$24.99</div>"""
+    out = extract_bare_html(html)
+    assert out["name"].startswith("Zafarani") and out["price"] == pytest.approx(24.99)
+
+
+def test_bare_html_ignores_currency_outside_a_price_element():
+    # "$5 off your first order" is not the product price.
+    html = "<h1>Rice 5kg</h1><p>Save $5 today</p>"
+    assert extract_bare_html(html) is None
+
+
+def test_bare_html_needs_a_name():
+    assert extract_bare_html('<div class="price">$9.99</div>') is None

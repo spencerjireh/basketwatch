@@ -338,6 +338,52 @@ def extract_product(html: str) -> dict | None:
                     "currency": None, "via": "og"}
         except ValueError:
             pass
+
+    return extract_bare_html(html)
+
+
+# Older and smaller storefronts carry no structured data at all - Kesar Grocery and
+# MerryMart Wholesale between them hold nearly 12,000 products and expose none of it.
+# Fall back to the page's own heading plus a price read from an element that says it
+# is a price, rather than the first currency-looking number on the page.
+RE_PRICE_ELEMENT = re.compile(
+    r"""<[^>]*(?:class|id)\s*=\s*["'][^"']*\bprice\b[^"']*["'][^>]*>(.{0,200}?)</""",
+    re.I | re.S,
+)
+RE_ANY_CURRENCY = re.compile(r"(?:[$₱]|PHP|USD|Rs\.?)\s?([0-9][0-9,]*(?:\.[0-9]{2})?)")
+RE_H1 = re.compile(r"<h1[^>]*>(.*?)</h1>", re.I | re.S)
+RE_TITLE_TAG = re.compile(r"<title[^>]*>(.*?)</title>", re.I | re.S)
+RE_TAGS = re.compile(r"<[^>]+>")
+
+
+def _text(fragment: str) -> str:
+    import html as _html
+    return _html.unescape(RE_TAGS.sub(" ", fragment or "")).strip()
+
+
+def extract_bare_html(html: str) -> dict | None:
+    if not html:
+        return None
+    name = None
+    for rx in (RE_OG_TITLE, RE_H1, RE_TITLE_TAG):
+        m = rx.search(html)
+        if m:
+            candidate = _text(m.group(1))
+            if len(candidate) >= 3:
+                name = re.sub(r"\s+", " ", candidate)[:150]
+                break
+    if not name:
+        return None
+
+    for frag in RE_PRICE_ELEMENT.findall(html)[:12]:
+        m = RE_ANY_CURRENCY.search(_text(frag))
+        if m:
+            try:
+                value = float(m.group(1).replace(",", ""))
+            except ValueError:
+                continue
+            if value > 0:
+                return {"name": name, "price": value, "currency": None, "via": "bare-html"}
     return None
 
 
