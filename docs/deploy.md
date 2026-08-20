@@ -78,7 +78,7 @@ So database clients use the origin IP directly. The alternative — a DNS-only
 `db.spencerjireh.com` record — would be a nicer name but would publish the
 origin IP in public DNS, letting anyone bypass Cloudflare and reach the VPS on
 any port. Not worth it for one week. If the VPS IP changes, update the
-connection strings here and in `scrape-verse/.env.example`.
+connection strings here and in `.env.example` at the repo root.
 
 ## First-time setup
 

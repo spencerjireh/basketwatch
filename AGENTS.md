@@ -60,8 +60,10 @@ Bright Data CLI (`brightdata`, v0.3.4+) drives Scraper Studio:
 
 ## Hard rules
 
-- **Never commit secrets.** `.env` is gitignored; keys live there only.
-  Never print API keys in output, code, or the demo video.
+- **Never commit secrets.** One `.env` for the whole repo, at the repo **root**,
+  beside `.env.example` and the compose files. It is gitignored; keys live there
+  only, and there is no per-app copy. Never print API keys in output, code, or
+  the demo video.
 - **Credits are finite (~$50 per account, and the team has two separate
  accounts — see `docs/index.md`).** Check `brightdata budget` before and
   after Studio-heavy work. Respect the budget-guard env knobs in
