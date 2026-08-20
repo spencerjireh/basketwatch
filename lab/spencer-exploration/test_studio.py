@@ -8,7 +8,7 @@ Two of these guard failures that would be expensive rather than merely wrong:
 product_key drift would overwrite price history that cannot be re-collected, and an
 over-long description is only rejected after the create call has been made.
 
-    uv run --with pytest --with 'httpx[http2]' pytest spencer-exploration/test_studio.py -q
+    uv run --with pytest --with 'httpx[http2]' pytest lab/spencer-exploration/test_studio.py -q
 """
 
 from __future__ import annotations

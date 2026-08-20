@@ -9,7 +9,7 @@ feeds it is the highest-consequence code here: a wrong unit price is worse than 
 missing one. Every case below is either a real product title seen during vetting or
 a boundary that decides comparability.
 
-    uv run --with pytest --with 'httpx[http2]' pytest spencer-exploration/test_basket.py -q
+    uv run --with pytest --with 'httpx[http2]' pytest lab/spencer-exploration/test_basket.py -q
 """
 
 from __future__ import annotations

@@ -8,9 +8,9 @@ Classifies every candidate as server_rendered / spa_empty / blocked, harvests
 sitemaps, and maps the canonical basket items to real product URLs.
 
 Usage:
-    uv run spencer-exploration/vet.py                  # probe all candidates
-    uv run spencer-exploration/vet.py --only ph        # country filter
-    uv run spencer-exploration/vet.py --ids ph-landers us-aldi
+    uv run lab/spencer-exploration/vet.py                  # probe all candidates
+    uv run lab/spencer-exploration/vet.py --only ph        # country filter
+    uv run lab/spencer-exploration/vet.py --ids ph-landers us-aldi
 """
 
 from __future__ import annotations

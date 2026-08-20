@@ -4,9 +4,9 @@
  * through this, so that no action can run without a cost checkpoint on
  * either side of it and a cap that can stop a runaway.
  *
- *   node scripts/bd.mjs --label=vet-us -- scrape https://example.com --country us
- *   node scripts/bd.mjs --report          review cost per action so far
- *   BD_DRY_RUN=1 node scripts/bd.mjs -- ...   preflight only, runs nothing
+ *   node lab/scripts/bd.mjs --label=vet-us -- scrape https://example.com --country us
+ *   node lab/scripts/bd.mjs --report          review cost per action so far
+ *   BD_DRY_RUN=1 node lab/scripts/bd.mjs -- ...   preflight only, runs nothing
  *
  * Why zones and not balance: `budget balance` rounds to the dollar and sat
  * at $52.00 across six Unlocker calls, so it cannot see a single action.
@@ -335,8 +335,8 @@ async function main() {
   const separator = argv.indexOf("--");
   const args = separator === -1 ? argv.filter((a) => !a.startsWith("--label=")) : argv.slice(separator + 1);
   if (!args.length) {
-    console.error("usage: node scripts/bd.mjs [--label=name] -- <brightdata args>");
-    console.error("       node scripts/bd.mjs --report");
+    console.error("usage: node lab/scripts/bd.mjs [--label=name] -- <brightdata args>");
+    console.error("       node lab/scripts/bd.mjs --report");
     process.exit(64);
   }
   return run(label, args);

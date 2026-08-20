@@ -13,9 +13,9 @@ Ceilings are hard stops checked before each fetch, so a runaway crawl is impossi
 construction - the failure mode that once produced 4,470 unintended rows.
 
 Usage:
-    uv run spencer-exploration/catalogue.py --transport http
-    uv run spencer-exploration/catalogue.py --ids ph-ever --transport http
-    uv run spencer-exploration/catalogue.py --ids ph-ever --max-pages 2   # override
+    uv run lab/spencer-exploration/catalogue.py --transport http
+    uv run lab/spencer-exploration/catalogue.py --ids ph-ever --transport http
+    uv run lab/spencer-exploration/catalogue.py --ids ph-ever --max-pages 2   # override
 """
 
 from __future__ import annotations

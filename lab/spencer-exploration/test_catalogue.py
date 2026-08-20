@@ -8,7 +8,7 @@ The two things that must not break: the page ceiling (a runaway crawl once produ
 4,470 unintended rows) and change detection (a truncated pull must never read as a
 mass price change).
 
-    uv run --with pytest --with 'httpx[http2]' pytest spencer-exploration/test_catalogue.py -q
+    uv run --with pytest --with 'httpx[http2]' pytest lab/spencer-exploration/test_catalogue.py -q
 """
 
 from __future__ import annotations

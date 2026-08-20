@@ -9,8 +9,8 @@ no_product_urls). Reuses vet.py's classifier so tier-0 and tier-1 verdicts are
 directly comparable.
 
 Usage:
-    uv run spencer-exploration/bd_tier1.py --cap-usd 5.0
-    uv run spencer-exploration/bd_tier1.py --cap-usd 1.0 --ids ph-watsons us-riteaid
+    uv run lab/spencer-exploration/bd_tier1.py --cap-usd 5.0
+    uv run lab/spencer-exploration/bd_tier1.py --cap-usd 1.0 --ids ph-watsons us-riteaid
 """
 
 from __future__ import annotations

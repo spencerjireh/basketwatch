@@ -7,7 +7,7 @@
 Every case here is a bug this harness actually shipped during the exploration,
 or a boundary that decides a site's verdict. Run:
 
-    uv run --with pytest pytest spencer-exploration/test_vet.py -q
+    uv run --with pytest pytest lab/spencer-exploration/test_vet.py -q
 """
 
 from __future__ import annotations

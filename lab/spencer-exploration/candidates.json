@@ -1,5 +1,5 @@
 {
-  "generated_by": "spencer-exploration/vet.py seed list",
+  "generated_by": "lab/spencer-exploration/vet.py seed list",
   "basket_note": "US and PH canonical basket per docs/prd.md section 5",
   "candidates": [
     {

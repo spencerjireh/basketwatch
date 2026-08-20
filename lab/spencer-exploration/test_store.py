@@ -8,7 +8,7 @@ The invariant that matters most: a run summary lands every time, even when nothi
 changed. Without it a truncated pull and a quiet day are indistinguishable, which is
 the exact failure the change-only history model would otherwise introduce.
 
-    uv run --with pytest --with 'httpx[http2]' pytest spencer-exploration/test_store.py -q
+    uv run --with pytest --with 'httpx[http2]' pytest lab/spencer-exploration/test_store.py -q
 """
 
 from __future__ import annotations

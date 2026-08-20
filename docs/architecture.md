@@ -14,7 +14,7 @@ diverged from it. The shape held; three things changed in the detail:
 - **The dashboard is Next.js**, not a Vite SPA, and nginx is gone with it
   (section 3.4 and 3.6).
 - **PH is in scope** — the gate passed Aug 19 (section 2).
-- **The app lives in `basketwatch/`**, on pnpm + Turborepo. The clone store was
+- **The app is the repo root**, on pnpm + Turborepo. The clone store was
   deleted in that rebuild and is pending; section 3.5 describes what it will be,
   not what exists today.
 Companions: [hackathon-brief](hackathon-brief.md) (rules, judging, experiment

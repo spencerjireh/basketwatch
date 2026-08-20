@@ -53,28 +53,28 @@ anywhere, direct or through the Unlocker.
 
 ```bash
 # tier 0 - free, no credits, safe to re-run (responses are cached)
-uv run spencer-exploration/vet.py
-uv run spencer-exploration/vet.py --only PH          # one country
-uv run spencer-exploration/vet.py --ids ph-landers   # one site
-uv run spencer-exploration/vet.py --no-cache         # force refetch
+uv run lab/spencer-exploration/vet.py
+uv run lab/spencer-exploration/vet.py --only PH          # one country
+uv run lab/spencer-exploration/vet.py --ids ph-landers   # one site
+uv run lab/spencer-exploration/vet.py --no-cache         # force refetch
 
 # tier 1 - spends Bright Data credits, hard ceiling enforced
 set -a; . ./.env; set +a
-uv run spencer-exploration/bd_tier1.py --cap-usd 5.0
+uv run lab/spencer-exploration/bd_tier1.py --cap-usd 5.0
 
 # score, audit the lock, and build the registry
-uv run spencer-exploration/score.py
+uv run lab/spencer-exploration/score.py
 
 # pull whole catalogues
-uv run spencer-exploration/catalogue.py --transport http
-uv run spencer-exploration/catalogue.py --ids ph-ever --max-pages 2
+uv run lab/spencer-exploration/catalogue.py --transport http
+uv run lab/spencer-exploration/catalogue.py --ids ph-ever --max-pages 2
 
 # build the per-store basket from items.json
-uv run spencer-exploration/basket.py
-uv run spencer-exploration/basket.py --ids ph-shopgaisano
+uv run lab/spencer-exploration/basket.py
+uv run lab/spencer-exploration/basket.py --ids ph-shopgaisano
 
 # tests - the whole suite, 172 of them
-uv run --with pytest --with 'httpx[http2]' pytest spencer-exploration/ -q
+uv run --with pytest --with 'httpx[http2]' pytest lab/spencer-exploration/ -q
 ```
 
 `bd_tier1.py` reads the live account balance before it starts and re-checks it as

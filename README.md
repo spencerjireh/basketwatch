@@ -1,9 +1,9 @@
 # basketwatch
 
-The product monorepo: a grocery basket index whose promise is that it shows its
-own gaps. Prices come from a fleet of scrapers; when one breaks, the index line
-stops rather than interpolating over the missing days, and a heal loop repairs
-the scraper with the whole attempt audited.
+A grocery basket index whose promise is that it shows its own gaps. Prices come
+from a fleet of scrapers; when one breaks, the index line stops rather than
+interpolating over the missing days, and a heal loop repairs the scraper with
+the whole attempt audited.
 
 ## Layout
 
@@ -13,6 +13,9 @@ apps/web        Next.js dashboard. A pure client of the API; never touches Postg
 packages/contract   zod schemas and types. The only thing the two apps share.
 packages/tsconfig   base / library / nest / next compiler configs.
 packages/eslint-config  base / nest / next lint configs, incl. the import boundaries.
+docs/           design docs, the deploy runbook, the API contract.
+lab/            frozen exploration notebooks and the Bright Data credit guard.
+                Not product code; nothing under apps/ or packages/ imports it.
 ```
 
 Inside `apps/api/src`, `modules/` holds one directory per domain. The four
@@ -22,19 +25,16 @@ interfaces, so there is one obvious place for each to land.
 
 ## Commands
 
-Run everything from this directory. `pnpm dev` from the root, always: the API
-depends on the contract package's watch build, and starting an app directly
-means contract edits stop propagating.
+`just` is the entry point; run `just` on its own to list every recipe. Use
+`just dev` rather than an app's own dev script: the API depends on the contract
+package's watch build, and starting an app directly means contract edits stop
+propagating.
 
 ```sh
-docker compose -f ../docker-compose.dev.yml up -d   # postgres, from the repo root
-
 pnpm install
-pnpm dev            # contract watch + api :3001 + dashboard :3000
-pnpm build
-pnpm test
-pnpm lint
-pnpm typecheck
+just up             # local postgres
+just dev            # contract watch + api :3001 + dashboard :3000
+just check          # typecheck, lint, test, build
 ```
 
 ## Database
@@ -44,8 +44,8 @@ bare `pnpm db:migrate` would therefore target production, so `drizzle.config.ts`
 refuses any non-local host unless you opt in explicitly:
 
 ```sh
-# local dev
-DATABASE_URL=postgres://basketwatch:basketwatch@localhost:5432/basketwatch pnpm db:migrate
+# local dev -- the recipe passes the local URL for you
+just db-migrate
 
 # deployed, on purpose
 ALLOW_REMOTE_DB=1 pnpm db:check

@@ -1,22 +1,22 @@
 # edjin-exploration
 
 Browser-based site vetting, and the evidence behind
-[docs/site-vetting.md](../docs/site-vetting.md).
+[docs/site-vetting.md](../../docs/site-vetting.md).
 
-This is the counterpart to `spencer-exploration/`, and it exists for the same
+This is the counterpart to `lab/spencer-exploration/`, and it exists for the same
 reason: exploration produces a lot of throwaway scripts and a little durable
 evidence, and mixing either into the product tree is how the product tree
-rots. Nothing here is imported by `basketwatch/`, and its one dependency,
+rots. Nothing here is imported by the workspace, and its one dependency,
 `playwright-core`, is installed here rather than in the product workspace.
 
 The one exception is deliberate: the credit guard lives at
-`scripts/bd.mjs`, not here, because `AGENTS.md` mandates it for
+`lab/scripts/bd.mjs`, not here, because `AGENTS.md` mandates it for
 every Bright Data call anywhere in the repo and the heal orchestrator will
 enforce the same caps in Phase 3. It is tooling, not exploration.
 
 ## Why a second vetting pass exists
 
-`spencer-exploration/registry.json` vetted 163 candidates over HTTP and the
+`lab/spencer-exploration/registry.json` vetted 163 candidates over HTTP and the
 Web Unlocker. Neither executes JavaScript. That is fine for most sites and
 wrong for the ones that matter most: an HTTP-only pass rejected Landers on a
 10kb empty shell, and in a real browser Landers is the best-covered PH grocery

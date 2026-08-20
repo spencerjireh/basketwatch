@@ -9,9 +9,9 @@ status: v2
 # API contract (v2)
 
 The seam between the two work slices in [architecture](architecture.md)
-section 5. Source of truth is `basketwatch/packages/contract/src/`: zod schemas
+section 5. Source of truth is `packages/contract/src/`: zod schemas
 with types derived from them, so runtime validation and the compiler read the
-same definition. `basketwatch/apps/web/src/fixtures/dashboard.ts` holds fixtures
+same definition. `apps/web/src/fixtures/dashboard.ts` holds fixtures
 in exactly those shapes. Change the schema and the fixture together, or neither.
 
 v2 replaces the frozen v1 that lived in `scrape-verse/packages/shared/src/api.ts`.
@@ -130,7 +130,7 @@ validation and the UI's exhaustiveness checks:
   carries size and unit price; the fleet output contract still does not. The v2
   rewrite did not close this — `packages/contract/src/ingest.ts` still has the
   v1 shape. Four changes are outstanding, all specified in
-  [spencer-exploration/HANDOFF.md](../spencer-exploration/HANDOFF.md) with a
+  [lab/spencer-exploration/HANDOFF.md](../lab/spencer-exploration/HANDOFF.md) with a
   tested reference implementation in its `basket.py`:
   - `unit: z.string().min(1)` must become nullable. 4,276 of 28,376 catalogue
     rows have no parseable size and are still perfectly good prices; as

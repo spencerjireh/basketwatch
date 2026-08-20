@@ -1,12 +1,12 @@
 # Handoff: what exploration decided that the app has to absorb
 
-Exploration deliberately stops at the repo boundary. Nothing under `basketwatch/`
+Exploration deliberately stops at the repo boundary. Nothing under `apps/`
 was touched. This file states the changes the app needs and why, so whoever picks it
 up is not reverse-engineering intent from JSON.
 
 ## 1. The output contract needs size and unit price
 
-`priceRecordSchema` in `basketwatch/packages/contract/src/ingest.ts` currently carries
+`priceRecordSchema` in `packages/contract/src/ingest.ts` currently carries
 `unit` as free text - "500g", "16 oz. Loaf.", "5kg". That is enough to display and
 useless to compare.
 
@@ -32,14 +32,14 @@ size_approximate: z.boolean().default(false),      // ranges, "approx 1.4kg"
 unit_price: z.number().positive().nullable(),      // price / size_quantity
 ```
 
-Nullable throughout on purpose. `spencer-exploration/basket.py` refuses to guess when
+Nullable throughout on purpose. `lab/spencer-exploration/basket.py` refuses to guess when
 a size is a bundle of unknown contents - "6 Pack" says how many bundles, not how much
 is in them - and the app should carry that same refusal rather than invent a number.
 A wrong unit price is worse than a missing one for a product whose headline is that
 the index never lies.
 
 Reference implementation to port, already tested: `parse_size`, `to_base` and
-`unit_price` in `spencer-exploration/basket.py`, covered by `test_basket.py` for
+`unit_price` in `lab/spencer-exploration/basket.py`, covered by `test_basket.py` for
 fractions ("1/4 Kg" is 250 g, not 4 kg), multipacks ("12 x 2g" is 24 g), ranges,
 fluid ounces, and bare counts ("12's", "30pcs").
 
@@ -75,11 +75,11 @@ product swap and a scraper fault indistinguishable, which destroys exactly the s
 `validateRun` exists to detect.
 
 Picking the replacement is a human or heal-loop decision, recorded in
-`spencer-exploration/manual-basket.json` alongside the existing curated picks.
+`lab/spencer-exploration/manual-basket.json` alongside the existing curated picks.
 
 ## 4. Items and pins are data, not code
 
-`spencer-exploration/items.json` is the item registry: 20 tracked items with units,
+`lab/spencer-exploration/items.json` is the item registry: 20 tracked items with units,
 per-country target sizes, localised match terms and category hints. The **core tier is
 exactly the `docs/prd.md` section 5 basket**, so the headline index is unchanged and
 nothing already built is invalidated; the stretch tier broadens it into a price
