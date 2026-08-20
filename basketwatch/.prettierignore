@@ -1,6 +1,0 @@
-dist
-.next
-.turbo
-coverage
-pnpm-lock.yaml
-drizzle/meta
