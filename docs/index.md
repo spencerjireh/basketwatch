@@ -48,6 +48,11 @@ on GitHub — everything renders in both.
   [HANDOFF](../lab/spencer-exploration/HANDOFF.md) states what the app must
   absorb) and [edjin-exploration](../lab/edjin-exploration/README.md) (Node;
   browser-based vetting).
+- [Heal agent proposal](heal-agent-proposal.md) — Edjin, Aug 20. Extends the
+  heal orchestrator into one agent covering scraper repair *and* data quality,
+  grounded in eight false basket pins found in the live data. **Draft, pending
+  team review** — read it before building anything under `modules/heal/` or
+  `modules/quality/`, but it is a proposal, not confirmed scope.
 - Review artifacts (shareable pages):
   - HLD: https://claude.ai/code/artifact/a6c6e40f-22be-4b1d-b8f7-2c3f08578463
   - PRD: https://claude.ai/code/artifact/f7cf34cf-af6e-4efd-8f76-16dd1865ef36
@@ -110,10 +115,17 @@ PR that resolves each one; do not silently close them.
   back to the env vars when no explicit argument is given. Details in
   [credit-monitoring.md](credit-monitoring.md) under "Unified guard
   protocol".
+- [ ] **Heal agent scope and its three questions.** The
+  [proposal](heal-agent-proposal.md) asks: Haiku or Sonnet for the pin
+  validator; reuse `heal_attempts` or add a `quality_decisions` table; and
+  whether a wholesale-only store like MexMax gets flagged pin by pin or demoted
+  from `index_contributor` outright. Also open is how much of the four-strategy
+  design to build this week — the URL slug check alone catches all three MexMax
+  failures in ten lines and needs no LLM.
 - [ ] **`priceRecordSchema` update.** The fleet output contract still
   requires `unit` (rejects 15% of the catalogue), has no size/unit-price
   fields, no `source`, and no `size_change` incident kind. All specified in
   [HANDOFF.md](../lab/spencer-exploration/HANDOFF.md) with a tested reference
-  implementation. Touches `packages/shared` and `mock.ts` together per the
-  coupling rule. Needs agreement on whether to land before or after scraper
-  creation.
+  implementation. Touches `packages/contract` and
+  `apps/web/src/fixtures/dashboard.ts` together per the coupling rule. Needs
+  agreement on whether to land before or after scraper creation.
