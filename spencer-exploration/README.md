@@ -426,6 +426,29 @@ extract products those stores already publish for free. When finally tested the
 assumption was *correct*. It was also free to test and took one command. Being right is
 not the same as having checked, and the difference here was a day of spending decisions.
 
+**Reading "wholesaler" as a feature.** MexMax was locked as a US index contributor on
+measured item coverage - 8/10, the best of the candidates - and its own description says
+*wholesaler*. That was read as a sign of catalogue depth and never checked against price
+comparability. Its listed price is a case price against a unit size in the title:
+"Goya Thai Jasmine Rice - 5 lb" at $125.03. MerryMart Wholesale has the same shape and
+had been in the fleet longer. The case count appears in about 1% of their product
+titles, so a correct unit price is not computable for the rest at any effort.
+
+Both now carry `pricing: "wholesale"`, keep their prices, and publish no unit price. They
+stay in the tracker because a case price moving is a real signal; they leave the index
+because a case price is not a shelf price. The claim that MexMax "fixes the US gaps that
+mattered - eggs, chicken, cooking oil" was wrong as stated: the items are there, the
+prices are not comparable.
+
+**Letting the wrong answers set the baseline.** The unit-price outlier check compares a
+pick against the median for the same item across stores. With two wholesalers in the
+pool, the median rose and *correct* rows started failing: a $2.42/kg baking potato at
+Kesar was flagged as 0.17x an average set by potato gnocchi and dried Peruvian potato.
+Of 21 flagged outliers, 18 were this. Excluding wholesale from the baseline and raising
+the peer floor from three stores to four took the flags to zero - and each of the three
+real ones then had a cause: one matcher bug, and two stores that genuinely do not stock
+the staple.
+
 ## Known limits
 
 - **Two days of history.** The mechanism is proven - 30 real price moves recorded with

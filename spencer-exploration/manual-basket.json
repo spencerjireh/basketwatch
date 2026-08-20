@@ -25,6 +25,12 @@
     "_comment": "Items a store genuinely does not stock, confirmed by hand. Recorded so nobody re-investigates, and so the index knows the gap is real rather than a scraper fault.",
     "ph-shopgaisano": {
       "chicken": "Searched its Shopify catalogue for chicken and whole chicken: only spreads, bouillon cubes, canned Progresso soup and dog treats. No raw or fresh chicken is sold online."
+    },
+    "ph-smmarkets": {
+      "sugar": "No plain sugar anywhere in the 1,688-row bounded slice of this store's catalogue - every 'sugar' match is a modifier ('sugar free', 'reduced sugar') or an ice-cream cone. Automation had picked Carman's Low Sugar Granola. This is a limit of the bounded pull rather than proof the store does not sell sugar; re-check if the ceiling is raised."
+    },
+    "us-amigofoods": {
+      "pork": "Sells only cured Spanish pork - Iberico ham, Serrano loin, salchichon, cracklings. Automation picked Covap Bone-In Iberico Ham at $126.83/kg, correctly: it is pork, and it is the only pork this store carries. It is not the ordinary cut the index tracks, so this reads as a real gap rather than a 5x outlier."
     }
   }
 }

@@ -20,7 +20,7 @@ the store does not sell it. **not_found** - nothing in the store's catalogue mat
 | chicken | 1 kg | not_stocked | - | - | - | Searched its Shopify catalogue for chicken and whole chicken |
 | eggs | tray (30) or dozen | verified | 12's | 125.00 | 10.42/item | Great Value Farm Fresh Eggs Medium 12's |
 | milk | 1 L | verified | 1L | 117.75 | 117.75/litre | Nestle Non Fat Milk 1L |
-| coffee | ground or instant refill | curated | 50g | - | - | Nescafe Classic Tipid Pack 50g |
+| coffee | ground or instant refill | curated | 50g | 51.95 | 1039.00/kg | Nescafe Classic Tipid Pack 50g |
 | sugar | 1 kg | verified | 1Kg | 76.00 | 76.00/kg | Great Value Brown Sugar 1Kg |
 | cooking_oil | 1 L | verified | 1L | 143.70 | 143.70/litre | Golden Fiesta Palm Oil 1L |
 | bananas | 1 kg | not_found | - | - | - | no product in this store's catalogue matches the item |
@@ -89,7 +89,7 @@ the store does not sell it. **not_found** - nothing in the store's catalogue mat
 | bottled_water | 1.5 L | verified | 1.5L | 20.90 | 13.93/litre | Nature's Spring Purified Drinking Water 1.5L |
 
 
-## SM Markets (PH) - 5/10 core, 9/20 tracked, from 1,688 catalogue products
+## SM Markets (PH) - 4/10 core, 8/20 tracked, from 1,688 catalogue products
 
 | Item | Target | Status | Size | Price | Per unit | Product |
 |---|---|---|---|---|---|---|
@@ -100,7 +100,7 @@ the store does not sell it. **not_found** - nothing in the store's catalogue mat
 | eggs | tray (30) or dozen | not_found | - | - | - | no product in this store's catalogue matches the item |
 | milk | 1 L | verified | 310ml | 45.00 | 145.16/litre | Ichitan Brown Sugar Milk | 310ml |
 | coffee | ground or instant refill | verified | 500g | 494.50 | 989.00/kg | Batangas Coffee Brew | 500g |
-| sugar | 1 kg | verified | 450g | 379.50 | 843.33/kg | Carmans Low Sugar Granola | 450g |
+| sugar | 1 kg | not_stocked | - | - | - | No plain sugar anywhere in the 1,688-row bounded slice of th |
 | cooking_oil | 1 L | not_found | - | - | - | no product in this store's catalogue matches the item |
 | bananas | 1 kg | not_found | - | - | - | no product in this store's catalogue matches the item |
 | pork | 1 kg | verified | 570g | 584.00 | 1024.56/kg | Ajinomoto Pork & Chicken Gyoza | 570g |
@@ -114,7 +114,6 @@ the store does not sell it. **not_found** - nothing in the store's catalogue mat
 | canned_fish | 155 g tin | not_found | - | - | - | no product in this store's catalogue matches the item |
 | bottled_water | 1.5 L | not_found | - | - | - | no product in this store's catalogue matches the item |
 
-- **sugar** unit price is 4.57x the median across 4 stores in this country - likely a case or multipack, flagged not dropped
 
 ## MerryMart Wholesale (PH) - 4/10 core, 6/20 tracked, from 118 catalogue products
 
@@ -122,13 +121,13 @@ the store does not sell it. **not_found** - nothing in the store's catalogue mat
 |---|---|---|---|---|---|---|
 | rice | 5 kg | not_found | - | - | - | no product in this store's catalogue matches the item |
 | bread | 500 g loaf | not_found | - | - | - | no product in this store's catalogue matches the item |
-| pasta | 500 g | verified | 500g | 2089.00 | 4178.00/kg | Ideal Gourmet Spaghetti 500g |
+| pasta | 500 g | verified | 500g | 2089.00 | - | Ideal Gourmet Spaghetti 500g |
 | chicken | 1 kg | not_found | - | - | - | no product in this store's catalogue matches the item |
 | eggs | tray (30) or dozen | not_found | - | - | - | no product in this store's catalogue matches the item |
-| milk | 1 L | verified | 360ml | 2786.00 | 7738.89/litre | Alaska Evaporada Filled Milk 360ml |
-| coffee | ground or instant refill | verified | 400g | 2843.00 | 7107.50/kg | Nestle Coffee Mate Sup 400g |
+| milk | 1 L | verified | 360ml | 2786.00 | - | Alaska Evaporada Filled Milk 360ml |
+| coffee | ground or instant refill | verified | 400g | 2843.00 | - | Nestle Coffee Mate Sup 400g |
 | sugar | 1 kg | not_found | - | - | - | no product in this store's catalogue matches the item |
-| cooking_oil | 1 L | verified | 1L | 2887.00 | 2887.00/litre | Baguio Oil Sup 1L |
+| cooking_oil | 1 L | verified | 1L | 2887.00 | - | Baguio Oil Sup 1L |
 | bananas | 1 kg | not_found | - | - | - | no product in this store's catalogue matches the item |
 | pork | 1 kg | not_found | - | - | - | no product in this store's catalogue matches the item |
 | fish | 1 kg | not_found | - | - | - | no product in this store's catalogue matches the item |
@@ -138,15 +137,9 @@ the store does not sell it. **not_found** - nothing in the store's catalogue mat
 | onions | 1 kg | not_found | - | - | - | no product in this store's catalogue matches the item |
 | apples | 1 kg | not_found | - | - | - | no product in this store's catalogue matches the item |
 | oranges | 1 kg | not_found | - | - | - | no product in this store's catalogue matches the item |
-| canned_fish | 155 g tin | verified | 155g | 2382.00 | 15367.74/kg | 555 Sardines Tomato Sauce 155g |
-| bottled_water | 1.5 L | verified | 2000ml | 216.00 | 108.00/litre | Absolute Distilled Water 2000ml |
+| canned_fish | 155 g tin | verified | 155g | 2382.00 | - | 555 Sardines Tomato Sauce 155g |
+| bottled_water | 1.5 L | verified | 2000ml | 216.00 | - | Absolute Distilled Water 2000ml |
 
-- **pasta** unit price is 13.97x the median across 3 stores in this country - likely a case or multipack, flagged not dropped
-- **milk** unit price is 58.72x the median across 5 stores in this country - likely a case or multipack, flagged not dropped
-- **coffee** unit price is 5.44x the median across 4 stores in this country - likely a case or multipack, flagged not dropped
-- **cooking_oil** unit price is 15.99x the median across 4 stores in this country - likely a case or multipack, flagged not dropped
-- **canned_fish** unit price is 77.53x the median across 4 stores in this country - likely a case or multipack, flagged not dropped
-- **bottled_water** unit price is 4.91x the median across 3 stores in this country - likely a case or multipack, flagged not dropped
 
 ## Landers Superstore (PH) - 2/10 core, 2/20 tracked, from 1 catalogue products
 
@@ -201,7 +194,6 @@ the store does not sell it. **not_found** - nothing in the store's catalogue mat
 | canned_fish | 155 g tin | not_found | - | - | - | no product in this store's catalogue matches the item |
 | bottled_water | 1.5 L | not_found | - | - | - | no product in this store's catalogue matches the item |
 
-- **potatoes** unit price is 0.17x the median across 3 stores in this country - likely a case or multipack, flagged not dropped
 
 ## MexGrocer (US) - 5/10 core, 11/20 tracked, from 1,409 catalogue products
 
@@ -306,7 +298,6 @@ the store does not sell it. **not_found** - nothing in the store's catalogue mat
 | canned_fish | 155 g tin | not_found | - | - | - | no product in this store's catalogue matches the item |
 | bottled_water | 1.5 L | not_found | - | - | - | no product in this store's catalogue matches the item |
 
-- **sugar** unit price is 0.23x the median across 7 stores in this country - likely a case or multipack, flagged not dropped
 
 ## Latimex Market (US) - 6/10 core, 10/20 tracked, from 865 catalogue products
 
@@ -338,40 +329,29 @@ the store does not sell it. **not_found** - nothing in the store's catalogue mat
 
 | Item | Target | Status | Size | Price | Per unit | Product |
 |---|---|---|---|---|---|---|
-| rice | 5 lb | verified | 5 lb | 125.03 | 55.13/kg | Goya Thai Jasmine Rice - 5 lb |
+| rice | 5 lb | verified | 5 lb | 125.03 | - | Goya Thai Jasmine Rice - 5 lb |
 | bread | 500 g loaf | not_found | - | - | - | no product in this store's catalogue matches the item |
-| pasta | 1 lb | verified | 16 oz | 48.03 | 105.89/kg | Allegra Elbow Pasta - 16 oz |
-| chicken | per lb | verified | 15.9 oz | 105.46 | 233.96/kg | Knorr Granulatd Chicken Bouillon - 15.9 oz |
+| pasta | 1 lb | verified | 16 oz | 48.03 | - | Allegra Elbow Pasta - 16 oz |
+| chicken | per lb | verified | 15.9 oz | 105.46 | - | Knorr Granulatd Chicken Bouillon - 15.9 oz |
 | eggs | dozen | verified | - | 130.24 | - | Huevitos de Paloma Flavored Eggs with Candy Shell - 500 gm |
 | milk | 1 gal | not_found | - | - | - | no product in this store's catalogue matches the item |
-| coffee | 12 oz ground | verified | 300g | 159.32 | 531.07/kg | Nescafe Clasico Coffee Instant (300g) - 10.5 oz |
-| sugar | 4 lb | verified | 4 lb | 88.43 | 48.74/kg | C&H Sugar Granulated - 4 lb |
-| cooking_oil | 48 oz | verified | 1 L | 84.28 | 84.28/litre | 1-2-3 Canola Oil - 1 L |
-| bananas | per lb | verified | 16 oz | 35.33 | 77.89/kg | Jumex Strawberry-Banana Bottle Can Nectar - 16 oz |
-| pork | per lb | verified | 25 oz | 104.72 | 147.76/kg | Juanita's Pork Pozole - 25 oz |
+| coffee | 12 oz ground | verified | 300g | 159.32 | - | Nescafe Clasico Coffee Instant (300g) - 10.5 oz |
+| sugar | 4 lb | verified | 4 lb | 88.43 | - | C&H Sugar Granulated - 4 lb |
+| cooking_oil | 48 oz | verified | 1 L | 84.28 | - | 1-2-3 Canola Oil - 1 L |
+| bananas | per lb | verified | 16 oz | 35.33 | - | Jumex Strawberry-Banana Bottle Can Nectar - 16 oz |
+| pork | per lb | verified | 25 oz | 104.72 | - | Juanita's Pork Pozole - 25 oz |
 | fish | per lb | not_found | - | - | - | no product in this store's catalogue matches the item |
-| cheese | 1 lb | verified | 4.9 oz | 93.80 | 675.24/kg | Buldak Cheese Hot Chicken Ramen (5Pk) - 4.9 oz |
-| tomatoes | per lb | verified | 16 oz | 46.54 | 102.60/kg | Clamato Tomato Cocktail - 16 oz |
+| cheese | 1 lb | verified | 4.9 oz | 93.80 | - | Buldak Cheese Hot Chicken Ramen (5Pk) - 4.9 oz |
+| tomatoes | per lb | verified | 16 oz | 46.54 | - | Clamato Tomato Cocktail - 16 oz |
 | potatoes | per lb | not_found | - | - | - | no product in this store's catalogue matches the item |
 | onions | per lb | not_found | - | - | - | no product in this store's catalogue matches the item |
-| apples | per lb | verified | 33.8 oz | 40.90 | 42.68/kg | Suero Apple - 33.8 oz |
-| oranges | per lb | verified | 28 oz | 44.24 | 55.73/kg | Ajax Dish Wash Liquid Orange - 28 oz |
-| canned_fish | 155 g tin | verified | 15 oz | 93.48 | 219.83/kg | La Sirena Sardines Tomato Sauce Oval - 15 oz |
+| apples | per lb | verified | 33.8 oz | 40.90 | - | Suero Apple - 33.8 oz |
+| oranges | per lb | verified | 28 oz | 44.24 | - | Ajax Dish Wash Liquid Orange - 28 oz |
+| canned_fish | 155 g tin | verified | 15 oz | 93.48 | - | La Sirena Sardines Tomato Sauce Oval - 15 oz |
 | bottled_water | 1.5 L | not_found | - | - | - | no product in this store's catalogue matches the item |
 
-- **rice** unit price is 8.94x the median across 9 stores in this country - likely a case or multipack, flagged not dropped
-- **pasta** unit price is 14.36x the median across 5 stores in this country - likely a case or multipack, flagged not dropped
-- **chicken** unit price is 10.64x the median across 4 stores in this country - likely a case or multipack, flagged not dropped
-- **coffee** unit price is 13.95x the median across 7 stores in this country - likely a case or multipack, flagged not dropped
-- **bananas** unit price is 5.92x the median across 6 stores in this country - likely a case or multipack, flagged not dropped
-- **pork** unit price is 5.88x the median across 6 stores in this country - likely a case or multipack, flagged not dropped
-- **cheese** unit price is 13.94x the median across 8 stores in this country - likely a case or multipack, flagged not dropped
-- **tomatoes** unit price is 4.08x the median across 5 stores in this country - likely a case or multipack, flagged not dropped
-- **apples** unit price is 7.9x the median across 3 stores in this country - likely a case or multipack, flagged not dropped
-- **oranges** unit price is 7.42x the median across 4 stores in this country - likely a case or multipack, flagged not dropped
-- **canned_fish** unit price is 14.8x the median across 5 stores in this country - likely a case or multipack, flagged not dropped
 
-## Amigo Foods (US) - 8/10 core, 16/20 tracked, from 2,738 catalogue products
+## Amigo Foods (US) - 8/10 core, 15/20 tracked, from 2,738 catalogue products
 
 | Item | Target | Status | Size | Price | Per unit | Product |
 |---|---|---|---|---|---|---|
@@ -385,7 +365,7 @@ the store does not sell it. **not_found** - nothing in the store's catalogue mat
 | sugar | 4 lb | verified | 32 oz | 2.99 | 3.30/kg | Mayte Panela Brown Sugar Cane (8 Caritas) 32 oz |
 | cooking_oil | 48 oz | verified | 750 ml | 13.99 | 18.65/litre | Colavita Premium Italian Extra Virgin Olive Oil 750 ml Glass |
 | bananas | per lb | verified | 21 oz | 2.99 | 5.02/kg | Predilecta Bananada - Banana Paste 21 oz |
-| pork | per lb | verified | 16.67 Lb | 959.00 | 126.83/kg | Covap Bone-In Dry-Cured Acorn-Fed 100% Iberico Pork Ham - Ja |
+| pork | per lb | not_stocked | - | - | - | Sells only cured Spanish pork - Iberico ham, Serrano loin, s |
 | fish | per lb | not_found | - | - | - | no product in this store's catalogue matches the item |
 | cheese | 1 lb | verified | 1 lb | 49.99 | 110.21/kg | Manchego Cheese Approx 1 lb |
 | tomatoes | per lb | verified | 9.8 Oz | 6.99 | 25.16/kg | Torremar Tapas Olives Pitted Gordal Olives with Tomato Net W |
@@ -396,7 +376,6 @@ the store does not sell it. **not_found** - nothing in the store's catalogue mat
 | canned_fish | 155 g tin | verified | 4.25oz | 1.79 | 14.86/kg | Goya Premium Wild Caught Sardines in Olive Oil - Sardinas en |
 | bottled_water | 1.5 L | not_found | - | - | - | no product in this store's catalogue matches the item |
 
-- **pork** unit price is 5.05x the median across 6 stores in this country - likely a case or multipack, flagged not dropped
 
 ## Lili Mart (US) - 8/10 core, 12/20 tracked, from 942 catalogue products
 

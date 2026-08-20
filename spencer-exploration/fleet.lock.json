@@ -126,8 +126,8 @@
       "risk": "medium",
       "substitute": "ph-snr",
       "caveat": "Wholesale case pricing. Needs per-unit normalisation before its numbers enter the basket index.",
-      "index_contributor": true,
-      "role": "index-contributor",
+      "index_contributor": false,
+      "role": "reliability-subject",
       "catalogue": {
         "method": "sitemap",
         "endpoint": null,
@@ -140,7 +140,9 @@
           "max_urls": 150,
           "cost_class": "browser_page"
         }
-      }
+      },
+      "pricing": "wholesale",
+      "pricing_evidence": "Median unit price sits 14.98x the cross-store median for the same items. 555 Sardines listed as '155g' at PHP 2,382; Ideal Gourmet Spaghetti '500g' at PHP 2,089. The size in the title parses correctly - it is the price that is per case rather than per pack, and the case count appears in the title for about 1% of this store's products, so it is not recoverable from the data. Prices are tracked; unit prices are suppressed."
     },
     {
       "id": "ph-landers",
@@ -408,8 +410,8 @@
       "risk": "low",
       "substitute": null,
       "search_api": "shopify",
-      "index_contributor": true,
-      "role": "index-contributor",
+      "index_contributor": false,
+      "role": "reliability-subject",
       "catalogue": {
         "method": "shopify",
         "endpoint": "https://mexmax.com/products.json",
@@ -423,7 +425,9 @@
           "collector": "http",
           "abandoned_reason": "This store publishes a bulk endpoint that returns 250 products per call for free. Collecting it through a cloud browser cost about $2.19 per run and returned fewer rows. Studio is not paid to duplicate a free API."
         }
-      }
+      },
+      "pricing": "wholesale",
+      "pricing_evidence": "Median unit price sits 7.90x the cross-store median for the same items; the next highest store is 1.29x. Goya Thai Jasmine Rice listed as '5 lb' at $125.03, Nescafe Clasico '300g' at $159.32. The size in the title parses correctly - it is the price that is per case rather than per pack, and the case count appears in the title for about 1% of this store's products, so it is not recoverable from the data. Prices are tracked; unit prices are suppressed."
     },
     {
       "id": "us-amigofoods",
@@ -620,6 +624,11 @@
       "date": "2026-08-20",
       "change": "Split the transport by necessity; abandoned the listing-page template after a $26.54 overrun",
       "why": "Studio was briefly made the primary collector for the whole fleet. Verifying that arrangement cost $26.54 against a $5 ceiling, entirely on the ten listing-page collectors, at roughly $2.19 per run. Testing the assumption that had ruled out the cheaper path - that Studio cannot build a collector for a bulk JSON endpoint - confirmed it: generation ran 17 minutes against ever.ph/products.json and never converged, at zero cost. So there is no affordable way for Studio to collect a store that already publishes an API, and it should not: those ten are read by free HTTP at 250 products per call. Studio keeps the six stores that have no other way in, which is also where the heal story lives. Collector ids for the abandoned ten are kept rather than deleted - the CLI has no `scraper list`, so a discarded id cannot be recovered from the terminal."
+    },
+    {
+      "date": "2026-08-20",
+      "change": "Marked MexMax and MerryMart Wholesale as wholesale pricing; demoted both from index contributor",
+      "why": "The basket map flagged 21 unit-price outliers. Testing every store's median unit price against the cross-store median for the same item split the fleet cleanly rather than on a spectrum: these two at 7.90x and 14.98x, every other store between 0.43x and 1.29x. Both are wholesalers - it is in MerryMart's name and in MexMax's own description - and their listed price is a case price against a unit size in the title. The case count is unpublished for ~99% of their products, so a correct unit price cannot be computed at all. They keep their place in the fleet because a case price moving is still a real price signal and change detection does not care about the absolute level, but they no longer feed the index and their unit prices are suppressed. Missing beats wrong. Note the correction this forces: MexMax was locked earlier today as the store that 'fixes the US gaps that mattered - eggs, chicken, cooking oil'. The items are genuinely there; the prices are not retail-comparable, so US retail coverage of those three items is one store thinner than claimed."
     }
   ],
   "catalogue_policy": {
