@@ -1,0 +1,16 @@
+{
+  "name": "edjin-exploration",
+  "private": true,
+  "type": "module",
+  "description": "Browser-based site vetting. Deliberately outside the scrape-verse workspace so exploration dependencies never reach the product tree.",
+  "scripts": {
+    "vet": "node vet.mjs",
+    "rescore": "node vet.mjs --rescore"
+  },
+  "devDependencies": {
+    "playwright-core": "^1.62.1"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

@@ -28,7 +28,20 @@ Read these before doing product work, in order:
   - `apps/clone-store` — "Parker's Pantry" chaos target (dependency-free
     node server, layout A/B mutation via authed POST /admin/layout)
   - `packages/shared` — fleet output contract (zod) + shared types
+  - `scripts/bd.mjs` — the guarded Bright Data wrapper (see Hard rules)
 - `docs/` — all design docs and notes
+- `spencer-exploration/` — Python: site discovery and scoring
+  (`registry.json`, `fleet.lock.json`), the catalogue puller and its SQLite
+  store, Studio transport. Start at its `HANDOFF.md` — it states what the app
+  has to absorb.
+- `edjin-exploration/` — Node: browser-based site vetting (`vet.mjs`,
+  `vet.json`), the second pass that catches client-rendered stores the HTTP
+  passes miss.
+
+Both exploration directories are lab notebooks, not product code. Nothing
+under `scrape-verse/` imports from either, and their dependencies are
+installed locally to each. Findings graduate into `docs/` and, when they
+change the contract, into a PR against `scrape-verse/`.
 
 ## Commands
 
@@ -65,10 +78,16 @@ Bright Data CLI (`brightdata`, v0.3.4+) drives Scraper Studio:
   only, and there is no per-app copy. Never print API keys in output, code, or
   the demo video.
 - **Credits are finite (~$50 per account, and the team has two separate
- accounts — see `docs/index.md`).** Check `brightdata budget` before and
-  after Studio-heavy work. Respect the budget-guard env knobs in
-  `.env.example`. Do not create/run/heal scrapers in bulk without the
-  user's go-ahead.
+  accounts — see `docs/index.md`).** Never call the Bright Data CLI
+  directly for anything that spends: go through the guarded wrapper,
+  `node scripts/bd.mjs --label=<what> -- <brightdata args>` on the Node
+  side, or `studio.py`'s `Guard` on the Python side. Both enforce the same
+  caps from `.env.example`, both check before and meter after (including
+  timeouts), and both exit non-zero on a breach. The unified protocol is in
+  [credit monitoring](./docs/credit-monitoring.md) — read it before any
+  credit-spending work. Paste your guard's report in every PR that spends.
+  Raise a cap deliberately, never silently. Do not create/run/heal scrapers
+  in bulk without the user's go-ahead.
 - **Bound every scraper.** Creation prompts must state the crawl scope
   explicitly ("this product page only", "front page only") — an unbounded
   description once crawled ~150 pages.
