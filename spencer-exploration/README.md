@@ -22,8 +22,12 @@ anywhere, direct or through the Unlocker.
 
 | File | What it is |
 |---|---|
-| `catalogue.py` | **the bulk puller** - every product a store sells, priced |
-| `catalogue/` | per-store catalogue JSON (gitignored), plus `runs.jsonl` and `changes.jsonl` |
+| `studio.py` | **the Studio transport** - creates collectors, runs them in batches, maps their rows |
+| `studio-collectors.json` | **the collector registry** - the only store-to-collector mapping that exists |
+| `catalogue.py` | **the fallback puller** - every product a store sells, priced, over plain HTTP |
+| `store.py` | **the SQLite store** - schema, migration, queries, JSON export |
+| `catalogue.db` | **the catalogue** - stores, products, change-only price history, runs, incidents |
+| `catalogue/` | per-store JSON, regenerated on demand by `--export-json` (gitignored) |
 | `fleet.lock.json` | **the locked fleet** - the decision about what ships, held by hand |
 | `items.json` | **the item registry** - 20 tracked items, units, per-country match terms |
 | `basket.py` | picks one concrete product per item per store, and computes unit price |
@@ -39,6 +43,8 @@ anywhere, direct or through the Unlocker.
 | `tier0.json` / `tier1.json` | raw evidence behind the registry |
 | `test_vet.py` | tests for the pure vetting logic - every case is a bug this harness shipped |
 | `test_basket.py` | tests for size parsing, unit-price maths and staple matching |
+| `test_store.py` | tests for the DB: the run-summary invariant, identity, export shape |
+| `test_studio.py` | tests for the Studio transport: descriptions, price coercion, identity |
 | `raw/` | cached HTTP responses (gitignored) so re-runs cost nothing |
 
 ## Running it
@@ -228,6 +234,83 @@ set -a; . ./.env; set +a
 brightdata scraper run c_msyxrpa82470hx65c9 \
   "https://smmarkets.ph/10103348-batangas-coffee-brew-500g.html" --sync --pretty
 ```
+
+## Studio is the collector; the puller is the fallback
+
+Every row collected before 2026-08-20 came from `catalogue.py` over plain HTTP. Studio
+had produced three single-product proof rows. That is backwards for a project judged on
+Scraper Studio being central, and it also means the self-healing loop can only ever
+apply to what Studio actually collects - Studio heals its own JavaScript collectors and
+has no reach into our Python.
+
+So the transport flipped. `catalogue.py` keeps everything it is good at - discovery,
+page ceilings, size parsing, unit pricing, dedup, change detection - and only the fetch
+moves. Studio is handed a bounded URL list and returns structured rows.
+
+When a collector fails, the puller covers, and the substitution is recorded in the data:
+`price_observations.source` says `puller`, the run row says so, and an incident opens.
+The series stays unbroken and the fallback is never silent.
+
+### What the pilot cost, and what it found
+
+ph-landers was the pilot because it is the only fleet store with no alternative: 0 rows
+from 300 pages of HTTP, no price in raw HTML even through the Web Unlocker. Anything it
+produces is attributable to Studio and nothing else.
+
+The generated collector shipped broken - hostname as the product name, no price,
+`in_stock: false` for everything, no error raised. One
+`scraper heal --auto-approve --auto-save` fixed it, and the same five URLs then returned
+Baguio Canola Oil 1.5L at PHP 228.00 (PHP 152.00/L) and Baguio Pure Coconut Oil 1.8L at
+PHP 385.50 (PHP 214.17/L). Four of five; the fifth still returns the hostname.
+
+**The whole pilot - one create, two batch runs, one full AI heal - cost $0.02.**
+
+Three things it found that planning did not:
+
+- A product-page collector emits no `url` field, because the page it was handed *is* the
+  product. The URL exists only on the echoed trigger payload, which was being stripped
+  as non-data. Every row was silently dropped.
+- Prices arrive as whatever the page showed: `"PHP 389.50"`, `"1,234.00"`,
+  `"Price on request"`. A price that will not coerce drops the row.
+- The collector returned size `"1G"` for a product titled `"1Gal."`. That parses cleanly
+  as one gram and priced the oil at PHP 799,950 per kilo. Conflicting sizes now emit no
+  unit price at all - a missing one is a visible gap, a wrong one poisons every
+  comparison the product exists to make.
+
+### Two CLI facts worth knowing before scripting against it
+
+Both were verified in the CLI's own source, and both are wrong in the obvious reading:
+
+- **`--timeout` is an attempt count, not seconds.** `polling.js` loops
+  `attempt < timeout_seconds` and the batch poll interval is 10,000 ms, so the batch
+  default of `3600` polls for **ten hours**. Pass an explicit count and wrap it in a
+  deadline.
+- **There is no `scraper list`.** `studio-collectors.json` is the only store-to-collector
+  mapping in existence, which is why creation writes the id *before* verification, and
+  why `.gitignore`'s `studio-*.json` needed an explicit negation - that pattern is the
+  most plausible reason the first three collectors' descriptions were lost.
+
+## Why the catalogue is a database
+
+The per-store JSON had an oddity worth naming: the snapshot file was simultaneously the
+output *and* the source of previous prices, so change detection depended on the thing it
+was supposed to produce. It also could not answer any question spanning two stores.
+
+`catalogue.db` holds stores, products, change-only `price_observations`, `runs` and a
+reserved `incidents` table. Three properties are structural rather than conventional:
+
+- **A run summary lands every time**, even at zero changes, with `run_id` mandatory on
+  every observation. That is what keeps "nothing moved" distinguishable from "the pull
+  was truncated" - without it a store returning 40 rows instead of 1,600 looks like
+  every product crashed in price.
+- **`source` is per observation**, not per run, so a fallback is legible row by row.
+- **Sizes are stored decomposed**, matching the `priceRecordSchema` extension `HANDOFF.md`
+  proposes, so shrinkflation is a `WHERE` clause and the eventual port is mechanical.
+
+A near-total change rate on an established store now suppresses the write and opens a
+`mass_change_suppressed` incident instead. That shape is far more likely to be a
+`product_key` scheme change than every item repricing at once, and writing it would
+overwrite the price history with noise.
 
 ## Correctness
 
