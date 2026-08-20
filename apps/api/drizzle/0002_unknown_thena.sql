@@ -49,3 +49,29 @@ BEGIN
       ON "products" USING gin ("name" gin_trgm_ops);
   END IF;
 END $$;
+--> statement-breakpoint
+-- Two US pins that are not the item they stand for.
+--
+-- Neither is caught by any automatic flag: both parse cleanly and both are
+-- cheap, so they win the unit-price ranking rather than tripping the outlier
+-- rule. Ranking by unit price is what made them visible, and printing the
+-- product name on every receipt line is what keeps that class of error visible.
+--
+-- Marked not_stocked rather than repointed, because neither store carries the
+-- real item at all: MexGrocer's entire chicken catalogue is pozole, bouillon
+-- and soup, and Latimex sells cornmeal, breadcrumbs and cassava bread but no
+-- loaf. There is nothing to repoint to.
+--
+-- This edits basket_map, which the data quality gate also writes. That is
+-- deliberate and the precedence is right: this runs once at deploy, and a later
+-- re-verification by the gate wins over it. The alternative was a script run by
+-- hand, and the failure mode there is someone forgetting -- which leaves canned
+-- soup standing in for chicken on the public page.
+UPDATE "basket_map"
+SET "status" = 'not_stocked',
+    "why" = 'canned soup, not chicken meat; MexGrocer carries no chicken to repoint to'
+WHERE "item_key" = 'chicken' AND "store_id" = 'us-mexgrocer' AND "status" = 'verified';--> statement-breakpoint
+UPDATE "basket_map"
+SET "status" = 'not_stocked',
+    "why" = 'a baking mix, not a loaf; Latimex carries no bread to repoint to'
+WHERE "item_key" = 'bread' AND "store_id" = 'us-latimex' AND "status" = 'verified';
