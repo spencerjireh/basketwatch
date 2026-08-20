@@ -1,4 +1,4 @@
-import { Controller, Get, NotImplementedException, Query, Sse } from "@nestjs/common";
+import { Controller, Get, Query, Sse } from "@nestjs/common";
 import { map, type Observable } from "rxjs";
 import { type FeedResponse, type PageQuery, feedQuerySchema } from "@basketwatch/contract";
 import { ZodValidationPipe } from "../../common/pipes/zod-validation.pipe.js";
@@ -10,8 +10,8 @@ export class FeedController {
 
   /** GET /api/feed?limit=50&cursor=... */
   @Get("feed")
-  page(@Query(new ZodValidationPipe(feedQuerySchema)) _query: PageQuery): Promise<FeedResponse> {
-    throw new NotImplementedException("The activity feed is not reading the database yet.");
+  page(@Query(new ZodValidationPipe(feedQuerySchema)) query: PageQuery): Promise<FeedResponse> {
+    return this.service.page(query);
   }
 
   /**
