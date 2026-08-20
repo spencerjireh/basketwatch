@@ -31,7 +31,7 @@ half-finished app build therefore cannot take the database down with it. See
 | `basketwatch.spencerjireh.com` | the dashboard (`web`) |
 | `basketwatch.spencerjireh.com/api/*` | the API, same-origin — no separate host |
 | `parkers-pantry.spencerjireh.com` | the clone store, the chaos target |
-| `basketwatch.spencerjireh.com:55432` | Postgres, raw TCP, bypasses the proxy |
+| `152.53.136.253:55432` | Postgres, raw TCP — a hostname will **not** work, see below |
 
 The API deliberately has no host of its own. The `web` container's nginx
 proxies `/api/` to `api:3001` and strips the prefix
@@ -42,6 +42,20 @@ means no CORS config. The Bright Data webhook target is therefore
 `parkers-pantry` is a single-level subdomain on purpose. A wildcard
 `*.spencerjireh.com` record and certificate does not cover a two-level name
 like `store.basketwatch.spencerjireh.com`.
+
+### Why Postgres uses the raw IP
+
+`*.spencerjireh.com` is an A record to `152.53.136.253` with the Cloudflare
+proxy **on**. The proxy carries HTTP and HTTPS only — it does not forward
+arbitrary TCP — so `basketwatch.spencerjireh.com:55432` resolves to a
+Cloudflare edge address that has no idea what Postgres is, and the connection
+just hangs. The web hosts are unaffected; they are HTTP and want the proxy.
+
+So database clients use the origin IP directly. The alternative — a DNS-only
+`db.spencerjireh.com` record — would be a nicer name but would publish the
+origin IP in public DNS, letting anyone bypass Cloudflare and reach the VPS on
+any port. Not worth it for one week. If the VPS IP changes, update the
+connection strings here and in `scrape-verse/.env.example`.
 
 ## First-time setup
 
@@ -92,22 +106,22 @@ sudo ufw allow 55432/tcp    # if the VPS uses ufw
 Confirm from a machine that is not the VPS:
 
 ```sh
-nc -vz basketwatch.spencerjireh.com 55432
+nc -vz 152.53.136.253 55432
 ```
 
 ## Connecting to the deployed database
 
 ```
-postgres://basketwatch:<password>@basketwatch.spencerjireh.com:55432/basketwatch
+postgres://basketwatch:<password>@152.53.136.253:55432/basketwatch
 ```
 
 psql:
 
 ```sh
-psql "postgres://basketwatch:<password>@basketwatch.spencerjireh.com:55432/basketwatch"
+psql "postgres://basketwatch:<password>@152.53.136.253:55432/basketwatch"
 ```
 
-DBeaver / TablePlus: host `basketwatch.spencerjireh.com`, port `55432`,
+DBeaver / TablePlus: host `152.53.136.253`, port `55432`,
 database `basketwatch`, user `basketwatch`.
 
 Python, for dumping scraped rows:
@@ -115,7 +129,7 @@ Python, for dumping scraped rows:
 ```python
 from sqlalchemy import create_engine
 engine = create_engine(
-    "postgresql+psycopg://basketwatch:<password>@basketwatch.spencerjireh.com:55432/basketwatch"
+    "postgresql+psycopg://basketwatch:<password>@152.53.136.253:55432/basketwatch"
 )
 df.to_sql("raw_prices", engine, if_exists="append", index=False)
 ```

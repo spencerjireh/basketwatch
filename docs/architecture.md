@@ -302,7 +302,9 @@ gets `parkers-pantry.spencerjireh.com`.
 Postgres is the exception to "internal-only": it is published on host port
 `55432` so the team can write scraped data into it directly from their
 laptops. Password auth is scram-sha-256 and the password lives only in the
-Coolify env.
+Coolify env. Clients connect to the VPS IP rather than a hostname — the
+`*.spencerjireh.com` wildcard is Cloudflare-proxied and the proxy forwards HTTP
+only, not arbitrary TCP.
 
 Staging note (Aug 20): only `postgres` currently deploys. `api`, `web`, and
 `clone-store` are defined in the prod compose but gated behind the `app`
@@ -344,7 +346,7 @@ flowchart TB
     APIC -->|heal-prompt calls| ANTHROPIC
     APIC -->|alerts| RESEND
     APIC -->|alerts| TG
-    TEAM -->|"postgres :55432<br/>(direct TCP, password auth)"| PG
+    TEAM -->|"postgres :55432<br/>(direct to VPS IP,<br/>bypasses Cloudflare)"| PG
 ```
 
 Source: `diagrams/deployment.mmd`.

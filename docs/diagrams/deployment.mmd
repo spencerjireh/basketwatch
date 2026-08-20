@@ -31,4 +31,4 @@ flowchart TB
     APIC -->|heal-prompt calls| ANTHROPIC
     APIC -->|alerts| RESEND
     APIC -->|alerts| TG
-    TEAM -->|"postgres :55432<br/>(direct TCP, password auth)"| PG
+    TEAM -->|"postgres :55432<br/>(direct to VPS IP,<br/>bypasses Cloudflare)"| PG
