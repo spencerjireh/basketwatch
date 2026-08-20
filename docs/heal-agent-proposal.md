@@ -251,7 +251,7 @@ function triage(incident: Incident): HealStrategy {
 
 ## New incident kinds
 
-Two additions to `incidentKinds` in `packages/shared/src/index.ts`:
+Two additions to `incidentKinds` in `packages/contract/src/vocabulary.ts`:
 
 ```ts
 /** Quality gate: LLM determined the basket pin is not the staple */
@@ -266,13 +266,30 @@ These sit alongside the existing structural kinds (`schema`, `nulls`,
 spider-sense, and they dispatch to Strategies 2 and 3 rather than
 Strategy 1.
 
+The contract already defines `healAttemptSchema` (in `incidents.ts`)
+with `claudeDiagnosis`, `healPrompt`, `studioDiff`, `canary`, `verdict`,
+and `creditsSpent`. The quality gate writes to the same shape: mapping
+heals populate `claudeDiagnosis` with the LLM's reasoning and leave
+`studioDiff` null; scraper heals populate both. This keeps the audit
+timeline unified with zero contract changes beyond the two new
+`incidentKinds`.
+
 ## Where this lives in the codebase
 
+As of PR #9-#11, the product tree is `basketwatch/` (pnpm + Turborepo),
+not `scrape-verse/`. The shared types package is `packages/contract`,
+not `packages/shared`. The validator moved to `modules/validator/`. A
+heal module already exists at `modules/heal/` with stub files for the
+orchestrator, budget guard and Studio client.
+
 ```
-apps/api/src/
+basketwatch/apps/api/src/modules/
   validator/
     checks.ts          # unchanged — structural checks, pure, IO-free
-    checks.test.ts     # unchanged
+    checks.test.ts     # unchanged (14 tests)
+    checks.types.ts    # CheckResult, Baseline types
+    validator.module.ts
+    validator.service.ts
   quality/             # NEW — semantic checks, runs during basket mapping
     title-check.ts     # non-food title keyword scan (pure function)
     url-check.ts       # URL slug wholesale detection (pure function)
@@ -280,22 +297,30 @@ apps/api/src/
     llm-validator.ts   # Claude API call for basket pin validation
     gate.ts            # orchestrates all four, returns findings
     gate.test.ts       # unit tests with the eight known false positives
-  heal/                # NEW — unified heal agent
-    heal-agent.ts      # triage + dispatch + audit trail
-    strategies/
+    quality.module.ts
+  heal/                # EXISTS — extend with strategies
+    heal.budget.ts     # already scaffolded
+    heal.module.ts     # already scaffolded
+    heal.orchestrator.ts  # stub — becomes the triage dispatcher
+    studio.client.ts      # stub — Studio API wrapper
+    strategies/           # NEW
       scraper-heal.ts  # Studio heal loop (existing design from arch doc)
       mapping-heal.ts  # LLM re-pick from catalogue
       price-heal.ts    # outlier flag + re-pick
       output-heal.ts   # targeted Studio heal for size fields
-packages/shared/src/
-  index.ts             # add basket_mismatch, price_outlier to incidentKinds
-                       # add quality-gate check names
+basketwatch/packages/contract/src/
+  vocabulary.ts        # add basket_mismatch, price_outlier to incidentKinds
+  incidents.ts         # add quality-gate check names
 ```
 
 The `quality/` functions (`title-check`, `url-check`, `outlier-check`) are
 pure — no IO, no database, no API calls. They take product data in and
 return findings. `llm-validator` is the one module that calls the Claude
 API; it is separate so the pure checks can be tested without mocking.
+
+The heal module stubs (`heal.orchestrator.ts`, `studio.client.ts`,
+`heal.budget.ts`) already exist from PR #9 and will be extended rather
+than replaced.
 
 ## Audit trail
 
@@ -333,10 +358,13 @@ of healing.
 
 Three acts, one agent, one audit trail:
 
-**Act 1 — the scraper breaks.** Clone store layout changes (CSS class
-rename, price moves into a nested span). Spider-Sense catches the null
-spike. Heal agent triages as `scraper_heal`. Studio heal runs, canary
-verifies, incident closes. Dashboard shows the diff and the prompt.
+**Act 1 — the scraper breaks.** A target store's page layout changes
+(CSS class rename, price moves into a nested span). Spider-Sense catches
+the null spike. Heal agent triages as `scraper_heal`. Studio heal runs,
+canary verifies, incident closes. Dashboard shows the diff and the
+prompt. (The clone store was removed in PR #11; the demo target is a
+real scraper from the fleet, or whichever chaos surface the team selects
+from the PRD's three costed options.)
 
 **Act 2 — the data lies.** Show the basket comparison: Easter eggs at
 $9.99 next to real eggs at $8.99. Quality gate catches it: the LLM says
@@ -406,23 +434,28 @@ trigger the LLM call.
 
 ## Relationship to existing work
 
-- **Spider-Sense** (`apps/api/src/validator/checks.ts`): untouched. It
-  stays pure, IO-free, and structurally focused. The quality gate is a
-  separate layer that runs after spider-sense passes.
+- **Spider-Sense** (`basketwatch/apps/api/src/modules/validator/checks.ts`):
+  untouched. It stays pure, IO-free, and structurally focused. The quality
+  gate is a separate module that runs after spider-sense passes.
 - **Basket mapper** (`spencer-exploration/basket.py`): untouched on the
   Python side. The quality gate validates mapper output, it does not
-  replace the mapper. When the mapper moves into the TypeScript app (Phase
-  2), the gate integrates directly.
-- **Heal orchestrator** (not yet built): the heal agent subsumes it. The
-  scraper heal strategy IS the orchestrator from `architecture.md`, now
-  one strategy among four instead of the whole system.
-- **`priceRecordSchema` update** (HANDOFF.md items 1-2): orthogonal. The
-  schema update adds size fields and `source`; the quality gate uses those
-  fields for validation. They can land in either order, but the quality
-  gate is more useful with size fields present.
-- **Open items in `docs/index.md`**: the guard unification and schema
-  update are prerequisites for a clean implementation but not blockers for
-  the proposal itself.
+  replace the mapper. When the mapper moves into the TypeScript app, the
+  gate integrates directly.
+- **Heal module** (`basketwatch/apps/api/src/modules/heal/`): already
+  scaffolded in PR #9 with stubs for the orchestrator, budget guard, and
+  Studio client. The heal agent extends these stubs rather than replacing
+  them. The scraper heal strategy IS the orchestrator from
+  `architecture.md`, now one strategy among four.
+- **Contract** (`basketwatch/packages/contract/`): the ingest contract
+  (`ingest.ts`) still has the v1 shape — `unit` non-nullable, no size
+  fields, no `source`. The quality gate is more useful with size fields
+  present, but the two can land in either order.
+- **Clone store**: deleted in PR #11. The demo Act 1 (scripted
+  break-and-heal) needs an alternative target. Spencer flagged this as
+  an open decision in the PRD with three costed options.
+- **Open items in `docs/index.md`**: the guard unification and contract
+  update are prerequisites for a clean implementation but not blockers
+  for the proposal itself.
 
 ## Implementation and testing safety
 
