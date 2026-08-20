@@ -1,0 +1,105 @@
+# THE Coolify deployment unit. Coolify watches `main` and redeploys this file
+# on every push (base directory `/`, compose file `docker-compose.prod.yml`).
+# Secrets come from Coolify-managed env vars; nothing secret belongs in here.
+#
+# Right now only `postgres` starts. It is published on a public port so the
+# team can dump scraped data into it from their laptops while the rest of the
+# app is still being built. See docs/deploy.md.
+name: basketwatch-prod
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-basketwatch}
+      POSTGRES_DB: ${POSTGRES_DB:-basketwatch}
+      # No default on purpose: a missing password must fail the deploy loudly
+      # rather than quietly bring up a weakly-guarded public database.
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in the Coolify env}
+      # Explicit, so the password is never stored or sent as plain MD5.
+      POSTGRES_INITDB_ARGS: "--auth-host=scram-sha-256"
+    command: postgres -c max_connections=100 -c shared_buffers=256MB
+    ports:
+      # Non-standard host port. Bots hammer 5432 on any public IP; this does
+      # not make the database safe, it just keeps the log readable.
+      - "${POSTGRES_PORT_PUBLIC:-55432}:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-basketwatch}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  # ---------------------------------------------------------------------------
+  # Placeholders. Everything below is gated behind the `app` profile, so a
+  # plain `docker compose up` (which is what Coolify runs) never builds or
+  # starts it. An in-progress app build therefore cannot break the database
+  # deploy.
+  #
+  # To switch a service on: delete its `profiles:` line, then set its domain in
+  # the Coolify UI -- web -> basketwatch.spencerjireh.com,
+  # clone-store -> parkers-pantry.spencerjireh.com. The api has no domain; it
+  # is reached same-origin through the web container's nginx /api/ proxy.
+  #
+  # Secrets here use `${VAR:-}` rather than `${VAR:?}` on purpose: these vars
+  # do not exist yet, and a `:?` on an unset var fails `docker compose config`
+  # for the whole file, postgres included.
+  # ---------------------------------------------------------------------------
+
+  api:
+    profiles: ["app"]
+    build:
+      context: ./scrape-verse
+      dockerfile: apps/api/Dockerfile
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgres://${POSTGRES_USER:-basketwatch}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-basketwatch}
+      BRIGHTDATA_API_KEY: ${BRIGHTDATA_API_KEY:-}
+      BRIGHTDATA_WEBHOOK_SECRET: ${BRIGHTDATA_WEBHOOK_SECRET:-}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      RESEND_API_KEY: ${RESEND_API_KEY:-}
+      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN:-}
+      TELEGRAM_CHAT_ID: ${TELEGRAM_CHAT_ID:-}
+      HEAL_MAX_ATTEMPTS_PER_INCIDENT: ${HEAL_MAX_ATTEMPTS_PER_INCIDENT:-3}
+      HEAL_MAX_PER_SCRAPER_PER_DAY: ${HEAL_MAX_PER_SCRAPER_PER_DAY:-5}
+      CREDIT_DAILY_CEILING_USD: ${CREDIT_DAILY_CEILING_USD:-5}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    expose:
+      - "3001"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:3001/health || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+
+  web:
+    profiles: ["app"]
+    build:
+      context: ./scrape-verse
+      dockerfile: apps/web/Dockerfile
+    restart: unless-stopped
+    # `expose`, not `ports`: Coolify's proxy terminates TLS and routes by
+    # hostname. Publishing a host port would only add a second, plaintext way in.
+    expose:
+      - "80"
+    depends_on:
+      - api
+
+  clone-store:
+    profiles: ["app"]
+    build:
+      context: ./scrape-verse
+      dockerfile: apps/clone-store/Dockerfile
+    restart: unless-stopped
+    environment:
+      ADMIN_TOKEN: ${CLONE_ADMIN_TOKEN:-}
+      LAYOUT: ${CLONE_LAYOUT:-a}
+    expose:
+      - "3002"
+
+volumes:
+  pgdata:
