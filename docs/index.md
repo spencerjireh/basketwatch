@@ -21,6 +21,8 @@ on GitHub — everything renders in both.
    state machine, data model, deployment; all diagrams inline.
 4. [API contract](api-contract.md) — frozen v1 endpoint and response shapes;
    the seam the data plane and control plane meet at.
+5. [Deploy runbook](deploy.md) — the Coolify resource, the domains, and how to
+   connect to the deployed Postgres.
 
 ## Elsewhere
 

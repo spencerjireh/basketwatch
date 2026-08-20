@@ -1,0 +1,27 @@
+# Local development: only backing services in Docker.
+# Apps run on the host with hot reload (npm run dev:api / dev:web / dev:clone
+# from scrape-verse/).
+#
+# Credentials here are throwaway and deliberately committed. The deployed
+# database is a different file entirely -- see docker-compose.prod.yml.
+name: basketwatch-dev
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: basketwatch
+      POSTGRES_PASSWORD: basketwatch
+      POSTGRES_DB: basketwatch
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U basketwatch"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  pgdata:
