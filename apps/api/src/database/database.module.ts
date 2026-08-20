@@ -1,6 +1,15 @@
-import { Global, Inject, Module, type OnApplicationShutdown } from "@nestjs/common";
+import path from "node:path";
+import {
+  Global,
+  Inject,
+  Logger,
+  Module,
+  type OnApplicationShutdown,
+  type OnModuleInit,
+} from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { drizzle } from "drizzle-orm/postgres-js";
+import { migrate } from "drizzle-orm/postgres-js/migrator";
 import postgres from "postgres";
 import { type Env } from "../config/env.schema.js";
 import { DRIZZLE, PG_SQL } from "./database.tokens.js";
@@ -44,8 +53,32 @@ export type Db = ReturnType<typeof drizzle<typeof schema>>;
   ],
   exports: [DRIZZLE, PG_SQL],
 })
-export class DatabaseModule implements OnApplicationShutdown {
-  constructor(@Inject(PG_SQL) private readonly sql: Sql) {}
+export class DatabaseModule implements OnModuleInit, OnApplicationShutdown {
+  private readonly logger = new Logger(DatabaseModule.name);
+
+  constructor(
+    @Inject(PG_SQL) private readonly sql: Sql,
+    @Inject(DRIZZLE) private readonly db: Db,
+  ) {}
+
+  /**
+   * Apply pending migrations before anything else starts.
+   *
+   * Coolify deploys by pulling main and running compose -- there is no step in
+   * between where a human runs drizzle-kit, and a deploy that ships code
+   * expecting a column the database does not have is a broken demo. onModuleInit
+   * runs ahead of every onApplicationBootstrap hook, so the queue and the
+   * controllers only ever see a migrated schema.
+   *
+   * Idempotent: drizzle keeps its own journal and skips what has already run.
+   */
+  async onModuleInit(): Promise<void> {
+    // dist/database/ at runtime, src/database/ in dev: the same two levels up
+    // from either, which is what keeps this one path.
+    const migrationsFolder = path.join(__dirname, "..", "..", "drizzle");
+    await migrate(this.db, { migrationsFolder });
+    this.logger.log("database schema up to date");
+  }
 
   /** Requires app.enableShutdownHooks() in main.ts. */
   async onApplicationShutdown(): Promise<void> {

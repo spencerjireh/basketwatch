@@ -66,11 +66,15 @@ on GitHub — everything renders in both.
   after the read path, ingest and the heal loop — team decision Aug 20, which
   closes C7. It remains the required demo centrepiece.
 - **Data is in prod.** 19 stores, 28,378 products, 28,376 price observations,
-  340 basket pins, 21 items. Nothing writes to it on a schedule yet, and no
-  endpoint reads it: every dashboard route returns 501 and the UI runs on
-  fixtures.
-- **Deploy is live but app-less.** Only `postgres` runs; `api` and `web` are
-  profile-gated. When `web` is switched on, its Coolify port is 3000, not 80.
+  340 basket pins, 21 items. Real history is two days, Aug 19-20, holding 30
+  actual price moves. Nothing writes to it on a schedule yet.
+- **The read path landed Aug 20.** Every dashboard route answers from Postgres
+  and the fixtures are deleted. The basket index reads as an as-of query over
+  change-only history, and a day missing any core item totals `null` — the gap
+  the chart draws rather than interpolating across.
+- **Deploy runs the whole app.** `postgres`, `api` and `web`; the `app` profile
+  that gated the last two is gone. `web`'s Coolify port is 3000, not 80, and
+  the API applies pending migrations on boot.
 - Bright Data: two separate accounts, two separate budgets, and they are no
   longer symmetric. Spencer's holds every Studio collector and has spent
   roughly half its credits — $0.52 on the 433-call vetting sweep and $26.54

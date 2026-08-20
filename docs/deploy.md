@@ -15,14 +15,20 @@ by hand, and nothing secret is committed.
 
 ## What is live today
 
-Only `postgres`. It is published on a public port so both of us can write
-scraped data into one database from our laptops while the rest of the app is
-still being built.
+All three services: `postgres`, `api` and `web`. Postgres stays published on a
+public port so both of us can write scraped data into one database from our
+laptops.
 
-`api` and `web` are defined in the same file but carry `profiles: ["app"]`, so
-`docker compose up` neither builds nor starts them. A half-finished app build
-therefore cannot take the database down with it. See
-[Turning an app service on](#turning-an-app-service-on).
+The `profiles: ["app"]` gate that kept `api` and `web` out of the deploy was
+removed when the read path landed — there is an app worth deploying now.
+
+**Migrations apply themselves.** The API runs pending Drizzle migrations in
+`onModuleInit`, before the job queue opens and before it serves a request. A
+Coolify deploy pulls `main` and runs compose with no step in between where a
+human could run `drizzle-kit`, so shipping code that expects a column the
+database does not have would otherwise be a broken demo rather than a failed
+deploy. The migration SQL travels in the image: `apps/api/package.json` lists
+`drizzle` under `files`, and the Dockerfile copies it explicitly.
 
 ## Domains
 

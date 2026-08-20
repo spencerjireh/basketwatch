@@ -34,7 +34,14 @@ export const envSchema = z.object({
   // What the account held when we last looked. Bright Data's own `budget
   // balance` rounds to the dollar, so the meter starts from a figure the team
   // sets deliberately and subtracts recorded spend from it.
-  BD_BALANCE_USD: z.coerce.number().optional(),
+  //
+  // Empty is normalised to undefined before coercion: prod compose passes
+  // `${BD_BALANCE_USD:-}`, and z.coerce.number() reads "" as 0, which would
+  // put the meter at zero credits rather than at "not configured".
+  BD_BALANCE_USD: z.preprocess(
+    (v) => (v === "" || v === undefined ? undefined : v),
+    z.coerce.number().optional(),
+  ),
 
   HEAL_MAX_ATTEMPTS_PER_INCIDENT: z.coerce.number().int().positive().default(3),
   HEAL_MAX_PER_SCRAPER_PER_DAY: z.coerce.number().int().positive().default(5),
