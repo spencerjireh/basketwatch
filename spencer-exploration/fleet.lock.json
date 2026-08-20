@@ -1,7 +1,7 @@
 {
   "_comment": "The LOCKED Basketwatch fleet. This file is the decision, not a suggestion: score.py renders registry.md from it and fails loudly if a locked site is no longer fleet-ready. Change the fleet by editing this file, never by re-running a picker.",
-  "locked_on": "2026-08-19",
-  "rationale": "Eight real stores, four per country, spanning five extraction shapes (json-ld, graphql, bare-html, spa-with-state, spa-opaque) so a breakage in one does not resemble a breakage in another. Weighted toward genuine grocers over online pantries per docs/prd.md section 2.6, and toward sites already proven end to end. Clears the PRD bar of 4+ US scrapers plus the clone store, with PH included. Members split into two roles. Index contributors supply the basket on both sides. The US source is ethnic grocers, which stock generic staples and fresh produce where the supermarket chains publish nothing and the online pantries sell diet goods. Reliability subjects scrape cleanly across different markup shapes and carry the self-healing story without feeding the index.",
+  "locked_on": "2026-08-20",
+  "rationale": "Nineteen stores, thirteen US and six PH, spanning five extraction shapes: Shopify products.json, Magento GraphQL, JSON-LD product pages, bare-HTML product pages, and one client-rendered store reachable only through a cloud browser. Eleven publish a bulk endpoint and are collected over free HTTP; four are page-at-a-time and work either way; ph-landers has no HTTP path at all. Three carry method:none - their sitemaps contain no product URLs.",
   "fleet": [
     {
       "id": "ph-shopgaisano",
@@ -23,9 +23,11 @@
         "studio": {
           "template": "listing-page",
           "seed_url": "https://shopgaisano.com/collections/all?page=1",
-          "status": "pending",
+          "status": "abandoned",
           "max_urls": 40,
-          "cost_class": "listing_page"
+          "cost_class": "listing_page",
+          "collector": "http",
+          "abandoned_reason": "This store publishes a bulk endpoint that returns 250 products per call for free. Collecting it through a cloud browser cost about $2.19 per run and returned fewer rows. Studio is not paid to duplicate a free API."
         }
       }
     },
@@ -50,9 +52,11 @@
         "studio": {
           "template": "listing-page",
           "seed_url": "https://ever.ph/collections/all?page=1",
-          "status": "pending",
+          "status": "abandoned",
           "max_urls": 40,
-          "cost_class": "listing_page"
+          "cost_class": "listing_page",
+          "collector": "http",
+          "abandoned_reason": "This store publishes a bulk endpoint that returns 250 products per call for free. Collecting it through a cloud browser cost about $2.19 per run and returned fewer rows. Studio is not paid to duplicate a free API."
         }
       }
     },
@@ -77,9 +81,11 @@
         "studio": {
           "template": "listing-page",
           "seed_url": "https://shopsuki.ph/collections/all?page=1",
-          "status": "pending",
+          "status": "abandoned",
           "max_urls": 40,
-          "cost_class": "listing_page"
+          "cost_class": "listing_page",
+          "collector": "http",
+          "abandoned_reason": "This store publishes a bulk endpoint that returns 250 products per call for free. Collecting it through a cloud browser cost about $2.19 per run and returned fewer rows. Studio is not paid to duplicate a free API."
         }
       }
     },
@@ -103,7 +109,7 @@
         "studio": {
           "template": "product-page",
           "seed_url": "https://smmarkets.ph/20078619-gerber-baby-food-banana-puree-80g.html",
-          "status": "pending",
+          "status": "ready",
           "max_urls": 20,
           "cost_class": "browser_page"
         }
@@ -130,9 +136,9 @@
         "studio": {
           "template": "product-page",
           "seed_url": "https://www.merrymartwholesale.com/products/argentina-beef-loaf-250g-1-case-includes-48-pcs-250g",
-          "status": "pending",
+          "status": "ready",
           "max_urls": 150,
-          "cost_class": "listing_page"
+          "cost_class": "browser_page"
         }
       }
     },
@@ -209,7 +215,7 @@
         "studio": {
           "template": "product-page",
           "seed_url": "https://www.kesargrocery.com/banana-bunch-5-7-pcs-s3_sku201791/",
-          "status": "pending",
+          "status": "ready",
           "max_urls": 300,
           "cost_class": "browser_page"
         }
@@ -238,9 +244,11 @@
         "studio": {
           "template": "listing-page",
           "seed_url": "https://www.mexgrocer.com/collections/all?page=1",
-          "status": "pending",
+          "status": "abandoned",
           "max_urls": 40,
-          "cost_class": "listing_page"
+          "cost_class": "listing_page",
+          "collector": "http",
+          "abandoned_reason": "This store publishes a bulk endpoint that returns 250 products per call for free. Collecting it through a cloud browser cost about $2.19 per run and returned fewer rows. Studio is not paid to duplicate a free API."
         }
       }
     },
@@ -264,9 +272,9 @@
         "studio": {
           "template": "product-page",
           "seed_url": "https://www.dierbergs.com/item/bakehouse-banana-chocolate-chip-muffins-4ct-37993",
-          "status": "pending",
+          "status": "ready",
           "max_urls": 400,
-          "cost_class": "listing_page"
+          "cost_class": "browser_page"
         }
       }
     },
@@ -352,9 +360,11 @@
         "studio": {
           "template": "listing-page",
           "seed_url": "https://cypressindiangrocery.com/collections/all?page=1",
-          "status": "pending",
+          "status": "abandoned",
           "max_urls": 40,
-          "cost_class": "listing_page"
+          "cost_class": "listing_page",
+          "collector": "http",
+          "abandoned_reason": "This store publishes a bulk endpoint that returns 250 products per call for free. Collecting it through a cloud browser cost about $2.19 per run and returned fewer rows. Studio is not paid to duplicate a free API."
         }
       }
     },
@@ -379,9 +389,11 @@
         "studio": {
           "template": "listing-page",
           "seed_url": "https://latimexmarket.com/collections/all?page=1",
-          "status": "pending",
+          "status": "abandoned",
           "max_urls": 40,
-          "cost_class": "listing_page"
+          "cost_class": "listing_page",
+          "collector": "http",
+          "abandoned_reason": "This store publishes a bulk endpoint that returns 250 products per call for free. Collecting it through a cloud browser cost about $2.19 per run and returned fewer rows. Studio is not paid to duplicate a free API."
         }
       }
     },
@@ -405,9 +417,11 @@
         "studio": {
           "template": "listing-page",
           "seed_url": "https://mexmax.com/collections/all?page=1",
-          "status": "pending",
+          "status": "abandoned",
           "max_urls": 40,
-          "cost_class": "listing_page"
+          "cost_class": "listing_page",
+          "collector": "http",
+          "abandoned_reason": "This store publishes a bulk endpoint that returns 250 products per call for free. Collecting it through a cloud browser cost about $2.19 per run and returned fewer rows. Studio is not paid to duplicate a free API."
         }
       }
     },
@@ -431,9 +445,11 @@
         "studio": {
           "template": "listing-page",
           "seed_url": "https://www.amigofoods.com/collections/all?page=1",
-          "status": "pending",
+          "status": "abandoned",
           "max_urls": 40,
-          "cost_class": "listing_page"
+          "cost_class": "listing_page",
+          "collector": "http",
+          "abandoned_reason": "This store publishes a bulk endpoint that returns 250 products per call for free. Collecting it through a cloud browser cost about $2.19 per run and returned fewer rows. Studio is not paid to duplicate a free API."
         }
       }
     },
@@ -457,9 +473,11 @@
         "studio": {
           "template": "listing-page",
           "seed_url": "https://shoplilimart.com/collections/all?page=1",
-          "status": "pending",
+          "status": "abandoned",
           "max_urls": 40,
-          "cost_class": "listing_page"
+          "cost_class": "listing_page",
+          "collector": "http",
+          "abandoned_reason": "This store publishes a bulk endpoint that returns 250 products per call for free. Collecting it through a cloud browser cost about $2.19 per run and returned fewer rows. Studio is not paid to duplicate a free API."
         }
       }
     },
@@ -484,9 +502,11 @@
         "studio": {
           "template": "listing-page",
           "seed_url": "https://sukli.com/collections/all?page=1",
-          "status": "pending",
+          "status": "abandoned",
           "max_urls": 40,
-          "cost_class": "listing_page"
+          "cost_class": "listing_page",
+          "collector": "http",
+          "abandoned_reason": "This store publishes a bulk endpoint that returns 250 products per call for free. Collecting it through a cloud browser cost about $2.19 per run and returned fewer rows. Studio is not paid to duplicate a free API."
         }
       }
     },
@@ -513,7 +533,7 @@
         "studio": {
           "template": "product-page",
           "seed_url": "https://www.hmart.com/pearl-barley-2lb-907g--1/p",
-          "status": "pending",
+          "status": "ready",
           "max_urls": 300,
           "cost_class": "browser_page"
         }
@@ -539,7 +559,6 @@
       "ph-rosepharmacy"
     ],
     "US": [
-      "us-hmart",
       "us-keyfood",
       "us-netrition",
       "us-swanson",
@@ -596,13 +615,19 @@
       "date": "2026-08-20",
       "change": "Studio pilot on ph-landers: created, born broken, healed, now producing unit prices",
       "why": "Landers was the right pilot precisely because it is the only fleet store with no alternative: 0 rows from 300 HTTP pages, no price even through the Unlocker. The generated collector shipped broken - hostname as product name, no price, no error raised - and one `scraper heal --auto-approve --auto-save` fixed it. 4 of 5 URLs now return real prices and unit prices. Whole pilot cost $0.02, which settles the open cost question: Studio for the fleet is affordable. The run also exposed a data bug worth keeping: the collector returned size '1G' for a product titled '1Gal.', which parses as one gram and priced the oil at PHP 799,950/kg. Conflicting sizes now yield no unit price at all."
+    },
+    {
+      "date": "2026-08-20",
+      "change": "Split the transport by necessity; abandoned the listing-page template after a $26.54 overrun",
+      "why": "Studio was briefly made the primary collector for the whole fleet. Verifying that arrangement cost $26.54 against a $5 ceiling, entirely on the ten listing-page collectors, at roughly $2.19 per run. Testing the assumption that had ruled out the cheaper path - that Studio cannot build a collector for a bulk JSON endpoint - confirmed it: generation ran 17 minutes against ever.ph/products.json and never converged, at zero cost. So there is no affordable way for Studio to collect a store that already publishes an API, and it should not: those ten are read by free HTTP at 250 products per call. Studio keeps the six stores that have no other way in, which is also where the heal story lives. Collector ids for the abandoned ten are kept rather than deleted - the CLI has no `scraper list`, so a discarded id cannot be recovered from the terminal."
     }
   ],
   "catalogue_policy": {
     "max_pages_semantics": "API methods count pages of ~250 products; sitemap methods count individual product pages. Both are hard stops, checked before each fetch.",
     "why_bounded": "An unbounded Studio description once crawled ~150 pages and 4,470 rows (docs/hackathon-brief.md). Declaring the ceiling here makes a runaway impossible by construction and keeps the bound visible in the file that records fleet decisions.",
-    "tuning": "These are starting values chosen to prove the pipeline, not final. Raise max_pages per store once per-run cost is measured.",
+    "tuning": "Per-run cost is now measured, and it is not uniform: a product-page Studio run costs cents, a listing-page run cost about $2.19 and is abandoned. Raising max_pages is safe for the free HTTP stores and is a spending decision for the Studio ones - check the guard's ceiling first, and remember that a timed-out run is still billing.",
     "history": "A price row is written only when a product's price changes. Every run also writes a summary row (rows, pages, coverage) so checkRowCount can tell a truncated pull from a real price move.",
-    "studio_transport": "Studio is the primary collector; catalogue.py is the fallback. A store enters a Studio run only once its studio.status reads 'ready', which requires a recorded verification run - an unproven collector can never enter the fleet by default. max_urls bounds what is submitted; the creation description separately bounds what the collector does with each URL it is given. Both are needed: max_pages could not have prevented the 4,470-row incident, because that was one page crawling onward."
+    "studio_transport": "Split by necessity, not by preference. Studio drives a cloud browser for the six stores with no bulk endpoint - they are unreachable any other way, and ph-landers returns zero rows over HTTP with no price in the raw HTML even through the Web Unlocker. The ten stores publishing Shopify products.json or Magento GraphQL are read by free HTTP at 250 products per call.\n\nA store enters a Studio run only once studio.status reads 'ready', which requires a recorded canary, so an unproven collector cannot become the source of record. max_urls bounds what is submitted; the creation description separately bounds what the collector does with each URL. Both are needed - max_pages could not have prevented the 4,470-row incident, because that was one page crawling onward.",
+    "why_listing_page_was_abandoned": "The listing-page template pointed Studio at a rendered collection grid and asked it to extract every product card. All ten canaries timed out, and the ten runs spent $26.54 against a $5 ceiling. Rendering a client-side grid and locating dozens of cards is far heavier than reading one product page, and the stores it targeted already had free bulk endpoints returning more rows. Recorded here so the template is not rebuilt by someone reading the lock."
   }
 }

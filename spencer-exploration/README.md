@@ -24,10 +24,10 @@ anywhere, direct or through the Unlocker.
 |---|---|
 | `studio.py` | **the Studio transport** - creates collectors, runs them in batches, maps their rows |
 | `studio-collectors.json` | **the collector registry** - the only store-to-collector mapping that exists |
-| `catalogue.py` | **the fallback puller** - every product a store sells, priced, over plain HTTP |
+| `catalogue.py` | **the puller** - every product a store sells, priced; the primary path for the 11 bulk-endpoint stores and the labelled fallback everywhere else |
 | `store.py` | **the SQLite store** - schema, migration, queries, JSON export |
 | `catalogue.db` | **the catalogue** - stores, products, change-only price history, runs, incidents |
-| `catalogue/` | per-store JSON, regenerated on demand by `--export-json` (gitignored) |
+| `catalogue/` | per-store JSON, regenerated on demand by `--export-json` (gitignored); `runs.jsonl` and `changes.jsonl` are the pre-SQLite record and stay tracked |
 | `fleet.lock.json` | **the locked fleet** - the decision about what ships, held by hand |
 | `items.json` | **the item registry** - 20 tracked items, units, per-country match terms |
 | `basket.py` | picks one concrete product per item per store, and computes unit price |
@@ -40,9 +40,11 @@ anywhere, direct or through the Unlocker.
 | `score.py` | merges both tiers into the scored registry |
 | `registry.json` | **the deliverable** - every candidate, scored, with evidence |
 | `registry.md` | human scorecard, PH gate verdict, recommended fleet |
-| `tier0.json` / `tier1.json` | raw evidence behind the registry |
+| `tier0*.json` / `tier1*.json` | raw evidence behind the registry, one pair per discovery round |
+| `manual-findings.json` | hand-verified findings and incidents, including the ones that overturned earlier conclusions |
 | `test_vet.py` | tests for the pure vetting logic - every case is a bug this harness shipped |
 | `test_basket.py` | tests for size parsing, unit-price maths and staple matching |
+| `test_catalogue.py` | tests for the page ceiling and change detection |
 | `test_store.py` | tests for the DB: the run-summary invariant, identity, export shape |
 | `test_studio.py` | tests for the Studio transport: descriptions, price coercion, identity |
 | `raw/` | cached HTTP responses (gitignored) so re-runs cost nothing |
@@ -71,9 +73,8 @@ uv run spencer-exploration/catalogue.py --ids ph-ever --max-pages 2
 uv run spencer-exploration/basket.py
 uv run spencer-exploration/basket.py --ids ph-shopgaisano
 
-# tests
-uv run --with pytest --with 'httpx[http2]' pytest \
-  spencer-exploration/test_vet.py spencer-exploration/test_basket.py -q
+# tests - the whole suite, 172 of them
+uv run --with pytest --with 'httpx[http2]' pytest spencer-exploration/ -q
 ```
 
 `bd_tier1.py` reads the live account balance before it starts and re-checks it as
@@ -103,7 +104,8 @@ swap is recorded in the lock's `changelog`.
 Two layers, and they compose.
 
 The **tracker** is `catalogue.py`: it pulls every product a store sells, priced and
-unit-priced. 17,746 products across 13 stores at last run, 15,260 with a unit price.
+unit-priced. 28,376 products across 17 stores, 24,100 with a unit price, two days of
+history and 30 recorded price moves.
 Method per store comes from the `catalogue` block in `fleet.lock.json` - Shopify
 `/products.json`, Magento GraphQL, WooCommerce, or a sitemap walk.
 
@@ -214,7 +216,9 @@ different markup styles.
 ## Proven end to end
 
 Three finalists were taken all the way through Scraper Studio and validated with this
-repo's own validator, not by eye:
+repo's own validator, not by eye. These are the **original single-product proof
+collectors** from 2026-08-18, kept as the evidence they were; the live fleet collectors
+are recorded separately in `studio-collectors.json` and are different ids:
 
 | Site | Collector | Result |
 |---|---|---|
@@ -235,37 +239,62 @@ brightdata scraper run c_msyxrpa82470hx65c9 \
   "https://smmarkets.ph/10103348-batangas-coffee-brew-500g.html" --sync --pretty
 ```
 
-## Studio is the collector; the puller is the fallback
+## Which transport collects which store, and why
 
-Every row collected before 2026-08-20 came from `catalogue.py` over plain HTTP. Studio
-had produced three single-product proof rows. That is backwards for a project judged on
-Scraper Studio being central, and it also means the self-healing loop can only ever
-apply to what Studio actually collects - Studio heals its own JavaScript collectors and
-has no reach into our Python.
+Not a preference. The fleet divides by what each site actually permits.
 
-So the transport flipped. `catalogue.py` keeps everything it is good at - discovery,
-page ceilings, size parsing, unit pricing, dedup, change detection - and only the fetch
-moves. Studio is handed a bounded URL list and returns structured rows.
+| group | stores | over plain HTTP | what Studio adds |
+|---|---|---|---|
+| **Bulk endpoint** (11) | shopgaisano, ever, shopsuki, smmarkets, mexgrocer, cypressindian, latimex, mexmax, amigofoods, lilimart, sukli | 250 products per call, complete catalogues, free | nothing - and it costs ~$2.19 a run to add nothing |
+| **Page at a time** (4) | kesargrocery, dierbergs, merrymartwholesale, hmart | works, one fetch per product page | a peer alternative at similar shape, plus browser resilience and a heal path when the page changes |
+| **Browser only** (1) | landers | **zero rows** from 300 pages, no price in the HTML even through the Web Unlocker | the only way in at all |
 
-When a collector fails, the puller covers, and the substitution is recorded in the data:
-`price_observations.source` says `puller`, the run row says so, and an incident opens.
-The series stays unbroken and the fallback is never silent.
+This was not the first arrangement. For part of 2026-08-20, Studio was made the primary
+collector for the *whole* fleet, on the reasoning that a project judged on Scraper Studio
+should not route its data around it. Verifying that arrangement cost **$26.54 against a
+$5 ceiling**, and the table above is what the evidence left standing.
 
-### What the pilot cost, and what it found
+The honest summary is narrower than the earlier claim and worth stating plainly: **one
+store genuinely requires a browser.** Four more are reasonable Studio targets because
+they are page-at-a-time anyway. Eleven publish an API, and paying a cloud browser to
+re-read a free JSON endpoint is strictly worse on cost, on row count and on latency.
 
-ph-landers was the pilot because it is the only fleet store with no alternative: 0 rows
-from 300 pages of HTTP, no price in raw HTML even through the Web Unlocker. Anything it
-produces is attributable to Studio and nothing else.
+Six collectors are verified against real products (`smmarkets`, `merrymartwholesale`,
+`kesargrocery`, `dierbergs`, `hmart` ready; `landers` partial). SM Markets is among them
+and is still collected over HTTP, because its GraphQL endpoint returns 1,688 rows for
+nothing - a proven collector we do not need to spend on.
 
-The generated collector shipped broken - hostname as the product name, no price,
-`in_stock: false` for everything, no error raised. One
+`catalogue.py` keeps everything it is good at either way: discovery, page ceilings, size
+parsing, unit pricing, dedup, change detection. Only the fetch moves. Studio is handed a
+bounded URL list and returns structured rows, and the bound is applied before the
+subprocess spawns, because that is where the money is.
+
+When a Studio collector fails, the puller covers, and the substitution is recorded
+rather than hidden: `price_observations.source` reads `puller`, the run row says so, and
+a `studio_failed` incident opens. The series stays unbroken and nothing is silent.
+
+### The pilot: born broken, then healed, then only partly
+
+ph-landers was the pilot precisely because it is the one store with no alternative, so
+anything it produces is attributable to Studio and nothing else.
+
+The generated collector shipped broken: the site hostname as the product name, no price,
+`in_stock: false` for everything, and no error raised. One
 `scraper heal --auto-approve --auto-save` fixed it, and the same five URLs then returned
-Baguio Canola Oil 1.5L at PHP 228.00 (PHP 152.00/L) and Baguio Pure Coconut Oil 1.8L at
-PHP 385.50 (PHP 214.17/L). Four of five; the fifth still returns the hostname.
 
-**The whole pilot - one create, two batch runs, one full AI heal - cost $0.02.**
+    Baguio Canola Oil 1.5L        PHP 228.00   PHP 152.00 / litre
+    Baguio Pure Coconut Oil 1.8L  PHP 385.50   PHP 214.17 / litre
 
-Three things it found that planning did not:
+**It is recorded as `partial`, not healed.** A later batch over a different section of
+the same site returned mostly hostname rows again - a render race rather than a selector
+fault. A second heal, which ran `css_selector_extractor`, stopped the garbage rows but
+left the yield at roughly 1 usable row in 10 on `/food-cupboard/` against 4 in 5 on
+`/anti-hoarding-and-anti-panic-buying-list/`. Two heals is the budget per store.
+
+Self-healing fixed a broken extractor outright and did not fix a hostile render race.
+Both halves are true and the second one is the more useful to record.
+
+### Three things the pilot found that planning did not
 
 - A product-page collector emits no `url` field, because the page it was handed *is* the
   product. The URL exists only on the echoed trigger payload, which was being stripped
@@ -277,18 +306,38 @@ Three things it found that planning did not:
   unit price at all - a missing one is a visible gap, a wrong one poisons every
   comparison the product exists to make.
 
-### Two CLI facts worth knowing before scripting against it
+### Three CLI facts worth knowing before scripting against it
 
-Both were verified in the CLI's own source, and both are wrong in the obvious reading:
+All verified in the CLI's own source rather than its `--help`, and all wrong in the
+obvious reading:
 
 - **`--timeout` is an attempt count, not seconds.** `polling.js` loops
   `attempt < timeout_seconds` and the batch poll interval is 10,000 ms, so the batch
-  default of `3600` polls for **ten hours**. Pass an explicit count and wrap it in a
+  default of `3600` polls for **ten hours**. Pass an explicit count, wrap it in a
   deadline.
-- **There is no `scraper list`.** `studio-collectors.json` is the only store-to-collector
-  mapping in existence, which is why creation writes the id *before* verification, and
-  why `.gitignore`'s `studio-*.json` needed an explicit negation - that pattern is the
-  most plausible reason the first three collectors' descriptions were lost.
+- **Killing the CLI does not stop the remote job.** `proc.kill()` ends the local client;
+  the collection is already triggered server-side and Bright Data keeps rendering and
+  billing it. A timeout means *still spending*.
+- **There is no `scraper list`.** `studio-collectors.json` is the only
+  store-to-collector mapping in existence, which is why creation writes the id *before*
+  verification, why abandoned collectors keep their ids, and why `.gitignore`'s
+  `studio-*.json` needed an explicit negation - that pattern is the most plausible reason
+  the first three collectors' descriptions were lost.
+
+### Studio cannot build a collector for a JSON endpoint
+
+Tested, because it had been asserted at planning time and never checked. A collector
+against `ever.ph/products.json?limit=250&page=1`, with a description naming the
+`products` array and the exact fields to read, ran AI generation for 17 minutes and
+never completed; the sixteen page-based collectors each finished in 35 seconds to five
+minutes. Cost `$0` - generation is free.
+
+The likely reason is structural: the pipeline runs `user_intent_analyzer ->
+output_schema_generator -> code_generator -> preview_runner -> preview_picker`, and a
+raw JSON document gives the preview stages nothing to pick from.
+
+So the assumption was right. It had also been driving spending decisions for a day while
+it was still a guess, and the check cost nothing.
 
 ## Why the catalogue is a database
 
@@ -326,40 +375,72 @@ TLS certificates are verified by default. A cert failure is recorded as `blocked
 rather than suppressed, since a broken cert is a real finding about a site. Pass
 `--insecure` to skip verification; `tier0.json` records which mode produced it.
 
-## A third: trusting a long-running process
+## Mistakes worth not repeating
 
-A background pull loads its code once. Stores it reaches an hour later still run the
-code as it was at launch. Landers, The Fresh Market and Wegmans were all pulled by a
-process holding pre-fix code in memory, and their zero-row results were treated as
-findings about the stores rather than artefacts of stale code.
-
-If a fix lands mid-run, re-run the stores that were already past. `runs.jsonl` records
-`generated_at` per store precisely so you can tell which those were.
-
-## Two mistakes worth not repeating
-
-Both hid good stores for days, and both were harness limits mistaken for facts about
-the world.
+Every one of these was a harness limit or an untested assumption mistaken for a fact
+about the world. The last three cost money.
 
 **Judging a store by its sitemap.** Sitemap keyword coverage reads 0/10 for a store
 whose catalogue is only reachable by query. Ever Supermarket scored 85/backup that way
 and turned out to have the best basket coverage of any store here once tested through
-its own Shopify search. Test every store through its search API before believing a
-coverage number.
+its own Shopify search. The same measure fails in the other direction: Kalustyan's
+scored 100 with a 10/10 basket on the strength of URLs like
+`/products/rice-cooker-drc-230automatic`, and measured 0/10 against real product titles.
+It was rejected rather than locked. Test a store through its search API before believing
+a coverage number.
 
-**Assuming no structured data means no prices.** Kesar Grocery publishes 11,987
-products and not one line of JSON-LD. It looked unusable until `extract_bare_html`
-read the price out of an element that says it is a price. It is now the US index
-source, carrying real fresh produce.
+**Assuming no structured data means no prices.** Kesar Grocery publishes 11,987 products
+and not one line of JSON-LD. It looked unusable until `extract_bare_html` read the price
+out of an element that says it is a price. It became the first US index source. That
+also overturned a conclusion stated confidently five times - that no US retailer
+publishes plain staples. It held for the segments actually tested (supermarket chains,
+online pantries, snack importers) and not for US ethnic grocers, which were never tested
+properly. The superseded finding is kept in `manual-findings.json` rather than deleted.
 
-The second one also overturned a conclusion stated confidently five times over - that
-no US retailer publishes plain staples. That held for the segments actually tested
-(supermarket chains, online pantries, snack importers) and not for US ethnic grocers,
-which were never tested properly. The superseded finding is kept in
-`manual-findings.json` rather than deleted.
+**Trusting a long-running process.** A background pull loads its code once. Stores it
+reaches an hour later still run the code as it was at launch. Landers, The Fresh Market
+and Wegmans were all pulled by a process holding pre-fix code in memory, and their
+zero-row results were treated as findings about the stores rather than artefacts of
+stale code. If a fix lands mid-run, re-run the stores that were already past - `runs`
+records a timestamp per store precisely so you can tell which those were.
+
+**A guard nothing calls is not a guard.** `bd_tier1.py` has a `Budget` class with a
+ceiling, a spend estimate and a trip flag. The Studio path never called it. Sixteen
+verification runs went out with nothing between the loop and the account, and spent
+**$26.54 against a $5 ceiling**. The guard now lives in `studio.py` as `Guard`, its
+`check()` is pure so it is tested directly, and every call site runs `preflight()`
+first.
+
+**Killing the CLI does not stop the remote job.** Every Studio call is wrapped in
+`asyncio.wait_for` with a `proc.kill()` on expiry - added deliberately, because the
+CLI's batch default polls for ten hours. But `kill()` ends the *local client*. The
+collection is already triggered server-side and Bright Data keeps rendering and billing
+it. Ten canaries printed `FAILED ... exceeded 110s` and every one of them kept spending
+after that line. The safeguard concealed the spend rather than stopping it. A timeout is
+now re-charged against the ceiling like any other call.
+
+**An untested assumption spent $26.54.** "Pointing Studio at a bulk JSON endpoint is a
+category error" was written into a plan and never checked. It is what pushed ten stores
+onto the listing-page template - rendering a full collection grid in a cloud browser to
+extract products those stores already publish for free. When finally tested the
+assumption was *correct*. It was also free to test and took one command. Being right is
+not the same as having checked, and the difference here was a day of spending decisions.
 
 ## Known limits
 
+- **Two days of history.** The mechanism is proven - 30 real price moves recorded with
+  their deltas - but a tracker is its history, and this is the one thing that cannot be
+  backfilled. Every day without a run is a permanent gap.
+- **The listing-page Studio template is dead.** All ten canaries timed out and the ten
+  runs cost $26.54. The stores it targeted are collected by free HTTP instead. Their
+  collectors are marked `abandoned` in `studio-collectors.json` with their ids kept,
+  because the CLI cannot list collectors and a discarded id is unrecoverable.
+- **Studio cannot target a JSON endpoint**, so there is no cheap way for it to collect a
+  store that publishes a bulk API. Tested, 17 minutes, never converged, $0.
+- **ph-landers is `partial`, not solved.** Roughly one usable row per ten URLs on
+  `/food-cupboard/` after two heals. Still the only access path that store has.
+- **A Studio timeout is not a stop.** Bright Data keeps rendering and billing after the
+  local CLI is killed, so a run that appears to have failed may still be spending.
 - Probes run from a Manila IP, so a US tier-0 failure is not conclusive - that is
   what the tier-1 `--country us` re-test is for.
 - Sites with no sitemap are discovered by crawling homepage -> categories ->

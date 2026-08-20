@@ -9,14 +9,14 @@
       "template": "product-page",
       "description": "From this single product page extract exactly one product. Fields: name; price as a number with no currency symbol; currency as a 3-letter ISO code; size, meaning the pack size exactly as printed, such as 5kg or 1.5L or 12 x 60g; in_stock as true or false. Do not follow any link, do not paginate, do not visit any other page - scrape only the URL given as input. If the size is not in the title take it from the product specifications; if there is no size leave it empty and never guess.",
       "description_sha": "sha256:8221cf645c7de2fc",
-      "status": "ready",
+      "status": "partial",
       "verified": {
         "at": "2026-08-20T04:05:00Z",
         "urls_submitted": 5,
         "rows_returned": 5,
         "rows_usable": 4,
         "cost_usd_total_pilot": 0.02,
-        "note": "Create, two 5-URL batch runs and one full AI heal cost $0.02 combined ($48.86 -> $48.84). Studio for the whole fleet is affordable."
+        "note": "Create, two 5-URL batch runs and one AI heal cost $0.02 combined. That figure is real but it did NOT generalise: verifying all sixteen collectors afterwards cost $26.54 against a $5 ceiling, entirely on the listing-page template at ~$2.19 a run. Product-page runs are cents; listing-page runs are not."
       },
       "heals": [
         {
@@ -47,8 +47,9 @@
       "template": "listing-page",
       "description": "From this product listing page extract every product card shown on this page. For each: name; price as a number with no currency symbol; currency as a 3-letter ISO code; size, meaning the pack size exactly as printed, such as 5kg or 1.5L; in_stock as true or false; url, the link to the product. Do not follow product links, do not follow pagination, do not visit any other page - scrape only the URL given as input. If a card shows no size leave it empty and never guess.",
       "description_sha": "sha256:8b7f0df91a1bd52b",
-      "status": "failed",
-      "canary_error": "scraper run c_mt0zz5u79cktk6ylt exceeded 110s"
+      "status": "abandoned",
+      "canary_error": "scraper run c_mt0zz5u79cktk6ylt exceeded 110s",
+      "abandoned_reason": "Built against the listing-page template, which timed out on every canary and cost ~$2.19 per run. This store is collected by free HTTP instead. The collector_id is kept because the CLI has no `scraper list`: a discarded id cannot be found again from the terminal."
     },
     "ph-ever": {
       "collector_id": "c_mt1031l02lb2j0x6au",
@@ -57,8 +58,9 @@
       "template": "listing-page",
       "description": "From this product listing page extract every product card shown on this page. For each: name; price as a number with no currency symbol; currency as a 3-letter ISO code; size, meaning the pack size exactly as printed, such as 5kg or 1.5L; in_stock as true or false; url, the link to the product. Do not follow product links, do not follow pagination, do not visit any other page - scrape only the URL given as input. If a card shows no size leave it empty and never guess.",
       "description_sha": "sha256:8b7f0df91a1bd52b",
-      "status": "failed",
-      "canary_error": "scraper run c_mt1031l02lb2j0x6au exceeded 110s"
+      "status": "abandoned",
+      "canary_error": "scraper run c_mt1031l02lb2j0x6au exceeded 110s",
+      "abandoned_reason": "Built against the listing-page template, which timed out on every canary and cost ~$2.19 per run. This store is collected by free HTTP instead. The collector_id is kept because the CLI has no `scraper list`: a discarded id cannot be found again from the terminal."
     },
     "ph-shopsuki": {
       "collector_id": "c_mt10brb01gi9nye14c",
@@ -67,8 +69,9 @@
       "template": "listing-page",
       "description": "From this product listing page extract every product card shown on this page. For each: name; price as a number with no currency symbol; currency as a 3-letter ISO code; size, meaning the pack size exactly as printed, such as 5kg or 1.5L; in_stock as true or false; url, the link to the product. Do not follow product links, do not follow pagination, do not visit any other page - scrape only the URL given as input. If a card shows no size leave it empty and never guess.",
       "description_sha": "sha256:8b7f0df91a1bd52b",
-      "status": "failed",
-      "canary_error": "scraper run c_mt10brb01gi9nye14c exceeded 110s"
+      "status": "abandoned",
+      "canary_error": "scraper run c_mt10brb01gi9nye14c exceeded 110s",
+      "abandoned_reason": "Built against the listing-page template, which timed out on every canary and cost ~$2.19 per run. This store is collected by free HTTP instead. The collector_id is kept because the CLI has no `scraper list`: a discarded id cannot be found again from the terminal."
     },
     "ph-smmarkets": {
       "collector_id": "c_mt10kl8xenj20pj85",
@@ -119,8 +122,9 @@
       "template": "listing-page",
       "description": "From this product listing page extract every product card shown on this page. For each: name; price as a number with no currency symbol; currency as a 3-letter ISO code; size, meaning the pack size exactly as printed, such as 5kg or 1.5L; in_stock as true or false; url, the link to the product. Do not follow product links, do not follow pagination, do not visit any other page - scrape only the URL given as input. If a card shows no size leave it empty and never guess.",
       "description_sha": "sha256:8b7f0df91a1bd52b",
-      "status": "failed",
-      "canary_error": "scraper run c_mt10o7yj20df9d53r0 exceeded 110s"
+      "status": "abandoned",
+      "canary_error": "scraper run c_mt10o7yj20df9d53r0 exceeded 110s",
+      "abandoned_reason": "Built against the listing-page template, which timed out on every canary and cost ~$2.19 per run. This store is collected by free HTTP instead. The collector_id is kept because the CLI has no `scraper list`: a discarded id cannot be found again from the terminal."
     },
     "us-dierbergs": {
       "collector_id": "c_mt10z3xq2m3hh3kwtw",
@@ -143,8 +147,9 @@
       "template": "listing-page",
       "description": "From this product listing page extract every product card shown on this page. For each: name; price as a number with no currency symbol; currency as a 3-letter ISO code; size, meaning the pack size exactly as printed, such as 5kg or 1.5L; in_stock as true or false; url, the link to the product. Do not follow product links, do not follow pagination, do not visit any other page - scrape only the URL given as input. If a card shows no size leave it empty and never guess.",
       "description_sha": "sha256:8b7f0df91a1bd52b",
-      "status": "failed",
-      "canary_error": "scraper run c_mt110hmy7bl5tym55 exceeded 110s"
+      "status": "abandoned",
+      "canary_error": "scraper run c_mt110hmy7bl5tym55 exceeded 110s",
+      "abandoned_reason": "Built against the listing-page template, which timed out on every canary and cost ~$2.19 per run. This store is collected by free HTTP instead. The collector_id is kept because the CLI has no `scraper list`: a discarded id cannot be found again from the terminal."
     },
     "us-latimex": {
       "collector_id": "c_mt114xqs2j3yymakd7",
@@ -153,8 +158,9 @@
       "template": "listing-page",
       "description": "From this product listing page extract every product card shown on this page. For each: name; price as a number with no currency symbol; currency as a 3-letter ISO code; size, meaning the pack size exactly as printed, such as 5kg or 1.5L; in_stock as true or false; url, the link to the product. Do not follow product links, do not follow pagination, do not visit any other page - scrape only the URL given as input. If a card shows no size leave it empty and never guess.",
       "description_sha": "sha256:8b7f0df91a1bd52b",
-      "status": "failed",
-      "canary_error": "scraper run c_mt114xqs2j3yymakd7 exceeded 110s"
+      "status": "abandoned",
+      "canary_error": "scraper run c_mt114xqs2j3yymakd7 exceeded 110s",
+      "abandoned_reason": "Built against the listing-page template, which timed out on every canary and cost ~$2.19 per run. This store is collected by free HTTP instead. The collector_id is kept because the CLI has no `scraper list`: a discarded id cannot be found again from the terminal."
     },
     "us-mexmax": {
       "collector_id": "c_mt11950hru9xfb3gk",
@@ -163,8 +169,9 @@
       "template": "listing-page",
       "description": "From this product listing page extract every product card shown on this page. For each: name; price as a number with no currency symbol; currency as a 3-letter ISO code; size, meaning the pack size exactly as printed, such as 5kg or 1.5L; in_stock as true or false; url, the link to the product. Do not follow product links, do not follow pagination, do not visit any other page - scrape only the URL given as input. If a card shows no size leave it empty and never guess.",
       "description_sha": "sha256:8b7f0df91a1bd52b",
-      "status": "failed",
-      "canary_error": "scraper run c_mt11950hru9xfb3gk exceeded 110s"
+      "status": "abandoned",
+      "canary_error": "scraper run c_mt11950hru9xfb3gk exceeded 110s",
+      "abandoned_reason": "Built against the listing-page template, which timed out on every canary and cost ~$2.19 per run. This store is collected by free HTTP instead. The collector_id is kept because the CLI has no `scraper list`: a discarded id cannot be found again from the terminal."
     },
     "us-amigofoods": {
       "collector_id": "c_mt11digk1enk6h6cah",
@@ -173,8 +180,9 @@
       "template": "listing-page",
       "description": "From this product listing page extract every product card shown on this page. For each: name; price as a number with no currency symbol; currency as a 3-letter ISO code; size, meaning the pack size exactly as printed, such as 5kg or 1.5L; in_stock as true or false; url, the link to the product. Do not follow product links, do not follow pagination, do not visit any other page - scrape only the URL given as input. If a card shows no size leave it empty and never guess.",
       "description_sha": "sha256:8b7f0df91a1bd52b",
-      "status": "failed",
-      "canary_error": "scraper run c_mt11digk1enk6h6cah exceeded 110s"
+      "status": "abandoned",
+      "canary_error": "scraper run c_mt11digk1enk6h6cah exceeded 110s",
+      "abandoned_reason": "Built against the listing-page template, which timed out on every canary and cost ~$2.19 per run. This store is collected by free HTTP instead. The collector_id is kept because the CLI has no `scraper list`: a discarded id cannot be found again from the terminal."
     },
     "us-lilimart": {
       "collector_id": "c_mt11i14aumow1t3w5",
@@ -183,8 +191,9 @@
       "template": "listing-page",
       "description": "From this product listing page extract every product card shown on this page. For each: name; price as a number with no currency symbol; currency as a 3-letter ISO code; size, meaning the pack size exactly as printed, such as 5kg or 1.5L; in_stock as true or false; url, the link to the product. Do not follow product links, do not follow pagination, do not visit any other page - scrape only the URL given as input. If a card shows no size leave it empty and never guess.",
       "description_sha": "sha256:8b7f0df91a1bd52b",
-      "status": "failed",
-      "canary_error": "scraper run c_mt11i14aumow1t3w5 exceeded 110s"
+      "status": "abandoned",
+      "canary_error": "scraper run c_mt11i14aumow1t3w5 exceeded 110s",
+      "abandoned_reason": "Built against the listing-page template, which timed out on every canary and cost ~$2.19 per run. This store is collected by free HTTP instead. The collector_id is kept because the CLI has no `scraper list`: a discarded id cannot be found again from the terminal."
     },
     "us-sukli": {
       "collector_id": "c_mt11mciv16aky0a7y2",
@@ -193,8 +202,9 @@
       "template": "listing-page",
       "description": "From this product listing page extract every product card shown on this page. For each: name; price as a number with no currency symbol; currency as a 3-letter ISO code; size, meaning the pack size exactly as printed, such as 5kg or 1.5L; in_stock as true or false; url, the link to the product. Do not follow product links, do not follow pagination, do not visit any other page - scrape only the URL given as input. If a card shows no size leave it empty and never guess.",
       "description_sha": "sha256:8b7f0df91a1bd52b",
-      "status": "failed",
-      "canary_error": "scraper run c_mt11mciv16aky0a7y2 exceeded 110s"
+      "status": "abandoned",
+      "canary_error": "scraper run c_mt11mciv16aky0a7y2 exceeded 110s",
+      "abandoned_reason": "Built against the listing-page template, which timed out on every canary and cost ~$2.19 per run. This store is collected by free HTTP instead. The collector_id is kept because the CLI has no `scraper list`: a discarded id cannot be found again from the terminal."
     },
     "us-hmart": {
       "collector_id": "c_mt11p9x01l1r6zjr3w",
