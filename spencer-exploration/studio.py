@@ -376,16 +376,6 @@ async def main() -> int:
     print(f"{len(fleet)} stores need a collector "
           f"({len(reg['collectors'])} already recorded)\n")
 
-    if args.dry_run or not args.create:
-        for e in fleet:
-            cfg = e["catalogue"]
-            desc = build_description(e, cfg)
-            have = reg["collectors"].get(e["id"], {}).get("collector_id")
-            mark = "have" if have and not needs_creation(reg, e["id"], desc, False) else "CREATE"
-            print(f"  {e['id']:<24} {seed_kind(cfg):<13} {len(desc):>3} chars  {mark}")
-        print("\ndry run - nothing created. Re-run with --create to spend credits.")
-        return 0
-
     if args.verify:
         reg = load_registry()
         by_id = {e["id"]: e for e in fleet}
@@ -411,6 +401,16 @@ async def main() -> int:
             rec["verified"] = {"at": None, "ok": ok, "detail": why}
             save_registry(reg)
             print(f"  {sid:<24} {'READY' if ok else 'BORN BROKEN'}  {why}"[:150], flush=True)
+        return 0
+
+    if args.dry_run or not (args.create or args.verify):
+        for e in fleet:
+            cfg = e["catalogue"]
+            desc = build_description(e, cfg)
+            have = reg["collectors"].get(e["id"], {}).get("collector_id")
+            mark = "have" if have and not needs_creation(reg, e["id"], desc, False) else "CREATE"
+            print(f"  {e['id']:<24} {seed_kind(cfg):<13} {len(desc):>3} chars  {mark}")
+        print("\ndry run - nothing created. Re-run with --create to spend credits.")
         return 0
 
     reg["cli_version"] = await cli_version()
