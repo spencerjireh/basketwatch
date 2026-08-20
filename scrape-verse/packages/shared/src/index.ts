@@ -48,6 +48,10 @@ export const incidentKinds = [
   "drift",
   "freshness",
   "error",
+  /** a Studio collector failed and the direct puller covered for it */
+  "studio_failed",
+  /** over 90% of an established catalogue changed at once; history left alone */
+  "mass_change_suppressed",
 ] as const;
 
 export type IncidentKind = (typeof incidentKinds)[number];

@@ -156,15 +156,16 @@ psql "postgres://basketwatch:<password>@152.53.136.253:55432/basketwatch"
 DBeaver / TablePlus: host `152.53.136.253`, port `55432`,
 database `basketwatch`, user `basketwatch`.
 
-Python, for dumping scraped rows:
+The database is **modelled**, not a dumping ground. `stores`, `products`,
+`runs`, `price_observations`, `incidents`, `items` and `basket_map` are owned by
+the Drizzle schema in `scrape-verse/apps/api/src/db/schema.ts`; the migration in
+`apps/api/drizzle/` is the only thing that should create tables. Write into the
+existing tables — do not `df.to_sql()` a new one beside them, or the API will
+not see your rows.
 
-```python
-from sqlalchemy import create_engine
-engine = create_engine(
-    "postgresql+psycopg://basketwatch:<password>@152.53.136.253:55432/basketwatch"
-)
-df.to_sql("raw_prices", engine, if_exists="append", index=False)
-```
+Identity is `(store_id, product_key)`. Prices are append-only in
+`price_observations`, one row when a price first appears or moves, never one per
+run; `latest_price` is the view that resolves the newest per product.
 
 This database is on the public internet with password auth and nothing else in
 front of it. That is a deliberate trade for hackathon speed. It holds public
