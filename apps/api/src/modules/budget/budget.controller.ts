@@ -1,4 +1,4 @@
-import { Controller, Get, NotImplementedException } from "@nestjs/common";
+import { Controller, Get } from "@nestjs/common";
 import { type CreditBudget } from "@basketwatch/contract";
 import { BudgetService } from "./budget.service.js";
 
@@ -9,6 +9,6 @@ export class BudgetController {
   /** GET /api/budget */
   @Get()
   current(): Promise<CreditBudget> {
-    throw new NotImplementedException("The credit meter is not reading the database yet.");
+    return this.service.current();
   }
 }

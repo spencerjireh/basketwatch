@@ -180,14 +180,14 @@ Cheap HTTP checks first; Studio credits only on survivors.
 >
 > | Item | Where it stands |
 > |---|---|
-> | 5+ scrapers, 4+ days of history | Not started. Nothing writes Postgres on a schedule yet, so the history clock has not begun. At 2x daily this is the item most exposed to the deadline. |
-> | Clone-store break-and-heal | **Not started, and deliberately last.** The clone store was deleted in the rebuild and is scheduled after the engine works — see decision 5. This is the line most exposed to the deadline. |
-> | Public URL, zero mock data | Half. The dashboard is built and runs on fixtures; no endpoint reads the database, and `api`/`web` are still profile-gated on the deploy. Postgres is live and holds 19 stores, 28,378 products, 28,376 observations. |
+> | 5+ scrapers, 4+ days of history | History is two days, Aug 19-20, with 30 real price moves. Nothing writes on a schedule yet — the puller engine is built but its schedule ships disarmed, by decision, until the team says go. Still the item most exposed to the deadline, and the only one no amount of later effort recovers. |
+> | Clone-store break-and-heal | **Not started, and deliberately last.** The clone store was deleted in the rebuild and is scheduled after the engine works — see decision 5. |
+> | Public URL, zero mock data | **Zero mock data: done.** Every dashboard route reads Postgres and `apps/web/src/fixtures/` is deleted. `api` and `web` are no longer profile-gated, so the public URL lands with the next deploy. |
 > | Demo video | Not started. |
 > | Submission filed | Not started; the form has been open since Aug 19. |
 >
-> The single blocking dependency for three of these five is the same one: an
-> endpoint that reads the database. Everything else is downstream of it.
+> The blocking dependency that held three of these five — an endpoint that
+> reads the database — cleared on Aug 20.
 
 ## 8. Open items
 

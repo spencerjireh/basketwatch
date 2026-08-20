@@ -1,5 +1,5 @@
 import type { ZodType } from "zod";
-import { fetchJson } from "./fetch-json.js";
+import { fetchJson } from "@/lib/api/fetch-json";
 
 /**
  * Client-component fetches, always relative.

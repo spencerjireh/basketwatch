@@ -83,5 +83,6 @@ export type Incident = z.infer<typeof incidentSchema>;
 export const incidentsQuerySchema = pageQuerySchema.extend({
   state: incidentStateSchema.optional(),
 });
+export type IncidentsQuery = z.infer<typeof incidentsQuerySchema>;
 export const incidentsResponseSchema = pageSchema(incidentSchema);
 export type IncidentsResponse = z.infer<typeof incidentsResponseSchema>;

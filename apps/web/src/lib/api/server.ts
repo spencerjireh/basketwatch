@@ -1,7 +1,7 @@
 import "server-only";
 import type { ZodType } from "zod";
-import { apiBaseUrl } from "../env.js";
-import { fetchJson } from "./fetch-json.js";
+import { apiBaseUrl } from "@/lib/env";
+import { fetchJson } from "@/lib/api/fetch-json";
 
 /**
  * Server-component fetches, absolute and straight to the API container.
