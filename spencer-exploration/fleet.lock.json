@@ -19,7 +19,14 @@
       "catalogue": {
         "method": "shopify",
         "endpoint": "https://shopgaisano.com/products.json",
-        "max_pages": 20
+        "max_pages": 20,
+        "studio": {
+          "template": "listing-page",
+          "seed_url": "https://shopgaisano.com/collections/all?page=1",
+          "status": "pending",
+          "max_urls": 40,
+          "cost_class": "listing_page"
+        }
       }
     },
     {
@@ -39,7 +46,14 @@
       "catalogue": {
         "method": "shopify",
         "endpoint": "https://ever.ph/products.json",
-        "max_pages": 20
+        "max_pages": 20,
+        "studio": {
+          "template": "listing-page",
+          "seed_url": "https://ever.ph/collections/all?page=1",
+          "status": "pending",
+          "max_urls": 40,
+          "cost_class": "listing_page"
+        }
       }
     },
     {
@@ -59,7 +73,14 @@
       "catalogue": {
         "method": "shopify",
         "endpoint": "https://shopsuki.ph/products.json",
-        "max_pages": 20
+        "max_pages": 20,
+        "studio": {
+          "template": "listing-page",
+          "seed_url": "https://shopsuki.ph/collections/all?page=1",
+          "status": "pending",
+          "max_urls": 40,
+          "cost_class": "listing_page"
+        }
       }
     },
     {
@@ -78,7 +99,14 @@
       "catalogue": {
         "method": "magento-graphql",
         "endpoint": "https://smmarkets.ph/graphql",
-        "max_pages": 20
+        "max_pages": 20,
+        "studio": {
+          "template": "product-page",
+          "seed_url": "https://smmarkets.ph/20078619-gerber-baby-food-banana-puree-80g.html",
+          "status": "pending",
+          "max_urls": 20,
+          "cost_class": "browser_page"
+        }
       }
     },
     {
@@ -98,7 +126,14 @@
         "method": "sitemap",
         "endpoint": null,
         "max_pages": 150,
-        "note": "no sitemap; product URLs come from the homepage-to-category crawl in vet.py"
+        "note": "no sitemap; product URLs come from the homepage-to-category crawl in vet.py",
+        "studio": {
+          "template": "product-page",
+          "seed_url": "https://www.merrymartwholesale.com/products/argentina-beef-loaf-250g-1-case-includes-48-pcs-250g",
+          "status": "pending",
+          "max_urls": 150,
+          "cost_class": "listing_page"
+        }
       }
     },
     {
@@ -107,7 +142,7 @@
       "country": "PH",
       "vertical": "grocery",
       "structural_class": "spa-opaque",
-      "studio_collector_id": null,
+      "studio_collector_id": "c_mt0zfvd31nwmwaxxfw",
       "why_locked": "10/10 basket categories from a 17,032-URL sitemap - the deepest basket coverage of any PH site - and a well-known consumer name for the demo.",
       "risk": "high",
       "substitute": "ph-southstar",
@@ -130,7 +165,14 @@
           "frozen"
         ],
         "needs_browser": true,
-        "note": "Confirmed client-rendered: 0 rows from 300 pages with current code, and no price in raw HTML even through the Unlocker. Needs the Studio transport, which drives a real browser. Its 20 pinned basket items still work today."
+        "note": "Confirmed client-rendered: 0 rows from 300 pages with current code, and no price in raw HTML even through the Unlocker. Needs the Studio transport, which drives a real browser. Its 20 pinned basket items still work today.",
+        "studio": {
+          "template": "product-page",
+          "seed_url": "https://www.landers.ph/anti-hoarding-and-anti-panic-buying-list/baguio-canola-oil-1-5l-115977-6990",
+          "status": "ready",
+          "max_urls": 300,
+          "cost_class": "browser_page"
+        }
       }
     },
     {
@@ -162,7 +204,14 @@
           "vegetable",
           "fruit",
           "snacks"
-        ]
+        ],
+        "studio": {
+          "template": "product-page",
+          "seed_url": "https://www.kesargrocery.com/banana-bunch-5-7-pcs-s3_sku201791/",
+          "status": "pending",
+          "max_urls": 300,
+          "cost_class": "browser_page"
+        }
       }
     },
     {
@@ -184,7 +233,14 @@
         "endpoint": "https://www.mexgrocer.com/products.json",
         "max_pages": 20,
         "needs_unlocker": true,
-        "note": "blocked on plain HTTP; its Shopify endpoints answer through the Unlocker"
+        "note": "blocked on plain HTTP; its Shopify endpoints answer through the Unlocker",
+        "studio": {
+          "template": "listing-page",
+          "seed_url": "https://www.mexgrocer.com/collections/all?page=1",
+          "status": "pending",
+          "max_urls": 40,
+          "cost_class": "listing_page"
+        }
       }
     },
     {
@@ -203,7 +259,14 @@
       "catalogue": {
         "method": "sitemap",
         "endpoint": null,
-        "max_pages": 400
+        "max_pages": 400,
+        "studio": {
+          "template": "product-page",
+          "seed_url": "https://www.dierbergs.com/item/bakehouse-banana-chocolate-chip-muffins-4ct-37993",
+          "status": "pending",
+          "max_urls": 400,
+          "cost_class": "listing_page"
+        }
       }
     },
     {
@@ -284,7 +347,14 @@
       "catalogue": {
         "method": "shopify",
         "endpoint": "https://cypressindiangrocery.com/products.json",
-        "max_pages": 20
+        "max_pages": 20,
+        "studio": {
+          "template": "listing-page",
+          "seed_url": "https://cypressindiangrocery.com/collections/all?page=1",
+          "status": "pending",
+          "max_urls": 40,
+          "cost_class": "listing_page"
+        }
       }
     },
     {
@@ -304,7 +374,14 @@
       "catalogue": {
         "method": "shopify",
         "endpoint": "https://latimexmarket.com/products.json",
-        "max_pages": 20
+        "max_pages": 20,
+        "studio": {
+          "template": "listing-page",
+          "seed_url": "https://latimexmarket.com/collections/all?page=1",
+          "status": "pending",
+          "max_urls": 40,
+          "cost_class": "listing_page"
+        }
       }
     },
     {
@@ -323,7 +400,14 @@
       "catalogue": {
         "method": "shopify",
         "endpoint": "https://mexmax.com/products.json",
-        "max_pages": 20
+        "max_pages": 20,
+        "studio": {
+          "template": "listing-page",
+          "seed_url": "https://mexmax.com/collections/all?page=1",
+          "status": "pending",
+          "max_urls": 40,
+          "cost_class": "listing_page"
+        }
       }
     },
     {
@@ -342,7 +426,14 @@
       "catalogue": {
         "method": "shopify",
         "endpoint": "https://www.amigofoods.com/products.json",
-        "max_pages": 20
+        "max_pages": 20,
+        "studio": {
+          "template": "listing-page",
+          "seed_url": "https://www.amigofoods.com/collections/all?page=1",
+          "status": "pending",
+          "max_urls": 40,
+          "cost_class": "listing_page"
+        }
       }
     },
     {
@@ -361,7 +452,14 @@
       "catalogue": {
         "method": "shopify",
         "endpoint": "https://shoplilimart.com/products.json",
-        "max_pages": 20
+        "max_pages": 20,
+        "studio": {
+          "template": "listing-page",
+          "seed_url": "https://shoplilimart.com/collections/all?page=1",
+          "status": "pending",
+          "max_urls": 40,
+          "cost_class": "listing_page"
+        }
       }
     },
     {
@@ -381,7 +479,14 @@
       "catalogue": {
         "method": "shopify",
         "endpoint": "https://sukli.com/products.json",
-        "max_pages": 20
+        "max_pages": 20,
+        "studio": {
+          "template": "listing-page",
+          "seed_url": "https://sukli.com/collections/all?page=1",
+          "status": "pending",
+          "max_urls": 40,
+          "cost_class": "listing_page"
+        }
       }
     },
     {
@@ -403,7 +508,14 @@
         "endpoint": null,
         "max_pages": 300,
         "coverage": "partial",
-        "coverage_reason": "1,520 products and one fetch per page; capped at 300"
+        "coverage_reason": "1,520 products and one fetch per page; capped at 300",
+        "studio": {
+          "template": "product-page",
+          "seed_url": "https://www.hmart.com/pearl-barley-2lb-907g--1/p",
+          "status": "pending",
+          "max_urls": 300,
+          "cost_class": "browser_page"
+        }
       }
     }
   ],
@@ -473,12 +585,23 @@
       "date": "2026-08-20",
       "change": "Locked five US stores; rejected Kalustyan's; recorded that registry basket_coverage is not a measurement",
       "why": "The US fleet was too thin to be credible - eggs, milk, chicken and pasta each appeared in exactly one US store, so those series were one breakage from a hole. Eighteen US sites were already vetted fleet_ready and unused, so no discovery was needed. Measuring five of them through their Shopify search APIs contradicted the registry: its basket_coverage counts keyword hits in a sitemap, and all five read 10/10 there. Measured, they are MexMax 8/10, Amigo Foods 6/10, Lili Mart 6/10, Sukli 3/10 and Kalustyan's 0/10 - its 'rice' hit was a rice cooker. Four locked, Kalustyan's rejected despite a registry score of 100. H Mart joins on the sitemap method after /products.json returned 404. Cost: nothing, all free HTTP."
+    },
+    {
+      "date": "2026-08-20",
+      "change": "Added per-store studio blocks: template, seed URL, submission cap and cost class",
+      "why": "Studio becomes the primary collector, so each store needs a collector built against a representative page. Sitemap-method stores get the product-page template and a real product URL; bulk-endpoint stores get the listing-page template and a paginated collection URL, because pointing an AI page-scraper at a raw products.json endpoint asks it to parse a bulk JSON API - fragile, and strictly worse than the free HTTP requests that already work. Every seed URL was checked live for a 200 before being written here. Status starts at 'pending' for all 16; nothing runs through Studio until a verification run promotes it."
+    },
+    {
+      "date": "2026-08-20",
+      "change": "Studio pilot on ph-landers: created, born broken, healed, now producing unit prices",
+      "why": "Landers was the right pilot precisely because it is the only fleet store with no alternative: 0 rows from 300 HTTP pages, no price even through the Unlocker. The generated collector shipped broken - hostname as product name, no price, no error raised - and one `scraper heal --auto-approve --auto-save` fixed it. 4 of 5 URLs now return real prices and unit prices. Whole pilot cost $0.02, which settles the open cost question: Studio for the fleet is affordable. The run also exposed a data bug worth keeping: the collector returned size '1G' for a product titled '1Gal.', which parses as one gram and priced the oil at PHP 799,950/kg. Conflicting sizes now yield no unit price at all."
     }
   ],
   "catalogue_policy": {
     "max_pages_semantics": "API methods count pages of ~250 products; sitemap methods count individual product pages. Both are hard stops, checked before each fetch.",
     "why_bounded": "An unbounded Studio description once crawled ~150 pages and 4,470 rows (docs/hackathon-brief.md). Declaring the ceiling here makes a runaway impossible by construction and keeps the bound visible in the file that records fleet decisions.",
     "tuning": "These are starting values chosen to prove the pipeline, not final. Raise max_pages per store once per-run cost is measured.",
-    "history": "A price row is written only when a product's price changes. Every run also writes a summary row (rows, pages, coverage) so checkRowCount can tell a truncated pull from a real price move."
+    "history": "A price row is written only when a product's price changes. Every run also writes a summary row (rows, pages, coverage) so checkRowCount can tell a truncated pull from a real price move.",
+    "studio_transport": "Studio is the primary collector; catalogue.py is the fallback. A store enters a Studio run only once its studio.status reads 'ready', which requires a recorded verification run - an unproven collector can never enter the fleet by default. max_urls bounds what is submitted; the creation description separately bounds what the collector does with each URL it is given. Both are needed: max_pages could not have prevented the 4,470-row incident, because that was one page crawling onward."
   }
 }

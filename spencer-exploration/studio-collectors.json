@@ -1,0 +1,44 @@
+{
+  "_comment": "The only store-to-collector mapping that exists: the Bright Data CLI has no `scraper list`. Tracked in git on purpose, and written after every single create so a crash never orphans a paid collector.",
+  "cli_version": "0.3.4",
+  "collectors": {
+    "ph-landers": {
+      "collector_id": "c_mt0zfvd31nwmwaxxfw",
+      "name": "basketwatch-ph-landers",
+      "seed_url": "https://www.landers.ph/anti-hoarding-and-anti-panic-buying-list/baguio-canola-oil-1-5l-115977-6990",
+      "template": "product-page",
+      "description": "From this single product page extract exactly one product. Fields: name; price as a number with no currency symbol; currency as a 3-letter ISO code; size, meaning the pack size exactly as printed, such as 5kg or 1.5L or 12 x 60g; in_stock as true or false. Do not follow any link, do not paginate, do not visit any other page - scrape only the URL given as input. If the size is not in the title take it from the product specifications; if there is no size leave it empty and never guess.",
+      "description_sha": "sha256:8221cf645c7de2fc",
+      "status": "ready",
+      "verified": {
+        "at": "2026-08-20T04:05:00Z",
+        "urls_submitted": 5,
+        "rows_returned": 5,
+        "rows_usable": 4,
+        "cost_usd_total_pilot": 0.02,
+        "note": "Create, two 5-URL batch runs and one full AI heal cost $0.02 combined ($48.86 -> $48.84). Studio for the whole fleet is affordable."
+      },
+      "heals": [
+        {
+          "at": "2026-08-20T04:00:00Z",
+          "why": "Born broken. The generated collector returned the site hostname as the product name, no price at all, and in_stock false for everything - the same shape as the Aug-17 HN collector, and it raised no error.",
+          "prompt": "The scraper returns the site hostname as the product name and no price at all. On this product page the product name is in the page heading, the price is displayed as a peso amount near the heading, and the pack size appears in the product title or specifications. Extract: name (the product title, not the hostname); price as a number with no currency symbol; currency as the 3-letter ISO code PHP; size as the pack size text exactly as printed such as 1.5L; in_stock true or false. Scrape only the given URL, do not follow links or paginate.",
+          "flags": "--auto-approve --auto-save",
+          "poll_attempts": 290,
+          "steps": [
+            "planner",
+            "control_preview_runner",
+            "code_fixer",
+            "step_preview_runner",
+            "request_fulfillment_validator",
+            "step_advance",
+            "user_approval",
+            "save_new_template"
+          ],
+          "outcome": "4 of 5 URLs returned real names, prices, sizes and unit prices. Baguio Canola Oil 1.5L PHP 228.00 = PHP 152.00/L; Baguio Pure Coconut Oil 1.8L PHP 385.50 = PHP 214.17/L. The fifth (Kopiko coffee) still returns the hostname - one page shape the heal did not cover, recorded rather than rounded up.",
+          "significance": "Landers returned 0 rows from 300 pages of plain HTTP and has no price in raw HTML even through the Web Unlocker. It is the one fleet store with no alternative access path, so 0 -> real unit prices is attributable entirely to Studio driving a real browser, and the fix was an autonomous heal rather than a hand-written selector."
+        }
+      ]
+    }
+  }
+}
