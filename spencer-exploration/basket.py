@@ -710,7 +710,7 @@ def build_store_from_catalogue(conn, entry: dict) -> dict:
     store = {
         "id": entry["id"], "name": entry["name"], "country": country,
         "structural_class": entry.get("structural_class"), "items": {}, "unresolved": [],
-        "via": "catalogue",
+        "via": "catalogue", "pricing": entry.get("pricing", "retail"),
     }
     rows = [dict(r) for r in conn.execute(
         """SELECT p.product_key, p.name, p.url, p.category, p.unit, p.size_value,
@@ -726,6 +726,7 @@ def build_store_from_catalogue(conn, entry: dict) -> dict:
                       "quantity": r["size_quantity"], "base_uom": r["size_base_uom"]}
                      if r["size_quantity"] is not None else None)
     store["catalogue_size"] = len(rows)
+    store["_rows"] = rows
 
     for item in ITEMS:
         picked = pick_from_catalogue(item, country, rows)
@@ -804,11 +805,19 @@ def finalise(store: dict, entry: dict) -> dict:
         if item in ITEMS:
             store["items"][item] = {"status": "not_stocked", "note": why, "url": None}
     for item, fix in ov.items():
-        store["items"][item] = {
+        rec = {
             "url": fix["url"], "name": fix["name"], "price": None, "currency": None,
             "size": parse_size(fix["name"]), "status": "curated",
             "via": "manual", "why": fix["why"],
         }
+        # A curated pick used to be a name without a number, because curation once meant
+        # re-fetching a URL. The catalogue already holds the row, so look it up.
+        match = next((r for r in store.get("_rows", []) if r["url"] == fix["url"]), None)
+        if match:
+            rec.update({"price": match["price"], "currency": match["currency"],
+                        "size": match.get("size") or rec["size"],
+                        "name": fix["name"] or match["name"]})
+        store["items"][item] = rec
 
     n = len(ITEMS)
     for item, rec in store["items"].items():
@@ -818,7 +827,15 @@ def finalise(store: dict, entry: dict) -> dict:
         rec["label"] = spec["label"]
         rec["normal_unit"] = spec["normal_unit"]
 
-        rec["unit_price"] = unit_price(rec.get("price"), rec.get("size"))
+        if store.get("pricing") == "wholesale":
+            # The listed price is per case against a unit size in the title, and the case
+            # count is unpublished, so no unit price is computable. The price itself is
+            # still tracked - a case price moving is a real signal. Missing beats wrong.
+            rec["unit_price"] = None
+            rec["pricing_note"] = ("wholesale listing: price is per case, size is per "
+                                   "pack, and the case count is not published")
+        else:
+            rec["unit_price"] = unit_price(rec.get("price"), rec.get("size"))
         if rec.get("size") is None and rec.get("url"):
             # No comparability without a size. Say so rather than publish a bare price.
             rec["size_unparsed"] = True
@@ -831,6 +848,7 @@ def finalise(store: dict, entry: dict) -> dict:
         1 for r in store["items"].values() if r.get("status") in ("verified", "curated"))
     store["chosen_url_count"] = sum(1 for r in store["items"].values() if r.get("url"))
     store["unit_priced_count"] = sum(1 for r in store["items"].values() if r.get("unit_price"))
+    store.pop("_rows", None)     # catalogue rows are a lookup aid, not output
     store["core_settled"] = sum(
         1 for k, r in store["items"].items()
         if k in CORE_ITEMS and r.get("status") in ("verified", "curated"))
@@ -844,6 +862,11 @@ def finalise(store: dict, entry: dict) -> dict:
 
 
 
+# Three peers is not enough to trust a median: the one false positive that survived the
+# wholesale fix had exactly three, and two of them were the wrong shape of product.
+MIN_PEERS = 4
+
+
 def flag_unit_price_outliers(stores: list[dict], factor: float = 4.0) -> int:
     """Cross-check each item's unit price against its peers in the same country.
 
@@ -855,6 +878,11 @@ def flag_unit_price_outliers(stores: list[dict], factor: float = 4.0) -> int:
 
     by_key: dict[tuple[str, str], list[tuple[float, dict]]] = {}
     for st in stores:
+        if st.get("pricing") == "wholesale":
+            # Case prices dragged the median up and then flagged correct retail rows as
+            # too cheap: a $2.42/kg baking potato read as an outlier against a median set
+            # by potato gnocchi. 18 of 21 flags were this.
+            continue
         for item, rec in st["items"].items():
             up = rec.get("unit_price")
             if up:
@@ -862,7 +890,7 @@ def flag_unit_price_outliers(stores: list[dict], factor: float = 4.0) -> int:
 
     flagged = 0
     for (country, item), rows in by_key.items():
-        if len(rows) < 3:
+        if len(rows) < MIN_PEERS:
             continue                      # too few peers for a median to mean anything
         med = median(v for v, _ in rows)
         if med <= 0:

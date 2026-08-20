@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-20T06:21:27+00:00",
+  "generated_at": "2026-08-20T06:32:35+00:00",
   "source": "catalogue.db",
   "items": {
     "rice": {
@@ -443,7 +443,16 @@
           "biscuits",
           "otap",
           "wafer",
-          "candy"
+          "candy",
+          "sugar free",
+          "sugar-free",
+          "sugarfree",
+          "low sugar",
+          "reduced sugar",
+          "no sugar",
+          "granola",
+          "cone",
+          "cones"
         ]
       },
       "categories": [
@@ -1253,8 +1262,8 @@
         "coffee": {
           "url": "https://shopgaisano.com/products/nescafe-classic-tipid-pack-50g-1",
           "name": "Nescafe Classic Tipid Pack 50g",
-          "price": null,
-          "currency": null,
+          "price": 51.95,
+          "currency": "PHP",
           "size": {
             "raw": "50g",
             "value": 50.0,
@@ -1271,7 +1280,13 @@
           "tier": "core",
           "label": "Coffee (ground or instant)",
           "normal_unit": "g",
-          "unit_price": null
+          "unit_price": {
+            "per_base_unit": 1.039,
+            "base_uom": "g",
+            "basis": "per_kg",
+            "value": 1039.0,
+            "approximate": false
+          }
         },
         "sugar": {
           "url": "https://shopgaisano.com/products/great-value-brown-sugar-1kg",
@@ -1483,10 +1498,11 @@
         "bottled_water"
       ],
       "via": "catalogue",
+      "pricing": "retail",
       "catalogue_size": 1365,
       "verified_count": 7,
       "chosen_url_count": 7,
-      "unit_priced_count": 6,
+      "unit_priced_count": 7,
       "core_settled": 6
     },
     "ph-ever": {
@@ -1728,7 +1744,7 @@
           },
           "status": "verified",
           "via": "catalogue",
-          "candidates": 25,
+          "candidates": 21,
           "category": "Other Sugar, Polo, Sugar",
           "category_tier": 0,
           "target_size": "1 kg",
@@ -2118,6 +2134,7 @@
       },
       "unresolved": [],
       "via": "catalogue",
+      "pricing": "retail",
       "catalogue_size": 5000,
       "verified_count": 20,
       "chosen_url_count": 20,
@@ -2674,6 +2691,7 @@
         "apples"
       ],
       "via": "catalogue",
+      "pricing": "retail",
       "catalogue_size": 5000,
       "verified_count": 16,
       "chosen_url_count": 16,
@@ -2841,41 +2859,14 @@
           }
         },
         "sugar": {
-          "url": "https://smmarkets.ph/carmans-low-sugar-granola-450g-20580444.html",
-          "name": "Carmans Low Sugar Granola | 450g",
-          "price": 379.5,
-          "currency": "PHP",
-          "size": {
-            "raw": "450g",
-            "value": 450.0,
-            "uom": "g",
-            "approximate": false,
-            "form": "plain",
-            "quantity": 450.0,
-            "base_uom": "g"
-          },
-          "status": "verified",
-          "via": "catalogue",
-          "candidates": 1,
-          "category": "Biscuits & Crackers",
-          "category_tier": 3,
+          "status": "not_stocked",
+          "note": "No plain sugar anywhere in the 1,688-row bounded slice of this store's catalogue - every 'sugar' match is a modifier ('sugar free', 'reduced sugar') or an ice-cream cone. Automation had picked Carman's Low Sugar Granola. This is a limit of the bounded pull rather than proof the store does not sell sugar; re-check if the ceiling is raised.",
+          "url": null,
           "target_size": "1 kg",
           "tier": "core",
           "label": "Sugar (white or brown)",
           "normal_unit": "g",
-          "unit_price": {
-            "per_base_unit": 0.843333,
-            "base_uom": "g",
-            "basis": "per_kg",
-            "value": 843.3333,
-            "approximate": false
-          },
-          "unit_price_outlier": {
-            "ratio_to_peer_median": 4.57,
-            "peer_median": 184.4,
-            "peers": 4,
-            "note": "far from the same item's unit price at other stores in this country - likely a case, multipack or mis-picked listing"
-          }
+          "unit_price": null
         },
         "cooking_oil": {
           "status": "not_found",
@@ -3086,6 +3077,7 @@
         "rice",
         "pasta",
         "eggs",
+        "sugar",
         "cooking_oil",
         "bananas",
         "tomatoes",
@@ -3096,11 +3088,12 @@
         "bottled_water"
       ],
       "via": "catalogue",
+      "pricing": "retail",
       "catalogue_size": 1688,
-      "verified_count": 9,
-      "chosen_url_count": 9,
-      "unit_priced_count": 9,
-      "core_settled": 5
+      "verified_count": 8,
+      "chosen_url_count": 8,
+      "unit_priced_count": 8,
+      "core_settled": 4
     },
     "ph-merrymartwholesale": {
       "id": "ph-merrymartwholesale",
@@ -3116,7 +3109,8 @@
           "tier": "core",
           "label": "Rice (white)",
           "normal_unit": "g",
-          "unit_price": null
+          "unit_price": null,
+          "pricing_note": "wholesale listing: price is per case, size is per pack, and the case count is not published"
         },
         "bread": {
           "status": "not_found",
@@ -3126,7 +3120,8 @@
           "tier": "core",
           "label": "White bread (loaf)",
           "normal_unit": "g",
-          "unit_price": null
+          "unit_price": null,
+          "pricing_note": "wholesale listing: price is per case, size is per pack, and the case count is not published"
         },
         "pasta": {
           "url": "https://www.merrymartwholesale.com/products/ideal-gourmet-spaghetti-500g-1-case-includes-30-pcs-500g",
@@ -3151,19 +3146,8 @@
           "tier": "core",
           "label": "Pasta (spaghetti)",
           "normal_unit": "g",
-          "unit_price": {
-            "per_base_unit": 4.178,
-            "base_uom": "g",
-            "basis": "per_kg",
-            "value": 4178.0,
-            "approximate": false
-          },
-          "unit_price_outlier": {
-            "ratio_to_peer_median": 13.97,
-            "peer_median": 299.0088,
-            "peers": 3,
-            "note": "far from the same item's unit price at other stores in this country - likely a case, multipack or mis-picked listing"
-          }
+          "unit_price": null,
+          "pricing_note": "wholesale listing: price is per case, size is per pack, and the case count is not published"
         },
         "chicken": {
           "status": "not_found",
@@ -3173,7 +3157,8 @@
           "tier": "core",
           "label": "Chicken breast",
           "normal_unit": "g",
-          "unit_price": null
+          "unit_price": null,
+          "pricing_note": "wholesale listing: price is per case, size is per pack, and the case count is not published"
         },
         "eggs": {
           "status": "not_found",
@@ -3183,7 +3168,8 @@
           "tier": "core",
           "label": "Eggs (12)",
           "normal_unit": "count",
-          "unit_price": null
+          "unit_price": null,
+          "pricing_note": "wholesale listing: price is per case, size is per pack, and the case count is not published"
         },
         "milk": {
           "url": "https://www.merrymartwholesale.com/products/alaska-evaporada-filled-milk-360ml-1-case-includes-48pcs-360ml",
@@ -3208,19 +3194,8 @@
           "tier": "core",
           "label": "Milk (1 L)",
           "normal_unit": "ml",
-          "unit_price": {
-            "per_base_unit": 7.738889,
-            "base_uom": "ml",
-            "basis": "per_litre",
-            "value": 7738.8889,
-            "approximate": false
-          },
-          "unit_price_outlier": {
-            "ratio_to_peer_median": 58.72,
-            "peer_median": 131.8,
-            "peers": 5,
-            "note": "far from the same item's unit price at other stores in this country - likely a case, multipack or mis-picked listing"
-          }
+          "unit_price": null,
+          "pricing_note": "wholesale listing: price is per case, size is per pack, and the case count is not published"
         },
         "coffee": {
           "url": "https://www.merrymartwholesale.com/products/nestle-coffee-mate-sup-400g-1-case-includes-24-pcs-400g",
@@ -3245,19 +3220,8 @@
           "tier": "core",
           "label": "Coffee (ground or instant)",
           "normal_unit": "g",
-          "unit_price": {
-            "per_base_unit": 7.1075,
-            "base_uom": "g",
-            "basis": "per_kg",
-            "value": 7107.5,
-            "approximate": false
-          },
-          "unit_price_outlier": {
-            "ratio_to_peer_median": 5.44,
-            "peer_median": 1305.375,
-            "peers": 4,
-            "note": "far from the same item's unit price at other stores in this country - likely a case, multipack or mis-picked listing"
-          }
+          "unit_price": null,
+          "pricing_note": "wholesale listing: price is per case, size is per pack, and the case count is not published"
         },
         "sugar": {
           "status": "not_found",
@@ -3267,7 +3231,8 @@
           "tier": "core",
           "label": "Sugar (white or brown)",
           "normal_unit": "g",
-          "unit_price": null
+          "unit_price": null,
+          "pricing_note": "wholesale listing: price is per case, size is per pack, and the case count is not published"
         },
         "cooking_oil": {
           "url": "https://www.merrymartwholesale.com/products/baguio-oil-sup-1l-1-case-includes-12-pcs-1l",
@@ -3292,19 +3257,8 @@
           "tier": "core",
           "label": "Cooking oil",
           "normal_unit": "ml",
-          "unit_price": {
-            "per_base_unit": 2.887,
-            "base_uom": "ml",
-            "basis": "per_litre",
-            "value": 2887.0,
-            "approximate": false
-          },
-          "unit_price_outlier": {
-            "ratio_to_peer_median": 15.99,
-            "peer_median": 180.55,
-            "peers": 4,
-            "note": "far from the same item's unit price at other stores in this country - likely a case, multipack or mis-picked listing"
-          }
+          "unit_price": null,
+          "pricing_note": "wholesale listing: price is per case, size is per pack, and the case count is not published"
         },
         "bananas": {
           "status": "not_found",
@@ -3314,7 +3268,8 @@
           "tier": "core",
           "label": "Bananas (1 kg)",
           "normal_unit": "g",
-          "unit_price": null
+          "unit_price": null,
+          "pricing_note": "wholesale listing: price is per case, size is per pack, and the case count is not published"
         },
         "pork": {
           "status": "not_found",
@@ -3324,7 +3279,8 @@
           "tier": "stretch",
           "label": "Pork (lean cut)",
           "normal_unit": "g",
-          "unit_price": null
+          "unit_price": null,
+          "pricing_note": "wholesale listing: price is per case, size is per pack, and the case count is not published"
         },
         "fish": {
           "status": "not_found",
@@ -3334,7 +3290,8 @@
           "tier": "stretch",
           "label": "Fish (tilapia or round scad)",
           "normal_unit": "g",
-          "unit_price": null
+          "unit_price": null,
+          "pricing_note": "wholesale listing: price is per case, size is per pack, and the case count is not published"
         },
         "cheese": {
           "status": "not_found",
@@ -3344,7 +3301,8 @@
           "tier": "stretch",
           "label": "Cheese (local)",
           "normal_unit": "g",
-          "unit_price": null
+          "unit_price": null,
+          "pricing_note": "wholesale listing: price is per case, size is per pack, and the case count is not published"
         },
         "tomatoes": {
           "status": "not_found",
@@ -3354,7 +3312,8 @@
           "tier": "stretch",
           "label": "Tomatoes (1 kg)",
           "normal_unit": "g",
-          "unit_price": null
+          "unit_price": null,
+          "pricing_note": "wholesale listing: price is per case, size is per pack, and the case count is not published"
         },
         "potatoes": {
           "status": "not_found",
@@ -3364,7 +3323,8 @@
           "tier": "stretch",
           "label": "Potatoes (1 kg)",
           "normal_unit": "g",
-          "unit_price": null
+          "unit_price": null,
+          "pricing_note": "wholesale listing: price is per case, size is per pack, and the case count is not published"
         },
         "onions": {
           "status": "not_found",
@@ -3374,7 +3334,8 @@
           "tier": "stretch",
           "label": "Onions (1 kg)",
           "normal_unit": "g",
-          "unit_price": null
+          "unit_price": null,
+          "pricing_note": "wholesale listing: price is per case, size is per pack, and the case count is not published"
         },
         "apples": {
           "status": "not_found",
@@ -3384,7 +3345,8 @@
           "tier": "stretch",
           "label": "Apples (1 kg)",
           "normal_unit": "g",
-          "unit_price": null
+          "unit_price": null,
+          "pricing_note": "wholesale listing: price is per case, size is per pack, and the case count is not published"
         },
         "oranges": {
           "status": "not_found",
@@ -3394,7 +3356,8 @@
           "tier": "stretch",
           "label": "Oranges (1 kg)",
           "normal_unit": "g",
-          "unit_price": null
+          "unit_price": null,
+          "pricing_note": "wholesale listing: price is per case, size is per pack, and the case count is not published"
         },
         "canned_fish": {
           "url": "https://www.merrymartwholesale.com/products/555-sardines-tomato-sauce-155g-1-case-includes-100pcs-155g",
@@ -3419,19 +3382,8 @@
           "tier": "stretch",
           "label": "Canned sardines",
           "normal_unit": "g",
-          "unit_price": {
-            "per_base_unit": 15.367742,
-            "base_uom": "g",
-            "basis": "per_kg",
-            "value": 15367.7419,
-            "approximate": false
-          },
-          "unit_price_outlier": {
-            "ratio_to_peer_median": 77.53,
-            "peer_median": 198.2258,
-            "peers": 4,
-            "note": "far from the same item's unit price at other stores in this country - likely a case, multipack or mis-picked listing"
-          }
+          "unit_price": null,
+          "pricing_note": "wholesale listing: price is per case, size is per pack, and the case count is not published"
         },
         "bottled_water": {
           "url": "https://www.merrymartwholesale.com/products/absolute-distilled-water-2000ml-1-case-includes-6-pcs-2000ml",
@@ -3456,19 +3408,8 @@
           "tier": "stretch",
           "label": "Bottled water (1.5 L)",
           "normal_unit": "ml",
-          "unit_price": {
-            "per_base_unit": 0.108,
-            "base_uom": "ml",
-            "basis": "per_litre",
-            "value": 108.0,
-            "approximate": false
-          },
-          "unit_price_outlier": {
-            "ratio_to_peer_median": 4.91,
-            "peer_median": 22.0,
-            "peers": 3,
-            "note": "far from the same item's unit price at other stores in this country - likely a case, multipack or mis-picked listing"
-          }
+          "unit_price": null,
+          "pricing_note": "wholesale listing: price is per case, size is per pack, and the case count is not published"
         }
       },
       "unresolved": [
@@ -3488,10 +3429,11 @@
         "oranges"
       ],
       "via": "catalogue",
+      "pricing": "wholesale",
       "catalogue_size": 118,
       "verified_count": 6,
       "chosen_url_count": 6,
-      "unit_priced_count": 6,
+      "unit_priced_count": 0,
       "core_settled": 4
     },
     "ph-landers": {
@@ -3748,6 +3690,7 @@
         "bottled_water"
       ],
       "via": "catalogue",
+      "pricing": "retail",
       "catalogue_size": 1,
       "verified_count": 2,
       "chosen_url_count": 2,
@@ -4076,12 +4019,6 @@
             "basis": "per_kg",
             "value": 2.4229,
             "approximate": false
-          },
-          "unit_price_outlier": {
-            "ratio_to_peer_median": 0.17,
-            "peer_median": 14.0888,
-            "peers": 3,
-            "note": "far from the same item's unit price at other stores in this country - likely a case, multipack or mis-picked listing"
           }
         },
         "onions": {
@@ -4210,6 +4147,7 @@
         "bottled_water"
       ],
       "via": "catalogue",
+      "pricing": "retail",
       "catalogue_size": 298,
       "verified_count": 11,
       "chosen_url_count": 11,
@@ -4666,6 +4604,7 @@
         "canned_fish"
       ],
       "via": "catalogue",
+      "pricing": "retail",
       "catalogue_size": 1409,
       "verified_count": 11,
       "chosen_url_count": 11,
@@ -4902,6 +4841,7 @@
         "bottled_water"
       ],
       "via": "catalogue",
+      "pricing": "retail",
       "catalogue_size": 389,
       "verified_count": 0,
       "chosen_url_count": 0,
@@ -5138,6 +5078,7 @@
         "bottled_water"
       ],
       "via": "catalogue",
+      "pricing": "retail",
       "catalogue_size": 20,
       "verified_count": 0,
       "chosen_url_count": 0,
@@ -5291,12 +5232,6 @@
             "basis": "per_kg",
             "value": 3.0258,
             "approximate": false
-          },
-          "unit_price_outlier": {
-            "ratio_to_peer_median": 0.23,
-            "peer_median": 13.1175,
-            "peers": 7,
-            "note": "far from the same item's unit price at other stores in this country - likely a case, multipack or mis-picked listing"
           }
         },
         "cooking_oil": {
@@ -5540,6 +5475,7 @@
         "bottled_water"
       ],
       "via": "catalogue",
+      "pricing": "retail",
       "catalogue_size": 1640,
       "verified_count": 8,
       "chosen_url_count": 8,
@@ -5976,6 +5912,7 @@
         "bottled_water"
       ],
       "via": "catalogue",
+      "pricing": "retail",
       "catalogue_size": 865,
       "verified_count": 10,
       "chosen_url_count": 10,
@@ -6011,19 +5948,8 @@
           "tier": "core",
           "label": "Rice (white)",
           "normal_unit": "g",
-          "unit_price": {
-            "per_base_unit": 0.055129,
-            "base_uom": "g",
-            "basis": "per_kg",
-            "value": 55.1288,
-            "approximate": false
-          },
-          "unit_price_outlier": {
-            "ratio_to_peer_median": 8.94,
-            "peer_median": 6.1685,
-            "peers": 9,
-            "note": "far from the same item's unit price at other stores in this country - likely a case, multipack or mis-picked listing"
-          }
+          "unit_price": null,
+          "pricing_note": "wholesale listing: price is per case, size is per pack, and the case count is not published"
         },
         "bread": {
           "status": "not_found",
@@ -6033,7 +5959,8 @@
           "tier": "core",
           "label": "White bread (loaf)",
           "normal_unit": "g",
-          "unit_price": null
+          "unit_price": null,
+          "pricing_note": "wholesale listing: price is per case, size is per pack, and the case count is not published"
         },
         "pasta": {
           "url": "https://mexmax.com/products/allegra-elbow-pasta-case-20-units",
@@ -6058,19 +5985,8 @@
           "tier": "core",
           "label": "Pasta (spaghetti)",
           "normal_unit": "g",
-          "unit_price": {
-            "per_base_unit": 0.105888,
-            "base_uom": "g",
-            "basis": "per_kg",
-            "value": 105.8881,
-            "approximate": false
-          },
-          "unit_price_outlier": {
-            "ratio_to_peer_median": 14.36,
-            "peer_median": 7.375,
-            "peers": 5,
-            "note": "far from the same item's unit price at other stores in this country - likely a case, multipack or mis-picked listing"
-          }
+          "unit_price": null,
+          "pricing_note": "wholesale listing: price is per case, size is per pack, and the case count is not published"
         },
         "chicken": {
           "url": "https://mexmax.com/products/knorr-granulatd-chicken-bouillon-case-12-units",
@@ -6095,19 +6011,8 @@
           "tier": "core",
           "label": "Chicken breast",
           "normal_unit": "g",
-          "unit_price": {
-            "per_base_unit": 0.233962,
-            "base_uom": "g",
-            "basis": "per_kg",
-            "value": 233.962,
-            "approximate": false
-          },
-          "unit_price_outlier": {
-            "ratio_to_peer_median": 10.64,
-            "peer_median": 21.9801,
-            "peers": 4,
-            "note": "far from the same item's unit price at other stores in this country - likely a case, multipack or mis-picked listing"
-          }
+          "unit_price": null,
+          "pricing_note": "wholesale listing: price is per case, size is per pack, and the case count is not published"
         },
         "eggs": {
           "url": "https://mexmax.com/products/huevitos-de-paloma-case-18-units",
@@ -6125,6 +6030,7 @@
           "label": "Eggs (12)",
           "normal_unit": "count",
           "unit_price": null,
+          "pricing_note": "wholesale listing: price is per case, size is per pack, and the case count is not published",
           "size_unparsed": true,
           "note": "size could not be parsed from the product title, so no unit price - confirm the size by hand"
         },
@@ -6136,7 +6042,8 @@
           "tier": "core",
           "label": "Milk (1 L)",
           "normal_unit": "ml",
-          "unit_price": null
+          "unit_price": null,
+          "pricing_note": "wholesale listing: price is per case, size is per pack, and the case count is not published"
         },
         "coffee": {
           "url": "https://mexmax.com/products/nescafe-clasico-coffee-instant-300g-case-8-units",
@@ -6161,19 +6068,8 @@
           "tier": "core",
           "label": "Coffee (ground or instant)",
           "normal_unit": "g",
-          "unit_price": {
-            "per_base_unit": 0.531067,
-            "base_uom": "g",
-            "basis": "per_kg",
-            "value": 531.0667,
-            "approximate": false
-          },
-          "unit_price_outlier": {
-            "ratio_to_peer_median": 13.95,
-            "peer_median": 38.0635,
-            "peers": 7,
-            "note": "far from the same item's unit price at other stores in this country - likely a case, multipack or mis-picked listing"
-          }
+          "unit_price": null,
+          "pricing_note": "wholesale listing: price is per case, size is per pack, and the case count is not published"
         },
         "sugar": {
           "url": "https://mexmax.com/products/c-h-sugar-granulated-case-10-units",
@@ -6198,13 +6094,8 @@
           "tier": "core",
           "label": "Sugar (white or brown)",
           "normal_unit": "g",
-          "unit_price": {
-            "per_base_unit": 0.048739,
-            "base_uom": "g",
-            "basis": "per_kg",
-            "value": 48.7387,
-            "approximate": false
-          }
+          "unit_price": null,
+          "pricing_note": "wholesale listing: price is per case, size is per pack, and the case count is not published"
         },
         "cooking_oil": {
           "url": "https://mexmax.com/products/1-2-3-canola-oil-case-12-units",
@@ -6229,13 +6120,8 @@
           "tier": "core",
           "label": "Cooking oil",
           "normal_unit": "ml",
-          "unit_price": {
-            "per_base_unit": 0.08428,
-            "base_uom": "ml",
-            "basis": "per_litre",
-            "value": 84.28,
-            "approximate": false
-          }
+          "unit_price": null,
+          "pricing_note": "wholesale listing: price is per case, size is per pack, and the case count is not published"
         },
         "bananas": {
           "url": "https://mexmax.com/products/jumex-strawberry-banana-sports-can-16-oz",
@@ -6260,19 +6146,8 @@
           "tier": "core",
           "label": "Bananas (1 kg)",
           "normal_unit": "g",
-          "unit_price": {
-            "per_base_unit": 0.077889,
-            "base_uom": "g",
-            "basis": "per_kg",
-            "value": 77.8894,
-            "approximate": false
-          },
-          "unit_price_outlier": {
-            "ratio_to_peer_median": 5.92,
-            "peer_median": 13.1616,
-            "peers": 6,
-            "note": "far from the same item's unit price at other stores in this country - likely a case, multipack or mis-picked listing"
-          }
+          "unit_price": null,
+          "pricing_note": "wholesale listing: price is per case, size is per pack, and the case count is not published"
         },
         "pork": {
           "url": "https://mexmax.com/products/juanita-s-pork-pozole-25-oz",
@@ -6297,19 +6172,8 @@
           "tier": "stretch",
           "label": "Pork (lean cut)",
           "normal_unit": "g",
-          "unit_price": {
-            "per_base_unit": 0.147756,
-            "base_uom": "g",
-            "basis": "per_kg",
-            "value": 147.7557,
-            "approximate": false
-          },
-          "unit_price_outlier": {
-            "ratio_to_peer_median": 5.88,
-            "peer_median": 25.123,
-            "peers": 6,
-            "note": "far from the same item's unit price at other stores in this country - likely a case, multipack or mis-picked listing"
-          }
+          "unit_price": null,
+          "pricing_note": "wholesale listing: price is per case, size is per pack, and the case count is not published"
         },
         "fish": {
           "status": "not_found",
@@ -6319,7 +6183,8 @@
           "tier": "stretch",
           "label": "Fish (tilapia or round scad)",
           "normal_unit": "g",
-          "unit_price": null
+          "unit_price": null,
+          "pricing_note": "wholesale listing: price is per case, size is per pack, and the case count is not published"
         },
         "cheese": {
           "url": "https://mexmax.com/products/buldak-cheese-hot-chicken-ramen-5pk",
@@ -6344,19 +6209,8 @@
           "tier": "stretch",
           "label": "Cheese (local)",
           "normal_unit": "g",
-          "unit_price": {
-            "per_base_unit": 0.675245,
-            "base_uom": "g",
-            "basis": "per_kg",
-            "value": 675.2447,
-            "approximate": false
-          },
-          "unit_price_outlier": {
-            "ratio_to_peer_median": 13.94,
-            "peer_median": 48.4278,
-            "peers": 8,
-            "note": "far from the same item's unit price at other stores in this country - likely a case, multipack or mis-picked listing"
-          }
+          "unit_price": null,
+          "pricing_note": "wholesale listing: price is per case, size is per pack, and the case count is not published"
         },
         "tomatoes": {
           "url": "https://mexmax.com/products/clamato-tomato-cocktail-16-oz-case-12-units",
@@ -6381,19 +6235,8 @@
           "tier": "stretch",
           "label": "Tomatoes (1 kg)",
           "normal_unit": "g",
-          "unit_price": {
-            "per_base_unit": 0.102603,
-            "base_uom": "g",
-            "basis": "per_kg",
-            "value": 102.6032,
-            "approximate": false
-          },
-          "unit_price_outlier": {
-            "ratio_to_peer_median": 4.08,
-            "peer_median": 25.1597,
-            "peers": 5,
-            "note": "far from the same item's unit price at other stores in this country - likely a case, multipack or mis-picked listing"
-          }
+          "unit_price": null,
+          "pricing_note": "wholesale listing: price is per case, size is per pack, and the case count is not published"
         },
         "potatoes": {
           "status": "not_found",
@@ -6403,7 +6246,8 @@
           "tier": "stretch",
           "label": "Potatoes (1 kg)",
           "normal_unit": "g",
-          "unit_price": null
+          "unit_price": null,
+          "pricing_note": "wholesale listing: price is per case, size is per pack, and the case count is not published"
         },
         "onions": {
           "status": "not_found",
@@ -6413,7 +6257,8 @@
           "tier": "stretch",
           "label": "Onions (1 kg)",
           "normal_unit": "g",
-          "unit_price": null
+          "unit_price": null,
+          "pricing_note": "wholesale listing: price is per case, size is per pack, and the case count is not published"
         },
         "apples": {
           "url": "https://mexmax.com/products/suero-apple-electrolyte-solution-33-8-oz",
@@ -6438,19 +6283,8 @@
           "tier": "stretch",
           "label": "Apples (1 kg)",
           "normal_unit": "g",
-          "unit_price": {
-            "per_base_unit": 0.042684,
-            "base_uom": "g",
-            "basis": "per_kg",
-            "value": 42.6836,
-            "approximate": false
-          },
-          "unit_price_outlier": {
-            "ratio_to_peer_median": 7.9,
-            "peer_median": 5.4045,
-            "peers": 3,
-            "note": "far from the same item's unit price at other stores in this country - likely a case, multipack or mis-picked listing"
-          }
+          "unit_price": null,
+          "pricing_note": "wholesale listing: price is per case, size is per pack, and the case count is not published"
         },
         "oranges": {
           "url": "https://mexmax.com/products/ajax-dish-wash-liquid-orange-case-9-units",
@@ -6475,19 +6309,8 @@
           "tier": "stretch",
           "label": "Oranges (1 kg)",
           "normal_unit": "g",
-          "unit_price": {
-            "per_base_unit": 0.055733,
-            "base_uom": "g",
-            "basis": "per_kg",
-            "value": 55.7329,
-            "approximate": false
-          },
-          "unit_price_outlier": {
-            "ratio_to_peer_median": 7.42,
-            "peer_median": 7.5083,
-            "peers": 4,
-            "note": "far from the same item's unit price at other stores in this country - likely a case, multipack or mis-picked listing"
-          }
+          "unit_price": null,
+          "pricing_note": "wholesale listing: price is per case, size is per pack, and the case count is not published"
         },
         "canned_fish": {
           "url": "https://mexmax.com/products/la-sirena-sardines-in-tomato-sauce-oval-15-oz",
@@ -6512,19 +6335,8 @@
           "tier": "stretch",
           "label": "Canned sardines",
           "normal_unit": "g",
-          "unit_price": {
-            "per_base_unit": 0.219828,
-            "base_uom": "g",
-            "basis": "per_kg",
-            "value": 219.8275,
-            "approximate": false
-          },
-          "unit_price_outlier": {
-            "ratio_to_peer_median": 14.8,
-            "peer_median": 14.8566,
-            "peers": 5,
-            "note": "far from the same item's unit price at other stores in this country - likely a case, multipack or mis-picked listing"
-          }
+          "unit_price": null,
+          "pricing_note": "wholesale listing: price is per case, size is per pack, and the case count is not published"
         },
         "bottled_water": {
           "status": "not_found",
@@ -6534,7 +6346,8 @@
           "tier": "stretch",
           "label": "Bottled water (1.5 L)",
           "normal_unit": "ml",
-          "unit_price": null
+          "unit_price": null,
+          "pricing_note": "wholesale listing: price is per case, size is per pack, and the case count is not published"
         }
       },
       "unresolved": [
@@ -6546,10 +6359,11 @@
         "bottled_water"
       ],
       "via": "catalogue",
+      "pricing": "wholesale",
       "catalogue_size": 2641,
       "verified_count": 14,
       "chosen_url_count": 14,
-      "unit_priced_count": 13,
+      "unit_priced_count": 0,
       "core_settled": 8
     },
     "us-amigofoods": {
@@ -6815,41 +6629,14 @@
           }
         },
         "pork": {
-          "url": "https://www.amigofoods.com/products/covap-jamon-de-bellota-100-iberio-bone-in-dry-cured-acron-fed-100-iberico-pork-ham",
-          "name": "Covap Bone-In Dry-Cured Acorn-Fed 100% Iberico Pork Ham - Jamon De Bellota 100 % Iberico 16.67 Lb con Jamonera y Cuchillo",
-          "price": 959.0,
-          "currency": "USD",
-          "size": {
-            "raw": "16.67 Lb",
-            "value": 16.67,
-            "uom": "lb",
-            "approximate": false,
-            "form": "plain",
-            "quantity": 7561.3786,
-            "base_uom": "g"
-          },
-          "status": "verified",
-          "via": "catalogue",
-          "candidates": 1,
-          "category": "Gift Baskets & Ideas, Jam\u00f3n Ib\u00e9rico, Jam\u00f3n | Spanish Ham, New Items, Spanish Food",
-          "category_tier": 3,
+          "status": "not_stocked",
+          "note": "Sells only cured Spanish pork - Iberico ham, Serrano loin, salchichon, cracklings. Automation picked Covap Bone-In Iberico Ham at $126.83/kg, correctly: it is pork, and it is the only pork this store carries. It is not the ordinary cut the index tracks, so this reads as a real gap rather than a 5x outlier.",
+          "url": null,
           "target_size": "per lb",
           "tier": "stretch",
           "label": "Pork (lean cut)",
           "normal_unit": "g",
-          "unit_price": {
-            "per_base_unit": 0.126829,
-            "base_uom": "g",
-            "basis": "per_kg",
-            "value": 126.8287,
-            "approximate": false
-          },
-          "unit_price_outlier": {
-            "ratio_to_peer_median": 5.05,
-            "peer_median": 25.123,
-            "peers": 6,
-            "note": "far from the same item's unit price at other stores in this country - likely a case, multipack or mis-picked listing"
-          }
+          "unit_price": null
         },
         "fish": {
           "status": "not_found",
@@ -7092,14 +6879,16 @@
       "unresolved": [
         "chicken",
         "milk",
+        "pork",
         "fish",
         "bottled_water"
       ],
       "via": "catalogue",
+      "pricing": "retail",
       "catalogue_size": 2738,
-      "verified_count": 16,
-      "chosen_url_count": 16,
-      "unit_priced_count": 15,
+      "verified_count": 15,
+      "chosen_url_count": 15,
+      "unit_priced_count": 14,
       "core_settled": 8
     },
     "us-lilimart": {
@@ -7572,6 +7361,7 @@
         "bottled_water"
       ],
       "via": "catalogue",
+      "pricing": "retail",
       "catalogue_size": 942,
       "verified_count": 12,
       "chosen_url_count": 12,
@@ -8108,6 +7898,7 @@
         "bottled_water"
       ],
       "via": "catalogue",
+      "pricing": "retail",
       "catalogue_size": 4151,
       "verified_count": 15,
       "chosen_url_count": 15,
@@ -8464,6 +8255,7 @@
         "bottled_water"
       ],
       "via": "catalogue",
+      "pricing": "retail",
       "catalogue_size": 111,
       "verified_count": 6,
       "chosen_url_count": 6,
@@ -8473,9 +8265,9 @@
   },
   "totals": {
     "stores": 17,
-    "verified_items": 163,
+    "verified_items": 161,
     "possible_items": 340,
-    "unit_price_outliers": 21,
+    "unit_price_outliers": 0,
     "core_items": 10,
     "tracked_items": 20
   }
