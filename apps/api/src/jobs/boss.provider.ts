@@ -31,10 +31,24 @@ export class BossService implements OnApplicationBootstrap, OnApplicationShutdow
   private readonly logger = new Logger(BossService.name);
   private readonly boss: PgBoss;
   private started = false;
+  /**
+   * Resolved once start() and createQueue() have both finished.
+   *
+   * Nest runs the bootstrap hooks of providers in one module concurrently, so a
+   * handler registering a worker can otherwise reach pg-boss before its queue
+   * exists -- which surfaces as "cannot read properties of null" from the
+   * queue cache, at boot, on one queue and not the others. Every public method
+   * waits on this instead of on hook ordering.
+   */
+  private readonly ready: Promise<void>;
+  private markReady!: () => void;
 
   constructor(@Inject(ConfigService) config: ConfigService<Env, true>) {
     this.boss = new PgBoss(config.get("DATABASE_URL", { infer: true }));
     this.boss.on("error", (err) => this.logger.error(err));
+    this.ready = new Promise<void>((resolve) => {
+      this.markReady = resolve;
+    });
   }
 
   /**
@@ -47,10 +61,8 @@ export class BossService implements OnApplicationBootstrap, OnApplicationShutdow
       await this.boss.createQueue(queue);
     }
     this.started = true;
+    this.markReady();
     this.logger.log(`job queue ready: ${ALL_QUEUES.join(", ")}`);
-
-    // No boss.schedule() yet. A cron firing into an empty handler against a
-    // live database is noise; the schedule lands with the pullers module.
   }
 
   async onApplicationShutdown(): Promise<void> {
@@ -63,13 +75,33 @@ export class BossService implements OnApplicationBootstrap, OnApplicationShutdow
   }
 
   async send(queue: QueueName, data: object, options?: PgBoss.SendOptions): Promise<string | null> {
+    await this.ready;
     return this.boss.send(queue, data, options ?? {});
   }
 
   async work<T extends object>(
     queue: QueueName,
     handler: (jobs: PgBoss.Job<T>[]) => Promise<void>,
+    options?: PgBoss.WorkOptions,
   ): Promise<string> {
-    return this.boss.work<T>(queue, handler);
+    await this.ready;
+    return this.boss.work<T>(queue, options ?? {}, handler);
+  }
+
+  /**
+   * Register a cron schedule, replacing any schedule already stored for the
+   * queue. pg-boss keeps schedules in the database, so one left behind by an
+   * earlier deploy would keep firing after the code that wanted it was gone.
+   */
+  async schedule(queue: QueueName, cron: string, data: object = {}): Promise<void> {
+    await this.ready;
+    await this.boss.schedule(queue, cron, data, { tz: "UTC" });
+    this.logger.log(`scheduled ${queue} at ${cron} UTC`);
+  }
+
+  /** Remove a stored schedule, so a disarmed queue does not fire from history. */
+  async unschedule(queue: QueueName): Promise<void> {
+    await this.ready;
+    await this.boss.unschedule(queue);
   }
 }

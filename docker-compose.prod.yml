@@ -39,24 +39,25 @@ services:
       retries: 10
 
   # ---------------------------------------------------------------------------
-  # Placeholders. Everything below is gated behind the `app` profile, so a
-  # plain `docker compose up` (which is what Coolify runs) never builds or
-  # starts it. An in-progress app build therefore cannot break the database
-  # deploy.
+  # The app. Both services build and run on every deploy as of the read path
+  # landing; the `app` profile that used to gate them is gone.
   #
-  # To switch a service on: delete its `profiles:` line, then set its domain in
-  # the Coolify UI -- web -> basketwatch.spencerjireh.com, on PORT 3000 (this is
-  # Next's own server now; the old nginx container listened on 80). The api has
-  # no domain: it is reached same-origin at /api/*, which the web container
-  # rewrites straight through to api:3001 without stripping the prefix.
+  # web is served at basketwatch.spencerjireh.com on PORT 3000 -- this is Next's
+  # own server, not the nginx container that listened on 80, so the port has to
+  # match in the Coolify UI. The api has no domain: it is reached same-origin at
+  # /api/*, which the web container rewrites straight through to api:3001
+  # without stripping the prefix.
   #
-  # Secrets here use `${VAR:-}` rather than `${VAR:?}` on purpose: these vars
-  # do not exist yet, and a `:?` on an unset var fails `docker compose config`
-  # for the whole file, postgres included.
+  # The api applies pending migrations itself on boot, before it opens the
+  # queue or serves a request. There is no step in a Coolify deploy where a
+  # human runs drizzle-kit.
+  #
+  # Secrets here use `${VAR:-}` rather than `${VAR:?}` on purpose: not all of
+  # them are set, and a `:?` on an unset var fails `docker compose config` for
+  # the whole file, postgres included.
   # ---------------------------------------------------------------------------
 
   api:
-    profiles: ["app"]
     build:
       context: .
       dockerfile: apps/api/Dockerfile
@@ -77,6 +78,10 @@ services:
       HEAL_MAX_ATTEMPTS_PER_INCIDENT: ${HEAL_MAX_ATTEMPTS_PER_INCIDENT:-3}
       HEAL_MAX_PER_SCRAPER_PER_DAY: ${HEAL_MAX_PER_SCRAPER_PER_DAY:-5}
       CREDIT_DAILY_CEILING_USD: ${CREDIT_DAILY_CEILING_USD:-5}
+      BD_BALANCE_USD: ${BD_BALANCE_USD:-}
+      # Off unless deliberately armed -- see .env.example.
+      PULL_SCHEDULE_ENABLED: ${PULL_SCHEDULE_ENABLED:-false}
+      PULL_SCHEDULE_CRON: ${PULL_SCHEDULE_CRON:-0 6 * * *}
     depends_on:
       postgres:
         condition: service_healthy
@@ -95,7 +100,6 @@ services:
       retries: 5
 
   web:
-    profiles: ["app"]
     build:
       context: .
       dockerfile: apps/web/Dockerfile

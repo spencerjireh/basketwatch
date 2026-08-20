@@ -81,11 +81,12 @@ must keep its exact bytes — see the README.
 
 Deployment: root `docker-compose.prod.yml` is THE Coolify deployment unit
 (single Docker Compose resource watching `main`; secrets via Coolify env
-vars). Only `postgres` deploys today — it is published on port `55432` for
-the team to write scraped data into, while `api` and `web` sit behind the `app`
-compose profile and are never built. When `web` is switched on, its port is
+vars). All three services deploy: `postgres`, published on port `55432` for
+the team to write scraped data into, plus `api` and `web`. `web` binds
 **3000**, not 80, and `API_INTERNAL_URL` is a Docker build arg rather than a
-runtime variable. Runbook:
+runtime variable. The API applies pending migrations itself on boot, ahead of
+the queue and the first request — a Coolify deploy has no step where a human
+runs drizzle-kit. Runbook:
 [docs/deploy.md](./docs/deploy.md). Never deploy without the user's go-ahead.
 
 Bright Data CLI (`brightdata`, v0.3.4+) drives Scraper Studio:
@@ -168,14 +169,33 @@ Bright Data CLI (`brightdata`, v0.3.4+) drives Scraper Studio:
   write SQLite - nothing writes Postgres yet.
 - Coolify deploy scaffolded Aug 20 on `basketwatch.spencerjireh.com`: the
   root prod compose ships a public Postgres for the team to dump scraped data
-  into; `api` and `web` are profile-gated and still not deployed. The Coolify
-  resource itself is created by hand — see `docs/deploy.md`.
-- Not yet: any endpoint that reads the database (every dashboard route returns
-  501 today, and the dashboard runs on fixtures), DB wiring for ingest, the
-  heal orchestrator, the notifier, the TypeScript pullers, app services live on
-  the deploy. Each has a named home in the tree.
-- Migration 0001, when someone writes it: add `attempt`, `started_at`,
-  `finished_at`, `canary` to `heal_attempts`; move per-store crawl config out of
-  `lab/spencer-exploration/fleet.lock.json` onto `stores`/`scrapers`; normalise
-  `runs.status` from `anomalous|error` to `suspect|broken` and drop the read
-  mapper.
+  into. The `app` profile that gated `api` and `web` is gone as of the read
+  path — all three services build and run. The Coolify resource itself is
+  created by hand — see `docs/deploy.md`.
+- **The read path landed Aug 20.** `/api/basket/index`, `/api/basket/today`,
+  `/api/fleet`, `/api/feed`, `/api/incidents`, `/api/incidents/:id` and
+  `/api/budget` all answer from Postgres, and the dashboard renders from them —
+  `apps/web/src/fixtures/` is deleted. The index is an as-of query, because
+  change-only history means a day's price is the last observation at or before
+  that day; a day missing any core item totals `null` rather than a partial sum.
+- Migration 0001 landed with it: `attempt`, `started_at`, `finished_at` and
+  `canary` on `heal_attempts`. Two items from its original scope were
+  deliberately left out — per-store crawl config is already on `stores`
+  (`method`, `endpoint`, `max_pages`, `coverage`, `needs_browser`,
+  `needs_unlocker`), and normalising `runs.status` rewrites live rows for
+  cosmetic gain while `runStatusFromDb` already reads both vocabularies.
+- **The puller engine landed Aug 21**, ported from
+  `lab/spencer-exploration/catalogue.py`: four adapters (shopify, magento-graphql,
+  sitemap, studio) over the sixteen pullable stores, reading crawl config from
+  the `stores` table rather than from `fleet.lock.json`. `POST
+  /api/pullers/:storeId/run` runs one store on demand, `?dryRun=true` writes
+  nothing.
+- **The pull schedule ships disarmed.** `PULL_SCHEDULE_ENABLED` defaults to
+  false and any schedule left by an earlier deploy is removed on boot. A
+  scheduled run does not pass through `lab/scripts/bd.mjs`, so the schedule is
+  its only bound — arming it is a team decision, not a deploy default.
+- Not yet: DB wiring for ingest, the heal orchestrator, the notifier. Each has
+  a named home in the tree. `nullRatePct` on the fleet board reports 0 until
+  the validator runs against a stored run, and the `brightdata` CLI is not in
+  the API image, so a Studio pull falls back to HTTP and opens a
+  `studio_failed` incident.

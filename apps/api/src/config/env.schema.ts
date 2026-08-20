@@ -31,6 +31,28 @@ export const envSchema = z.object({
   TELEGRAM_CHAT_ID: secret(),
   OPS_TOKEN: secret(),
 
+  // What the account held when we last looked. Bright Data's own `budget
+  // balance` rounds to the dollar, so the meter starts from a figure the team
+  // sets deliberately and subtracts recorded spend from it.
+  //
+  // Empty is normalised to undefined before coercion: prod compose passes
+  // `${BD_BALANCE_USD:-}`, and z.coerce.number() reads "" as 0, which would
+  // put the meter at zero credits rather than at "not configured".
+  BD_BALANCE_USD: z.preprocess(
+    (v) => (v === "" || v === undefined ? undefined : v),
+    z.coerce.number().optional(),
+  ),
+
+  // The catalogue pull schedule, off by default. The first scheduled pull is
+  // when this project starts writing into the one dataset it cannot
+  // re-collect, so arming it is a deliberate act rather than a deploy default.
+  PULL_SCHEDULE_ENABLED: z
+    .preprocess((v) => (v === "" || v === undefined ? undefined : v), z.coerce.boolean())
+    .pipe(z.boolean())
+    .default(false),
+  /** Daily at 06:00 UTC, which is mid-afternoon in Manila. */
+  PULL_SCHEDULE_CRON: z.string().default("0 6 * * *"),
+
   HEAL_MAX_ATTEMPTS_PER_INCIDENT: z.coerce.number().int().positive().default(3),
   HEAL_MAX_PER_SCRAPER_PER_DAY: z.coerce.number().int().positive().default(5),
   CREDIT_DAILY_CEILING_USD: z.coerce.number().positive().default(5),

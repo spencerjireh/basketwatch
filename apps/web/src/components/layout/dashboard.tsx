@@ -71,11 +71,6 @@ export function Dashboard({
         </Panel>
       </div>
 
-      <footer className="mt-6 font-mono text-[11px] text-mute">
-        Fixture data. These are the exact shapes the API serves, so the panels swap to live
-        endpoints without a type change.
-      </footer>
-
       <AuditDialog incident={openIncident} onClose={() => setOpenIncidentId(null)} />
     </main>
   );
