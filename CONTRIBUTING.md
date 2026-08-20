@@ -27,7 +27,7 @@ for three other reasons:
 ```sh
 git switch -c docs/kickoff-findings      # branch off main
 # ... work ...
-npm test                                 # from scrape-verse/, must be green
+pnpm test                                # from basketwatch/, must be green
 git push -u origin docs/kickoff-findings
 gh pr create --fill
 gh pr merge --squash --delete-branch
@@ -57,7 +57,7 @@ docs: ignore .obsidian vault state (per-machine UI files)
 
 ## Before you merge
 
-- `npm test` passes from `scrape-verse/`. The validator tests must stay green —
+- `pnpm test` passes from `basketwatch/`. The validator tests must stay green —
   they are the spider-sense layer and they are pure and unit-testable on
   purpose.
 - No secrets in the diff. `.env` is gitignored and stays that way.

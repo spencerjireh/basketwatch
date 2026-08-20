@@ -41,7 +41,7 @@ on GitHub — everything renders in both.
   [agent prompts](reference/brightdata-agent-prompts.md) (build, run, heal,
   approve, batch) and [demo ideas](reference/brightdata-demo-ideas.md)
   (target-selection gates). Re-fetch from source rather than editing by hand.
-- Code: `../scrape-verse/` (see its [README](../scrape-verse/README.md)).
+- Code: `../basketwatch/` (see its [README](../basketwatch/README.md)).
 - Lab notebooks, one per person, kept out of the product tree:
   [spencer-exploration](../spencer-exploration/README.md) (Python; site
   registry, fleet lock, catalogue puller, Studio transport — its

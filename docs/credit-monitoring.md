@@ -69,13 +69,13 @@ There are two, one per language, written independently on the same day. They
 are not redundant: they measure different things, and each is blind where the
 other sees.
 
-| | `spencer-exploration/studio.py` (`Guard`) | `scrape-verse/scripts/bd.mjs` |
+| | `spencer-exploration/studio.py` (`Guard`) | `scripts/bd.mjs` |
 |---|---|---|
 | Measures | account balance, before and after every call | per-zone cumulative cost **and bandwidth** |
 | Granularity | dollars, rounded | cents, plus megabytes |
 | Enforces | one ceiling, checked at every call site | per-action, per-hour, per-day, reserve floor |
 | Blind to | anything under a dollar; it calls its own figure a floor, not a settled number | spend that never touches the CLI |
-| Used by | the Python exploration and Studio pullers | everything under `scrape-verse/`, and the app path |
+| Used by | the Python exploration and Studio pullers | the Node exploration, and the app path |
 
 The balance-vs-zones split is the important part. Balance rounds to the dollar
 and sat at $52.00 across six Unlocker calls, so it cannot see a single cheap
@@ -147,8 +147,8 @@ them from environment variables, so there is still one place to look.
 
 ## The Node guard
 
-Nothing under `scrape-verse/` calls the Bright Data CLI directly for anything
-that spends. It goes through `scrape-verse/scripts/bd.mjs`:
+Nothing in this repo calls the Bright Data CLI directly for anything
+that spends. It goes through `scripts/bd.mjs`:
 
 ```sh
 node scripts/bd.mjs --label=vet-us -- scrape https://example.com --country us
@@ -192,7 +192,7 @@ action rather than three actions later.
 
 ## The ledger
 
-One JSON line per action in `scrape-verse/scratch/credit-ledger.jsonl`:
+One JSON line per action in `scratch/credit-ledger.jsonl` at the repo root:
 timestamp, label, command, ok, duration, cost and bandwidth delta, per-zone
 breakdown, cumulative totals either side, and the balance after.
 

@@ -1,6 +1,6 @@
 # Local development: only backing services in Docker.
-# Apps run on the host with hot reload (npm run dev:api / dev:web / dev:clone
-# from scrape-verse/).
+# Apps run on the host with hot reload: `pnpm dev` from basketwatch/ starts the
+# API on :3001 and the dashboard on :3000.
 #
 # Credentials here are throwaway and deliberately committed. The deployed
 # database is a different file entirely -- see docker-compose.prod.yml.

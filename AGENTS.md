@@ -19,51 +19,73 @@ Read these before doing product work, in order:
 
 ## Layout
 
-- `scrape-verse/` — the product monorepo (npm workspaces)
+- `basketwatch/` — the product monorepo (pnpm workspaces + Turborepo)
   - `apps/api` — orchestrator: NestJS + Drizzle + pg-boss (Postgres-backed
-    job queue, no Redis); spider-sense validator in `src/validator/`
-    (pure functions, keep them IO-free)
-  - `apps/web` — dashboard (Vite + React + Recharts); currently on mock
-    data in `src/data/mock.ts` that mirrors the API contract
-  - `apps/clone-store` — "Parker's Pantry" chaos target (dependency-free
-    node server, layout A/B mutation via authed POST /admin/layout)
-  - `packages/shared` — fleet output contract (zod) + shared types
-  - `scripts/bd.mjs` — the guarded Bright Data wrapper (see Hard rules)
+    job queue, no Redis). One directory per domain under `src/modules/`.
+    Only `*.repository.ts` may touch the Drizzle schema; a lint rule enforces
+    it. The spider-sense validator in `modules/validator/checks.ts` stays
+    pure and IO-free.
+  - `apps/web` — dashboard (Next.js App Router + Tailwind + Recharts, no
+    component library). A pure client of the API: it never touches Postgres,
+    and a lint rule enforces that too. Currently on `src/fixtures/dashboard.ts`,
+    typed by the contract so the swap to fetch calls changes no types.
+  - `packages/contract` — zod schemas and types. The only thing the two apps
+    share, and the reason the boundary above holds.
+  - `packages/tsconfig`, `packages/eslint-config` — shared configs.
+- `scripts/bd.mjs` — the guarded Bright Data wrapper (see Hard rules). At the
+  repo root, not inside the app: it is an ops tool for exploration work, and
+  it outlived the monorepo it was first written in.
 - `docs/` — all design docs and notes
 - `spencer-exploration/` — Python: site discovery and scoring
   (`registry.json`, `fleet.lock.json`), the catalogue puller and its SQLite
   store, Studio transport. Start at its `HANDOFF.md` — it states what the app
-  has to absorb.
+  has to absorb. **Frozen**: it is kept as documentation and nothing new is
+  written there.
 - `edjin-exploration/` — Node: browser-based site vetting (`vet.mjs`,
   `vet.json`), the second pass that catches client-rendered stores the HTTP
   passes miss.
 
 Both exploration directories are lab notebooks, not product code. Nothing
-under `scrape-verse/` imports from either, and their dependencies are
+under `basketwatch/` imports from either, and their dependencies are
 installed locally to each. Findings graduate into `docs/` and, when they
-change the contract, into a PR against `scrape-verse/`.
+change the contract, into a PR against `basketwatch/`.
+
+Not built yet, each with its home already in the tree: the per-module
+`*.repository.ts` query layer, `modules/pullers/`, `modules/heal/`,
+`modules/notifier/`.
 
 ## Commands
 
-Both compose files live at the **repo root**. Everything npm runs from
-`scrape-verse/`.
+Both compose files live at the **repo root**. Everything pnpm runs from
+`basketwatch/`.
 
 ```sh
 docker compose -f docker-compose.dev.yml up -d   # repo root; postgres only
 
-cd scrape-verse
-npm install
-npm run dev:api     # :3001
-npm run dev:web     # :3000
-npm run dev:clone   # :3002
-npm test            # vitest (validator tests must stay green)
+cd basketwatch
+pnpm install
+pnpm dev            # contract watch + api :3001 + dashboard :3000
+pnpm test           # vitest (validator tests must stay green)
+pnpm lint
+pnpm typecheck
 ```
+
+Run `pnpm dev` from the workspace root, not an app directory: the API depends
+on the contract package's watch build, and starting an app alone means contract
+edits stop propagating.
+
+**`DATABASE_URL` in the root `.env` points at the deployed database**, so a bare
+`pnpm db:migrate` would target production. `drizzle.config.ts` refuses a
+non-local host unless you pass `ALLOW_REMOTE_DB=1`; for local work pass the URL
+inline. Migration `0000` must keep its exact bytes — see the README.
 
 Deployment: root `docker-compose.prod.yml` is THE Coolify deployment unit
 (single Docker Compose resource watching `main`; secrets via Coolify env
 vars). Only `postgres` deploys today — it is published on port `55432` for
-the team to write scraped data into, while `api`, `web`, and `clone-store`
-sit behind the `app` compose profile and are never built. Runbook:
+the team to write scraped data into, while `api` and `web` sit behind the `app`
+compose profile and are never built. When `web` is switched on, its port is
+**3000**, not 80, and `API_INTERNAL_URL` is a Docker build arg rather than a
+runtime variable. Runbook:
 [docs/deploy.md](./docs/deploy.md). Never deploy without the user's go-ahead.
 
 Bright Data CLI (`brightdata`, v0.3.4+) drives Scraper Studio:
@@ -107,22 +129,35 @@ Bright Data CLI (`brightdata`, v0.3.4+) drives Scraper Studio:
   no semicolon changes, keep files small and typed).
 - Validator checks stay pure and unit-tested; incidents must be replayable
   from stored `raw_output`.
-- The API contract is frozen in `packages/shared/src/api.ts` and documented
-  in `docs/api-contract.md`. The dashboard's mock data module holds fixtures
-  in exactly those shapes — change the type and the fixture together, or
-  neither.
+- The API contract lives in `basketwatch/packages/contract/src/`, as zod
+  schemas with types derived from them, and is documented in
+  `docs/api-contract.md`. The dashboard's fixtures are typed by those schemas —
+  change the schema and the fixture together, or neither.
+- Money is `{ amount, currency }`, never a preformatted string and never two
+  sibling fields. Timestamps are ISO 8601 UTC strings. `country` appears on
+  every store-, product- and basket-shaped payload.
+- Do not run the API under `tsx`, and do not enable
+  `@typescript-eslint/consistent-type-imports` for it: esbuild has no
+  `emitDecoratorMetadata`, and the lint autofix strips the value imports Nest
+  needs, so both break dependency injection silently.
 - No emojis in code, docs, or output.
 
 ## Current state (update as things land)
 
-- Scaffold complete on NestJS + pg-boss (swapped from Hono Aug 18, team
-  decision); dashboard v1 on mock data; clone store working; dev/prod
-  compose split with Dockerfiles for all three apps. Both compose files moved
-  from `scrape-verse/` to the repo root Aug 20, and the DB role and database
-  were renamed `scrapeverse` -> `basketwatch`; re-create your local volume
+- **Rebuilt Aug 20.** `scrape-verse/` was replaced by `basketwatch/` on pnpm +
+  Turborepo, NestJS + Next.js. The old app was a scaffold nothing connected: the
+  database client was never imported, the job producer never called, no
+  controller touched Postgres. Only the Drizzle schema and migration 0000 were
+  carried over, because they describe the live database.
+- The clone store was deleted with the old app and will be rebuilt from scratch
+  once there is a demoable product to break.
+- The API contract was rewritten as zod schemas. Endpoints are unchanged in
+  spirit and now sit under a global `/api` prefix with no exclusions; the
+  dashboard rewrites `/api/*` straight through, so the Bright Data webhook URL
+  did not change. Feed and incidents are cursor-paginated from day one.
+- Both compose files live at the repo root, and the DB role and database are
+  `basketwatch`; re-create your local volume
   (`docker compose -f docker-compose.dev.yml down -v`) or auth will fail.
-- API contract frozen Aug 18: shared types cover fleet, basket, feed,
-  incidents, heal attempts and credit budget.
 - `catalogue.db` migrated into Postgres Aug 20. The data plane is the catalogue
   shape - `stores`, `products` keyed `(store_id, product_key)`, `runs`,
   `price_observations`, `items`, `basket_map`, and the `latest_price` view -
@@ -133,8 +168,14 @@ Bright Data CLI (`brightdata`, v0.3.4+) drives Scraper Studio:
   write SQLite - nothing writes Postgres yet.
 - Coolify deploy scaffolded Aug 20 on `basketwatch.spencerjireh.com`: the
   root prod compose ships a public Postgres for the team to dump scraped data
-  into; the three app services are profile-gated placeholders. The Coolify
+  into; `api` and `web` are profile-gated and still not deployed. The Coolify
   resource itself is created by hand — see `docs/deploy.md`.
-- Not yet: any endpoint that reads the database, DB wiring for ingest, heal
-  orchestrator service, notifier, app services live on the deploy, a TypeScript
-  port of the Python pullers.
+- Not yet: any endpoint that reads the database (every dashboard route returns
+  501 today, and the dashboard runs on fixtures), DB wiring for ingest, the
+  heal orchestrator, the notifier, the TypeScript pullers, app services live on
+  the deploy. Each has a named home in the tree.
+- Migration 0001, when someone writes it: add `attempt`, `started_at`,
+  `finished_at`, `canary` to `heal_attempts`; move per-store crawl config out of
+  `spencer-exploration/fleet.lock.json` onto `stores`/`scrapers`; normalise
+  `runs.status` from `anomalous|error` to `suspect|broken` and drop the read
+  mapper.

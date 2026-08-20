@@ -32,15 +32,17 @@ import { fileURLToPath } from "node:url";
 import { promisify } from "node:util";
 import { config } from "dotenv";
 
-// The one .env at the repo root, two levels up. Without this the caps below
+// The one .env at the repo root, one level up. Without this the caps below
 // silently fall back to their defaults, which looks identical to working.
-config({ path: fileURLToPath(new URL("../../.env", import.meta.url)) });
+// (Was ../../.env while this lived in the app monorepo; it now sits at the
+// repo root, because it is an ops tool and outlived that monorepo.)
+config({ path: fileURLToPath(new URL("../.env", import.meta.url)) });
 
 const exec = promisify(execFile);
 
 const LEDGER = process.env.BD_LEDGER
   ? new URL(`file://${process.env.BD_LEDGER}`)
-  : new URL("../../scratch/credit-ledger.jsonl", import.meta.url);
+  : new URL("../scratch/credit-ledger.jsonl", import.meta.url);
 
 const num = (value, fallback) => (value === undefined || value === "" ? fallback : Number(value));
 

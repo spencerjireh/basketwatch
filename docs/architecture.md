@@ -268,13 +268,18 @@ here for readability).
 Drizzle ORM + migrations. Raw run payloads kept (jsonb) so incidents can be
 replayed/re-validated during development.
 
-### 3.4 Dashboard (React + Vite + Tailwind + shadcn/ui, Recharts)
+### 3.4 Dashboard (Next.js App Router + Tailwind + Recharts)
 - **Public**: basket index line (the hero chart — gaps visualize breakage,
   heals close the line), per-product store comparison, price-drop feed.
 - **Ops ("web" view)**: fleet health board (state machine per scraper),
   incident timeline, heal audit viewer showing evidence -> prompt -> Studio
   diff -> verdict, credit spend meter.
-- SPA + REST is enough; SSE for live run status if time allows.
+- Server components fetch on first paint; only the live feed and fleet board
+  open an EventSource. No component library: the primitives are hand-built, and
+  the heal audit uses the native `<dialog>` element for focus trapping and
+  escape-to-close.
+- The dashboard is a **pure client of the API** and never touches Postgres. A
+  lint rule makes that structural rather than aspirational.
 
 ### 3.5 Clone store ("chaos target")
 Static store page (10 basket products) served on a subdomain of the VPS with
@@ -293,11 +298,16 @@ Resend, Telegram token, webhook secret) via Coolify env vars. Full runbook in
 [deploy.md](deploy.md).
 
 Domains: `basketwatch.spencerjireh.com` serves the dashboard, and the API sits
-behind it same-origin at `/api/` (the web container's nginx proxies `/api/` to
-`api:3001` and strips the prefix), so the API needs no host of its own and the
-Bright Data webhook target is
-`https://basketwatch.spencerjireh.com/api/ingest/<scraper>`. The clone store
-gets `parkers-pantry.spencerjireh.com`.
+behind it same-origin at `/api/`. The API sets a global `api` prefix with no
+exclusions and the Next.js server rewrites `/api/:path*` through **without
+stripping**, so the path is identical from browser to container, the API needs
+no host of its own, and the Bright Data webhook target is
+`https://basketwatch.spencerjireh.com/api/ingest/<scraper>`.
+
+Two consequences of replacing nginx with the Next server: the web container
+listens on **3000**, not 80, and `API_INTERNAL_URL` is a **build argument** --
+Next evaluates `rewrites()` during `next build` and bakes the result into its
+routes manifest, so setting it at runtime does nothing.
 
 Postgres is the exception to "internal-only": it is published on host port
 `55432` so the team can write scraped data into it directly from their
@@ -331,7 +341,7 @@ flowchart TB
     subgraph COOLIFY["Coolify VPS (Docker)"]
         PROXY["Reverse proxy + TLS<br/>(Coolify-managed)"]
         subgraph APP["app stack (docker compose)"]
-            WEB["dashboard<br/>React SPA"]
+            WEB["dashboard<br/>Next.js"]
             APIC["orchestrator-api<br/>NestJS + pg-boss"]
             PG[("postgres 16<br/>volume-backed")]
         end
@@ -404,5 +414,5 @@ API contract (defined day 1).
    chicken, oil, pasta, bananas)? Adjust freely.
 3. Names: engine codename + product name (Spider-Man theming encouraged by
    the tracks). Decide with framing on Thu, but a repo name is needed Sun.
-4. Next.js vs Vite SPA for the dashboard — either fine on Coolify; default
-   is Vite SPA unless someone feels strongly.
+4. ~~Next.js vs Vite SPA for the dashboard~~ — resolved Aug 20: Next.js App
+   Router, in the basketwatch rebuild.
