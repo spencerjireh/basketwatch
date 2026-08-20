@@ -57,7 +57,9 @@ on GitHub — everything renders in both.
 - **App rebuilt Aug 20.** `scrape-verse/` was replaced by `basketwatch/` on
   pnpm + Turborepo, NestJS + Next.js. Only the Drizzle schema and migration
   0000 were carried across, because they describe the live database. The clone
-  store was deleted in the rebuild and is pending — PRD open item C7.
+  store was deleted in the rebuild and is scheduled to be rebuilt **last**,
+  after the read path, ingest and the heal loop — team decision Aug 20, which
+  closes C7. It remains the required demo centrepiece.
 - **Data is in prod.** 19 stores, 28,378 products, 28,376 price observations,
   340 basket pins, 21 items. Nothing writes to it on a schedule yet, and no
   endpoint reads it: every dashboard route returns 501 and the UI runs on

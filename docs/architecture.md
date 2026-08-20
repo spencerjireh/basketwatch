@@ -299,9 +299,11 @@ nested span, switches price format. Purpose: scripted, guaranteed
 break-and-heal demo moment + integration-test target during development.
 Disclosed as a test target in the submission.
 
-**Not built.** The first implementation was deleted with the old app on Aug 20
-and has not been replaced. The description above is the target, not the state.
-The proof-of-healing bar depends on it — see PRD open item C7.
+**Not built, and deliberately last.** The first implementation was deleted with
+the old app on Aug 20. The description above is the target, not the state.
+Team decision Aug 20: it stays the required demo centrepiece and is rebuilt
+after the read path, ingest and the heal loop — a chaos target is only
+demonstrable once there is an engine to break. See PRD decision 5.
 
 ### 3.6 Deployment
 Coolify VPS. **`docker-compose.prod.yml` at the repo root is the deployment

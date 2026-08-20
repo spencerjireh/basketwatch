@@ -69,11 +69,18 @@ judging value decides.
    required demo centerpiece. The pre-build HN heal is excluded from demo
    material. Organic incidents and Wayback replay are bonus evidence layers.
 
-   > **Status Aug 20:** the clone store no longer exists — it was deleted with
-   > the old app and is to be rebuilt from scratch after there is a demoable
-   > product. This decision therefore has an unbuilt dependency with three days
-   > left. Either the rebuild is scheduled explicitly, or the proof bar moves to
-   > organic incidents. That is a team call, tracked as C7.
+   > **Status Aug 20, team decision (closes C7):** unchanged as a decision, and
+   > explicitly **last in build order**. The clone store stays the required demo
+   > centrepiece and is not cut — but it is a prop, and a prop cannot be
+   > demonstrated until the engine that breaks and heals it exists. It is
+   > therefore built after the read path, ingest and the heal loop, not before.
+   >
+   > Note what this means if time runs out: the thing scheduled last is the
+   > thing most exposed to the deadline, and it is also the one the demo is
+   > built around. C6 is the release valve — the Aug 18 kickoff established
+   > that a live heal is not a hackathon requirement, only Studio use is — so
+   > if the engine lands late, the proof falls back to organic incidents and
+   > the recorded pre-build heal, and the demo video is cut accordingly.
 6. **US site selection**: mixed, authenticity-weighted — 2-3 real
    grocer/pharmacy sites plus easy online pantries, swapping toward
    authentic sites as they prove workable.
@@ -118,6 +125,10 @@ judging value decides.
 4. **Wayback rig** — drop; clone store + any organic incident carry the proof.
 
 The core loop and the clone-store demo are never cut.
+
+**Cut order is not build order.** The clone store is never cut and is built
+*last* (decision 5): it is a prop for the engine, so it cannot be shown until
+the engine runs. Nothing else in this list is sequenced by its position here.
 
 ```mermaid
 flowchart LR
@@ -170,7 +181,7 @@ Cheap HTTP checks first; Studio credits only on survivors.
 > | Item | Where it stands |
 > |---|---|
 > | 5+ scrapers, 4+ days of history | Not started. Nothing writes Postgres on a schedule yet, so the history clock has not begun. At 2x daily this is the item most exposed to the deadline. |
-> | Clone-store break-and-heal | **Blocked**: the clone store was deleted in the rebuild. See decision 5 and C7. |
+> | Clone-store break-and-heal | **Not started, and deliberately last.** The clone store was deleted in the rebuild and is scheduled after the engine works — see decision 5. This is the line most exposed to the deadline. |
 > | Public URL, zero mock data | Half. The dashboard is built and runs on fixtures; no endpoint reads the database, and `api`/`web` are still profile-gated on the deploy. Postgres is live and holds 19 stores, 28,378 products, 28,376 observations. |
 > | Demo video | Not started. |
 > | Submission filed | Not started; the form has been open since Aug 19. |
@@ -200,10 +211,9 @@ Cheap HTTP checks first; Studio credits only on survivors.
   loop is therefore a differentiator, not a gate. Decide: keep it as the
   centerpiece of the week, or demote it in the cut order. Until this is
   settled the DoD below is unchanged and still assumes centerpiece.
-- **C7 (new, Aug 20): the clone store was deleted in the rebuild** and the
-  proof-of-healing bar depends on it. Three ways out, in ascending cost:
-  demote the clone-store demo and let organic incidents carry the proof
-  (cheapest, and C6 already argues a live heal is not a hackathon
-  requirement); rebuild the clone store late as a static page with a
-  layout switch, which is a few hours; or rebuild it properly with richer
-  break modes. This is coupled to C6 and should be decided with it.
+- ~~C7 (new, Aug 20): the clone store was deleted in the rebuild and the
+  proof-of-healing bar depends on it.~~ **Resolved Aug 20: rebuild it, and
+  build it last.** It remains the required demo centrepiece and is not cut;
+  it is sequenced after the read path, ingest and the heal loop, because a
+  chaos target is only demonstrable once there is an engine to break. See the
+  note on decision 5 for what happens if the engine lands late.
