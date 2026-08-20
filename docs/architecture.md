@@ -304,7 +304,11 @@ Postgres is the exception to "internal-only": it is published on host port
 laptops. Password auth is scram-sha-256 and the password lives only in the
 Coolify env. Clients connect to the VPS IP rather than a hostname — the
 `*.spencerjireh.com` wildcard is Cloudflare-proxied and the proxy forwards HTTP
-only, not arbitrary TCP.
+only, not arbitrary TCP. Postgres also listens on `55432` *inside* the
+container, to clear a `DOCKER-USER` rule on the VPS that drops external traffic
+to container port 5432; so on the compose network the database is
+`postgres:55432`, not `postgres:5432`. Both are explained in
+[deploy.md](deploy.md).
 
 Staging note (Aug 20): only `postgres` currently deploys. `api`, `web`, and
 `clone-store` are defined in the prod compose but gated behind the `app`
