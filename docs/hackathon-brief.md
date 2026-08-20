@@ -156,7 +156,7 @@ all tested against CLI 0.3.5:
   the only way to see what a US shopper sees on a JS-heavy site, since
   local Playwright renders but from a PH IP.
 - Every spending command now runs through a guard: `studio.py`'s `Guard` on
-  the Python side, `scripts/bd.mjs` on the Node side. Both check before the
+  the Python side, `lab/scripts/bd.mjs` on the Node side. Both check before the
   call and re-read the meter after it, including after a timeout — killing
   the CLI does not stop a collection that is already billing server-side.
 

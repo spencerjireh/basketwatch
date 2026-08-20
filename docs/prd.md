@@ -16,7 +16,7 @@ than the scope:
 
 - **The PH gate passed** (Aug 19). Nine PH sites vet fleet-ready against a bar
   of two, so PH is in and the US-vs-PH comparison view is unblocked. Evidence:
-  `spencer-exploration/registry.json`.
+  `lab/spencer-exploration/registry.json`.
 - **The app was rebuilt** (Aug 20). `scrape-verse/` became `basketwatch/` on
   pnpm + Turborepo, NestJS + Next.js. **The clone store was deleted in that
   rebuild** and has not been replaced, which puts a dependency under decision 5
@@ -195,7 +195,7 @@ Cheap HTTP checks first; Studio credits only on survivors.
 - ~~C2: PH gate deadline confirmed as Aug 19 EOD unless changed.~~
   **Resolved Aug 19: PASS.** Nine PH sites vet fleet-ready against a bar of
   two, so PH joins the fleet and the comparison view is unblocked. Scored
-  registry: `spencer-exploration/registry.json`.
+  registry: `lab/spencer-exploration/registry.json`.
 - C3: site list additions/vetoes — team.
 - C4: real product name — **settled in practice as `basketwatch`**: it is the
   deployed hostname, the Postgres role and database, and now the monorepo

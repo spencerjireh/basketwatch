@@ -28,7 +28,7 @@ on GitHub — everything renders in both.
    goes through, and the caps. Read before running anything that costs.
 7. [Site vetting](site-vetting.md) — the browser pass over the sites the
    registry could only reach through the Unlocker, and what it changes.
-   The fleet decision itself lives in `spencer-exploration/fleet.lock.json`.
+   The fleet decision itself lives in `lab/spencer-exploration/fleet.lock.json`.
 
 ## Elsewhere
 
@@ -41,13 +41,18 @@ on GitHub — everything renders in both.
   [agent prompts](reference/brightdata-agent-prompts.md) (build, run, heal,
   approve, batch) and [demo ideas](reference/brightdata-demo-ideas.md)
   (target-selection gates). Re-fetch from source rather than editing by hand.
-- Code: `../basketwatch/` (see its [README](../basketwatch/README.md)).
+- Code: `apps/` and `packages/` at the repo root (see the [README](../README.md)).
 - Lab notebooks, one per person, kept out of the product tree:
-  [spencer-exploration](../spencer-exploration/README.md) (Python; site
+  [spencer-exploration](../lab/spencer-exploration/README.md) (Python; site
   registry, fleet lock, catalogue puller, Studio transport — its
-  [HANDOFF](../spencer-exploration/HANDOFF.md) states what the app must
-  absorb) and [edjin-exploration](../edjin-exploration/README.md) (Node;
+  [HANDOFF](../lab/spencer-exploration/HANDOFF.md) states what the app must
+  absorb) and [edjin-exploration](../lab/edjin-exploration/README.md) (Node;
   browser-based vetting).
+- [Heal agent proposal](heal-agent-proposal.md) — Edjin, Aug 20. Extends the
+  heal orchestrator into one agent covering scraper repair *and* data quality,
+  grounded in eight false basket pins found in the live data. **Draft, pending
+  team review** — read it before building anything under `modules/heal/` or
+  `modules/quality/`, but it is a proposal, not confirmed scope.
 - Review artifacts (shareable pages):
   - HLD: https://claude.ai/code/artifact/a6c6e40f-22be-4b1d-b8f7-2c3f08578463
   - PRD: https://claude.ai/code/artifact/f7cf34cf-af6e-4efd-8f76-16dd1865ef36
@@ -71,12 +76,12 @@ on GitHub — everything renders in both.
   roughly half its credits — $0.52 on the 433-call vetting sweep and $26.54
   on abandoned listing-page Studio runs. Edjin's is nearly untouched at
   $52.00 with $0.02 of zone spend. Spend is metered per action by
-  `studio.py`'s `Guard` on the Python side and `scripts/bd.mjs` on the Node
+  `studio.py`'s `Guard` on the Python side and `lab/scripts/bd.mjs` on the Node
   side — see [credit monitoring](credit-monitoring.md). Each guard only sees
   the account it is authenticated as, so each of us monitors our own.
 - PH gate: **passed**. Nine PH sites vet cleanly against a requirement of
   two; the fleet is locked at 19 stores in
-  `spencer-exploration/fleet.lock.json`.
+  `lab/spencer-exploration/fleet.lock.json`.
 - Submissions: open from Aug 19, early filing encouraged for organizer
   feedback, and the form stays editable after you submit.
 
@@ -95,7 +100,7 @@ PR that resolves each one; do not silently close them.
   staples with prices in static HTML. The registry has it as `reject`, score
   15, `blocked via none` — a collector failure, not a site problem. Proposed
   edit: promote to `fleet_ready` or at minimum `bench`. Evidence in
-  [site-vetting.md](site-vetting.md) and `edjin-exploration/vet.json`.
+  [site-vetting.md](site-vetting.md) and `lab/edjin-exploration/vet.json`.
 - [ ] **S&R login-wall check.** The registry has `ph-snr` as `fleet_ready`
   on the PH bench. A manual browser look found prices behind a membership
   login. If that holds, it is out under the public-data-only house rule.
@@ -110,10 +115,17 @@ PR that resolves each one; do not silently close them.
   back to the env vars when no explicit argument is given. Details in
   [credit-monitoring.md](credit-monitoring.md) under "Unified guard
   protocol".
+- [ ] **Heal agent scope and its three questions.** The
+  [proposal](heal-agent-proposal.md) asks: Haiku or Sonnet for the pin
+  validator; reuse `heal_attempts` or add a `quality_decisions` table; and
+  whether a wholesale-only store like MexMax gets flagged pin by pin or demoted
+  from `index_contributor` outright. Also open is how much of the four-strategy
+  design to build this week — the URL slug check alone catches all three MexMax
+  failures in ten lines and needs no LLM.
 - [ ] **`priceRecordSchema` update.** The fleet output contract still
   requires `unit` (rejects 15% of the catalogue), has no size/unit-price
   fields, no `source`, and no `size_change` incident kind. All specified in
-  [HANDOFF.md](../spencer-exploration/HANDOFF.md) with a tested reference
-  implementation. Touches `packages/shared` and `mock.ts` together per the
-  coupling rule. Needs agreement on whether to land before or after scraper
-  creation.
+  [HANDOFF.md](../lab/spencer-exploration/HANDOFF.md) with a tested reference
+  implementation. Touches `packages/contract` and
+  `apps/web/src/fixtures/dashboard.ts` together per the coupling rule. Needs
+  agreement on whether to land before or after scraper creation.

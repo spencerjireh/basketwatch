@@ -18,7 +18,7 @@ everything through as a result.
 Not hypothetical. Studio runs against listing pages spent **$26.54 against a
 $5 ceiling** on Spencer's account on Aug 20 — about half the account, on an
 assumption that turned out to be wrong (that Studio could be pointed at a bulk
-JSON endpoint). The overrun is written up in `spencer-exploration/README.md`
+JSON endpoint). The overrun is written up in `lab/spencer-exploration/README.md`
 and the collectors it paid for were abandoned; those stores are collected by
 free HTTP instead.
 
@@ -69,7 +69,7 @@ There are two, one per language, written independently on the same day. They
 are not redundant: they measure different things, and each is blind where the
 other sees.
 
-| | `spencer-exploration/studio.py` (`Guard`) | `scripts/bd.mjs` |
+| | `lab/spencer-exploration/studio.py` (`Guard`) | `lab/scripts/bd.mjs` |
 |---|---|---|
 | Measures | account balance, before and after every call | per-zone cumulative cost **and bandwidth** |
 | Granularity | dollars, rounded | cents, plus megabytes |
@@ -148,13 +148,13 @@ them from environment variables, so there is still one place to look.
 ## The Node guard
 
 Nothing in this repo calls the Bright Data CLI directly for anything
-that spends. It goes through `scripts/bd.mjs`, at the repo root. It has no
+that spends. It goes through `lab/scripts/bd.mjs`, at the repo root. It has no
 dependencies and needs no install -- run it from anywhere in the repo:
 
 ```sh
-node scripts/bd.mjs --label=vet-us -- scrape https://example.com --country us
-node scripts/bd.mjs --report
-BD_DRY_RUN=1 node scripts/bd.mjs --label=whatever -- <args>   # preflight only
+node lab/scripts/bd.mjs --label=vet-us -- scrape https://example.com --country us
+node lab/scripts/bd.mjs --report
+BD_DRY_RUN=1 node lab/scripts/bd.mjs --label=whatever -- <args>   # preflight only
 ```
 
 Around every action it reads the zone meter, runs the command, reads the

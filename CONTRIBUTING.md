@@ -27,7 +27,7 @@ for three other reasons:
 ```sh
 git switch -c docs/kickoff-findings      # branch off main
 # ... work ...
-pnpm test                                # from basketwatch/, must be green
+just check                               # typecheck, lint, test, build
 git push -u origin docs/kickoff-findings
 gh pr create --fill
 gh pr merge --squash --delete-branch
@@ -37,7 +37,7 @@ gh pr merge --squash --delete-branch
 they are asleep or heads-down. Merge your own PR once tests pass.
 
 Use judgement on risky changes — deploy config, secrets handling, or the shared
-output contract in `basketwatch/packages/contract` — and give the other person a heads-up
+output contract in `packages/contract` — and give the other person a heads-up
 first. That is a courtesy, not a gate.
 
 ### Branch names
@@ -57,7 +57,7 @@ docs: ignore .obsidian vault state (per-machine UI files)
 
 ## Before you merge
 
-- `pnpm test` passes from `basketwatch/`. The validator tests must stay green —
+- `just check` passes from the repo root. The validator tests must stay green —
   they are the spider-sense layer and they are pure and unit-testable on
   purpose.
 - No secrets in the diff. `.env` is gitignored and stays that way.
