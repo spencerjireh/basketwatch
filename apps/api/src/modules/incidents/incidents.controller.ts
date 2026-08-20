@@ -1,9 +1,5 @@
 import { Controller, Get, NotImplementedException, Param, Query } from "@nestjs/common";
-import {
-  type Incident,
-  type IncidentsResponse,
-  incidentsQuerySchema,
-} from "@basketwatch/contract";
+import { type Incident, type IncidentsResponse, incidentsQuerySchema } from "@basketwatch/contract";
 import { ZodValidationPipe } from "../../common/pipes/zod-validation.pipe.js";
 import { IncidentsService } from "./incidents.service.js";
 

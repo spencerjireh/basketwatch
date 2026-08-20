@@ -11,9 +11,6 @@ import {
  * Currency is never assumed from the country at the observation level -- the
  * observation carries its own -- but a store needs a display default.
  */
-export function currencyForStore(
-  storeCurrency: string | null,
-  country: Country,
-): CurrencyCode {
+export function currencyForStore(storeCurrency: string | null, country: Country): CurrencyCode {
   return storeCurrency ?? DEFAULT_CURRENCY_BY_COUNTRY[country];
 }

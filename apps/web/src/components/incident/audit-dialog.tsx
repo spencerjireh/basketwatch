@@ -51,9 +51,7 @@ export function AuditDialog({
         <div className="max-h-[80vh] overflow-y-auto px-5 py-5 text-[12px] leading-relaxed">
           <header className="text-center">
             <h2 className="text-[13px] font-bold uppercase tracking-[0.2em]">Basketwatch</h2>
-            <p className="mt-0.5 text-[10px] uppercase tracking-[0.18em] opacity-70">
-              Heal audit
-            </p>
+            <p className="mt-0.5 text-[10px] uppercase tracking-[0.18em] opacity-70">Heal audit</p>
           </header>
 
           <div className="receipt-rule my-3" />
@@ -108,9 +106,7 @@ export function AuditDialog({
             <article key={attempt.id} className="mt-3">
               <div className="flex justify-between font-bold">
                 <span>Attempt {attempt.attempt}</span>
-                <span>
-                  {attempt.verdict ? attempt.verdict.toUpperCase() : "IN FLIGHT"}
-                </span>
+                <span>{attempt.verdict ? attempt.verdict.toUpperCase() : "IN FLIGHT"}</span>
               </div>
 
               <p className="mt-1 opacity-70">Diagnosis</p>
@@ -138,7 +134,9 @@ export function AuditDialog({
 
               <div className="mt-1 flex justify-between">
                 <span className="opacity-70">Cost</span>
-                <span>{formatMoney(attempt.creditsSpent.amount, attempt.creditsSpent.currency)}</span>
+                <span>
+                  {formatMoney(attempt.creditsSpent.amount, attempt.creditsSpent.currency)}
+                </span>
               </div>
             </article>
           ))}

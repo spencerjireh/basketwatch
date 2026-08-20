@@ -261,7 +261,9 @@ export const basketMap = pgTable(
 );
 
 export const baselines = pgTable("baselines", {
-  scraperId: text("scraper_id").primaryKey().references(() => scrapers.id),
+  scraperId: text("scraper_id")
+    .primaryKey()
+    .references(() => scrapers.id),
   fieldNullRates: jsonb("field_null_rates").notNull(),
   expectedRowCount: integer("expected_row_count").notNull(),
   valueRanges: jsonb("value_ranges").notNull(), // per-field p5/p95
@@ -284,7 +286,9 @@ export const incidents = pgTable("incidents", {
 
 export const healAttempts = pgTable("heal_attempts", {
   id: uuid("id").primaryKey().defaultRandom(),
-  incidentId: uuid("incident_id").notNull().references(() => incidents.id),
+  incidentId: uuid("incident_id")
+    .notNull()
+    .references(() => incidents.id),
   claudeDiagnosis: text("claude_diagnosis").notNull(),
   healPrompt: text("heal_prompt").notNull(),
   studioDiff: text("studio_diff"),

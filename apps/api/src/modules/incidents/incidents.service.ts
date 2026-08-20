@@ -1,5 +1,10 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
-import { type Incident, type IncidentState, type Page, type PageQuery } from "@basketwatch/contract";
+import {
+  type Incident,
+  type IncidentState,
+  type Page,
+  type PageQuery,
+} from "@basketwatch/contract";
 import { IncidentsRepository } from "./incidents.repository.js";
 
 @Injectable()

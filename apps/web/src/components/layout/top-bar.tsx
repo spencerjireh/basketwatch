@@ -14,8 +14,8 @@ export function TopBar({ fleet, budget }: { fleet: FleetScraper[]; budget: Credi
           Basketwatch
         </h1>
         <p className="mt-0.5 max-w-[46ch] text-[13px] text-mute">
-          The basket index that shows its own gaps. When a scraper breaks, the line stops
-          rather than guessing.
+          The basket index that shows its own gaps. When a scraper breaks, the line stops rather
+          than guessing.
         </p>
       </div>
 

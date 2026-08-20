@@ -37,9 +37,7 @@ export class AllExceptionsFilter implements ExceptionFilter {
     const requestId = String(req.id ?? res.getHeader("x-request-id") ?? "unknown");
 
     const status =
-      exception instanceof HttpException
-        ? exception.getStatus()
-        : HttpStatus.INTERNAL_SERVER_ERROR;
+      exception instanceof HttpException ? exception.getStatus() : HttpStatus.INTERNAL_SERVER_ERROR;
 
     const code = CODE_BY_STATUS[status] ?? "internal";
 

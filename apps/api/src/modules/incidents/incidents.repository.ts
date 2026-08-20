@@ -1,5 +1,10 @@
 import { Inject, Injectable } from "@nestjs/common";
-import { type Incident, type IncidentState, type Page, type PageQuery } from "@basketwatch/contract";
+import {
+  type Incident,
+  type IncidentState,
+  type Page,
+  type PageQuery,
+} from "@basketwatch/contract";
 import { DRIZZLE } from "../../database/database.tokens.js";
 import { type Db } from "../../database/database.module.js";
 

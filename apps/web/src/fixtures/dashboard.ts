@@ -311,7 +311,9 @@ export const incidents: Incident[] = [
           detail: "got 34, expected ~300",
         },
       ],
-      sampleBadRows: [{ product_key: "canola-oil-1-5l", name: "Baguio Canola Oil 1.5L", price: null }],
+      sampleBadRows: [
+        { product_key: "canola-oil-1-5l", name: "Baguio Canola Oil 1.5L", price: null },
+      ],
       sampleGoodRows: [
         { product_key: "canola-oil-1-5l", name: "Baguio Canola Oil 1.5L", price: 289.75 },
       ],
@@ -373,7 +375,9 @@ export const incidents: Incident[] = [
       kind: "rowcount",
       failedChecks: [{ check: "rowcount", severity: "hard", detail: "got 0, expected ~980" }],
       sampleBadRows: [],
-      sampleGoodRows: [{ product_key: "sona-rice-20lb", name: "Sona Masoori Rice 20lb", price: 24.99 }],
+      sampleGoodRows: [
+        { product_key: "sona-rice-20lb", name: "Sona Masoori Rice 20lb", price: 24.99 },
+      ],
       fieldNullRates: {},
       baselineNullRates: { price: 0.01 },
       rowCount: 0,
@@ -389,7 +393,8 @@ export const incidents: Incident[] = [
         claudeDiagnosis:
           "The sitemap now returns a consent interstitial instead of product URLs, so there is nothing for the collector to crawl.",
         healPrompt: "The product list is behind a consent page. Accept it, then read the listing.",
-        studioDiff: "- await page.goto(url)\n+ await page.goto(url)\n+ await page.click('#accept-all')",
+        studioDiff:
+          "- await page.goto(url)\n+ await page.goto(url)\n+ await page.click('#accept-all')",
         canary: {
           ranAt: "2026-08-19T18:00:00.000Z",
           rows: 0,

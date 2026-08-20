@@ -21,7 +21,11 @@ export class ApiError extends Error {
  * default. This is live operational data, and a caching default that shifts
  * between minor releases would show a stale fleet board during a demo.
  */
-export async function fetchJson<T>(url: string, schema: ZodType<T>, init?: RequestInit): Promise<T> {
+export async function fetchJson<T>(
+  url: string,
+  schema: ZodType<T>,
+  init?: RequestInit,
+): Promise<T> {
   const response = await fetch(url, { cache: "no-store", ...init });
 
   if (!response.ok) {

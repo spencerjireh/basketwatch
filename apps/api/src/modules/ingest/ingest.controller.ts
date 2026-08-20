@@ -1,9 +1,5 @@
 import { Body, Controller, Logger, Param, Post, UseGuards } from "@nestjs/common";
-import {
-  type IngestBody,
-  type IngestResponse,
-  ingestBodySchema,
-} from "@basketwatch/contract";
+import { type IngestBody, type IngestResponse, ingestBodySchema } from "@basketwatch/contract";
 import { WebhookSecretGuard } from "../../common/guards/webhook-secret.guard.js";
 import { ZodValidationPipe } from "../../common/pipes/zod-validation.pipe.js";
 

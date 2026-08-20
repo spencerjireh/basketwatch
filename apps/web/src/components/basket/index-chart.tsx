@@ -79,7 +79,15 @@ export function IndexChart({ series }: { series: BasketSeries[] }) {
                 patternUnits="userSpaceOnUse"
               >
                 <rect width="8" height="8" fill="var(--color-broken)" fillOpacity="0.07" />
-                <line x1="0" y1="0" x2="0" y2="8" stroke="var(--color-broken)" strokeOpacity="0.4" strokeWidth="2" />
+                <line
+                  x1="0"
+                  y1="0"
+                  x2="0"
+                  y2="8"
+                  stroke="var(--color-broken)"
+                  strokeOpacity="0.4"
+                  strokeWidth="2"
+                />
               </pattern>
             </defs>
 

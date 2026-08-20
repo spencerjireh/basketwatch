@@ -10,10 +10,7 @@ import { type Baseline, type CheckResult, type Verdict } from "./checks.types.js
  */
 
 /** Hard fail: rows that do not match the fleet output contract. */
-export function checkSchema(
-  rows: unknown[],
-  parse: (row: unknown) => boolean,
-): CheckResult[] {
+export function checkSchema(rows: unknown[], parse: (row: unknown) => boolean): CheckResult[] {
   const bad = rows.filter((row) => !parse(row));
   if (bad.length === 0) return [];
   return [

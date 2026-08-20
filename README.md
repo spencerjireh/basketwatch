@@ -79,9 +79,9 @@ Nest sets a global `api` prefix with no exclusions, and the dashboard rewrites
 `/api/:path*` straight through without stripping anything. The path is identical
 everywhere:
 
-| Where | URL |
-|---|---|
-| dev, direct | `localhost:3001/api/health` |
-| dev, via the dashboard | `localhost:3000/api/health` |
-| prod, inside compose | `api:3001/api/health` |
-| prod, public | `basketwatch.spencerjireh.com/api/health` |
+| Where                  | URL                                       |
+| ---------------------- | ----------------------------------------- |
+| dev, direct            | `localhost:3001/api/health`               |
+| dev, via the dashboard | `localhost:3000/api/health`               |
+| prod, inside compose   | `api:3001/api/health`                     |
+| prod, public           | `basketwatch.spencerjireh.com/api/health` |
