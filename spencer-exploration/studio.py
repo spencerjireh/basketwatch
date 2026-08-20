@@ -70,6 +70,86 @@ class StudioEmpty(StudioError):
     pass
 
 
+# --- the budget guard ---------------------------------------------------------
+
+class BudgetExhausted(StudioError):
+    """The ceiling would be breached. Raised, never returned, so a call site cannot
+    forget to check it."""
+
+
+class Guard:
+    """A pre-flight ceiling on Studio spend.
+
+    Written after a $21.91 overrun against a $5 ceiling. Two lessons are baked in:
+
+    - **The check happens before the call, at every call site.** The previous version
+      of this had a Budget class that was never wired to anything, which is the same as
+      not having one.
+    - **A timeout means still spending, not stopped.** `proc.kill()` ends the local CLI;
+      the collection is already triggered server-side and Bright Data keeps rendering
+      and billing it. So the balance is re-read *after* a timeout too, and a timed-out
+      call is charged against the ceiling like any other.
+
+    The balance is eventually consistent - it kept falling for minutes after the run
+    that spent it - so `spent()` is a floor, not a settled figure. The ceiling is
+    checked against the floor, which errs toward stopping early.
+    """
+
+    def __init__(self, cap_usd: float, start: float):
+        self.cap = cap_usd
+        self.start = start
+        self.last = start
+        self.calls = 0
+
+    @classmethod
+    async def open(cls, cap_usd: float) -> "Guard":
+        bal = await read_balance()
+        if bal is None:
+            raise StudioError("could not read the balance - refusing to spend blind")
+        print(f"budget guard: ${cap_usd:.2f} ceiling, balance ${bal:.2f}", flush=True)
+        return cls(cap_usd, bal)
+
+    def spent(self) -> float:
+        return max(0.0, self.start - self.last)
+
+    async def refresh(self) -> float:
+        bal = await read_balance()
+        if bal is not None:
+            self.last = bal
+        return self.spent()
+
+    def check(self, what: str) -> None:
+        """The ceiling decision, with no I/O in it so it is testable directly."""
+        spent = self.spent()
+        if spent >= self.cap:
+            raise BudgetExhausted(
+                f"${spent:.2f} of ${self.cap:.2f} spent - refusing {what}")
+
+    async def preflight(self, what: str) -> None:
+        await self.refresh()
+        self.check(what)
+
+    async def charge(self, what: str) -> float:
+        """Re-read after a call, including after a timeout."""
+        before = self.spent()
+        spent = await self.refresh()
+        self.calls += 1
+        delta = spent - before
+        print(f"    {what}: ${delta:.4f} (total ${spent:.2f} of ${self.cap:.2f})",
+              flush=True)
+        return delta
+
+
+async def read_balance() -> float | None:
+    """`bdata budget` is free and does not touch the scrapers."""
+    try:
+        _, out, _ = await _cli(["budget"], 90)
+    except StudioError:
+        return None
+    m = re.search(r"Balance\s+\$([0-9.,]+)", out)
+    return float(m.group(1).replace(",", "")) if m else None
+
+
 # --- descriptions -------------------------------------------------------------
 
 # Clause order matters: generators weight the opening and lose intent from the tail.
