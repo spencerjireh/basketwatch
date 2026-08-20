@@ -22,7 +22,7 @@ JSON endpoint). The overrun is written up in `spencer-exploration/README.md`
 and the collectors it paid for were abandoned; those stores are collected by
 free HTTP instead.
 
-Three lessons came out of it, and both guards below now encode all three:
+Three lessons came out of it, and the guards below now encode all three:
 
 1. **A ceiling that is not wired to a call site is not a ceiling.** The
    previous version was a `Budget` class nothing ever called.
