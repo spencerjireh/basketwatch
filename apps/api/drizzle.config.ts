@@ -4,8 +4,8 @@ import { defineConfig } from "drizzle-kit";
 // One .env for the whole repo, at the repo ROOT, beside the compose files.
 // Resolved from cwd rather than import.meta.url: drizzle-kit bundles this file
 // with esbuild and this package is CommonJS, so import.meta is not available.
-// drizzle-kit runs with cwd = apps/api, so three levels up lands at the root.
-config({ path: "../../../.env" });
+// drizzle-kit runs with cwd = apps/api, so two levels up lands at the root.
+config({ path: "../../.env" });
 
 const url = process.env.DATABASE_URL ?? "";
 

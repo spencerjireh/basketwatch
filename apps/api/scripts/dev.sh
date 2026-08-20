@@ -23,4 +23,4 @@ npx tsc -p tsconfig.json --watch --preserveWatchOutput &
 TSC_PID=$!
 trap 'kill $TSC_PID 2>/dev/null' EXIT INT TERM
 
-node --watch --env-file-if-exists=../../../.env dist/main.js
+node --watch --env-file-if-exists=../../.env dist/main.js

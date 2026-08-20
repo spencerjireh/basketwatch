@@ -39,7 +39,7 @@ from pathlib import Path
 import psycopg
 
 HERE = Path(__file__).parent
-ROOT = HERE.parent
+ROOT = HERE.parent.parent  # lab/spencer-exploration -> lab -> repo root
 DB_PATH = HERE / "catalogue.db"
 
 # The tables this script owns. Any of them holding rows means someone has
