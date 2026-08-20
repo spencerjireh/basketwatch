@@ -306,6 +306,105 @@
         "endpoint": "https://latimexmarket.com/products.json",
         "max_pages": 20
       }
+    },
+    {
+      "id": "us-mexmax",
+      "name": "MexMax",
+      "country": "US",
+      "vertical": "grocery",
+      "structural_class": "json-ld",
+      "studio_collector_id": null,
+      "why_locked": "Measured 8/10 core basket items through its Shopify search API - the single best US store found so far, and the one that fixes the US gaps that mattered: eggs, chicken and cooking oil each appeared in exactly one US store before this. Mexican grocery wholesaler, 2,643-URL sitemap, products.json paginates at 250.",
+      "risk": "low",
+      "substitute": null,
+      "search_api": "shopify",
+      "index_contributor": true,
+      "role": "index-contributor",
+      "catalogue": {
+        "method": "shopify",
+        "endpoint": "https://mexmax.com/products.json",
+        "max_pages": 20
+      }
+    },
+    {
+      "id": "us-amigofoods",
+      "name": "Amigo Foods",
+      "country": "US",
+      "vertical": "grocery",
+      "structural_class": "json-ld",
+      "studio_collector_id": null,
+      "why_locked": "Measured 6/10 core items: rice, bread, pasta, coffee, sugar, bananas. US Latin grocer with a 2,741-URL sitemap and a working products.json. Adds a second US source for five of the ten core items.",
+      "risk": "low",
+      "substitute": null,
+      "search_api": "shopify",
+      "index_contributor": true,
+      "role": "index-contributor",
+      "catalogue": {
+        "method": "shopify",
+        "endpoint": "https://www.amigofoods.com/products.json",
+        "max_pages": 20
+      }
+    },
+    {
+      "id": "us-lilimart",
+      "name": "Lili Mart",
+      "country": "US",
+      "vertical": "grocery",
+      "structural_class": "json-ld",
+      "studio_collector_id": null,
+      "why_locked": "Measured 6/10 core items and the only new US store carrying milk. US Filipino grocer selling the same brands as the PH fleet, which makes a like-for-like US/PH comparison possible on identical goods rather than on a currency conversion between different products.",
+      "risk": "low",
+      "substitute": null,
+      "search_api": "shopify",
+      "index_contributor": true,
+      "role": "index-contributor",
+      "catalogue": {
+        "method": "shopify",
+        "endpoint": "https://shoplilimart.com/products.json",
+        "max_pages": 20
+      }
+    },
+    {
+      "id": "us-sukli",
+      "name": "Sukli",
+      "country": "US",
+      "vertical": "grocery",
+      "structural_class": "json-ld",
+      "studio_collector_id": null,
+      "why_locked": "Measured 3/10 core items - bread, coffee, rice - which clears the bar without clearing it comfortably. Locked for the same reason as Lili Mart: a US Filipino grocer stocking PH brands is the cleanest available US-versus-PH price comparison. Thin, and marked as such.",
+      "risk": "medium",
+      "substitute": null,
+      "search_api": "shopify",
+      "index_contributor": true,
+      "role": "index-contributor",
+      "caveat": "3/10 core items measured. Included for cross-country comparability, not depth.",
+      "catalogue": {
+        "method": "shopify",
+        "endpoint": "https://sukli.com/products.json",
+        "max_pages": 20
+      }
+    },
+    {
+      "id": "us-hmart",
+      "name": "H Mart",
+      "country": "US",
+      "vertical": "grocery",
+      "structural_class": "json-ld",
+      "studio_collector_id": null,
+      "why_locked": "Korean-American chain with real US retail presence and a 1,520-URL sitemap. No products.json - /products.json returns 404 - so it takes the sitemap method rather than the Shopify one. Registry scored its basket coverage at 8/10 from sitemap keywords, which is the weaker measure; treat that as unverified until a pull confirms it.",
+      "risk": "medium",
+      "substitute": null,
+      "search_api": null,
+      "index_contributor": false,
+      "role": "reliability-subject",
+      "caveat": "Basket coverage is sitemap-derived, not measured. No bulk endpoint.",
+      "catalogue": {
+        "method": "sitemap",
+        "endpoint": null,
+        "max_pages": 300,
+        "coverage": "partial",
+        "coverage_reason": "1,520 products and one fetch per page; capped at 300"
+      }
     }
   ],
   "always_in_fleet": [
@@ -369,6 +468,11 @@
       "date": "2026-08-20",
       "change": "Corrected the catalogue status of The Fresh Market and Wegmans",
       "why": "Both were labelled needs_browser on the assumption that a zero-row pull meant client-rendering. Re-running them with current code disproved that: their sitemaps carry no product URLs at all - gift cards and recall notices for The Fresh Market, landing pages for Wegmans. They are now method:none, the same as Meijer. The original zero-row results were also produced by a long-running process holding pre-fix code in memory, which is why they needed re-checking rather than trusting."
+    },
+    {
+      "date": "2026-08-20",
+      "change": "Locked five US stores; rejected Kalustyan's; recorded that registry basket_coverage is not a measurement",
+      "why": "The US fleet was too thin to be credible - eggs, milk, chicken and pasta each appeared in exactly one US store, so those series were one breakage from a hole. Eighteen US sites were already vetted fleet_ready and unused, so no discovery was needed. Measuring five of them through their Shopify search APIs contradicted the registry: its basket_coverage counts keyword hits in a sitemap, and all five read 10/10 there. Measured, they are MexMax 8/10, Amigo Foods 6/10, Lili Mart 6/10, Sukli 3/10 and Kalustyan's 0/10 - its 'rice' hit was a rice cooker. Four locked, Kalustyan's rejected despite a registry score of 100. H Mart joins on the sitemap method after /products.json returned 404. Cost: nothing, all free HTTP."
     }
   ],
   "catalogue_policy": {

@@ -64,6 +64,13 @@ Members do one of two jobs. **Index contributors** supply the basket. **Reliabil
 | 10 | **The Fresh Market** `us-thefreshmarket` | US | reliability | json-ld | low | - | Specialty national grocer, 9/10 basket categories, server-rendered json-ld reachable without the Unlocker. Highest-scoring authentic US grocer after Dierbergs. |
 | 11 | **Wegmans** `us-wegmans` | US | reliability | spa-with-state | medium | - | Major regional grocer that ships prices inside embedded page state rather than markup - a distinct extraction shape from the json-ld sites, and a realistic breakage mode. |
 | 12 | **Meijer** `us-meijer` | US | reliability | bare-html | medium | - | Midwest supercenter, 8/10 basket categories, plain HTML pricing with no structured data - the bare-HTML shape on the US side. Promoted from the bench after Grocery Outlet failed the lock audit. |
+| 13 | **Cypress Indian Grocery** `us-cypressindian` | US | index | json-ld | low | - | The most realistic US prices found anywhere in the registry: Royal Basmati 10lb at $3.75/kg, Domino Brown Sugar 2lb at $4.62/kg, Aara Sunflower Oil 5L at $3.40/L. Ordinary supermarket-level pricing on generic staples, not specialty markups. |
+| 14 | **Latimex Market** `us-latimex` | US | index | json-ld | medium | - | Latin American grocer, 9 items settled with clean unit prices and a different cuisine from MexGrocer, so the two do not share supply. |
+| 15 | **MexMax** `us-mexmax` | US | index | json-ld | low | - | Measured 8/10 core basket items through its Shopify search API - the single best US store found so far, and the one that fixes the US gaps that mattered: eggs, chicken and cooking oil each appeared in exactly one US store before this. Mexican grocery wholesaler, 2,643-URL sitemap, products.json paginates at 250. |
+| 16 | **Amigo Foods** `us-amigofoods` | US | index | json-ld | low | - | Measured 6/10 core items: rice, bread, pasta, coffee, sugar, bananas. US Latin grocer with a 2,741-URL sitemap and a working products.json. Adds a second US source for five of the ten core items. |
+| 17 | **Lili Mart** `us-lilimart` | US | index | json-ld | low | - | Measured 6/10 core items and the only new US store carrying milk. US Filipino grocer selling the same brands as the PH fleet, which makes a like-for-like US/PH comparison possible on identical goods rather than on a currency conversion between different products. |
+| 18 | **Sukli** `us-sukli` | US | index | json-ld | medium | - | Measured 3/10 core items - bread, coffee, rice - which clears the bar without clearing it comfortably. Locked for the same reason as Lili Mart: a US Filipino grocer stocking PH brands is the cleanest available US-versus-PH price comparison. Thin, and marked as such. |
+| 19 | **H Mart** `us-hmart` | US | reliability | json-ld | medium | - | Korean-American chain with real US retail presence and a 1,520-URL sitemap. No products.json - /products.json returns 404 - so it takes the sitemap method rather than the Shopify one. Registry scored its basket coverage at 8/10 from sitemap keywords, which is the weaker measure; treat that as unverified until a pull confirms it. |
 | + | **Parker's Pantry** `clone-parkers-pantry` | US | heal rig | local | none | n/a | The clone store on the VPS subdomain. Disclosed test rig with a layout-mutation switch; it is the scripted break-detect-heal demo centerpiece per docs/prd.md section 2.5, not a real retailer, so it is not scored in the registry. |
 
 Caveats carried by locked sites:
@@ -76,6 +83,9 @@ Caveats carried by locked sites:
 - **MexGrocer** - Blocked on plain HTTP for page fetches but its Shopify search API answers fine. Chicken resolves to bouillon and bananas to banana leaves; both need curating.
 - **Wegmans** - Only 4/10 basket categories surfaced from its sitemap; confirm SKU coverage before relying on it for the index.
 - **Meijer** - Needs the Web Unlocker on every run, so it is the only locked site with a per-run credit cost. Budget for it in the scheduler.
+- **Latimex Market** - Skews premium - Bomba rice at $19.99/kg and extra virgin olive oil rather than a neutral cooking oil. Good for breadth, not for the cheapest-basket claim.
+- **Sukli** - 3/10 core items measured. Included for cross-country comparability, not depth.
+- **H Mart** - Basket coverage is sitemap-derived, not measured. No bulk endpoint.
 
 Bench (vetted, promote without re-running discovery): **PH** `ph-southstar`, `ph-snr`, `ph-medsgo`, `ph-rosepharmacy`; **US** `us-hmart`, `us-keyfood`, `us-netrition`, `us-swanson`, `us-smartandfinal`.
 

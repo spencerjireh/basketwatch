@@ -51,6 +51,13 @@
       "verified_how": "Round 5 targeted US Indian, Mexican and Latin grocers. Kesar Grocery settled 13 of 20 items, 7/10 core, all unit-priced, with generic goods and real fresh produce: Basmati 4LB, whole wheat bread 24oz, Great Value elbow pasta 1LB, Amul cheese 1KG, organic bananas 3lb, beefsteak tomatoes 3lb, white onions 3lb, gala apples 3lb, navel oranges 3lb. MexGrocer settled 9 with Mahatma rice and Cafe de Olla ground coffee.",
       "note": "US ethnic grocers are the US source. They publish full catalogues because that IS their storefront, and they sell generic staples rather than the diet or snack goods that made the pantries and importers unusable. Kesar was invisible for two compounding reasons: it publishes no structured data whatsoever, and it was judged on sitemap keyword coverage. Both were harness limitations, not properties of the store. Two lessons generalise: test every store through its own search API rather than its sitemap, and never assume a store without structured data has no prices.",
       "score_bonus": 0
+    },
+    "_registry-basket-coverage-is-not-a-measurement": {
+      "verified_api": null,
+      "api_kind": "structural-finding",
+      "verified_how": "Measured core-basket coverage for five vetted-but-unlocked US stores by querying each store's Shopify /search/suggest.json with the item's match terms and running the result through basket.pick_is_usable. All five read 10/10 in registry.json. Measured: MexMax 8/10, Amigo Foods 6/10, Lili Mart 6/10, Sukli 3/10, Kalustyan's 0/10. Free HTTP, no credits.",
+      "note": "registry.json's basket_coverage counts basket keywords appearing anywhere in a store's sitemap URLs. That is a proxy, and it fails in both directions. It understates API-only stores - Ever Supermarket read 0/10 by sitemap and 10/10 measured - and it overstates stores whose sitemaps merely contain the words. Kalustyan's scored 100 overall with a 10/10 basket on the strength of URLs like /products/rice-cooker-drc-230automatic. Measured against real product titles it settles nothing at all, and it was rejected rather than locked. score.py already prefers the measured figure where basket.py has produced one (load_basket_coverage); the lesson is that any store never run through basket.py carries an unverified number, and locking on it is how a rice cooker becomes rice.",
+      "consequence": "Four stores locked on measured evidence rather than five on sitemap keywords. US core coverage went from four items sitting in a single store each - eggs, milk, chicken, pasta - to every core item in at least three US stores, and US catalogue rows from 4,621 to 15,093."
     }
   },
   "studio_proofs": {
