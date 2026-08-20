@@ -227,3 +227,32 @@ def test_a_size_the_title_does_not_mention_is_still_trusted():
     r = _rows(raw)[0]
     assert r["size"]["quantity"] == pytest.approx(5000.0)
     assert r["unit_price"]["value"] == pytest.approx(75.6)
+
+
+# --- the budget guard ---------------------------------------------------------
+
+def test_the_guard_refuses_once_the_ceiling_is_reached():
+    """Written after a $21.91 overrun against a $5 ceiling. The previous guard existed
+    as a class that nothing called, which is the same as no guard."""
+    g = studio.Guard(cap_usd=2.0, start=10.0)
+    g.last = 8.5                                   # $1.50 spent
+    g.check("a run")                               # under the cap, allowed
+    g.last = 8.0                                   # $2.00 spent
+    with pytest.raises(studio.BudgetExhausted):
+        g.check("another run")
+
+
+def test_a_timeout_is_still_charged():
+    """proc.kill() ends the local CLI; the collection is already triggered server-side
+    and keeps billing. A timed-out call must count against the ceiling."""
+    g = studio.Guard(cap_usd=2.0, start=10.0)
+    g.last = 7.81                                  # the call spent $2.19 then timed out
+    assert g.spent() == pytest.approx(2.19)
+    with pytest.raises(studio.BudgetExhausted):
+        g.check("the next run")
+
+
+def test_budget_exhausted_is_a_studio_error_so_it_falls_back():
+    """The caller already handles StudioError by falling back to the free puller, so a
+    tripped budget degrades to HTTP rather than aborting the run."""
+    assert issubclass(studio.BudgetExhausted, studio.StudioError)
