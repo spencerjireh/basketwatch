@@ -101,13 +101,19 @@ Bright Data CLI (`brightdata`, v0.3.4+) drives Scraper Studio:
   were renamed `scrapeverse` -> `basketwatch`; re-create your local volume
   (`docker compose -f docker-compose.dev.yml down -v`) or auth will fail.
 - API contract frozen Aug 18: shared types cover fleet, basket, feed,
-  incidents, heal attempts and credit budget; `country` is a first-class
-  dimension in the contract but not yet in the DB schema (gaps listed at the
-  end of `docs/api-contract.md`).
+  incidents, heal attempts and credit budget.
+- `catalogue.db` migrated into Postgres Aug 20. The data plane is the catalogue
+  shape - `stores`, `products` keyed `(store_id, product_key)`, `runs`,
+  `price_observations`, `items`, `basket_map`, and the `latest_price` view -
+  alongside the control plane (`scrapers`, `baselines`, `heal_attempts`,
+  `alerts`). Migration 0000 was rewritten rather than layered, so reset your dev
+  volume. `spencer-exploration/to_postgres.py` is the one-time loader;
+  `catalogue.db` stays in git, frozen as documentation. The Python pullers still
+  write SQLite - nothing writes Postgres yet.
 - Coolify deploy scaffolded Aug 20 on `basketwatch.spencerjireh.com`: the
   root prod compose ships a public Postgres for the team to dump scraped data
   into; the three app services are profile-gated placeholders. The Coolify
   resource itself is created by hand — see `docs/deploy.md`.
-- Not yet: DB wiring for ingest, heal orchestrator service, notifier,
-  app services live on the deploy, real fleet (site vetting pending — PH gate
-  Aug 19 EOD).
+- Not yet: any endpoint that reads the database, DB wiring for ingest, heal
+  orchestrator service, notifier, app services live on the deploy, a TypeScript
+  port of the Python pullers.
