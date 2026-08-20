@@ -3,6 +3,8 @@
 !.env.example
 node_modules/
 dist/
+.turbo/
+.next/
 *.tsbuildinfo
 __pycache__/
 .venv/
