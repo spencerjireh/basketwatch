@@ -184,6 +184,18 @@ Bright Data CLI (`brightdata`, v0.3.4+) drives Scraper Studio:
   (`method`, `endpoint`, `max_pages`, `coverage`, `needs_browser`,
   `needs_unlocker`), and normalising `runs.status` rewrites live rows for
   cosmetic gain while `runStatusFromDb` already reads both vocabularies.
+- **The puller engine landed Aug 21**, ported from
+  `lab/spencer-exploration/catalogue.py`: four adapters (shopify, magento-graphql,
+  sitemap, studio) over the sixteen pullable stores, reading crawl config from
+  the `stores` table rather than from `fleet.lock.json`. `POST
+  /api/pullers/:storeId/run` runs one store on demand, `?dryRun=true` writes
+  nothing.
+- **The pull schedule ships disarmed.** `PULL_SCHEDULE_ENABLED` defaults to
+  false and any schedule left by an earlier deploy is removed on boot. A
+  scheduled run does not pass through `lab/scripts/bd.mjs`, so the schedule is
+  its only bound — arming it is a team decision, not a deploy default.
 - Not yet: DB wiring for ingest, the heal orchestrator, the notifier. Each has
   a named home in the tree. `nullRatePct` on the fleet board reports 0 until
-  the validator runs against a stored run.
+  the validator runs against a stored run, and the `brightdata` CLI is not in
+  the API image, so a Studio pull falls back to HTTP and opens a
+  `studio_failed` incident.

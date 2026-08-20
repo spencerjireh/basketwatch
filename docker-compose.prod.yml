@@ -79,6 +79,9 @@ services:
       HEAL_MAX_PER_SCRAPER_PER_DAY: ${HEAL_MAX_PER_SCRAPER_PER_DAY:-5}
       CREDIT_DAILY_CEILING_USD: ${CREDIT_DAILY_CEILING_USD:-5}
       BD_BALANCE_USD: ${BD_BALANCE_USD:-}
+      # Off unless deliberately armed -- see .env.example.
+      PULL_SCHEDULE_ENABLED: ${PULL_SCHEDULE_ENABLED:-false}
+      PULL_SCHEDULE_CRON: ${PULL_SCHEDULE_CRON:-0 6 * * *}
     depends_on:
       postgres:
         condition: service_healthy

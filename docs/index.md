@@ -72,6 +72,9 @@ on GitHub — everything renders in both.
   and the fixtures are deleted. The basket index reads as an as-of query over
   change-only history, and a day missing any core item totals `null` — the gap
   the chart draws rather than interpolating across.
+- **The puller engine landed Aug 21**, ported from `catalogue.py`. Its schedule
+  ships **disarmed**: nothing pulls until the team arms
+  `PULL_SCHEDULE_ENABLED`. On-demand runs work now, dry or wet.
 - **Deploy runs the whole app.** `postgres`, `api` and `web`; the `app` profile
   that gated the last two is gone. `web`'s Coolify port is 3000, not 80, and
   the API applies pending migrations on boot.

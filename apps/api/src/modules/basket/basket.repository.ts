@@ -227,8 +227,15 @@ function annotate(points: BasketPoint[], incidents: IncidentRow[]): BasketPoint[
     const previous = points[index - 1];
     if (!previous || previous.total !== null) return point;
 
+    // Only the incident the gap itself named, and only if it closed in this
+    // window. Any resolved incident nearby would put a heal marker on a gap it
+    // did not cause -- which reads to a judge as a claim, not a coincidence.
     const closed = incidents.some(
-      (i) => i.resolved_at !== null && i.resolved_at > previous.date && i.resolved_at <= point.date,
+      (i) =>
+        i.id === previous.incidentId &&
+        i.resolved_at !== null &&
+        i.resolved_at > previous.date &&
+        i.resolved_at <= point.date,
     );
     return closed ? { ...point, healed: true } : point;
   });
