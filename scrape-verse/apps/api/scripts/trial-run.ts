@@ -21,7 +21,8 @@ import { createDb } from "../src/db/client.js";
 import { baselines, runs, scrapers } from "../src/db/schema.js";
 import { validateRun } from "../src/validator/checks.js";
 
-config({ path: fileURLToPath(new URL("../../../.env", import.meta.url)) });
+// The one .env at the repo root; this file is a level deeper than the config.
+config({ path: fileURLToPath(new URL("../../../../.env", import.meta.url)) });
 
 const exec = promisify(execFile);
 const cli = (args: string[]) => exec("npx", ["brightdata", ...args], { maxBuffer: 64 * 1024 * 1024 });
