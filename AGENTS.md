@@ -19,36 +19,35 @@ Read these before doing product work, in order:
 
 ## Layout
 
-- `basketwatch/` — the product monorepo (pnpm workspaces + Turborepo)
-  - `apps/api` — orchestrator: NestJS + Drizzle + pg-boss (Postgres-backed
-    job queue, no Redis). One directory per domain under `src/modules/`.
-    Only `*.repository.ts` may touch the Drizzle schema; a lint rule enforces
-    it. The spider-sense validator in `modules/validator/checks.ts` stays
-    pure and IO-free.
-  - `apps/web` — dashboard (Next.js App Router + Tailwind + Recharts, no
-    component library). A pure client of the API: it never touches Postgres,
-    and a lint rule enforces that too. Currently on `src/fixtures/dashboard.ts`,
-    typed by the contract so the swap to fetch calls changes no types.
-  - `packages/contract` — zod schemas and types. The only thing the two apps
-    share, and the reason the boundary above holds.
-  - `packages/tsconfig`, `packages/eslint-config` — shared configs.
-- `scripts/bd.mjs` — the guarded Bright Data wrapper (see Hard rules). At the
-  repo root, not inside the app: it is an ops tool for exploration work, and
-  it outlived the monorepo it was first written in.
-- `docs/` — all design docs and notes
-- `spencer-exploration/` — Python: site discovery and scoring
-  (`registry.json`, `fleet.lock.json`), the catalogue puller and its SQLite
-  store, Studio transport. Start at its `HANDOFF.md` — it states what the app
-  has to absorb. **Frozen**: it is kept as documentation and nothing new is
-  written there.
-- `edjin-exploration/` — Node: browser-based site vetting (`vet.mjs`,
-  `vet.json`), the second pass that catches client-rendered stores the HTTP
-  passes miss.
+The repo root **is** the product monorepo (pnpm workspaces + Turborepo). There
+is no app subdirectory; `apps/` and `packages/` sit beside the compose files.
 
-Both exploration directories are lab notebooks, not product code. Nothing
-under `basketwatch/` imports from either, and their dependencies are
-installed locally to each. Findings graduate into `docs/` and, when they
-change the contract, into a PR against `basketwatch/`.
+- `apps/api` — orchestrator: NestJS + Drizzle + pg-boss (Postgres-backed job
+  queue, no Redis). One directory per domain under `src/modules/`. Only
+  `*.repository.ts` may touch the Drizzle schema; a lint rule enforces it. The
+  spider-sense validator in `modules/validator/checks.ts` stays pure and IO-free.
+- `apps/web` — dashboard (Next.js App Router + Tailwind + Recharts, no component
+  library). A pure client of the API: it never touches Postgres, and a lint rule
+  enforces that too. Currently on `src/fixtures/dashboard.ts`, typed by the
+  contract so the swap to fetch calls changes no types.
+- `packages/contract` — zod schemas and types. The only thing the two apps
+  share, and the reason the boundary above holds.
+- `packages/tsconfig`, `packages/eslint-config` — shared configs.
+- `docs/` — all design docs and notes.
+- `lab/` — not product code. Nothing under `apps/` or `packages/` imports from
+  it, and its dependencies are installed locally to each notebook:
+  - `lab/spencer-exploration/` — Python: site discovery and scoring
+    (`registry.json`, `fleet.lock.json`), the catalogue puller and its SQLite
+    store, Studio transport. Start at its `HANDOFF.md` — it states what the app
+    has to absorb. **Frozen**: kept as documentation, nothing new written there.
+  - `lab/edjin-exploration/` — Node: browser-based site vetting (`vet.mjs`,
+    `vet.json`), the second pass that catches client-rendered stores the HTTP
+    pass misses.
+  - `lab/scripts/bd.mjs` — the guarded Bright Data wrapper (see Hard rules).
+    Reachable as `just guard`.
+
+Findings graduate from `lab/` into `docs/` and, when they change the contract,
+into a PR against the workspace.
 
 Not built yet, each with its home already in the tree: the per-module
 `*.repository.ts` query layer, `modules/pullers/`, `modules/heal/`,
@@ -56,28 +55,29 @@ Not built yet, each with its home already in the tree: the per-module
 
 ## Commands
 
-Both compose files live at the **repo root**. Everything pnpm runs from
-`basketwatch/`.
+The compose files, the workspace and the docs all live at the **repo root**.
+There is no nesting any more: `pnpm` and `just` both run from here.
+
+`just` is the entry point. `just` on its own lists every recipe.
 
 ```sh
-docker compose -f docker-compose.dev.yml up -d   # repo root; postgres only
-
-cd basketwatch
 pnpm install
-pnpm dev            # contract watch + api :3001 + dashboard :3000
-pnpm test           # vitest (validator tests must stay green)
-pnpm lint
-pnpm typecheck
+just up             # local postgres
+just dev            # contract watch + api :3001 + dashboard :3000
+just check          # typecheck, lint, test, build
+just db-migrate     # local database; see the warning below
+just guard --report # Bright Data spend
 ```
 
-Run `pnpm dev` from the workspace root, not an app directory: the API depends
-on the contract package's watch build, and starting an app alone means contract
-edits stop propagating.
+Run `just dev`, not an app's own dev script: the API depends on the contract
+package's watch build, and starting an app alone means contract edits stop
+propagating.
 
 **`DATABASE_URL` in the root `.env` points at the deployed database**, so a bare
 `pnpm db:migrate` would target production. `drizzle.config.ts` refuses a
-non-local host unless you pass `ALLOW_REMOTE_DB=1`; for local work pass the URL
-inline. Migration `0000` must keep its exact bytes — see the README.
+non-local host unless you pass `ALLOW_REMOTE_DB=1`. The `just db-*` recipes pass
+the local URL inline, which is the whole reason they exist. Migration `0000`
+must keep its exact bytes — see the README.
 
 Deployment: root `docker-compose.prod.yml` is THE Coolify deployment unit
 (single Docker Compose resource watching `main`; secrets via Coolify env
@@ -102,7 +102,7 @@ Bright Data CLI (`brightdata`, v0.3.4+) drives Scraper Studio:
 - **Credits are finite (~$50 per account, and the team has two separate
   accounts — see `docs/index.md`).** Never call the Bright Data CLI
   directly for anything that spends: go through the guarded wrapper,
-  `node scripts/bd.mjs --label=<what> -- <brightdata args>` on the Node
+  `node lab/scripts/bd.mjs --label=<what> -- <brightdata args>` on the Node
   side, or `studio.py`'s `Guard` on the Python side. Both enforce the same
   caps from `.env.example`, both check before and meter after (including
   timeouts), and both exit non-zero on a breach. The unified protocol is in
@@ -129,7 +129,7 @@ Bright Data CLI (`brightdata`, v0.3.4+) drives Scraper Studio:
   no semicolon changes, keep files small and typed).
 - Validator checks stay pure and unit-tested; incidents must be replayable
   from stored `raw_output`.
-- The API contract lives in `basketwatch/packages/contract/src/`, as zod
+- The API contract lives in `packages/contract/src/`, as zod
   schemas with types derived from them, and is documented in
   `docs/api-contract.md`. The dashboard's fixtures are typed by those schemas —
   change the schema and the fixture together, or neither.
@@ -163,7 +163,7 @@ Bright Data CLI (`brightdata`, v0.3.4+) drives Scraper Studio:
   `price_observations`, `items`, `basket_map`, and the `latest_price` view -
   alongside the control plane (`scrapers`, `baselines`, `heal_attempts`,
   `alerts`). Migration 0000 was rewritten rather than layered, so reset your dev
-  volume. `spencer-exploration/to_postgres.py` is the one-time loader;
+  volume. `lab/spencer-exploration/to_postgres.py` is the one-time loader;
   `catalogue.db` stays in git, frozen as documentation. The Python pullers still
   write SQLite - nothing writes Postgres yet.
 - Coolify deploy scaffolded Aug 20 on `basketwatch.spencerjireh.com`: the
@@ -176,6 +176,6 @@ Bright Data CLI (`brightdata`, v0.3.4+) drives Scraper Studio:
   the deploy. Each has a named home in the tree.
 - Migration 0001, when someone writes it: add `attempt`, `started_at`,
   `finished_at`, `canary` to `heal_attempts`; move per-store crawl config out of
-  `spencer-exploration/fleet.lock.json` onto `stores`/`scrapers`; normalise
+  `lab/spencer-exploration/fleet.lock.json` onto `stores`/`scrapers`; normalise
   `runs.status` from `anomalous|error` to `suspect|broken` and drop the read
   mapper.

@@ -167,7 +167,7 @@ database `basketwatch`, user `basketwatch`.
 
 The database is **modelled**, not a dumping ground. `stores`, `products`,
 `runs`, `price_observations`, `incidents`, `items` and `basket_map` are owned by
-the Drizzle schema in `basketwatch/apps/api/src/database/schema.ts`; the migration in
+the Drizzle schema in `apps/api/src/database/schema.ts`; the migration in
 `apps/api/drizzle/` is the only thing that should create tables. Write into the
 existing tables — do not `df.to_sql()` a new one beside them, or the API will
 not see your rows.
