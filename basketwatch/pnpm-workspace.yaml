@@ -1,0 +1,36 @@
+packages:
+  - "apps/*"
+  - "packages/*"
+
+# pnpm 10+ refuses to run dependency lifecycle scripts unless they are listed
+# here. Omitting this is silent and confusing: esbuild ships without its binary
+# (breaking drizzle-kit and vitest) and tailwind's native oxide module is
+# missing. The first symptom is a build error that names none of them.
+onlyBuiltDependencies:
+  - esbuild
+  - "@tailwindcss/oxide"
+  - sharp
+  - unrs-resolver
+
+# Single source for versions that must not drift between workspaces.
+catalog:
+  # EXACT, not ^. The latest typescript is 7.x, whose native compiler does not
+  # cover emitDecoratorMetadata -- which NestJS dependency injection requires.
+  # Missing decorator metadata presents as "Nest can't resolve dependencies of
+  # X", which reads like a DI bug and is not one. typescript-eslint also peers
+  # typescript <6.1.0. Do not run `pnpm up --latest` on this package.
+  typescript: 5.9.3
+  # Matches node:24-alpine in the Dockerfiles, not the host's newer node.
+  # Typing against the lower of dev and prod means a runtime API the container
+  # lacks cannot slip in.
+  "@types/node": ^24.10.0
+  # zod 4: note that z.string().datetime() moved to z.iso.datetime().
+  zod: ^4.3.3
+  vitest: ^3.2.4
+  eslint: ^9.39.0
+  prettier: ^3.9.6
+  typescript-eslint: ^8.67.0
+
+allowBuilds:
+  esbuild: true
+  unrs-resolver: true
