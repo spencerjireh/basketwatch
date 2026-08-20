@@ -80,3 +80,25 @@ Still open:
   `runs`, `heal_attempts` and `baselines`.
 - No endpoint reads the database yet. Every row in the tables above is `no`
   until the query layer lands.
+- **`priceRecordSchema` has not caught up with the data plane.** Postgres
+  carries size and unit price; the fleet output contract still does not.
+  Three changes are outstanding, all specified in
+  [spencer-exploration/HANDOFF.md](../spencer-exploration/HANDOFF.md) with a
+  tested reference implementation in its `basket.py`:
+  - `unit: z.string().min(1)` must become nullable. 4,276 of 28,376 catalogue
+    rows have no parseable size and are still perfectly good prices; as
+    written the contract rejects 15% of the catalogue at the door.
+  - Add `size_value`, `size_uom`, `size_quantity`, `size_base_uom`,
+    `size_approximate` and `unit_price`, all nullable. Unit price is the
+    comparison primitive — raw prices across different pack sizes are not
+    comparable — and almost no store publishes it, so we compute it. Emit
+    nothing rather than a guess: a collector that returned `"1G"` for a
+    product titled `"1Gal."` priced cooking oil at PHP 799,950 per kilo.
+  - Add `source` (`studio` or `puller`), so a fallback-collected segment can
+    be rendered as what it is instead of being silently blended in.
+  - Add `size_change` to `incidentKinds`. A pinned product whose size shrinks
+    while its price holds is shrinkflation, and today it is invisible.
+
+  These touch `packages/shared`, so `apps/web/src/data/mock.ts` moves in the
+  same commit — see the coupling rule in `AGENTS.md`. Studio creation prompts
+  must also ask for the size explicitly, or every size field arrives empty.

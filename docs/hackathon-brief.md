@@ -131,6 +131,33 @@ GitHub repo + demo video + project description + explanation of Scraper Studio u
 - Schedule: user has 9h work block Thu Aug 20 ("AI Bootcamp Capstone") —
   polish work may need to shift Wed evening / Fri morning.
 
+## CLI and cost findings (Aug 20)
+
+Full writeup in [credit monitoring](credit-monitoring.md); the headlines,
+all tested against CLI 0.3.5:
+
+- **Studio runs against listing pages spent $26.54 against a $5 ceiling** on
+  Spencer's account, roughly half of it, before the evidence settled that
+  Studio should not be pointed at stores that publish a free bulk endpoint.
+  Cost is wildly non-uniform: a product-page run costs cents, that
+  listing-page run cost about $2.19, and the whole 433-call vetting sweep
+  cost $0.52.
+- `budget balance` is useless for monitoring — it rounds to the dollar and
+  did not move across six Unlocker calls. `budget zones` reports cost to
+  the cent plus bandwidth per zone, and is what our guard reads.
+- Usage lags by minutes, so a single action usually reports $0.00 and its
+  cost lands attributed to whatever runs next. Bandwidth moves first, which
+  makes megabytes the early warning for an unbounded crawl.
+- Web Unlocker does not execute JavaScript in any output format. `--format
+  markdown` on a React storefront returned only the page title. It answers
+  "am I blocked or geo-gated", never "does this page have prices".
+- `brightdata browser` is a separate tier: a real browser, geo-targetable
+  with `--country`, billed by bandwidth on the `cli_browser` zone. It is
+  the only way to see what a US shopper sees on a JS-heavy site, since
+  local Playwright renders but from a PH IP.
+- Every spending command now runs through `scripts/bd.mjs`, which meters,
+  ledgers and caps each action.
+
 ## Kickoff webinar findings (Aug 18)
 
 Source: the official WeMakeDevs kickoff stream (54m), recorded locally via OBS.
