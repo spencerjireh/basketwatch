@@ -31,6 +31,11 @@ export const envSchema = z.object({
   TELEGRAM_CHAT_ID: secret(),
   OPS_TOKEN: secret(),
 
+  // What the account held when we last looked. Bright Data's own `budget
+  // balance` rounds to the dollar, so the meter starts from a figure the team
+  // sets deliberately and subtracts recorded spend from it.
+  BD_BALANCE_USD: z.coerce.number().optional(),
+
   HEAL_MAX_ATTEMPTS_PER_INCIDENT: z.coerce.number().int().positive().default(3),
   HEAL_MAX_PER_SCRAPER_PER_DAY: z.coerce.number().int().positive().default(5),
   CREDIT_DAILY_CEILING_USD: z.coerce.number().positive().default(5),

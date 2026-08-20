@@ -289,9 +289,16 @@ export const healAttempts = pgTable("heal_attempts", {
   incidentId: uuid("incident_id")
     .notNull()
     .references(() => incidents.id),
+  /** 1-based, capped by HEAL_MAX_ATTEMPTS_PER_INCIDENT */
+  attempt: integer("attempt").notNull().default(1),
+  startedAt: timestamp("started_at", { withTimezone: true }).notNull().defaultNow(),
+  /** null while the attempt is still in flight */
+  finishedAt: timestamp("finished_at", { withTimezone: true }),
   claudeDiagnosis: text("claude_diagnosis").notNull(),
   healPrompt: text("heal_prompt").notNull(),
   studioDiff: text("studio_diff"),
+  /** { ranAt, rows, nullRatePct, status } from the verification run */
+  canary: jsonb("canary"),
   verdict: text("verdict"), // approved | rejected | failed
   creditsSpent: numeric("credits_spent", { precision: 10, scale: 4 }),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),

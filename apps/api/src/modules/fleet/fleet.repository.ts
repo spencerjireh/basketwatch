@@ -1,7 +1,22 @@
 import { Inject, Injectable } from "@nestjs/common";
-import { type FleetScraper } from "@basketwatch/contract";
+import { sql } from "drizzle-orm";
+import { countrySchema, type FleetScraper, type ScraperState } from "@basketwatch/contract";
 import { DRIZZLE } from "../../database/database.tokens.js";
 import { type Db } from "../../database/database.module.js";
+import { runStatusFromDb } from "../../database/mappers/run-status.mapper.js";
+
+type FleetRow = {
+  store_id: string;
+  name: string;
+  country: string;
+  collector_id: string | null;
+  last_run_at: string | null;
+  last_run_rows: number | null;
+  last_run_status: string | null;
+  incident_id: string | null;
+  incident_state: string | null;
+  heals_today: string;
+};
 
 /**
  * The only file in this module allowed to touch the Drizzle schema.
@@ -15,8 +30,87 @@ export class FleetRepository {
   constructor(@Inject(DRIZZLE) private readonly db: Db) {}
 
   async findAll(): Promise<FleetScraper[]> {
-    // Reads stores left-joined to their latest run, with nullRatePct and
-    // healsToday derived from runs, baselines and heal_attempts.
-    throw new Error("not implemented");
+    // Three lateral joins rather than three group-bys: each one wants the most
+    // recent row per store, which a join plus DISTINCT ON would compute for
+    // every store's whole history first.
+    const rows = (await this.db.execute(sql`
+      select
+        s.store_id,
+        s.name,
+        s.country,
+        s.studio_collector_id as collector_id,
+        r.at as last_run_at,
+        r.rows as last_run_rows,
+        r.status as last_run_status,
+        inc.id::text as incident_id,
+        inc.state as incident_state,
+        coalesce(heals.n, 0)::text as heals_today
+      from stores s
+      left join lateral (
+        select at, rows, status from runs
+        where runs.store_id = s.store_id
+        order by at desc limit 1
+      ) r on true
+      left join lateral (
+        select id, state from incidents
+        where incidents.store_id = s.store_id and incidents.state <> 'resolved'
+        order by opened_at desc limit 1
+      ) inc on true
+      left join lateral (
+        select count(*) as n from heal_attempts ha
+        join incidents i2 on i2.id = ha.incident_id
+        where i2.store_id = s.store_id and ha.started_at >= current_date
+      ) heals on true
+      order by s.country, s.store_id
+    `)) as unknown as FleetRow[];
+
+    return rows.flatMap((row) => {
+      const country = countrySchema.safeParse(row.country);
+      if (!country.success) return [];
+
+      const status = stateFor(row);
+      return [
+        {
+          storeId: row.store_id,
+          name: row.name,
+          country: country.data,
+          collectorId: row.collector_id,
+          status,
+          lastRunAt: row.last_run_at === null ? null : new Date(row.last_run_at).toISOString(),
+          lastRunRows: row.last_run_rows ?? 0,
+          // No column, and nothing computes it yet: the validator owns null
+          // rates and has not run against a stored run. Reporting 0 is a
+          // placeholder, but inventing a plausible percentage would be worse.
+          nullRatePct: 0,
+          healsToday: Number(row.heals_today),
+          openIncidentId: status === "healthy" ? null : row.incident_id,
+        } satisfies FleetScraper,
+      ];
+    });
   }
+}
+
+/**
+ * The board shows six states; a run only knows three.
+ *
+ * An open incident outranks the last run, because that is the whole claim the
+ * product makes: a store whose last pull looked fine but whose incident is
+ * still open is not healthy. Only when nothing is open does the last run decide.
+ */
+function stateFor(row: FleetRow): ScraperState {
+  switch (row.incident_state) {
+    case "healing":
+      return "healing";
+    case "manual":
+      return "manual_attention";
+    default:
+      break;
+  }
+
+  const runStatus = runStatusFromDb(row.last_run_status);
+  if (runStatus === "broken") return "broken";
+  if (runStatus === "suspect") return "suspect";
+  // A store that has never run, or ran before the status column was populated,
+  // is not evidence of breakage. An unresolved incident is.
+  return row.incident_state === null ? "healthy" : "suspect";
 }

@@ -1,4 +1,4 @@
-import { Controller, Get, NotImplementedException, Query } from "@nestjs/common";
+import { Controller, Get, Query } from "@nestjs/common";
 import {
   type BasketIndexResponse,
   type BasketTodayResponse,
@@ -15,13 +15,13 @@ export class BasketController {
 
   /** GET /api/basket/index?country=US -- omit country to get every series. */
   @Get("index")
-  index(@Query(queryPipe) _query: { country?: "US" | "PH" }): Promise<BasketIndexResponse> {
-    throw new NotImplementedException("The basket index is not reading the database yet.");
+  index(@Query(queryPipe) query: { country?: "US" | "PH" }): Promise<BasketIndexResponse> {
+    return this.service.index(query.country);
   }
 
   /** GET /api/basket/today?country=US */
   @Get("today")
-  today(@Query(queryPipe) _query: { country?: "US" | "PH" }): Promise<BasketTodayResponse> {
-    throw new NotImplementedException("Today's basket is not reading the database yet.");
+  today(@Query(queryPipe) query: { country?: "US" | "PH" }): Promise<BasketTodayResponse> {
+    return this.service.today(query.country);
   }
 }
