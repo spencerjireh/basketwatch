@@ -72,6 +72,12 @@ def NOW() -> str:
 COUNTRY_CURRENCY = {"PH": "PHP", "US": "USD"}
 
 
+# Passed as raw_size to mean "the size is not knowable", as distinct from "no size was
+# supplied, read it off the name". A caller that has found conflicting sizes needs to be
+# able to say so without the name silently answering for it.
+NO_SIZE = object()
+
+
 def row(store_id: str, country: str, *, product_key, name, price, currency,
         url, in_stock=True, category=None, raw_size=None, source="puller") -> dict:
     """One catalogue row, shaped to the fleet output contract plus tracker fields.
@@ -80,7 +86,7 @@ def row(store_id: str, country: str, *, product_key, name, price, currency,
     collector; when a collector fails the puller covers for it, and the row says so
     rather than the substitution being invisible.
     """
-    size = parse_size(raw_size or name or "")
+    size = None if raw_size is NO_SIZE else parse_size(raw_size or name or "")
     return {
         "store_id": store_id,
         "country": country,
