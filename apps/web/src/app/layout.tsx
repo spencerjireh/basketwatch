@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Archivo, Sometype_Mono } from "next/font/google";
+import { Nav } from "@/components/layout/nav";
 import "./globals.css";
 
 /**
@@ -27,13 +28,16 @@ const sometype = Sometype_Mono({
 export const metadata: Metadata = {
   title: "Basketwatch",
   description:
-    "A grocery basket index that shows its own gaps. Prices from a self-healing scraper fleet.",
+    "What ten grocery staples cost today, priced off the shelf in nineteen stores across two countries.",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={`${archivo.variable} ${sometype.variable}`}>
-      <body>{children}</body>
+      <body>
+        <Nav />
+        {children}
+      </body>
     </html>
   );
 }

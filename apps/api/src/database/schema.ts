@@ -200,25 +200,56 @@ export const latestPrice = pgView("latest_price", {
  * product per store. Match rules are data, never code, so adding an item or a
  * country is a row edit.
  */
-export const items = pgTable("items", {
-  key: text("key").primaryKey(),
-  label: text("label").notNull(),
-  /** core | stretch | registered */
-  tier: text("tier").notNull(),
-  group: text("group").notNull(),
-  groupWeightNote: text("group_weight_note"),
-  numbeoEquivalent: text("numbeo_equivalent"),
-  /** g | ml | count */
-  normalUnit: text("normal_unit").notNull(),
-  /** per-country target pack size: { "US": "5 lb", "PH": "5 kg" } */
-  targetSize: jsonb("target_size").notNull(),
-  /** { must, must_by_country, exclude } */
-  match: jsonb("match").notNull(),
-  categories: jsonb("categories").notNull(),
-  minBaseQuantity: doublePrecision("min_base_quantity"),
-  minBaseQuantityNote: text("min_base_quantity_note"),
-  specVersion: integer("spec_version").notNull().default(1),
-});
+export const items = pgTable(
+  "items",
+  {
+    key: text("key").primaryKey(),
+    label: text("label").notNull(),
+    /** core | stretch | registered */
+    tier: text("tier").notNull(),
+    group: text("group").notNull(),
+    groupWeightNote: text("group_weight_note"),
+    numbeoEquivalent: text("numbeo_equivalent"),
+    /** g | ml | count */
+    normalUnit: text("normal_unit").notNull(),
+    /** per-country target pack size: { "US": "5 lb", "PH": "5 kg" } */
+    targetSize: jsonb("target_size").notNull(),
+    /** { must, must_by_country, exclude } */
+    match: jsonb("match").notNull(),
+    categories: jsonb("categories").notNull(),
+    minBaseQuantity: doublePrecision("min_base_quantity"),
+    minBaseQuantityNote: text("min_base_quantity_note"),
+    /**
+     * How much of this item one basket buys: 5 kg of rice, 12 eggs.
+     *
+     * target_size cannot serve this. It is prose written for a human picking a
+     * pin -- "ground or instant refill", "tray (30) or dozen", "per lb" -- and
+     * three of the ten core items have a PH target that parses to nothing. The
+     * index multiplies a unit price by a number, so the number has to be a
+     * number.
+     *
+     * Nullable because stretch and registered items are not in the basket and
+     * never will be; a default would be a claim about items nobody has priced.
+     */
+    indexQuantity: doublePrecision("index_quantity"),
+    /** kg | l | count -- the readable pair for normal_unit's g | ml | count */
+    indexUom: text("index_uom"),
+    specVersion: integer("spec_version").notNull().default(1),
+  },
+  (t) => ({
+    /*
+     * index_uom is derivable from normal_unit and exists only so the quantity
+     * is self-describing on the wire. The check is what stops the two drifting
+     * apart, which would have the dashboard print "5 l of rice".
+     */
+    indexUnit: check(
+      "items_index_uom_matches_normal_unit",
+      sql`(${t.indexQuantity} is null and ${t.indexUom} is null)
+          or (${t.indexQuantity} > 0 and ${t.indexUom} = case ${t.normalUnit}
+                when 'g' then 'kg' when 'ml' then 'l' else 'count' end)`,
+    ),
+  }),
+);
 
 /**
  * The pin: which concrete product stands in for a canonical item at a store.

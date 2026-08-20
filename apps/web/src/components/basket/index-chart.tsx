@@ -40,9 +40,10 @@ export function IndexChart({ series }: { series: BasketSeries[] }) {
   if (!active) return null;
 
   const money = (value: number) => formatMoney(value, active.currency);
+  const readings = active.points.filter((point) => point.total !== null).length;
 
   return (
-    <div className="flex h-full min-h-[300px] flex-col">
+    <div className="flex h-full flex-col">
       {series.length > 1 ? (
         <div className="mb-3 flex gap-1" role="tablist" aria-label="Country">
           {series.map((s) => (
@@ -65,7 +66,7 @@ export function IndexChart({ series }: { series: BasketSeries[] }) {
         </div>
       ) : null}
 
-      <div className="min-h-[260px] w-full flex-1">
+      <div className="h-[170px] w-full">
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={active.points} margin={{ top: 12, right: 24, bottom: 4, left: 4 }}>
             <defs>
@@ -127,7 +128,18 @@ export function IndexChart({ series }: { series: BasketSeries[] }) {
               tickLine={false}
               axisLine={false}
               width={72}
-              domain={["dataMin - 0.5", "dataMax + 0.5"]}
+              /*
+               * Proportional, not a fixed half-unit. On a basket that totals
+               * PHP 1,420 a +/- 0.5 window renders five gridlines a quarter of
+               * a peso apart, which magnifies rounding into what looks like
+               * volatility. Ten percent of the value keeps the scale honest at
+               * either magnitude.
+               */
+              domain={[
+                (min: number) => min * 0.9,
+                (max: number) => max * 1.1,
+              ]}
+              allowDecimals={false}
             />
             <Tooltip
               contentStyle={{
@@ -181,6 +193,17 @@ export function IndexChart({ series }: { series: BasketSeries[] }) {
           </LineChart>
         </ResponsiveContainer>
       </div>
+
+      {/*
+       * The honest caption for a chart with one reading on it. Drawing a wide
+       * empty axis and leaving the reader to infer why implies missing history;
+       * saying when tracking began implies nothing, because it is the fact.
+       */}
+      <p className="mt-2 font-mono text-[10.5px] text-mute">
+        {readings <= 1
+          ? `Tracking began ${formatDay(active.points[0]?.date ?? "")}. One reading so far; the line starts at two.`
+          : `${readings} readings since ${formatDay(active.points[0]?.date ?? "")}. A break in the line is a day we could not price the whole basket.`}
+      </p>
     </div>
   );
 }
