@@ -1,0 +1,129 @@
+{
+  "_comment": "Hand-verified facts the automated probes cannot establish. Merged into registry.json by score.py. Each entry must name how it was verified so it can be re-checked.",
+  "findings": {
+    "ph-smmarkets": {
+      "verified_api": "https://smmarkets.ph/graphql",
+      "api_kind": "magento-graphql-public",
+      "verified_how": "GET /graphql?query={products(search:\"rice\",pageSize:3){total_count items{name sku url_key price_range{minimum_price{final_price{value currency}}}}}} returned 200 with 833 total_count and live PHP prices",
+      "note": "Product pages render client-side, but the Magento GraphQL endpoint is public and returns name, sku, url_key and final_price with currency. Makes SM Markets the strongest PH grocery target despite the spa_empty page verdict.",
+      "score_bonus": 10
+    },
+    "ph-landers": {
+      "verified_api": null,
+      "api_kind": "private-microservices",
+      "verified_how": "JS bundle at /assets/static/js/index.*.js references api.landers.ph, core-ms.landers.ph, mars.landers.ph/v1 and search-apac.unbxd.io (Unbxd hosted search)",
+      "note": "No public unauthenticated API found. Prices need a browser-rendering scraper. Basket coverage is the best of any PH site (10/10 from a 17k-URL sitemap), so it stays a fleet target via Studio, not via HTTP.",
+      "score_bonus": 0
+    },
+    "ph-merrymartwholesale": {
+      "verified_api": null,
+      "api_kind": "server-rendered-html",
+      "verified_how": "GET /categories/coffee-tea-1 returned 410KB with 16 distinct PHP prices and 14 /products/ links in raw HTML; robots.txt is 'Disallow:' (allow all)",
+      "note": "MerryMart's real storefront. merrymart.com.ph is corporate-only and blocked; this domain is fully server-rendered. Publishes no sitemap at all, so it is only discoverable by crawling categories - which is why vet.py grew a homepage->category->product fallback. Wholesale case pricing needs per-unit normalisation before it joins the basket.",
+      "score_bonus": 0
+    },
+    "ph-puregold": {
+      "verified_api": null,
+      "api_kind": "app-only",
+      "verified_how": "SERP round 3: top results are the iOS/Android apps, GrabMart, foodpanda and a Lazada storefront; puregold.com.ph is a Joomla corporate site and /shop 404s. Guessed subdomains (shop., epuregold.com) do not resolve.",
+      "note": "Puregold has no public web storefront. The app-first risk flagged in docs/prd.md is confirmed - it is not vettable, not merely hard. Robinsons is the same shape: its own site is informational and ordering happens through Pick.A.Roo and foodpanda.",
+      "score_bonus": 0
+    },
+    "_us-catalogue-gap": {
+      "verified_api": null,
+      "api_kind": "structural-finding",
+      "verified_how": "Ran the basket builder across every US fleet-ready store and the whole US bench (129 candidates probed overall). Locked US grocers settled 0-4 of 10 basket items. Dierbergs' public catalogue returns Deviled Eggs and Oil & Vinegar Cole Slaw; The Fresh Market's sitemap is /inspiration/recipe-and-ideas/ editorial; Meijer has no public catalogue at all. The pantries verify 10/10 but on the wrong products - Netrition's rice is shirataki, its milk is macadamia, its sugar is ranch dressing; Thrive's pasta is shirataki noodles. H Mart is a genuine grocer but Korean-specialty: sesame oil, instant coffee sticks. Round 4 targeted catalogue publicness rather than scrapeability, using platform detection as the filter and adding 18 candidates: co-ops, Hispanic and Asian grocers, delivery-first grocers, aggregators, and US Filipino grocers chosen because they stock the same brands as the PH fleet. It did not close the gap. Sukli looked like the answer - server-rendered json-ld, 10/10 basket categories - but every pick was a lookalike: 'apples' matched an air freshener, 'tomatoes' a skin exfoliant, 'bottled water' dried herring. It is a Filipino snacks and imports store. FreshDirect does unlock to server-rendered json-ld with a real category-pathed catalogue, but its URL scheme (/dai/dai_yogur/sc/...) matches no generic category pattern, so discovery returns nothing without site-specific work. Lili Mart, the other US Filipino grocer and the best-scoring US Shopify store at 97, was tested through Shopify's own search relevance rather than slug matching - the strongest path available - and still returned balut for eggs, taho mix for sugar, chili oil for cooking oil, banana blossom in brine for bananas, onion crackers for onions and lye water for bottled water. Two of sixteen picks were genuine staples.",
+      "note": "SUPERSEDED - the generalisation was too broad. It held for the segments actually tested (supermarket chains, online pantries, snack importers) but US ethnic grocers were never tested through their own search or with bare-HTML extraction, and they do stock generic staples. Kept as the record of what those segments showed. No US site in the registry publishes a public catalogue of plain grocery staples. US chains gate catalogues behind store selection and client-side rendering, so their sitemaps carry marketing and recipe pages; online pantries publish full catalogues but sell diet and specialty goods, not staples. This is a product-shaping constraint, not a scraping problem - those sites ARE scrapeable, they just do not sell a comparable basket. The PH side has no such problem: Landers, SM Markets and Shop Gaisano all publish real staples with categories. After four rounds and 103 US candidates the finding is unchanged and now well evidenced: US retailers that publish catalogues publicly sell specialty, snack or diet goods, not plain staples. FreshDirect is the one live lead - it has the catalogue, and needs Unlocker-backed discovery plus site-specific category patterns. basket.py gained UnlockerFetcher for exactly that; the category patterns are the remaining work. Five independent instances now confirm it: Netrition, Thrive Market, Sukli, Lili Mart and H Mart. The pattern is not a matcher weakness - the stores do not stock plain staples. Treat further US retailer hunting as low-yield; the open leads are FreshDirect with site-specific work, or a non-retailer source such as BLS average prices.",
+      "score_bonus": 0,
+      "superseded": true,
+      "superseded_by": "_us-ethnic-grocers-are-the-source"
+    },
+    "_us-freshdirect-lead": {
+      "verified_api": null,
+      "api_kind": "unlocker-only",
+      "verified_how": "Blocked on plain HTTP from Manila, but Web Unlocker returns a 782KB homepage and 854KB product pages with json-ld. Product URLs are category-pathed (/dai/dai_yogur/sc/dai_yogur_grk/p/dai_fage_0_35oz), so category gating would work once the patterns are taught.",
+      "note": "The most promising remaining US source and the PRD's original authenticity anchor. Needs two things: Unlocker-backed discovery, which basket.py now supports via UnlockerFetcher, and FreshDirect-specific category patterns, since its scheme matches no generic /category|collection|shop/ pattern. Not attempted here to stay inside the session's exploration scope.",
+      "score_bonus": 0
+    },
+    "_us-ethnic-grocers-are-the-source": {
+      "verified_api": null,
+      "api_kind": "structural-finding",
+      "verified_how": "Round 5 targeted US Indian, Mexican and Latin grocers. Kesar Grocery settled 13 of 20 items, 7/10 core, all unit-priced, with generic goods and real fresh produce: Basmati 4LB, whole wheat bread 24oz, Great Value elbow pasta 1LB, Amul cheese 1KG, organic bananas 3lb, beefsteak tomatoes 3lb, white onions 3lb, gala apples 3lb, navel oranges 3lb. MexGrocer settled 9 with Mahatma rice and Cafe de Olla ground coffee.",
+      "note": "US ethnic grocers are the US source. They publish full catalogues because that IS their storefront, and they sell generic staples rather than the diet or snack goods that made the pantries and importers unusable. Kesar was invisible for two compounding reasons: it publishes no structured data whatsoever, and it was judged on sitemap keyword coverage. Both were harness limitations, not properties of the store. Two lessons generalise: test every store through its own search API rather than its sitemap, and never assume a store without structured data has no prices.",
+      "score_bonus": 0
+    },
+    "_registry-basket-coverage-is-not-a-measurement": {
+      "verified_api": null,
+      "api_kind": "structural-finding",
+      "verified_how": "Measured core-basket coverage for five vetted-but-unlocked US stores by querying each store's Shopify /search/suggest.json with the item's match terms and running the result through basket.pick_is_usable. All five read 10/10 in registry.json. Measured: MexMax 8/10, Amigo Foods 6/10, Lili Mart 6/10, Sukli 3/10, Kalustyan's 0/10. Free HTTP, no credits.",
+      "note": "registry.json's basket_coverage counts basket keywords appearing anywhere in a store's sitemap URLs. That is a proxy, and it fails in both directions. It understates API-only stores - Ever Supermarket read 0/10 by sitemap and 10/10 measured - and it overstates stores whose sitemaps merely contain the words. Kalustyan's scored 100 overall with a 10/10 basket on the strength of URLs like /products/rice-cooker-drc-230automatic. Measured against real product titles it settles nothing at all, and it was rejected rather than locked. score.py already prefers the measured figure where basket.py has produced one (load_basket_coverage); the lesson is that any store never run through basket.py carries an unverified number, and locking on it is how a rice cooker becomes rice.",
+      "consequence": "Four stores locked on measured evidence rather than five on sitemap keywords. US core coverage went from four items sitting in a single store each - eggs, milk, chicken, pasta - to every core item in at least three US stores, and US catalogue rows from 4,621 to 15,093."
+    },
+    "_budget-breach-listing-page-canaries": {
+      "verified_api": null,
+      "api_kind": "incident",
+      "verified_how": "Balance read $48.86 before `studio.py --verify`, $29.09 immediately after, and continued falling to $26.95 with no processes running. Roughly $21.91 spent on 16 single-URL canary runs, against a $5 hard ceiling.",
+      "note": "Two compounding causes, both mine.\n\n1. THE BUDGET GUARD WAS NEVER WIRED IN. The plan said Budget from bd_tier1.py would be reused and catalogue.py would gain --cap-usd. Neither happened before 16 canaries were fired. There was nothing between the loop and the account.\n\n2. KILLING THE CLI DOES NOT STOP THE REMOTE JOB. _cli() wraps every call in asyncio.wait_for and calls proc.kill() on expiry. That kills the local client. The collection is already triggered server-side and Bright Data keeps rendering and billing it. Every one of the ten listing-page canaries 'FAILED ... exceeded 110s' and every one of them kept costing money after the timeout. The timeout handling I added to prevent a ten-hour poll actively hid the spend while it happened.\n\nThe cost is concentrated in the listing-page template: it drives a cloud browser over a full collection page and extracts every product card. All ten listing-page canaries timed out; all six product-page canaries returned in time and five passed.",
+      "consequence": "The $5 ceiling was breached roughly fourfold. Before any further Studio spend: wire a hard pre-flight budget check into every call site, treat a timeout as 'still spending' rather than 'stopped', and drop the listing-page template - the Shopify stores it targets already have free products.json endpoints that cost nothing and return more rows."
+    },
+    "_studio-cannot-build-a-collector-for-a-json-endpoint": {
+      "verified_api": null,
+      "api_kind": "structural-finding",
+      "verified_how": "Created a Studio collector against https://ever.ph/products.json?limit=250&page=1 with a description stating the URL returns JSON, naming the products array and the exact fields to read from each entry. AI generation ran for 17 minutes and never completed - `scraper create ... exceeded 1020s`. By comparison the sixteen page-based collectors completed in 35 seconds to 5 minutes each. Balance was $22.32 before and after: generation itself is free.",
+      "note": "This tests an assumption that had been asserted at planning time and never checked: that pointing Studio at a bulk JSON API is a category error. The assumption turned out to be right, but it had been costing decisions while it was still a guess - it is what pushed ten stores onto the listing-page template that spent $26.54.\n\nStudio's generation pipeline is built around pages: user_intent_analyzer, output_schema_generator, code_generator, preview_runner, preview_picker. A raw JSON document gives the preview stages nothing to pick from, and generation does not converge.\n\nCaveat worth stating: one attempt, one description, one endpoint. A different framing might work. But at 17 minutes per attempt and with a submission on Aug 23, the cost of finding out is time rather than credits.",
+      "consequence": "There is no cheap way to have Studio collect a bulk endpoint, so 'Studio collects every store at full catalogue depth' is not available at any price we would pay. The scalable architecture is the split one: Studio drives a cloud browser for the six stores that have no bulk endpoint and would otherwise be unreachable, and free HTTP reads the ten that publish an API - 250 products per call, complete catalogues, $0. Studio is not paid to duplicate a free API.",
+      "open_risk": "The timed-out create may have orphaned a collector on the account. The CLI has no `scraper list`, so it cannot be found or deleted from the terminal - only in the web UI. Creation is free, so the cost is tidiness rather than credits."
+    }
+  },
+  "studio_proofs": {
+    "_comment": "End-to-end proofs: Studio scraper built, run --sync, output fed through validateRun + priceRecordSchema from the repo. Both returned status ok with no findings.",
+    "ph-smmarkets": {
+      "collector_id": "c_msyxrpa82470hx65c9",
+      "name": "basketwatch-vet-smmarkets",
+      "view_url": "https://brightdata.com/cp/scrapers/c_msyxrpa82470hx65c9",
+      "target": "https://smmarkets.ph/10103348-batangas-coffee-brew-500g.html",
+      "row": {
+        "product_key": "10103348",
+        "name": "Batangas Coffee Brew | 500g",
+        "price": 494.5,
+        "currency": "PHP",
+        "unit": "500g",
+        "in_stock": true
+      },
+      "validator": "priceRecordSchema PASS; validateRun status=ok; findings=[]",
+      "significance": "Proves a spa_empty site is fully workable through Studio. The page serves no price in raw HTML even through the Web Unlocker, yet the Studio scraper - which drives a real browser - returned a clean contract-shaped row on the first try, no healing needed."
+    },
+    "us-dierbergs": {
+      "collector_id": "c_msyxuy2519vvn3139s",
+      "name": "basketwatch-vet-dierbergs",
+      "view_url": "https://brightdata.com/cp/scrapers/c_msyxuy2519vvn3139s",
+      "target": "https://www.dierbergs.com/item/bakehouse-italian-supremo-bread-37509",
+      "row": {
+        "product_key": "37509",
+        "name": "Supremo Italian Bread",
+        "price": 3.99,
+        "currency": "USD",
+        "unit": "16 oz. Loaf.",
+        "in_stock": true
+      },
+      "validator": "priceRecordSchema PASS; validateRun status=ok; findings=[]",
+      "significance": "Authentic US regional grocer, json-ld, real basket staple (bread). Confirms the server_rendered tier of the registry end to end."
+    },
+    "ph-shopgaisano": {
+      "collector_id": "c_mszan6wx1bgpc7941r",
+      "name": "basketwatch-vet-shopgaisano",
+      "view_url": "https://brightdata.com/cp/scrapers/c_mszan6wx1bgpc7941r",
+      "target": "https://shopgaisano.com/products/great-value-v-160-rice-5kg",
+      "row": {
+        "product_key": "great-value-v-160-rice-5kg",
+        "name": "Great Value V-160 Rice 5KG",
+        "price": 378,
+        "currency": "PHP",
+        "unit": "5kg",
+        "in_stock": false
+      },
+      "validator": "priceRecordSchema PASS; validateRun status=ok; findings=[]",
+      "significance": "Top-scoring PH site (100) and the strongest PH grocery target: json-ld, 10/10 basket categories off a 1,406-URL sitemap. The row is rice per 5kg, which is the PH basket anchor item named in docs/prd.md section 5. Also picked up in_stock=false correctly, so stock state is not being faked."
+    }
+  }
+}

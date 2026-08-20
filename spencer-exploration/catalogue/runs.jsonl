@@ -1,0 +1,10 @@
+{"store_id": "ph-shopgaisano", "at": "2026-08-20T00:39:06Z", "method": "shopify", "transport": "http", "rows": 1365, "unit_priced": 760, "pages": 6, "ceiling_reached": false, "changes": 0, "coverage": "full"}
+{"store_id": "ph-ever", "at": "2026-08-20T00:39:40Z", "method": "shopify", "transport": "http", "rows": 5000, "unit_priced": 4895, "pages": 20, "ceiling_reached": true, "changes": 0, "coverage": "full"}
+{"store_id": "ph-shopsuki", "at": "2026-08-20T00:40:14Z", "method": "shopify", "transport": "http", "rows": 5000, "unit_priced": 4304, "pages": 20, "ceiling_reached": true, "changes": 12, "coverage": "full"}
+{"store_id": "ph-smmarkets", "at": "2026-08-20T00:41:30Z", "method": "magento-graphql", "transport": "http", "rows": 1688, "unit_priced": 1551, "pages": 20, "ceiling_reached": true, "changes": 0, "coverage": "full"}
+{"store_id": "ph-merrymartwholesale", "at": "2026-08-20T00:45:13Z", "method": "sitemap", "transport": "http", "rows": 118, "unit_priced": 117, "pages": 129, "ceiling_reached": false, "changes": 6, "coverage": "full"}
+{"store_id": "ph-landers", "at": "2026-08-20T00:55:03Z", "method": "sitemap-bounded", "transport": "http", "rows": 0, "unit_priced": 0, "pages": 300, "ceiling_reached": true, "changes": 0, "coverage": "partial"}
+{"store_id": "us-kesargrocery", "at": "2026-08-20T01:11:29Z", "method": "sitemap-bounded", "transport": "http", "rows": 298, "unit_priced": 267, "pages": 300, "ceiling_reached": true, "changes": 12, "coverage": "partial"}
+{"store_id": "us-dierbergs", "at": "2026-08-20T01:23:34Z", "method": "sitemap", "transport": "http", "rows": 389, "unit_priced": 16, "pages": 400, "ceiling_reached": true, "changes": 10, "coverage": "full"}
+{"store_id": "us-cypressindian", "at": "2026-08-20T01:23:46Z", "method": "shopify", "transport": "http", "rows": 1640, "unit_priced": 1515, "pages": 7, "ceiling_reached": false, "changes": 0, "coverage": "full"}
+{"store_id": "us-latimex", "at": "2026-08-20T01:23:53Z", "method": "shopify", "transport": "http", "rows": 865, "unit_priced": 784, "pages": 4, "ceiling_reached": false, "changes": 19, "coverage": "full"}
