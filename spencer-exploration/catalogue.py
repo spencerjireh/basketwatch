@@ -55,6 +55,8 @@ from basket import (  # noqa: E402
     unit_price,
 )
 
+import store  # noqa: E402
+
 def NOW() -> str:
     """UTC timestamp with a Z suffix.
 
@@ -71,8 +73,13 @@ COUNTRY_CURRENCY = {"PH": "PHP", "US": "USD"}
 
 
 def row(store_id: str, country: str, *, product_key, name, price, currency,
-        url, in_stock=True, category=None, raw_size=None) -> dict:
-    """One catalogue row, shaped to the fleet output contract plus tracker fields."""
+        url, in_stock=True, category=None, raw_size=None, source="puller") -> dict:
+    """One catalogue row, shaped to the fleet output contract plus tracker fields.
+
+    `source` records which transport actually produced this row. Studio is the primary
+    collector; when a collector fails the puller covers for it, and the row says so
+    rather than the substitution being invisible.
+    """
     size = parse_size(raw_size or name or "")
     return {
         "store_id": store_id,
@@ -88,12 +95,13 @@ def row(store_id: str, country: str, *, product_key, name, price, currency,
         "category": category,
         "size": size,
         "unit_price": unit_price(price, size),
+        "source": source,
     }
 
 
 # --- strategies ---------------------------------------------------------------
 
-async def pull_shopify(store: dict, cfg: dict, fetch, max_pages: int) -> tuple[list[dict], int]:
+async def pull_shopify(entry: dict, cfg: dict, fetch, max_pages: int) -> tuple[list[dict], int]:
     """Shopify publishes its whole catalogue at /products.json, 250 per page."""
     base = cfg["endpoint"]
     site = f"{urlparse(base).scheme}://{urlparse(base).netloc}"
@@ -122,7 +130,7 @@ async def pull_shopify(store: dict, cfg: dict, fetch, max_pages: int) -> tuple[l
                 continue
             tags = p.get("tags") or []
             rows.append(row(
-                store["id"], store["country"],
+                entry["id"], entry["country"],
                 product_key=p.get("id"), name=p.get("title"), price=price, currency=None,
                 url=f"{site}/products/{p.get('handle')}",
                 in_stock=bool(v.get("available", True)),
@@ -154,7 +162,7 @@ async def _gql(fetch, base: str, query: str, tag: str) -> dict | None:
         return None
 
 
-async def pull_magento(store: dict, cfg: dict, fetch, max_pages: int) -> tuple[list[dict], int]:
+async def pull_magento(entry: dict, cfg: dict, fetch, max_pages: int) -> tuple[list[dict], int]:
     """Walk the category tree, then page products within each category."""
     base = cfg["endpoint"]
     site = f"{urlparse(base).scheme}://{urlparse(base).netloc}"
@@ -190,7 +198,7 @@ async def pull_magento(store: dict, cfg: dict, fetch, max_pages: int) -> tuple[l
                 if price <= 0:
                     continue
                 rows.append(row(
-                    store["id"], store["country"],
+                    entry["id"], entry["country"],
                     product_key=it.get("sku"), name=it.get("name"), price=price,
                     currency=fp.get("currency"), url=f"{site}/{it.get('url_key')}.html",
                     category=cat.get("name"),
@@ -211,7 +219,7 @@ def rank_by_category(urls: list[str], priority: list[str]) -> list[str]:
     return sorted(urls, key=key)
 
 
-async def pull_sitemap(store: dict, cfg: dict, fetch, max_pages: int,
+async def pull_sitemap(entry: dict, cfg: dict, fetch, max_pages: int,
                        cand: dict, f: Fetcher) -> tuple[list[dict], int]:
     """One fetch per product. Used where no bulk endpoint exists."""
     disc = await discover_urls(cand, f)
@@ -230,7 +238,7 @@ async def pull_sitemap(store: dict, cfg: dict, fetch, max_pages: int,
         if not info or not info.get("price"):
             continue
         rows.append(row(
-            store["id"], store["country"],
+            entry["id"], entry["country"],
             product_key=urlparse(u).path.rstrip("/").rsplit("/", 1)[-1],
             name=info["name"], price=info["price"], currency=info.get("currency"), url=u,
             category="/".join(urlparse(u).path.strip("/").split("/")[:-1]) or None,
@@ -240,22 +248,16 @@ async def pull_sitemap(store: dict, cfg: dict, fetch, max_pages: int,
 
 # --- change detection ---------------------------------------------------------
 
-def diff_against_previous(store_id: str, rows: list[dict]) -> list[dict]:
-    """Emit a row only where the price moved.
+def diff(prev: dict[str, float], rows: list[dict]) -> list[dict]:
+    """Emit a row only where the price is new or has moved.
 
     Grocery prices barely move day to day, so storing full snapshots would be almost
     entirely duplicate. The interesting data is the change, and this makes it the
     cheap query rather than the expensive one.
-    """
-    prev_path = OUT / f"{store_id}.json"
-    prev: dict[str, float] = {}
-    if prev_path.exists():
-        try:
-            prev = {r["product_key"]: r["price"]
-                    for r in json.loads(prev_path.read_text()).get("rows", [])}
-        except (json.JSONDecodeError, KeyError, TypeError):
-            prev = {}
 
+    Pure on purpose: the previous prices come from the caller, so this is testable
+    without a database and the same logic serves any source of history.
+    """
     changes = []
     for r in rows:
         before = prev.get(r["product_key"])
@@ -267,11 +269,16 @@ def diff_against_previous(store_id: str, rows: list[dict]) -> list[dict]:
     return changes
 
 
+def diff_against_previous(conn, store_id: str, rows: list[dict]) -> list[dict]:
+    """`diff` against the last known price for each product in the store."""
+    return diff(store.latest_prices(conn, store_id), rows)
+
+
 STRATEGIES = {"shopify": pull_shopify, "magento-graphql": pull_magento}
 
 
 async def pull_store(entry: dict, cand: dict, client, api_key: str | None,
-                     transport: str, override_pages: int | None) -> dict | None:
+                     transport: str, override_pages: int | None, conn) -> dict | None:
     cfg = entry.get("catalogue") or {}
     method = cfg.get("method", "none")
     if method == "none":
@@ -306,9 +313,34 @@ async def pull_store(entry: dict, cand: dict, client, api_key: str | None,
         seen.add(r["product_key"])
         deduped.append(r)
 
-    changes = diff_against_previous(entry["id"], deduped)
+    changes = diff_against_previous(conn, entry["id"], deduped)
     priced = sum(1 for r in deduped if r.get("unit_price"))
-    hit_ceiling = pages >= max_pages
+    hit_ceiling = max_pages > 0 and pages >= max_pages
+    source = deduped[0].get("source", "puller") if deduped else "puller"
+
+    # A near-total change rate on an established store is far more likely to be a
+    # product_key scheme change than a real repricing of every item. Recording the
+    # observations anyway would overwrite the price history with noise, so the run is
+    # kept as evidence and the history is left alone.
+    suspect = (len(deduped) > 100 and len(changes) / len(deduped) > 0.9
+               and store.latest_prices(conn, entry["id"]))
+
+    run_id = store.record_run(
+        conn, store_id=entry["id"], at=NOW(), method=method, transport=transport,
+        source=source, rows=len(deduped), unit_priced=priced, pages=pages,
+        ceiling_reached=hit_ceiling, changes=0 if suspect else len(changes),
+        coverage=cfg.get("coverage", "full"))
+
+    if suspect:
+        store.open_incident(
+            conn, store_id=entry["id"], run_id=run_id, kind="mass_change_suppressed",
+            opened_at=NOW(),
+            evidence={"rows": len(deduped), "changes": len(changes),
+                      "reason": "over 90% of an established catalogue changed at once"})
+    else:
+        store.upsert_products(conn, deduped)
+        store.record_observations(conn, run_id, changes, source=source)
+    conn.commit()
 
     doc = {
         "store_id": entry["id"], "name": entry["name"], "country": entry["country"],
@@ -319,25 +351,12 @@ async def pull_store(entry: dict, cand: dict, client, api_key: str | None,
         "ceiling_reached": hit_ceiling,
         "rows": deduped,
     }
-    (OUT / f"{entry['id']}.json").write_text(json.dumps(doc, indent=2))
-
-    # A run summary lands every time, even with zero price changes - it is what lets
-    # checkRowCount tell a truncated pull from a genuine mass price move.
-    with (OUT / "runs.jsonl").open("a") as fh:
-        fh.write(json.dumps({
-            "store_id": entry["id"], "at": NOW(), "method": method, "transport": transport,
-            "rows": len(deduped), "unit_priced": priced, "pages": pages,
-            "ceiling_reached": hit_ceiling, "changes": len(changes),
-            "coverage": doc["coverage"],
-        }) + "\n")
-    if changes:
-        with (OUT / "changes.jsonl").open("a") as fh:
-            for c in changes:
-                fh.write(json.dumps(c) + "\n")
 
     flag = " CEILING" if hit_ceiling else ""
+    warn = " MASS-CHANGE SUPPRESSED" if suspect else ""
     print(f"  {entry['id']:<24} {method:<16} rows={len(deduped):<6} priced={priced:<6} "
-          f"pages={pages:<4} changed={len(changes):<5} {doc['coverage']}{flag}", flush=True)
+          f"pages={pages:<4} changed={len(changes):<5} {doc['coverage']}{flag}{warn}",
+          flush=True)
     return doc
 
 
@@ -348,12 +367,19 @@ async def main() -> int:
                     help="studio routes through Scraper Studio; http fetches directly. "
                          "http is for development and cost comparison.")
     ap.add_argument("--max-pages", type=int, default=None, help="override the lock ceiling")
+    ap.add_argument("--export-json", action="store_true",
+                    help="also write catalogue/<store>.json from the DB after the pull")
     args = ap.parse_args()
 
     lock = json.loads((HERE / "fleet.lock.json").read_text())
     cands = {c["id"]: c for c in json.loads((HERE / "candidates.json").read_text())["candidates"]}
     fleet = [e for e in lock["fleet"] if not args.ids or e["id"] in args.ids]
     api_key = os.environ.get("BRIGHTDATA_API_KEY")
+
+    conn = store.connect()
+    for e in lock["fleet"]:
+        store.upsert_store(conn, e)
+    conn.commit()
 
     print(f"catalogue pull: {len(fleet)} stores, transport={args.transport}\n", flush=True)
     async with httpx.AsyncClient(headers=HEADERS, follow_redirects=True, http2=True,
@@ -362,17 +388,22 @@ async def main() -> int:
         for e in fleet:
             try:
                 d = await pull_store(e, cands.get(e["id"], {}), client, api_key,
-                                     args.transport, args.max_pages)
+                                     args.transport, args.max_pages, conn)
             except Exception as exc:  # noqa: BLE001 - one bad store must not stop the pull
                 print(f"  {e['id']:<24} FAILED {type(exc).__name__}: {exc}"[:140], flush=True)
                 d = None
             if d:
                 docs.append(d)
 
+    if args.export_json:
+        store.export_json(conn, OUT)
+    conn.commit()
+    conn.close()
+
     total = sum(len(d["rows"]) for d in docs)
     priced = sum(sum(1 for r in d["rows"] if r.get("unit_price")) for d in docs)
     print(f"\n{total} products across {len(docs)} stores, {priced} with a unit price")
-    print(f"wrote {OUT}/")
+    print(f"wrote {store.DB_PATH}")
     return 0
 
 

@@ -23,6 +23,7 @@ import pytest
 sys.path.insert(0, str(Path(__file__).parent))
 
 import catalogue as cat  # noqa: E402
+import store  # noqa: E402
 
 
 # --- row shape ---------------------------------------------------------------
@@ -96,43 +97,51 @@ def test_products_without_a_usable_price_are_dropped():
 # --- change detection --------------------------------------------------------
 
 @pytest.fixture
-def store_file(tmp_path, monkeypatch):
-    monkeypatch.setattr(cat, "OUT", tmp_path)
-    return tmp_path
+def db(monkeypatch):
+    """History lives in SQLite now. An in-memory DB keeps these tests as fast and as
+    isolated as the tmp_path directory they used to redirect."""
+    conn = store.connect(":memory:")
+    return conn
 
 
-def _write_previous(out: Path, store_id: str, rows: list[dict]):
-    (out / f"{store_id}.json").write_text(json.dumps({"rows": rows}))
+def _seed_previous(conn, store_id: str, rows: list[dict]):
+    run_id = store.record_run(conn, store_id=store_id, at=cat.NOW(), method="shopify",
+                              transport="http", source="puller", rows=len(rows),
+                              unit_priced=0, pages=1, ceiling_reached=False,
+                              changes=len(rows), coverage="full")
+    store.upsert_products(conn, rows)
+    store.record_observations(conn, run_id,
+                              [{**r, "change": "new", "previous_price": None} for r in rows])
 
 
-def test_first_ever_pull_marks_everything_new(store_file):
+def test_first_ever_pull_marks_everything_new(db):
     rows = [cat.row("s", "PH", product_key="a", name="Rice 1kg", price=50.0,
                     currency="PHP", url="u")]
-    changes = cat.diff_against_previous("s", rows)
+    changes = cat.diff_against_previous(db, "s", rows)
     assert len(changes) == 1 and changes[0]["change"] == "new"
 
 
-def test_unchanged_prices_produce_no_rows(store_file):
+def test_unchanged_prices_produce_no_rows(db):
     rows = [cat.row("s", "PH", product_key="a", name="Rice 1kg", price=50.0,
                     currency="PHP", url="u")]
-    _write_previous(store_file, "s", rows)
-    assert cat.diff_against_previous("s", rows) == []
+    _seed_previous(db, "s", rows)
+    assert cat.diff_against_previous(db, "s", rows) == []
 
 
-def test_a_moved_price_produces_exactly_one_row_with_its_delta(store_file):
+def test_a_moved_price_produces_exactly_one_row_with_its_delta(db):
     before = [cat.row("s", "PH", product_key="a", name="Rice 1kg", price=50.0,
                       currency="PHP", url="u")]
-    _write_previous(store_file, "s", before)
+    _seed_previous(db, "s", before)
     after = [cat.row("s", "PH", product_key="a", name="Rice 1kg", price=55.0,
                      currency="PHP", url="u")]
-    changes = cat.diff_against_previous("s", after)
+    changes = cat.diff_against_previous(db, "s", after)
     assert len(changes) == 1
     assert changes[0]["change"] == "price"
     assert changes[0]["previous_price"] == 50.0
     assert changes[0]["delta"] == pytest.approx(5.0)
 
 
-def test_a_shrunken_pull_does_not_look_like_price_changes(store_file):
+def test_a_shrunken_pull_does_not_look_like_price_changes(db):
     """The failure this guards: a truncated catalogue must not read as mass change.
 
     Products missing from a short pull produce no change rows at all. The run summary
@@ -140,16 +149,39 @@ def test_a_shrunken_pull_does_not_look_like_price_changes(store_file):
     """
     before = [cat.row("s", "PH", product_key=str(i), name=f"Item {i} 1kg", price=10.0,
                       currency="PHP", url="u") for i in range(100)]
-    _write_previous(store_file, "s", before)
+    _seed_previous(db, "s", before)
     truncated = before[:5]
-    assert cat.diff_against_previous("s", truncated) == []
+    assert cat.diff_against_previous(db, "s", truncated) == []
 
 
-def test_corrupt_previous_file_is_treated_as_no_history(store_file):
-    (store_file / "s.json").write_text("{not json")
+def test_a_store_with_no_history_marks_everything_new(db):
+    """Replaces the corrupt-previous-file case. The file that could be corrupt is gone;
+    the guarantee it protected - no history means everything is new - is not."""
     rows = [cat.row("s", "PH", product_key="a", name="Rice 1kg", price=50.0,
                     currency="PHP", url="u")]
-    assert len(cat.diff_against_previous("s", rows)) == 1
+    assert len(cat.diff_against_previous(db, "s", rows)) == 1
+
+
+def test_a_product_key_seen_at_another_store_is_still_new_here(db):
+    """Identity is (store_id, product_key). Shopify numeric ids collide across stores,
+    so a shared key must not make one store's history answer for another's."""
+    rows_a = [cat.row("store-a", "PH", product_key="8161837154436", name="Rice 1kg",
+                      price=50.0, currency="PHP", url="u")]
+    _seed_previous(db, "store-a", rows_a)
+    rows_b = [cat.row("store-b", "PH", product_key="8161837154436", name="Rice 1kg",
+                      price=99.0, currency="PHP", url="u")]
+    changes = cat.diff_against_previous(db, "store-b", rows_b)
+    assert len(changes) == 1 and changes[0]["change"] == "new"
+
+
+def test_diff_is_pure_and_needs_no_database():
+    """diff() takes its history as an argument, so the comparison logic is testable
+    without any storage at all."""
+    rows = [cat.row("s", "PH", product_key="a", name="Rice 1kg", price=55.0,
+                    currency="PHP", url="u")]
+    assert cat.diff({}, rows)[0]["change"] == "new"
+    assert cat.diff({"a": 55.0}, rows) == []
+    assert cat.diff({"a": 50.0}, rows)[0]["delta"] == pytest.approx(5.0)
 
 
 # --- bounded pulls -----------------------------------------------------------
