@@ -213,18 +213,28 @@ POSTGRES_PASSWORD=localtest docker compose -f docker-compose.prod.yml up -d post
 A `.env` file at the repo root is the tidier way to do that repeatedly; it is
 gitignored.
 
-## Turning an app service on
+## The api's env vars
 
-1. Delete that service's `profiles: ["app"]` line in
-   `docker-compose.prod.yml`.
-2. Add whatever env vars it needs to the Coolify env — `api` needs
-   `BRIGHTDATA_API_KEY`, `BRIGHTDATA_WEBHOOK_SECRET`, `ANTHROPIC_API_KEY`,
-   and the alert keys, plus `OPS_TOKEN` for the endpoints that spend credits.
-   The compose
-   file uses `${VAR:-}` for these, so a missing one is an empty string rather
-   than a failed deploy — check them rather than trusting a green deploy.
-3. Set its domain in the Coolify UI, per the table above. `api` gets none.
-4. Merge to `main`. Auto-deploy does the rest.
+Both app services are on as of the read path, so this is a checklist rather
+than a switch-on procedure. Set these in the Coolify env; the compose file uses
+`${VAR:-}` for all of them, so a missing one is an empty string rather than a
+failed deploy — check them rather than trusting a green deploy.
+
+| Var | What happens without it |
+| --- | --- |
+| `OPS_TOKEN` | Manual pulls and heal triggers 401. The guard fails closed, so unset is safe, not broken — but it is also the only thing standing between a public URL and an endpoint that writes to the database. Generate with `openssl rand -hex 32`. |
+| `PULL_SCHEDULE_ENABLED` | Defaults to `false`: nothing pulls on a schedule. Arming it is a team decision — a scheduled run does not pass through `bd.mjs`, so the schedule is its only bound. |
+| `BD_BALANCE_USD` | The credit meter falls back to the daily ceiling instead of the account balance. |
+| `BRIGHTDATA_API_KEY`, `BRIGHTDATA_WEBHOOK_SECRET` | Studio collection and the ingest webhook are unavailable. |
+| `ANTHROPIC_API_KEY` | The heal orchestrator cannot compose a prompt. |
+| `RESEND_API_KEY`, `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID` | Alerts stay unsent; the notifier treats each channel as unconfigured. |
+
+Reads are public by design — the dashboard has no auth — so every route that
+costs money or changes the fleet sits behind `OPS_TOKEN` instead.
+
+To switch a service on in future: delete its `profiles:` line in
+`docker-compose.prod.yml`, set its domain in the Coolify UI per the table
+above (`api` gets none), and merge to `main`. Auto-deploy does the rest.
 
 ## Checking a deploy
 
