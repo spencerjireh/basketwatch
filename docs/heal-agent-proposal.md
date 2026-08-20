@@ -276,14 +276,15 @@ timeline unified with zero contract changes beyond the two new
 
 ## Where this lives in the codebase
 
-As of PR #9-#11, the product tree is `basketwatch/` (pnpm + Turborepo),
-not `scrape-verse/`. The shared types package is `packages/contract`,
+As of PR #14, the repo root **is** the product monorepo (pnpm + Turborepo).
+There is no app subdirectory: `apps/` and `packages/` sit at the top level,
+beside the compose files. The shared types package is `packages/contract`,
 not `packages/shared`. The validator moved to `modules/validator/`. A
 heal module already exists at `modules/heal/` with stub files for the
 orchestrator, budget guard and Studio client.
 
 ```
-basketwatch/apps/api/src/modules/
+apps/api/src/modules/
   validator/
     checks.ts          # unchanged — structural checks, pure, IO-free
     checks.test.ts     # unchanged (14 tests)
@@ -308,7 +309,7 @@ basketwatch/apps/api/src/modules/
       mapping-heal.ts  # LLM re-pick from catalogue
       price-heal.ts    # outlier flag + re-pick
       output-heal.ts   # targeted Studio heal for size fields
-basketwatch/packages/contract/src/
+packages/contract/src/
   vocabulary.ts        # add basket_mismatch, price_outlier to incidentKinds
   incidents.ts         # add quality-gate check names
 ```
@@ -434,19 +435,19 @@ trigger the LLM call.
 
 ## Relationship to existing work
 
-- **Spider-Sense** (`basketwatch/apps/api/src/modules/validator/checks.ts`):
+- **Spider-Sense** (`apps/api/src/modules/validator/checks.ts`):
   untouched. It stays pure, IO-free, and structurally focused. The quality
   gate is a separate module that runs after spider-sense passes.
-- **Basket mapper** (`spencer-exploration/basket.py`): untouched on the
+- **Basket mapper** (`lab/spencer-exploration/basket.py`): untouched on the
   Python side. The quality gate validates mapper output, it does not
   replace the mapper. When the mapper moves into the TypeScript app, the
   gate integrates directly.
-- **Heal module** (`basketwatch/apps/api/src/modules/heal/`): already
+- **Heal module** (`apps/api/src/modules/heal/`): already
   scaffolded in PR #9 with stubs for the orchestrator, budget guard, and
   Studio client. The heal agent extends these stubs rather than replacing
   them. The scraper heal strategy IS the orchestrator from
   `architecture.md`, now one strategy among four.
-- **Contract** (`basketwatch/packages/contract/`): the ingest contract
+- **Contract** (`packages/contract/`): the ingest contract
   (`ingest.ts`) still has the v1 shape — `unit` non-nullable, no size
   fields, no `source`. The quality gate is more useful with size fields
   present, but the two can land in either order.
