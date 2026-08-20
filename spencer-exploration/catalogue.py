@@ -56,6 +56,7 @@ from basket import (  # noqa: E402
 )
 
 import store  # noqa: E402
+import studio  # noqa: E402
 
 def NOW() -> str:
     """UTC timestamp with a Z suffix.
@@ -283,6 +284,40 @@ def diff_against_previous(conn, store_id: str, rows: list[dict]) -> list[dict]:
 STRATEGIES = {"shopify": pull_shopify, "magento-graphql": pull_magento}
 
 
+# --- the Studio transport -----------------------------------------------------
+
+async def seed_urls(entry: dict, cfg: dict, cand: dict, f: Fetcher,
+                    max_pages: int) -> list[str]:
+    """The bounded URL list Studio is handed.
+
+    Bounding happens here, before the subprocess is spawned, because that is where the
+    money is. Nothing downstream can widen it.
+    """
+    st = cfg.get("studio") or {}
+    cap = min(max_pages or st.get("max_urls", 0), st.get("max_urls", max_pages or 0))
+    if st.get("template") == "listing-page":
+        base = st["seed_url"].split("?")[0]
+        return [f"{base}?page={n}" for n in range(1, cap + 1)]
+    disc = await discover_urls(cand, f)
+    urls = disc["product_urls"] or disc["page_urls"]
+    if cfg.get("category_priority"):
+        urls = rank_by_category(urls, cfg["category_priority"])
+    return urls[:cap]
+
+
+async def pull_via_studio(entry: dict, cfg: dict, cand: dict, fetch, max_pages: int,
+                          f: Fetcher) -> tuple[list[dict], int]:
+    """Collect through Scraper Studio. Raises StudioError so the caller can fall back."""
+    st = cfg.get("studio") or {}
+    if st.get("status") != "ready" or not entry.get("studio_collector_id"):
+        raise studio.StudioError("no verified collector for this store")
+    urls = await seed_urls(entry, cfg, cand, f, max_pages)
+    out = OUT / f"{entry['id']}.studio.json"
+    raw = await studio.run_batch(entry["studio_collector_id"], urls, out)
+    rows = studio.studio_rows(entry, raw, row, parse_size=parse_size, no_size=NO_SIZE)
+    return rows, len(urls)
+
+
 async def pull_store(entry: dict, cand: dict, client, api_key: str | None,
                      transport: str, override_pages: int | None, conn) -> dict | None:
     cfg = entry.get("catalogue") or {}
@@ -302,14 +337,32 @@ async def pull_store(entry: dict, cand: dict, client, api_key: str | None,
     else:
         fetch = free.get
 
-    if method in STRATEGIES:
-        rows, pages = await STRATEGIES[method](entry, cfg, fetch, max_pages)
-    elif method in ("sitemap", "sitemap-bounded"):
-        rows, pages = await pull_sitemap(entry, cfg, fetch, max_pages, cand,
-                                         Fetcher(client, use_cache=True))
+    async def run_puller() -> tuple[list[dict], int]:
+        """The fallback path. Named rather than inline because it is now something the
+        Studio path falls back *to*, not the only thing that happens."""
+        if method in STRATEGIES:
+            return await STRATEGIES[method](entry, cfg, fetch, max_pages)
+        if method in ("sitemap", "sitemap-bounded"):
+            return await pull_sitemap(entry, cfg, fetch, max_pages, cand,
+                                      Fetcher(client, use_cache=True))
+        raise ValueError(f"unknown method {method}")
+
+    fallback_reason = None
+    if transport == "studio":
+        try:
+            rows, pages = await pull_via_studio(entry, cfg, cand, fetch, max_pages,
+                                                Fetcher(client, use_cache=True))
+        except studio.StudioError as exc:
+            fallback_reason = f"{type(exc).__name__}: {exc}"[:200]
+            print(f"  {entry['id']:<24} studio failed, falling back - {fallback_reason}"[:150],
+                  flush=True)
+            rows, pages = await run_puller()
     else:
-        print(f"  {entry['id']:<24} unknown method {method}", flush=True)
-        return None
+        try:
+            rows, pages = await run_puller()
+        except ValueError as exc:
+            print(f"  {entry['id']:<24} {exc}", flush=True)
+            return None
 
     # de-duplicate on product_key; a paginated API can repeat rows across pages
     seen, deduped = set(), []
@@ -336,6 +389,15 @@ async def pull_store(entry: dict, cand: dict, client, api_key: str | None,
         source=source, rows=len(deduped), unit_priced=priced, pages=pages,
         ceiling_reached=hit_ceiling, changes=0 if suspect else len(changes),
         coverage=cfg.get("coverage", "full"))
+
+    # A fallback keeps the series unbroken; the incident is what keeps it honest. The
+    # rows already say source='puller', so the substitution is legible in three places.
+    if fallback_reason:
+        store.open_incident(
+            conn, store_id=entry["id"], run_id=run_id, kind="studio_failed",
+            opened_at=NOW(),
+            evidence={"reason": fallback_reason, "covered_by": "puller",
+                      "rows": len(deduped)})
 
     if suspect:
         store.open_incident(
