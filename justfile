@@ -10,9 +10,14 @@ LOCAL_DB := "postgres://basketwatch:basketwatch@localhost:5432/basketwatch"
 default:
     @just --list --unsorted
 
-# Contract watch + API on :3001 + dashboard on :3000
+# DATABASE_URL is forced local below. Without it the API inherits the repo-root
+# .env, which points at PRODUCTION -- harmless while nothing writes, and not
+# harmless the day ingest lands. To use prod data, do it deliberately:
+#   DATABASE_URL=... pnpm dev
+
+# Contract watch + API on :3001 + dashboard on :3000 (local database)
 dev:
-    pnpm dev
+    DATABASE_URL="{{LOCAL_DB}}" pnpm dev
 
 # Build every workspace
 build:

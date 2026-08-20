@@ -26,7 +26,12 @@
     "dev": {
       "dependsOn": ["^build"],
       "cache": false,
-      "persistent": true
+      "persistent": true,
+      // Turbo 2 runs tasks in strict env mode, so anything not declared here is
+      // stripped before the task sees it. Without this list an inline
+      // DATABASE_URL never reaches the API, which then silently falls back to
+      // the repo-root .env -- and that points at production.
+      "passThroughEnv": ["DATABASE_URL", "PORT", "LOG_LEVEL", "API_INTERNAL_URL"]
     },
     "db:generate": { "cache": false },
     "db:migrate": { "cache": false },
