@@ -144,7 +144,7 @@ Before running any experiment:
 - [ ] Confirm which account owns the test scrapers (Spencer's account
       holds the 16 existing ones; creating fresh ones on Edjin's account
       avoids touching production scrapers)
-- [ ] Run `node scripts/bd.mjs --report` to record the baseline
+- [ ] Run `node lab/scripts/bd.mjs --report` to record the baseline
 
 ## Available scrapers
 
@@ -284,13 +284,13 @@ For each heal call:
 1. **Before**: Run the scraper once (`scraper run <id>`) to capture the
    current (broken) output. Save the raw JSON.
    ```sh
-   node scripts/bd.mjs --label=heal-exp-1a-pre -- scraper run <id> <url> --pretty -o scratch/heal-exp/1a-before.json
+   node lab/scripts/bd.mjs --label=heal-exp-1a-pre -- scraper run <id> <url> --pretty -o scratch/heal-exp/1a-before.json
    ```
 2. **Heal (no auto-approve)**: Run the heal WITHOUT `--auto-approve` so
    we can inspect the `preview_result` before committing. This is the
    key data point -- what did the heal engine produce from this prompt?
    ```sh
-   node scripts/bd.mjs --label=heal-exp-1a -- scraper heal <id> "<prompt>" --url <url> --pretty -o scratch/heal-exp/1a-heal.json
+   node lab/scripts/bd.mjs --label=heal-exp-1a -- scraper heal <id> "<prompt>" --url <url> --pretty -o scratch/heal-exp/1a-heal.json
    ```
 3. **Inspect**: Read `1a-heal.json`. Check `status` (should be
    `awaiting_approval`), examine `preview_result` (the sample output
@@ -315,9 +315,10 @@ The approval gate is the safety net. We never auto-approve during
 experiments. A rejected heal costs the same credits (the page load
 already happened) but leaves the scraper unchanged.
 
-All commands go through the guard. Use `BD_SETTLE_MS=30000`:
+All commands go through the guard. Use `BD_SETTLE_MS=30000`.
+`just guard` is a shortcut for `node lab/scripts/bd.mjs`:
 ```sh
-BD_SETTLE_MS=30000 node scripts/bd.mjs --label=heal-exp-1a -- scraper heal <id> "<prompt>" --url <url> --pretty -o scratch/heal-exp/1a-heal.json
+BD_SETTLE_MS=30000 just guard --label=heal-exp-1a -- scraper heal <id> "<prompt>" --url <url> --pretty -o scratch/heal-exp/1a-heal.json
 ```
 
 ## Budget
