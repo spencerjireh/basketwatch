@@ -67,10 +67,16 @@ incident evidence and the dashboard audit view speak the same vocabulary.
 
 ## Known gaps to close before the data plane lands
 
-- `apps/api/src/db/schema.ts` has no `country` column on `scrapers`,
-  `products` or `price_records`, and no `product_key` on `products`, so it
-  cannot yet satisfy this contract.
-- `price_records` has no per-row `unit`, which `BasketItem.unit` needs.
+Closed Aug 20 when `catalogue.db` was migrated into Postgres. The data plane now
+carries the catalogue shape: `country` and `currency` on `stores`, identity as
+`(store_id, product_key)` on `products`, and per-row `unit`, `unit_price` and
+`unit_price_basis` on `price_observations`. `BasketItem.productKey` is
+`items.key`; `cheapestStore` is a join through `basket_map` to `latest_price`.
+
+Still open:
+
 - Nothing computes `FleetScraper.nullRatePct`, `healsToday` or
   `CreditBudget.spentTodayUsd` yet; those are derived at query time from
   `runs`, `heal_attempts` and `baselines`.
+- No endpoint reads the database yet. Every row in the tables above is `no`
+  until the query layer lands.
