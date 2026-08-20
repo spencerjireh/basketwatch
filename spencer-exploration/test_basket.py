@@ -223,8 +223,10 @@ def test_no_flagging_without_enough_peers():
 
 
 def test_countries_are_compared_separately():
-    stores = [_store("PH", "rice", 75.0), _store("PH", "rice", 80.0), _store("PH", "rice", 70.0),
-              _store("US", "rice", 3.0), _store("US", "rice", 3.5), _store("US", "rice", 3.2)]
+    stores = [_store("PH", "rice", 75.0), _store("PH", "rice", 80.0),
+              _store("PH", "rice", 70.0), _store("PH", "rice", 78.0),
+              _store("US", "rice", 3.0), _store("US", "rice", 3.5),
+              _store("US", "rice", 3.2), _store("US", "rice", 3.1)]
     assert flag_unit_price_outliers(stores) == 0
 
 
@@ -398,3 +400,67 @@ def test_offal_and_preserved_forms_are_not_the_staple():
 
 def test_an_item_with_no_match_in_the_catalogue_returns_nothing():
     assert basket.pick_from_catalogue("rice", "PH", [_row("Dish Soap 500ml")]) is None
+
+
+# --- wholesale pricing --------------------------------------------------------
+
+def _wholesale_store(pricing="retail", **items):
+    st = {"id": "s", "name": "S", "country": "PH", "pricing": pricing, "items": {}}
+    for k, v in items.items():
+        st["items"][k] = v
+    return st
+
+
+def test_a_wholesale_store_keeps_its_price_but_gets_no_unit_price():
+    """The listed price is per case while the title states the unit size, and the case
+    count is unpublished for ~99% of these products. A wrong unit price silently poisons
+    every comparison it feeds; a missing one is a visible gap."""
+    entry = {"id": "s", "country": "PH", "pricing": "wholesale"}
+    st = _wholesale_store("wholesale", rice={"name": "Jasmine Rice 5kg", "price": 2500.0,
+                                   "currency": "PHP", "url": "u",
+                                   "size": basket.parse_size("5kg"),
+                                   "status": "verified"})
+    st.update({"unresolved": []})
+    out = basket.finalise(st, entry)
+    assert out["items"]["rice"]["price"] == 2500.0
+    assert out["items"]["rice"]["unit_price"] is None
+    assert "case" in out["items"]["rice"]["pricing_note"]
+
+
+def test_a_retail_store_still_gets_a_unit_price():
+    entry = {"id": "s", "country": "PH", "pricing": "retail"}
+    st = _wholesale_store("retail", rice={"name": "Jasmine Rice 5kg", "price": 250.0,
+                                "currency": "PHP", "url": "u",
+                                "size": basket.parse_size("5kg"),
+                                "status": "verified"})
+    st.update({"unresolved": []})
+    out = basket.finalise(st, entry)
+    assert out["items"]["rice"]["unit_price"]["value"] == pytest.approx(50.0)
+
+
+def _peer(store_id, value, pricing="retail"):
+    return {"id": store_id, "country": "PH", "pricing": pricing,
+            "items": {"rice": {"unit_price": {"value": value, "basis": "per_kg"}}}}
+
+
+def test_wholesale_prices_do_not_set_the_peer_median():
+    """The failure this guards: case prices dragged the median up and correct retail rows
+    were then flagged as too cheap. A $2.42/kg baking potato read as an outlier against a
+    median set by potato gnocchi. 18 of 21 flags were this."""
+    stores = [_peer("a", 50.0), _peer("b", 52.0), _peer("c", 48.0), _peer("d", 51.0),
+              _peer("wholesale", 700.0, pricing="wholesale")]
+    basket.flag_unit_price_outliers(stores)
+    assert all("unit_price_outlier" not in s["items"]["rice"] for s in stores)
+
+
+def test_a_genuine_outlier_among_retail_peers_is_still_flagged():
+    stores = [_peer("a", 50.0), _peer("b", 52.0), _peer("c", 48.0), _peer("d", 900.0)]
+    assert basket.flag_unit_price_outliers(stores) == 1
+    assert "unit_price_outlier" in stores[3]["items"]["rice"]
+
+
+def test_three_peers_are_too_few_to_flag_against():
+    """The one false positive that survived the wholesale fix had exactly three peers,
+    and two of them were the wrong shape of product."""
+    stores = [_peer("a", 50.0), _peer("b", 52.0), _peer("c", 900.0)]
+    assert basket.flag_unit_price_outliers(stores) == 0
