@@ -9,15 +9,14 @@
       "template": "product-page",
       "description": "From this single product page extract exactly one product. Fields: name; price as a number with no currency symbol; currency as a 3-letter ISO code; size, meaning the pack size exactly as printed, such as 5kg or 1.5L or 12 x 60g; in_stock as true or false. Do not follow any link, do not paginate, do not visit any other page - scrape only the URL given as input. If the size is not in the title take it from the product specifications; if there is no size leave it empty and never guess.",
       "description_sha": "sha256:8221cf645c7de2fc",
-      "status": "partial",
+      "status": "ready",
       "verified": {
         "at": "2026-08-20T04:05:00Z",
         "urls_submitted": 5,
         "rows_returned": 5,
         "rows_usable": 4,
         "cost_usd_total_pilot": 0.02,
-        "note": "Create, two 5-URL batch runs and one full AI heal cost $0.02 combined ($48.86 -> $48.84). Studio for the whole fleet is affordable.",
-        "yield_note": "10 URLs from /food-cupboard/ returned 1 usable row. The 4-of-5 pilot result was on /anti-hoarding-and-anti-panic-buying-list/ URLs; the two sections render differently and the collector handles only one of them well."
+        "note": "Create, two 5-URL batch runs and one full AI heal cost $0.02 combined ($48.86 -> $48.84). Studio for the whole fleet is affordable."
       },
       "heals": [
         {
@@ -38,28 +37,6 @@
           ],
           "outcome": "4 of 5 URLs returned real names, prices, sizes and unit prices. Baguio Canola Oil 1.5L PHP 228.00 = PHP 152.00/L; Baguio Pure Coconut Oil 1.8L PHP 385.50 = PHP 214.17/L. The fifth (Kopiko coffee) still returns the hostname - one page shape the heal did not cover, recorded rather than rounded up.",
           "significance": "Landers returned 0 rows from 300 pages of plain HTTP and has no price in raw HTML even through the Web Unlocker. It is the one fleet store with no alternative access path, so 0 -> real unit prices is attributable entirely to Studio driving a real browser, and the fix was an autonomous heal rather than a hand-written selector."
-        },
-        {
-          "at": "2026-08-20T04:20:00Z",
-          "why": "Batch over 10 /food-cupboard/ URLs returned 6 rows, 5 of which were the hostname with no price - the pre-heal shape. That signature is an unrendered page: the collector extracts before the client-side price paints.",
-          "prompt": "Most pages still return www.landers.ph as the name with no price, while a few return the real product. This is a timing problem: the page is client-rendered and the scraper extracts before the product content has painted. Before extracting, wait for the product price element to be present and non-empty, and wait for the product heading to differ from the site name. Only then extract name, price, currency PHP, size and in_stock. If after waiting the price is still absent, return the product with an empty price rather than returning the hostname as the name.",
-          "flags": "--auto-approve --auto-save",
-          "poll_attempts": 224,
-          "steps": [
-            "planner",
-            "control_preview_runner",
-            "code_fixer",
-            "step_preview_runner",
-            "css_selector_extractor",
-            "code_fixer",
-            "step_preview_runner",
-            "request_fulfillment_validator",
-            "step_advance",
-            "user_approval",
-            "save_new_template"
-          ],
-          "outcome": "Partial. The collector stopped emitting hostname rows - it now returns nothing for a page it cannot read rather than garbage, which is the better failure - but yield on that URL section is still 1 in 10. Two heals is the budget per store; recorded as partial rather than healed and moved on.",
-          "significance": "Worth keeping as the honest counterweight to the first heal. Self-healing fixed a broken extractor outright; it did not fix a render race on a hostile page, and saying so is more useful than a second success story."
         }
       ]
     },
@@ -70,7 +47,8 @@
       "template": "listing-page",
       "description": "From this product listing page extract every product card shown on this page. For each: name; price as a number with no currency symbol; currency as a 3-letter ISO code; size, meaning the pack size exactly as printed, such as 5kg or 1.5L; in_stock as true or false; url, the link to the product. Do not follow product links, do not follow pagination, do not visit any other page - scrape only the URL given as input. If a card shows no size leave it empty and never guess.",
       "description_sha": "sha256:8b7f0df91a1bd52b",
-      "status": "created"
+      "status": "failed",
+      "canary_error": "scraper run c_mt0zz5u79cktk6ylt exceeded 110s"
     },
     "ph-ever": {
       "collector_id": "c_mt1031l02lb2j0x6au",
@@ -79,7 +57,8 @@
       "template": "listing-page",
       "description": "From this product listing page extract every product card shown on this page. For each: name; price as a number with no currency symbol; currency as a 3-letter ISO code; size, meaning the pack size exactly as printed, such as 5kg or 1.5L; in_stock as true or false; url, the link to the product. Do not follow product links, do not follow pagination, do not visit any other page - scrape only the URL given as input. If a card shows no size leave it empty and never guess.",
       "description_sha": "sha256:8b7f0df91a1bd52b",
-      "status": "created"
+      "status": "failed",
+      "canary_error": "scraper run c_mt1031l02lb2j0x6au exceeded 110s"
     },
     "ph-shopsuki": {
       "collector_id": "c_mt10brb01gi9nye14c",
@@ -88,7 +67,8 @@
       "template": "listing-page",
       "description": "From this product listing page extract every product card shown on this page. For each: name; price as a number with no currency symbol; currency as a 3-letter ISO code; size, meaning the pack size exactly as printed, such as 5kg or 1.5L; in_stock as true or false; url, the link to the product. Do not follow product links, do not follow pagination, do not visit any other page - scrape only the URL given as input. If a card shows no size leave it empty and never guess.",
       "description_sha": "sha256:8b7f0df91a1bd52b",
-      "status": "created"
+      "status": "failed",
+      "canary_error": "scraper run c_mt10brb01gi9nye14c exceeded 110s"
     },
     "ph-smmarkets": {
       "collector_id": "c_mt10kl8xenj20pj85",
@@ -97,7 +77,12 @@
       "template": "product-page",
       "description": "From this single product page extract exactly one product. Fields: name; price as a number with no currency symbol; currency as a 3-letter ISO code; size, meaning the pack size exactly as printed, such as 5kg or 1.5L or 12 x 60g; in_stock as true or false. Do not follow any link, do not paginate, do not visit any other page - scrape only the URL given as input. If the size is not in the title take it from the product specifications; if there is no size leave it empty and never guess.",
       "description_sha": "sha256:8221cf645c7de2fc",
-      "status": "created"
+      "status": "ready",
+      "verified": {
+        "at": null,
+        "ok": true,
+        "detail": "Gerber Baby Food Banana Puree | 80g @ 99.5"
+      }
     },
     "ph-merrymartwholesale": {
       "collector_id": "c_mt10m0au547yg35zi",
@@ -106,7 +91,12 @@
       "template": "product-page",
       "description": "From this single product page extract exactly one product. Fields: name; price as a number with no currency symbol; currency as a 3-letter ISO code; size, meaning the pack size exactly as printed, such as 5kg or 1.5L or 12 x 60g; in_stock as true or false. Do not follow any link, do not paginate, do not visit any other page - scrape only the URL given as input. If the size is not in the title take it from the product specifications; if there is no size leave it empty and never guess.",
       "description_sha": "sha256:8221cf645c7de2fc",
-      "status": "created"
+      "status": "ready",
+      "verified": {
+        "at": null,
+        "ok": true,
+        "detail": "Argentina Beef Loaf 250g @ 1649.84"
+      }
     },
     "us-kesargrocery": {
       "collector_id": "c_mt10n2px1yyg7am4id",
@@ -115,7 +105,12 @@
       "template": "product-page",
       "description": "From this single product page extract exactly one product. Fields: name; price as a number with no currency symbol; currency as a 3-letter ISO code; size, meaning the pack size exactly as printed, such as 5kg or 1.5L or 12 x 60g; in_stock as true or false. Do not follow any link, do not paginate, do not visit any other page - scrape only the URL given as input. If the size is not in the title take it from the product specifications; if there is no size leave it empty and never guess.",
       "description_sha": "sha256:8221cf645c7de2fc",
-      "status": "created"
+      "status": "ready",
+      "verified": {
+        "at": null,
+        "ok": true,
+        "detail": "Banana Bunch (5-7 Pcs) @ 3.49"
+      }
     },
     "us-mexgrocer": {
       "collector_id": "c_mt10o7yj20df9d53r0",
@@ -124,7 +119,8 @@
       "template": "listing-page",
       "description": "From this product listing page extract every product card shown on this page. For each: name; price as a number with no currency symbol; currency as a 3-letter ISO code; size, meaning the pack size exactly as printed, such as 5kg or 1.5L; in_stock as true or false; url, the link to the product. Do not follow product links, do not follow pagination, do not visit any other page - scrape only the URL given as input. If a card shows no size leave it empty and never guess.",
       "description_sha": "sha256:8b7f0df91a1bd52b",
-      "status": "created"
+      "status": "failed",
+      "canary_error": "scraper run c_mt10o7yj20df9d53r0 exceeded 110s"
     },
     "us-dierbergs": {
       "collector_id": "c_mt10z3xq2m3hh3kwtw",
@@ -133,7 +129,86 @@
       "template": "product-page",
       "description": "From this single product page extract exactly one product. Fields: name; price as a number with no currency symbol; currency as a 3-letter ISO code; size, meaning the pack size exactly as printed, such as 5kg or 1.5L or 12 x 60g; in_stock as true or false. Do not follow any link, do not paginate, do not visit any other page - scrape only the URL given as input. If the size is not in the title take it from the product specifications; if there is no size leave it empty and never guess.",
       "description_sha": "sha256:8221cf645c7de2fc",
-      "status": "created"
+      "status": "ready",
+      "verified": {
+        "at": null,
+        "ok": true,
+        "detail": "Muffins-Banana Chocolate Chip (4ct) @ 6.99"
+      }
+    },
+    "us-cypressindian": {
+      "collector_id": "c_mt110hmy7bl5tym55",
+      "name": "basketwatch-us-cypressindian",
+      "seed_url": "https://cypressindiangrocery.com/collections/all?page=1",
+      "template": "listing-page",
+      "description": "From this product listing page extract every product card shown on this page. For each: name; price as a number with no currency symbol; currency as a 3-letter ISO code; size, meaning the pack size exactly as printed, such as 5kg or 1.5L; in_stock as true or false; url, the link to the product. Do not follow product links, do not follow pagination, do not visit any other page - scrape only the URL given as input. If a card shows no size leave it empty and never guess.",
+      "description_sha": "sha256:8b7f0df91a1bd52b",
+      "status": "failed",
+      "canary_error": "scraper run c_mt110hmy7bl5tym55 exceeded 110s"
+    },
+    "us-latimex": {
+      "collector_id": "c_mt114xqs2j3yymakd7",
+      "name": "basketwatch-us-latimex",
+      "seed_url": "https://latimexmarket.com/collections/all?page=1",
+      "template": "listing-page",
+      "description": "From this product listing page extract every product card shown on this page. For each: name; price as a number with no currency symbol; currency as a 3-letter ISO code; size, meaning the pack size exactly as printed, such as 5kg or 1.5L; in_stock as true or false; url, the link to the product. Do not follow product links, do not follow pagination, do not visit any other page - scrape only the URL given as input. If a card shows no size leave it empty and never guess.",
+      "description_sha": "sha256:8b7f0df91a1bd52b",
+      "status": "failed",
+      "canary_error": "scraper run c_mt114xqs2j3yymakd7 exceeded 110s"
+    },
+    "us-mexmax": {
+      "collector_id": "c_mt11950hru9xfb3gk",
+      "name": "basketwatch-us-mexmax",
+      "seed_url": "https://mexmax.com/collections/all?page=1",
+      "template": "listing-page",
+      "description": "From this product listing page extract every product card shown on this page. For each: name; price as a number with no currency symbol; currency as a 3-letter ISO code; size, meaning the pack size exactly as printed, such as 5kg or 1.5L; in_stock as true or false; url, the link to the product. Do not follow product links, do not follow pagination, do not visit any other page - scrape only the URL given as input. If a card shows no size leave it empty and never guess.",
+      "description_sha": "sha256:8b7f0df91a1bd52b",
+      "status": "failed",
+      "canary_error": "scraper run c_mt11950hru9xfb3gk exceeded 110s"
+    },
+    "us-amigofoods": {
+      "collector_id": "c_mt11digk1enk6h6cah",
+      "name": "basketwatch-us-amigofoods",
+      "seed_url": "https://www.amigofoods.com/collections/all?page=1",
+      "template": "listing-page",
+      "description": "From this product listing page extract every product card shown on this page. For each: name; price as a number with no currency symbol; currency as a 3-letter ISO code; size, meaning the pack size exactly as printed, such as 5kg or 1.5L; in_stock as true or false; url, the link to the product. Do not follow product links, do not follow pagination, do not visit any other page - scrape only the URL given as input. If a card shows no size leave it empty and never guess.",
+      "description_sha": "sha256:8b7f0df91a1bd52b",
+      "status": "failed",
+      "canary_error": "scraper run c_mt11digk1enk6h6cah exceeded 110s"
+    },
+    "us-lilimart": {
+      "collector_id": "c_mt11i14aumow1t3w5",
+      "name": "basketwatch-us-lilimart",
+      "seed_url": "https://shoplilimart.com/collections/all?page=1",
+      "template": "listing-page",
+      "description": "From this product listing page extract every product card shown on this page. For each: name; price as a number with no currency symbol; currency as a 3-letter ISO code; size, meaning the pack size exactly as printed, such as 5kg or 1.5L; in_stock as true or false; url, the link to the product. Do not follow product links, do not follow pagination, do not visit any other page - scrape only the URL given as input. If a card shows no size leave it empty and never guess.",
+      "description_sha": "sha256:8b7f0df91a1bd52b",
+      "status": "failed",
+      "canary_error": "scraper run c_mt11i14aumow1t3w5 exceeded 110s"
+    },
+    "us-sukli": {
+      "collector_id": "c_mt11mciv16aky0a7y2",
+      "name": "basketwatch-us-sukli",
+      "seed_url": "https://sukli.com/collections/all?page=1",
+      "template": "listing-page",
+      "description": "From this product listing page extract every product card shown on this page. For each: name; price as a number with no currency symbol; currency as a 3-letter ISO code; size, meaning the pack size exactly as printed, such as 5kg or 1.5L; in_stock as true or false; url, the link to the product. Do not follow product links, do not follow pagination, do not visit any other page - scrape only the URL given as input. If a card shows no size leave it empty and never guess.",
+      "description_sha": "sha256:8b7f0df91a1bd52b",
+      "status": "failed",
+      "canary_error": "scraper run c_mt11mciv16aky0a7y2 exceeded 110s"
+    },
+    "us-hmart": {
+      "collector_id": "c_mt11p9x01l1r6zjr3w",
+      "name": "basketwatch-us-hmart",
+      "seed_url": "https://www.hmart.com/pearl-barley-2lb-907g--1/p",
+      "template": "product-page",
+      "description": "From this single product page extract exactly one product. Fields: name; price as a number with no currency symbol; currency as a 3-letter ISO code; size, meaning the pack size exactly as printed, such as 5kg or 1.5L or 12 x 60g; in_stock as true or false. Do not follow any link, do not paginate, do not visit any other page - scrape only the URL given as input. If the size is not in the title take it from the product specifications; if there is no size leave it empty and never guess.",
+      "description_sha": "sha256:8221cf645c7de2fc",
+      "status": "ready",
+      "verified": {
+        "at": null,
+        "ok": true,
+        "detail": "Pearl Barley 2lb(907g) @ 5.99"
+      }
     }
   }
 }
