@@ -16,6 +16,7 @@ Usage:
 from __future__ import annotations
 
 import argparse
+import math
 import asyncio
 import json
 import os
@@ -637,6 +638,104 @@ class UnlockerFetcher:
         return out
 
 
+def target_quantity(item: str, country: str) -> dict | None:
+    """The size this item is meant to be tracked at, parsed into base units."""
+    return parse_size(ITEMS[item]["target_size"].get(country, ""))
+
+
+def pick_from_catalogue(item: str, country: str, rows: list[dict]) -> dict | None:
+    """Choose one product per item out of a store's catalogue rows.
+
+    Matched-model pinning wants a specific pack size, so candidates are ranked by how
+    close they sit to the item's target size rather than by price or by name. A product
+    with no parseable size sorts last but is not discarded - it is still the right
+    staple, it just cannot be compared per kilo.
+    """
+    usable = [r for r in rows if pick_is_usable(item, r["name"], country)]
+    if not usable:
+        return None
+    target = target_quantity(item, country)
+    hints = [h.lower() for h in ITEMS[item].get("categories", [])]
+
+    def category_tier(r: dict) -> int:
+        """How well the store's own shelf agrees that this is the item.
+
+        Ranking on size alone picks the right pack of the wrong product: "Julie's
+        Coffee Waffles 100g" filed under Wafers beat real coffee because 100g sat
+        nearer the target. The store's category is the cheapest available second
+        opinion, and it is the store's own classification rather than ours.
+        """
+        cat = (r.get("category") or "").lower()
+        if not cat:
+            return 2                     # unknown, ranked between agree and disagree
+        if any(t in cat for t in must_terms(item, country)):
+            return 0                     # the shelf is named after the item itself
+        if any(h in cat for h in hints):
+            return 1                     # a broader aisle that still fits
+        return 3                         # the store files it as something else
+
+    def size_distance(r: dict) -> tuple[int, float]:
+        size = r.get("size")
+        if not size:
+            return (2, 0.0)
+        if not target or size["base_uom"] != target["base_uom"]:
+            return (1, 0.0)
+        # log-ratio, so 2x over and 2x under are equally far from target
+        ratio = size["quantity"] / target["quantity"] if target["quantity"] else 1.0
+        return (0, abs(math.log(ratio)) if ratio > 0 else 99.0)
+
+    def rank(r: dict) -> tuple:
+        return (category_tier(r), *size_distance(r), len(r["name"]))
+
+    best = min(usable, key=rank)
+    return {
+        "url": best["url"], "name": best["name"], "price": best["price"],
+        "currency": best["currency"], "size": best.get("size"),
+        "status": "verified", "via": "catalogue",
+        "candidates": len(usable),
+        "category": best.get("category"),
+        "category_tier": category_tier(best),
+    }
+
+
+def build_store_from_catalogue(conn, entry: dict) -> dict:
+    """The basket as a selection over the catalogue, rather than its own scrape.
+
+    Previously basket.py did its own fetching, which produced a second dataset that
+    could disagree with the catalogue it sat beside. Reading the same rows means the
+    basket can never contradict the tracker it is drawn from, and onboarding a store
+    costs nothing beyond the catalogue pull that already happened.
+    """
+    country = entry["country"]
+    store = {
+        "id": entry["id"], "name": entry["name"], "country": country,
+        "structural_class": entry.get("structural_class"), "items": {}, "unresolved": [],
+        "via": "catalogue",
+    }
+    rows = [dict(r) for r in conn.execute(
+        """SELECT p.product_key, p.name, p.url, p.category, p.unit, p.size_value,
+                  p.size_uom, p.size_quantity, p.size_base_uom, p.size_form,
+                  p.size_approximate, l.price, l.currency
+           FROM products p
+           LEFT JOIN latest_price l
+             ON l.store_id = p.store_id AND l.product_key = p.product_key
+           WHERE p.store_id = ?""", (entry["id"],))]
+    for r in rows:
+        r["size"] = ({"raw": r["unit"], "value": r["size_value"], "uom": r["size_uom"],
+                      "approximate": bool(r["size_approximate"]), "form": r["size_form"],
+                      "quantity": r["size_quantity"], "base_uom": r["size_base_uom"]}
+                     if r["size_quantity"] is not None else None)
+    store["catalogue_size"] = len(rows)
+
+    for item in ITEMS:
+        picked = pick_from_catalogue(item, country, rows)
+        store["items"][item] = picked or {
+            "status": "not_found", "url": None,
+            "note": "no product in this store's catalogue matches the item",
+        }
+    return finalise(store, entry)
+
+
 async def build_store(entry: dict, cand: dict, f: Fetcher) -> dict:
     country = entry["country"]
     store = {
@@ -685,6 +784,15 @@ async def build_store(entry: dict, cand: dict, f: Fetcher) -> dict:
                 }
             store["items"][item] = picked
 
+    return finalise(store, entry)
+
+
+def finalise(store: dict, entry: dict) -> dict:
+    """Manual corrections, target sizes, unit prices and counts.
+
+    Shared by both paths so a catalogue-built basket and a fetched one carry
+    identical records and the same hand corrections apply to either."""
+    country = entry["country"]
     manual_doc = (json.loads((HERE / "manual-basket.json").read_text())
                   if (HERE / "manual-basket.json").exists() else {})
     ov = manual_doc.get("overrides", {}).get(entry["id"], {})
@@ -726,12 +834,14 @@ async def build_store(entry: dict, cand: dict, f: Fetcher) -> dict:
     store["core_settled"] = sum(
         1 for k, r in store["items"].items()
         if k in CORE_ITEMS and r.get("status") in ("verified", "curated"))
-    print(f"  {entry['id']:<24} settled {store['verified_count']:>2}/{n}  "
+    print(f"  {entry["id"]:<24} settled {store['verified_count']:>2}/{n}  "
           f"core {store['core_settled']:>2}/{len(CORE_ITEMS)}  "
           f"urls {store['chosen_url_count']:>2}/{n}  "
           f"unit-priced {store['unit_priced_count']:>2}  "
           f"open: {','.join(store['unresolved'][:5]) or '-'}", flush=True)
     return store
+
+
 
 
 def flag_unit_price_outliers(stores: list[dict], factor: float = 4.0) -> int:
@@ -775,32 +885,51 @@ async def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--ids", nargs="*")
     ap.add_argument("--out", default=str(HERE / "basket-map.json"))
+    ap.add_argument("--fetch", action="store_true",
+                    help="scrape each store directly instead of reading catalogue.db. "
+                         "The default reads the catalogue, so the basket cannot "
+                         "disagree with the tracker it is drawn from.")
     args = ap.parse_args()
 
     lock = json.loads((HERE / "fleet.lock.json").read_text())
-    cands = {c["id"]: c for c in json.loads((HERE / "candidates.json").read_text())["candidates"]}
     fleet = [e for e in lock["fleet"] if not args.ids or e["id"] in args.ids]
 
-    print(f"building basket for {len(fleet)} locked stores\n", flush=True)
-    api_key = os.environ.get("BRIGHTDATA_API_KEY")
-    async with httpx.AsyncClient(headers=HEADERS, follow_redirects=True, http2=True) as client:
-        free = Fetcher(client, use_cache=True)
-        stores = []
-        for e in fleet:
-            if e.get("needs_unlocker"):
-                if not api_key:
+    if args.fetch:
+        cands = {c["id"]: c
+                 for c in json.loads((HERE / "candidates.json").read_text())["candidates"]}
+        print(f"fetching basket for {len(fleet)} locked stores\n", flush=True)
+        api_key = os.environ.get("BRIGHTDATA_API_KEY")
+        async with httpx.AsyncClient(headers=HEADERS, follow_redirects=True,
+                                     http2=True) as client:
+            free = Fetcher(client, use_cache=True)
+            stores = []
+            for e in fleet:
+                if e.get("needs_unlocker") and not api_key:
                     print(f"  {e['id']:<24} SKIPPED - needs the Unlocker but "
                           f"BRIGHTDATA_API_KEY is not set", flush=True)
                     continue
-                fetcher = UnlockerFetcher(client, e["country"], api_key)
-            else:
-                fetcher = free
-            stores.append(await build_store(e, cands[e["id"]], fetcher))
+                fetcher = (UnlockerFetcher(client, e["country"], api_key)
+                           if e.get("needs_unlocker") else free)
+                stores.append(await build_store(e, cands[e["id"]], fetcher))
+    else:
+        import store as store_db
+        conn = store_db.connect()
+        have = {r["store_id"] for r in conn.execute(
+            "SELECT DISTINCT store_id FROM products")}
+        skipped = [e["id"] for e in fleet if e["id"] not in have]
+        fleet = [e for e in fleet if e["id"] in have]
+        print(f"building basket from catalogue.db for {len(fleet)} stores"
+              + (f" ({len(skipped)} not in the catalogue: {', '.join(skipped)})"
+                 if skipped else ""), flush=True)
+        print(flush=True)
+        stores = [build_store_from_catalogue(conn, e) for e in fleet]
+        conn.close()
 
     outliers = flag_unit_price_outliers(stores)
 
     doc = {
         "generated_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+        "source": "direct fetch" if args.fetch else "catalogue.db",
         "items": ITEMS,
         "stores": {s["id"]: s for s in stores},
         "totals": {
@@ -814,32 +943,56 @@ async def main() -> int:
     }
     Path(args.out).write_text(json.dumps(doc, indent=2))
 
+    src = ("read out of `catalogue.db`, so a pick here is the same row the tracker "
+           "holds and the two cannot disagree"
+           if not args.fetch else "fetched directly from each store")
     L = ["# Per-store basket map", "",
-         "One concrete product per canonical basket item, per locked store. Generated by",
-         "`spencer-exploration/basket.py`; hand corrections live in `manual-basket.json`.", "",
-         "Status meanings: **verified** - the page served a name and price over plain HTTP.",
-         "**curated** - hand-picked because automated selection chose a lookalike.",
-         "**candidate_unverified** - URL chosen and category-checked, but the page serves no",
-         "price without a browser, so a Studio run has to confirm it. **not_found** - the",
-         "store's public catalogue has no such staple.", ""]
+         "One concrete product per canonical basket item, per locked store, "
+         + src + ".",
+         "Generated by `spencer-exploration/basket.py`; hand corrections live in",
+         "`manual-basket.json`.", "",
+         f"{len(CORE_ITEMS)} core items and {len(ITEMS) - len(CORE_ITEMS)} stretch items "
+         f"are tracked. Counts below read core first, then all tracked items.", "",
+         "Status meanings: **verified** - a real product with a price. **curated** - "
+         "hand-picked",
+         "because automated selection chose a lookalike. **not_stocked** - confirmed by "
+         "hand that",
+         "the store does not sell it. **not_found** - nothing in the store's catalogue "
+         "matches.", ""]
     for st in stores:
-        L += [f"## {st['name']} ({st['country']}) - {st['verified_count']}/10 settled, "
-              f"{st.get('chosen_url_count', 0)}/10 with a chosen URL", "",
-              "| Item | Target | Status | Size | Price | Product |", "|---|---|---|---|---|---|"]
+        head = (f"## {st['name']} ({st['country']}) - "
+                f"{st.get('core_settled', 0)}/{len(CORE_ITEMS)} core, "
+                f"{st['verified_count']}/{len(ITEMS)} tracked")
+        if st.get("catalogue_size"):
+            head += f", from {st['catalogue_size']:,} catalogue products"
+        L += [head, "",
+              "| Item | Target | Status | Size | Price | Per unit | Product |",
+              "|---|---|---|---|---|---|---|"]
         for item, r in st["items"].items():
             price = f"{r['price']:.2f}" if r.get("price") else "-"
+            up = r.get("unit_price")
+            per = f"{up['value']:.2f}/{up['basis'].replace('per_', '')}" if up else "-"
+            size = (r.get("size") or {}).get("raw") or "-"
             L.append(f"| {item} | {r.get('target_size', '-')} | {r['status']} | "
-                     f"{r.get('size') or '-'} | {price} | {(r.get('name') or r.get('note') or '-')[:70]} |")
+                     f"{size} | {price} | {per} | "
+                     f"{(r.get('name') or r.get('note') or '-')[:60]} |")
         L.append("")
         for item, r in st["items"].items():
             if r.get("why"):
                 L.append(f"- **{item}** curated: {r['why']}")
+            if r.get("unit_price_outlier"):
+                o = r["unit_price_outlier"]
+                L.append(f"- **{item}** unit price is {o['ratio_to_peer_median']}x the "
+                         f"median across {o['peers']} stores in this country - "
+                         f"likely a case or multipack, flagged not dropped")
         L.append("")
     Path(args.out).with_suffix(".md").write_text("\n".join(L))
+
     t = doc["totals"]
-    print(f"\nverified {t['verified_items']}/{t['possible_items']} store-item pairs; "
-          f"{outliers} unit-price outlier(s) flagged for review")
-    print(f"wrote {args.out}")
+    core = sum(s.get("core_settled", 0) for s in stores)
+    print(f"\n{core} core picks and {t['verified_items']} tracked-item picks across "
+          f"{t['stores']} stores; {outliers} unit-price outlier(s) flagged")
+    print(f"wrote {args.out} and {Path(args.out).with_suffix('.md')}")
     return 0
 
 
