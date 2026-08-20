@@ -2,7 +2,7 @@
   "name": "edjin-exploration",
   "private": true,
   "type": "module",
-  "description": "Browser-based site vetting. Deliberately outside the scrape-verse workspace so exploration dependencies never reach the product tree.",
+  "description": "Browser-based site vetting. Deliberately outside the basketwatch workspace so exploration dependencies never reach the product tree.",
   "scripts": {
     "vet": "node vet.mjs",
     "rescore": "node vet.mjs --rescore"

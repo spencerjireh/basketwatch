@@ -19,9 +19,9 @@ Only `postgres`. It is published on a public port so both of us can write
 scraped data into one database from our laptops while the rest of the app is
 still being built.
 
-`api`, `web`, and `clone-store` are defined in the same file but carry
-`profiles: ["app"]`, so `docker compose up` neither builds nor starts them. A
-half-finished app build therefore cannot take the database down with it. See
+`api` and `web` are defined in the same file but carry `profiles: ["app"]`, so
+`docker compose up` neither builds nor starts them. A half-finished app build
+therefore cannot take the database down with it. See
 [Turning an app service on](#turning-an-app-service-on).
 
 ## Domains
@@ -30,18 +30,27 @@ half-finished app build therefore cannot take the database down with it. See
 | --- | --- |
 | `basketwatch.spencerjireh.com` | the dashboard (`web`) |
 | `basketwatch.spencerjireh.com/api/*` | the API, same-origin — no separate host |
-| `parkers-pantry.spencerjireh.com` | the clone store, the chaos target |
 | `152.53.136.253:55432` | Postgres, raw TCP — a hostname will **not** work, see below |
 
-The API deliberately has no host of its own. The `web` container's nginx
-proxies `/api/` to `api:3001` and strips the prefix
-(`scrape-verse/apps/web/nginx.conf`), which keeps the dashboard same-origin and
-means no CORS config. The Bright Data webhook target is therefore
+The API deliberately has no host of its own. The `web` container is a Next.js
+server that rewrites `/api/:path*` to `api:3001` **without stripping the
+prefix**, because the API sets a global `api` prefix with no exclusions. The
+path is therefore identical at every layer, which is why the Bright Data
+webhook target is unchanged:
 `https://basketwatch.spencerjireh.com/api/ingest/<scraper>`.
 
-`parkers-pantry` is a single-level subdomain on purpose. A wildcard
-`*.spencerjireh.com` record and certificate does not cover a two-level name
-like `store.basketwatch.spencerjireh.com`.
+Two things this replaced, both worth knowing when the service is switched on:
+
+- **The web container listens on 3000, not 80.** nginx is gone. Coolify's port
+  setting has to match, or the proxy will route to a closed port.
+- **`API_INTERNAL_URL` is a build argument, not a runtime variable.** Next
+  evaluates `rewrites()` during `next build` and bakes the result into its
+  routes manifest, so setting it on a running container does nothing. The
+  compose file passes it under `build.args`.
+
+A single-level subdomain is required for anything that needs TLS here: the
+wildcard `*.spencerjireh.com` record and certificate does not cover a two-level
+name like `store.basketwatch.spencerjireh.com`.
 
 ### Why Postgres listens on 55432 inside the container too
 
@@ -158,7 +167,7 @@ database `basketwatch`, user `basketwatch`.
 
 The database is **modelled**, not a dumping ground. `stores`, `products`,
 `runs`, `price_observations`, `incidents`, `items` and `basket_map` are owned by
-the Drizzle schema in `scrape-verse/apps/api/src/db/schema.ts`; the migration in
+the Drizzle schema in `basketwatch/apps/api/src/database/schema.ts`; the migration in
 `apps/api/drizzle/` is the only thing that should create tables. Write into the
 existing tables — do not `df.to_sql()` a new one beside them, or the API will
 not see your rows.
@@ -180,7 +189,7 @@ run on the host with hot reload.
 
 ```sh
 docker compose -f docker-compose.dev.yml up -d   # from the repo root
-cd scrape-verse && npm run dev:api
+cd basketwatch && pnpm dev
 ```
 
 The two files pin different compose project names (`basketwatch-dev` and
@@ -204,7 +213,8 @@ gitignored.
    `docker-compose.prod.yml`.
 2. Add whatever env vars it needs to the Coolify env — `api` needs
    `BRIGHTDATA_API_KEY`, `BRIGHTDATA_WEBHOOK_SECRET`, `ANTHROPIC_API_KEY`,
-   and the alert keys; `clone-store` needs `CLONE_ADMIN_TOKEN`. The compose
+   and the alert keys, plus `OPS_TOKEN` for the endpoints that spend credits.
+   The compose
    file uses `${VAR:-}` for these, so a missing one is an empty string rather
    than a failed deploy — check them rather than trusting a green deploy.
 3. Set its domain in the Coolify UI, per the table above. `api` gets none.
@@ -220,6 +230,6 @@ a resource is running.
 
 Coolify parses the compose file itself before handing it to Docker. Compose
 profiles are standard and `docker compose up` honours them, but if a deploy
-ever shows Coolify building `api` / `web` / `clone-store` despite the profile,
+ever shows Coolify building `api` / `web` despite the profile,
 the fallback is to comment those three services out entirely and keep the same
 turn-it-on note. That is one commit, not a redesign.

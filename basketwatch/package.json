@@ -1,0 +1,27 @@
+{
+  "name": "basketwatch",
+  "private": true,
+  "packageManager": "pnpm@11.10.0",
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev",
+    "lint": "turbo run lint",
+    "test": "turbo run test",
+    "typecheck": "turbo run typecheck",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "clean": "turbo run clean && rm -rf node_modules",
+    "db:generate": "pnpm --filter @basketwatch/api db:generate",
+    "db:migrate": "pnpm --filter @basketwatch/api db:migrate",
+    "db:check": "pnpm --filter @basketwatch/api db:check",
+    "db:studio": "pnpm --filter @basketwatch/api db:studio"
+  },
+  "devDependencies": {
+    "prettier": "catalog:",
+    "turbo": "^2.10.11",
+    "typescript": "catalog:"
+  }
+}

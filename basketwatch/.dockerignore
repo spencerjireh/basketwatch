@@ -1,0 +1,20 @@
+# Both build contexts are basketwatch/, so BuildKit reads THIS file.
+# It is load-bearing: without it `COPY . .` drags the host's node_modules into
+# the image, and pnpm's symlink farm holds absolute paths into /Users/... that
+# do not exist in the container. The failure is an ERR_MODULE_NOT_FOUND deep in
+# a build with no obvious cause.
+node_modules
+**/node_modules
+.turbo
+**/.turbo
+**/dist
+**/.next
+**/*.tsbuildinfo
+**/coverage
+.git
+.env
+.env.*
+!.env.example
+**/*.md
+Dockerfile
+.dockerignore
