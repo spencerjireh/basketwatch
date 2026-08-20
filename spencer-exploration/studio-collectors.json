@@ -39,6 +39,60 @@
           "significance": "Landers returned 0 rows from 300 pages of plain HTTP and has no price in raw HTML even through the Web Unlocker. It is the one fleet store with no alternative access path, so 0 -> real unit prices is attributable entirely to Studio driving a real browser, and the fix was an autonomous heal rather than a hand-written selector."
         }
       ]
+    },
+    "ph-shopgaisano": {
+      "collector_id": "c_mt0zz5u79cktk6ylt",
+      "name": "basketwatch-ph-shopgaisano",
+      "seed_url": "https://shopgaisano.com/collections/all?page=1",
+      "template": "listing-page",
+      "description": "From this product listing page extract every product card shown on this page. For each: name; price as a number with no currency symbol; currency as a 3-letter ISO code; size, meaning the pack size exactly as printed, such as 5kg or 1.5L; in_stock as true or false; url, the link to the product. Do not follow product links, do not follow pagination, do not visit any other page - scrape only the URL given as input. If a card shows no size leave it empty and never guess.",
+      "description_sha": "sha256:8b7f0df91a1bd52b",
+      "status": "created"
+    },
+    "ph-ever": {
+      "collector_id": "c_mt1031l02lb2j0x6au",
+      "name": "basketwatch-ph-ever",
+      "seed_url": "https://ever.ph/collections/all?page=1",
+      "template": "listing-page",
+      "description": "From this product listing page extract every product card shown on this page. For each: name; price as a number with no currency symbol; currency as a 3-letter ISO code; size, meaning the pack size exactly as printed, such as 5kg or 1.5L; in_stock as true or false; url, the link to the product. Do not follow product links, do not follow pagination, do not visit any other page - scrape only the URL given as input. If a card shows no size leave it empty and never guess.",
+      "description_sha": "sha256:8b7f0df91a1bd52b",
+      "status": "created"
+    },
+    "ph-shopsuki": {
+      "collector_id": "c_mt10brb01gi9nye14c",
+      "name": "basketwatch-ph-shopsuki",
+      "seed_url": "https://shopsuki.ph/collections/all?page=1",
+      "template": "listing-page",
+      "description": "From this product listing page extract every product card shown on this page. For each: name; price as a number with no currency symbol; currency as a 3-letter ISO code; size, meaning the pack size exactly as printed, such as 5kg or 1.5L; in_stock as true or false; url, the link to the product. Do not follow product links, do not follow pagination, do not visit any other page - scrape only the URL given as input. If a card shows no size leave it empty and never guess.",
+      "description_sha": "sha256:8b7f0df91a1bd52b",
+      "status": "created"
+    },
+    "ph-smmarkets": {
+      "collector_id": "c_mt10kl8xenj20pj85",
+      "name": "basketwatch-ph-smmarkets",
+      "seed_url": "https://smmarkets.ph/20078619-gerber-baby-food-banana-puree-80g.html",
+      "template": "product-page",
+      "description": "From this single product page extract exactly one product. Fields: name; price as a number with no currency symbol; currency as a 3-letter ISO code; size, meaning the pack size exactly as printed, such as 5kg or 1.5L or 12 x 60g; in_stock as true or false. Do not follow any link, do not paginate, do not visit any other page - scrape only the URL given as input. If the size is not in the title take it from the product specifications; if there is no size leave it empty and never guess.",
+      "description_sha": "sha256:8221cf645c7de2fc",
+      "status": "created"
+    },
+    "ph-merrymartwholesale": {
+      "collector_id": "c_mt10m0au547yg35zi",
+      "name": "basketwatch-ph-merrymartwholesale",
+      "seed_url": "https://www.merrymartwholesale.com/products/argentina-beef-loaf-250g-1-case-includes-48-pcs-250g",
+      "template": "product-page",
+      "description": "From this single product page extract exactly one product. Fields: name; price as a number with no currency symbol; currency as a 3-letter ISO code; size, meaning the pack size exactly as printed, such as 5kg or 1.5L or 12 x 60g; in_stock as true or false. Do not follow any link, do not paginate, do not visit any other page - scrape only the URL given as input. If the size is not in the title take it from the product specifications; if there is no size leave it empty and never guess.",
+      "description_sha": "sha256:8221cf645c7de2fc",
+      "status": "created"
+    },
+    "us-kesargrocery": {
+      "collector_id": "c_mt10n2px1yyg7am4id",
+      "name": "basketwatch-us-kesargrocery",
+      "seed_url": "https://www.kesargrocery.com/banana-bunch-5-7-pcs-s3_sku201791/",
+      "template": "product-page",
+      "description": "From this single product page extract exactly one product. Fields: name; price as a number with no currency symbol; currency as a 3-letter ISO code; size, meaning the pack size exactly as printed, such as 5kg or 1.5L or 12 x 60g; in_stock as true or false. Do not follow any link, do not paginate, do not visit any other page - scrape only the URL given as input. If the size is not in the title take it from the product specifications; if there is no size leave it empty and never guess.",
+      "description_sha": "sha256:8221cf645c7de2fc",
+      "status": "created"
     }
   }
 }
