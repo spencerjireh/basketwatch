@@ -236,7 +236,14 @@
           "turnover",
           "hopia",
           "pastry",
-          "pie"
+          "pie",
+          "feet",
+          "neck",
+          "liver",
+          "gizzard",
+          "skin",
+          "heart",
+          "head"
         ]
       },
       "categories": [
@@ -289,7 +296,12 @@
           "snack",
           "chip",
           "chips",
-          "pie"
+          "pie",
+          "salted",
+          "balut",
+          "penoy",
+          "quail",
+          "powder"
         ]
       },
       "categories": [
@@ -571,7 +583,13 @@
           "pajama",
           "brittle",
           "pinasugbo",
-          "turon"
+          "turon",
+          "heart",
+          "blossom",
+          "puso",
+          "leaves",
+          "que",
+          "cue"
         ]
       },
       "categories": [
@@ -579,8 +597,6 @@
         "fruit",
         "fruits",
         "produce",
-        "vegetable",
-        "vegetables",
         "fresh"
       ],
       "min_base_quantity": 400,
@@ -632,7 +648,21 @@
           "turnover",
           "pastry",
           "chip",
-          "chips"
+          "chips",
+          "siomai",
+          "siopao",
+          "dumpling",
+          "nugget",
+          "skin",
+          "liver",
+          "kidney",
+          "intestine",
+          "blood",
+          "ear",
+          "tail",
+          "feet",
+          "trotter",
+          "offal"
         ]
       },
       "categories": [
