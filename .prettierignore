@@ -4,3 +4,12 @@ dist
 coverage
 pnpm-lock.yaml
 drizzle/meta
+
+# `prettier --write .` runs from the repo root now, so without these it would
+# reformat frozen lab evidence (a 715 KB tier0.json, a 284 KB registry.json)
+# and the docs, producing an enormous diff over files nobody edited.
+lab
+docs
+
+# Test cache, not source.
+.pytest_cache
