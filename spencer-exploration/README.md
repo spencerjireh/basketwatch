@@ -116,9 +116,18 @@ run also appends a summary to `runs.jsonl` - rows, pages, coverage, ceiling reac
 which is what lets `checkRowCount` tell a truncated pull from a genuine mass price move.
 Without it a short pull would look like everything went free.
 
-Stores whose prices need a browser (Landers, The Fresh Market, Wegmans) are flagged
-`needs_browser` in the lock and return zero rows over plain HTTP. That is correct
-behaviour, not a silent failure - their catalogues need the Studio transport.
+A store returning zero rows has one of two different causes, and they are worth
+distinguishing rather than lumping together:
+
+- **Client-rendered** - the pages exist but hold no price in raw HTML. Landers is the
+  only confirmed case: 0 rows from 300 pages, and no price even through the Unlocker.
+  Flagged `needs_browser`; its catalogue needs the Studio transport.
+- **No public product catalogue** - the sitemap holds no product URLs at all. The Fresh
+  Market publishes 50 URLs of gift cards and recall notices; Wegmans publishes 175
+  landing pages. Both are `method: none`, alongside Meijer.
+
+I originally labelled all three `needs_browser` by assuming a zero-row pull meant
+rendering. Re-running them disproved it for two of the three.
 
 ## The item registry and unit pricing
 
@@ -233,6 +242,16 @@ Two of those were still live when the tests were first written, which is the poi
 TLS certificates are verified by default. A cert failure is recorded as `blocked`
 rather than suppressed, since a broken cert is a real finding about a site. Pass
 `--insecure` to skip verification; `tier0.json` records which mode produced it.
+
+## A third: trusting a long-running process
+
+A background pull loads its code once. Stores it reaches an hour later still run the
+code as it was at launch. Landers, The Fresh Market and Wegmans were all pulled by a
+process holding pre-fix code in memory, and their zero-row results were treated as
+findings about the stores rather than artefacts of stale code.
+
+If a fix lands mid-run, re-run the stores that were already past. `runs.jsonl` records
+`generated_at` per store precisely so you can tell which those were.
 
 ## Two mistakes worth not repeating
 

@@ -7,3 +7,5 @@ studio-*.json
 # catalogue payloads are large and regenerable; runs.jsonl and changes.jsonl are the
 # durable record and stay tracked
 catalogue/*.json
+# development-era run/change logs, kept locally for reference only
+catalogue/*.dev.jsonl

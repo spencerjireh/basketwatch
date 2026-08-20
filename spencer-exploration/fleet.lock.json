@@ -130,7 +130,7 @@
           "frozen"
         ],
         "needs_browser": true,
-        "note": "Prices render client-side, so a plain-HTTP pull returns 0 rows from 300 pages - confirmed. Its catalogue needs the Studio transport, which drives a real browser. Pinned basket items still work today."
+        "note": "Confirmed client-rendered: 0 rows from 300 pages with current code, and no price in raw HTML even through the Unlocker. Needs the Studio transport, which drives a real browser. Its 20 pinned basket items still work today."
       }
     },
     {
@@ -220,11 +220,10 @@
       "role": "reliability-subject",
       "role_note": "Scrapes cleanly and carries a distinct markup shape for the heal story, but its public catalogue does not contain plain staples, so it feeds scraper health and self-healing evidence rather than the price index. Interview decision: keep in fleet, exclude from index.",
       "catalogue": {
-        "method": "sitemap",
+        "method": "none",
         "endpoint": null,
-        "max_pages": 400,
-        "needs_browser": true,
-        "note": "Sitemap pull returned 0 extractable prices; pages carry no price in raw HTML. Needs the Studio transport or a per-store extractor."
+        "max_pages": 0,
+        "note": "Sitemap holds 50 URLs and none are products - gift cards and recall notices. Re-verified with current code: 20 rows, 0 with a price. Not a rendering problem; there is no public product catalogue to pull."
       }
     },
     {
@@ -242,11 +241,10 @@
       "role": "reliability-subject",
       "role_note": "Scrapes cleanly and carries a distinct markup shape for the heal story, but its public catalogue does not contain plain staples, so it feeds scraper health and self-healing evidence rather than the price index. Interview decision: keep in fleet, exclude from index.",
       "catalogue": {
-        "method": "sitemap",
+        "method": "none",
         "endpoint": null,
-        "max_pages": 400,
-        "needs_browser": true,
-        "note": "Sitemap pull returned 0 extractable prices; pages carry no price in raw HTML. Needs the Studio transport or a per-store extractor."
+        "max_pages": 0,
+        "note": "Sitemap holds 175 URLs, all /shop/discovery/ and /shop/featured/ landing pages rather than products. Re-verified with current code: 0 rows from 175 pages. No public product catalogue to pull."
       }
     },
     {
@@ -366,6 +364,11 @@
       "date": "2026-08-19",
       "change": "Added Cypress Indian Grocery and Latimex Market",
       "why": "Round 6 basket-tested the round-5 candidates that had Shopify APIs but had only ever been judged on their sitemaps - the same measurement error that hid Ever Supermarket. Cypress Indian returned the most realistic US prices in the registry. US index contributors go from 2 to 4."
+    },
+    {
+      "date": "2026-08-20",
+      "change": "Corrected the catalogue status of The Fresh Market and Wegmans",
+      "why": "Both were labelled needs_browser on the assumption that a zero-row pull meant client-rendering. Re-running them with current code disproved that: their sitemaps carry no product URLs at all - gift cards and recall notices for The Fresh Market, landing pages for Wegmans. They are now method:none, the same as Meijer. The original zero-row results were also produced by a long-running process holding pre-fix code in memory, which is why they needed re-checking rather than trusting."
     }
   ],
   "catalogue_policy": {
