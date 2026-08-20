@@ -79,18 +79,6 @@
     background-color: var(--color-rail);
   }
 
-  /* The scar: a missing span on the index. Diagonal hatching, not a fill, so it
-     reads as absence rather than as a value. */
-  .hatch-broken {
-    background-image: repeating-linear-gradient(
-      45deg,
-      color-mix(in oklab, var(--color-broken) 22%, transparent) 0px,
-      color-mix(in oklab, var(--color-broken) 22%, transparent) 2px,
-      transparent 2px,
-      transparent 7px
-    );
-  }
-
   /* Thermal receipt tape, torn along the bottom edge. */
   .receipt {
     background-color: var(--color-tape);
