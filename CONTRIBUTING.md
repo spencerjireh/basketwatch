@@ -37,7 +37,7 @@ gh pr merge --squash --delete-branch
 they are asleep or heads-down. Merge your own PR once tests pass.
 
 Use judgement on risky changes — deploy config, secrets handling, or the shared
-output contract in `packages/shared` — and give the other person a heads-up
+output contract in `basketwatch/packages/contract` — and give the other person a heads-up
 first. That is a courtesy, not a gate.
 
 ### Branch names
@@ -62,8 +62,8 @@ docs: ignore .obsidian vault state (per-machine UI files)
   purpose.
 - No secrets in the diff. `.env` is gitignored and stays that way.
 - No emojis, anywhere: code, docs, output, commit messages.
-- If the change touches the dashboard's mock data or the API contract, both
-  move together. See AGENTS.md.
+- If the change touches the dashboard's fixtures or the API contract, both move
+  together: the fixtures are typed by the contract schemas. See AGENTS.md.
 
 ## Enforcement
 

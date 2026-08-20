@@ -19,8 +19,8 @@ on GitHub — everything renders in both.
    candidate sites, definition of done.
 3. [Architecture (HLD)](architecture.md) — components, self-heal loop,
    state machine, data model, deployment; all diagrams inline.
-4. [API contract](api-contract.md) — frozen v1 endpoint and response shapes;
-   the seam the data plane and control plane meet at.
+4. [API contract](api-contract.md) — v2 endpoint and response shapes; the seam
+   the data plane and control plane meet at.
 5. [Deploy runbook](deploy.md) — the Coolify resource, the domains, and how to
    connect to the deployed Postgres.
 6. [Credit monitoring](credit-monitoring.md) — what Bright Data will and
@@ -54,6 +54,16 @@ on GitHub — everything renders in both.
 
 ## Standing status
 
+- **App rebuilt Aug 20.** `scrape-verse/` was replaced by `basketwatch/` on
+  pnpm + Turborepo, NestJS + Next.js. Only the Drizzle schema and migration
+  0000 were carried across, because they describe the live database. The clone
+  store was deleted in the rebuild and is pending — PRD open item C7.
+- **Data is in prod.** 19 stores, 28,378 products, 28,376 price observations,
+  340 basket pins, 21 items. Nothing writes to it on a schedule yet, and no
+  endpoint reads it: every dashboard route returns 501 and the UI runs on
+  fixtures.
+- **Deploy is live but app-less.** Only `postgres` runs; `api` and `web` are
+  profile-gated. When `web` is switched on, its Coolify port is 3000, not 80.
 - Bright Data: two separate accounts, two separate budgets, and they are no
   longer symmetric. Spencer's holds every Studio collector and has spent
   roughly half its credits — $0.52 on the 433-call vetting sweep and $26.54

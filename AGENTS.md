@@ -15,7 +15,7 @@ Read these before doing product work, in order:
 1. `docs/hackathon-brief.md` — rules, judging criteria, experiment findings
 2. `docs/prd.md` — confirmed scope, cut order, definition of done
 3. `docs/architecture.md` — HLD; diagrams in `docs/diagrams/`
-4. `docs/api-contract.md` — frozen endpoint and response shapes
+4. `docs/api-contract.md` — v2 endpoint and response shapes (zod, in `packages/contract`)
 
 ## Layout
 

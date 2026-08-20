@@ -12,11 +12,11 @@ flowchart TB
     subgraph COOLIFY["Coolify VPS (Docker)"]
         PROXY["Reverse proxy + TLS<br/>(Coolify-managed)"]
         subgraph APP["app stack (docker compose)"]
-            WEB["dashboard<br/>React SPA / Next.js"]
+            WEB["dashboard<br/>Next.js :3000"]
             APIC["orchestrator-api<br/>NestJS + pg-boss"]
             PG[("postgres 16<br/>volume-backed")]
         end
-        CLONE["clone-store<br/>static site + mutation flag<br/>(separate subdomain)"]
+        CLONE["clone-store<br/>static site + mutation flag<br/>(pending rebuild)"]
     end
 
     JUDGE -->|https| PROXY
