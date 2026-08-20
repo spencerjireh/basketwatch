@@ -21,6 +21,7 @@ import pytest
 
 sys.path.insert(0, str(Path(__file__).parent))
 
+import basket  # noqa: E402
 from basket import (  # noqa: E402
     CORE_ITEMS,
     ITEMS,
@@ -340,3 +341,60 @@ def test_bare_html_falls_back_to_a_price_near_the_heading():
 def test_near_heading_fallback_ignores_prices_far_down_the_page():
     html = "<h1>Item</h1>" + ("x" * 6000) + "<span>₱999.00</span>"
     assert extract_bare_html(html) is None
+
+
+# --- picking from the catalogue ----------------------------------------------
+
+def _row(name, category=None, size_from=None, price=100.0):
+    """A catalogue row as build_store_from_catalogue shapes one."""
+    return {"name": name, "category": category, "url": f"https://x.test/{name[:12]}",
+            "price": price, "currency": "PHP",
+            "size": basket.parse_size(size_from or name)}
+
+
+def test_the_store_category_beats_a_closer_pack_size():
+    """Ranking on size alone picked "Julie's Coffee Waffles 100g", filed under Wafers,
+    over real coffee - because 100g sat nearer the target. The store's own shelf is the
+    cheapest second opinion available."""
+    rows = [_row("Julie's Coffee Waffles 100g", "Wafer Squares and Bars, Wafers"),
+            _row("Fresh Pick Barako Coffee Beans 250g", "Coffee, Regular Coffee")]
+    pick = basket.pick_from_catalogue("coffee", "PH", rows)
+    assert "Barako" in pick["name"]
+
+
+def test_a_product_with_no_category_still_beats_one_filed_elsewhere():
+    """An unknown shelf is not evidence against; a contradicting shelf is."""
+    rows = [_row("Something Coffee Waffles 250g", "Wafers"),
+            _row("Generic Ground Coffee 250g", None)]
+    pick = basket.pick_from_catalogue("coffee", "PH", rows)
+    assert "Ground Coffee" in pick["name"]
+
+
+def test_the_pack_closest_to_the_target_size_wins_within_a_shelf():
+    rows = [_row("House Rice 25kg", "Rice"), _row("House Rice 5kg", "Rice"),
+            _row("House Rice 1kg", "Rice")]
+    pick = basket.pick_from_catalogue("rice", "PH", rows)   # PH target is 5 kg
+    assert pick["name"].endswith("5kg")
+
+
+def test_banana_heart_is_not_a_banana():
+    """It is a vegetable, and items.json listed vegetables as an accepted banana
+    category, so it outranked real fruit on size."""
+    rows = [_row("Global Fresh Banana Heart White 1kg", "Fresh Vegetables"),
+            _row("Sydarb Banana Saba 750g", "Fresh Fruits")]
+    pick = basket.pick_from_catalogue("bananas", "PH", rows)
+    assert "Saba" in pick["name"]
+
+
+def test_offal_and_preserved_forms_are_not_the_staple():
+    """Chicken feet, salted eggs and pork liver all priced nothing like the cut the
+    index is meant to track, and all three were picked before this."""
+    assert not basket.pick_is_usable("chicken", "Mamanok's Chicken Feet 1kg", "PH")
+    assert not basket.pick_is_usable("eggs", "Sunshine Salted Egg 4s", "PH")
+    assert not basket.pick_is_usable("pork", "Jupiter Pork Liver 500g", "PH")
+    assert basket.pick_is_usable("chicken", "Mamanok's Chicken Wings 1kg", "PH")
+    assert basket.pick_is_usable("eggs", "Bounty Fresh Eggs Omega3 10s", "PH")
+
+
+def test_an_item_with_no_match_in_the_catalogue_returns_nothing():
+    assert basket.pick_from_catalogue("rice", "PH", [_row("Dish Soap 500ml")]) is None
