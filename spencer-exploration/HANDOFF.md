@@ -123,3 +123,41 @@ Two files carry the durable record and should map onto Postgres directly:
   delta. This is the price history.
 
 Per-store catalogue JSON is regenerable and gitignored.
+
+
+## 7. The catalogue is a SQLite database now, and Studio collects it
+
+Two things changed on 2026-08-20 that the app inherits directly.
+
+**`catalogue.db` replaces the per-store JSON as the store.** It is committed, it is
+~11MB, and it opens with any SQLite client. Its schema is the closest thing to a written
+contract this project has, and it was designed to be ported rather than migrated around:
+
+    stores              fleet members: country, currency, method, endpoint, ceilings,
+                        coverage, studio_collector_id, needs_browser
+    products            identity is (store_id, product_key); size decomposed into
+                        size_value / size_uom / size_quantity / size_base_uom /
+                        size_form / size_approximate, exactly as section 1 proposes
+    price_observations  change-only history: price, unit_price, in_stock, observed_at,
+                        source, run_id, change, previous_price, delta
+    runs                one row per store per run, always, even at zero changes
+    incidents           reserved for the validator; written today when a Studio
+                        collector fails and the puller covers
+
+`latest_price` is a view joining on `MAX(id)` rather than `MAX(observed_at)`, because
+observations written in the same second would otherwise tie and return both rows.
+
+The invariant to preserve when this moves to Postgres: **`run_id` is mandatory on every
+observation, and a run row is written unconditionally.** That is the entire mechanism by
+which `checkRowCount` can distinguish a truncated pull from a genuine mass price move. A
+change-only history without per-run summaries is not safe.
+
+**Studio is the collector; the puller is the fallback.** Rows carry `source`, which is
+`studio` or `puller`. The app should render a fallback-sourced segment visibly
+differently rather than hiding it - the decision recorded is that a fallback fills the
+data *and* opens an incident, so continuity and honesty both hold. `priceRecordSchema`
+needs `source` alongside the size fields from section 1.
+
+One more contract note, learned the expensive way: **`unit` cannot be required.** 2,509
+of 17,792 rows have no parseable size, and they are still perfectly trackable prices.
+`z.string().min(1)` rejects 14% of the catalogue at the door.
