@@ -3,6 +3,7 @@ import { ConfigModule } from "./config/config.module.js";
 import { LoggerModule } from "./common/logging/logger.module.js";
 import { DatabaseModule } from "./database/database.module.js";
 import { JobsModule } from "./jobs/jobs.module.js";
+import { ProductsModule } from "./modules/products/products.module.js";
 import { BasketModule } from "./modules/basket/basket.module.js";
 import { BudgetModule } from "./modules/budget/budget.module.js";
 import { FeedModule } from "./modules/feed/feed.module.js";
@@ -27,6 +28,7 @@ import { ValidatorModule } from "./modules/validator/validator.module.js";
     HealthModule,
     FleetModule,
     BasketModule,
+    ProductsModule,
     FeedModule,
     IncidentsModule,
     BudgetModule,

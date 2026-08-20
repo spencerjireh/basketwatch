@@ -9,7 +9,7 @@ export function Panel({
   children,
   className,
 }: {
-  title: string;
+  title: ReactNode;
   caption?: string;
   action?: ReactNode;
   children: ReactNode;

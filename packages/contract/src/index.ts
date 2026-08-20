@@ -10,3 +10,4 @@ export * from "./incidents.js";
 export * from "./budget.js";
 export * from "./ingest.js";
 export * from "./pullers.js";
+export * from "./products.js";
