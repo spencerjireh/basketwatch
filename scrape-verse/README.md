@@ -21,9 +21,12 @@ diagrams/).
 
 ## Dev
 
+Both compose files live at the repo root, one level up from here.
+
 ```sh
+docker compose -f ../docker-compose.dev.yml up -d   # postgres only
+
 npm install
-docker compose -f docker-compose.dev.yml up -d   # postgres only
 cp .env.example .env   # fill in keys
 npm run dev:api        # :3001
 npm run dev:web        # :3000
@@ -33,10 +36,10 @@ npm test
 
 ## Deploy
 
-`docker-compose.prod.yml` is the deployment unit: Coolify runs it as a
-single Docker Compose resource (postgres internal-only, secrets from
-Coolify env vars). Dev runs only postgres in Docker; apps run on the host
-with hot reload.
+`docker-compose.prod.yml` at the repo root is the deployment unit: Coolify
+runs it as a single Docker Compose resource watching `main`, with secrets from
+Coolify env vars. Dev runs only postgres in Docker; apps run on the host with
+hot reload. Runbook: [docs/deploy.md](../docs/deploy.md).
 
 ## Rules kept
 

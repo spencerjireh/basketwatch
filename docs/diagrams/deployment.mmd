@@ -6,6 +6,7 @@ flowchart TB
         ANTHROPIC["Anthropic API"]
         BDCLOUD["Bright Data Cloud<br/>Scraper Studio + fleet"]
         STORES["Real store sites"]
+        TEAM["Team laptops<br/>psql / pandas ingest"]
     end
 
     subgraph COOLIFY["Coolify VPS (Docker)"]
@@ -30,3 +31,4 @@ flowchart TB
     APIC -->|heal-prompt calls| ANTHROPIC
     APIC -->|alerts| RESEND
     APIC -->|alerts| TG
+    TEAM -->|"postgres :55432<br/>(direct TCP, password auth)"| PG

@@ -17,8 +17,9 @@ for three other reasons:
 
 - The diff stays reviewable after the fact. Judges score clean code, and "every
   change landed through a PR" is evidence we can point at.
-- `main` stays deployable. `docker-compose.prod.yml` is the Coolify deployment
-  unit, so a broken `main` is a broken demo.
+- `main` stays deployable. Root `docker-compose.prod.yml` is the Coolify
+  deployment unit and auto-deploys on every push, so a broken `main` is a
+  broken demo.
 - Reverting one merge commit is cheap. Untangling a direct push is not.
 
 ## Workflow

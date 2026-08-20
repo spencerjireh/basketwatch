@@ -284,13 +284,31 @@ break-and-heal demo moment + integration-test target during development.
 Disclosed as a test target in the submission.
 
 ### 3.6 Deployment
-Coolify VPS. **`scrape-verse/docker-compose.prod.yml` is the deployment
-unit** — Coolify runs the whole stack as one Docker Compose resource:
-`dashboard`, `orchestrator-api`, `postgres` (internal-only, volume-backed),
-`clone-store`. `docker-compose.dev.yml` runs just postgres locally; apps
-run on the host with hot reload. Coolify handles TLS/subdomains. Secrets
-(Bright Data key, Anthropic key, Resend, Telegram token, webhook secret) via
-Coolify env vars. Bright Data webhook -> `https://api.<domain>/ingest/<scraper>`.
+Coolify VPS. **`docker-compose.prod.yml` at the repo root is the deployment
+unit** — Coolify runs the stack as one Docker Compose resource watching
+`main`, and redeploys on every push. `docker-compose.dev.yml`, also at the
+root, runs just postgres locally; apps run on the host with hot reload.
+Coolify handles TLS/subdomains. Secrets (Bright Data key, Anthropic key,
+Resend, Telegram token, webhook secret) via Coolify env vars. Full runbook in
+[deploy.md](deploy.md).
+
+Domains: `basketwatch.spencerjireh.com` serves the dashboard, and the API sits
+behind it same-origin at `/api/` (the web container's nginx proxies `/api/` to
+`api:3001` and strips the prefix), so the API needs no host of its own and the
+Bright Data webhook target is
+`https://basketwatch.spencerjireh.com/api/ingest/<scraper>`. The clone store
+gets `parkers-pantry.spencerjireh.com`.
+
+Postgres is the exception to "internal-only": it is published on host port
+`55432` so the team can write scraped data into it directly from their
+laptops. Password auth is scram-sha-256 and the password lives only in the
+Coolify env.
+
+Staging note (Aug 20): only `postgres` currently deploys. `api`, `web`, and
+`clone-store` are defined in the prod compose but gated behind the `app`
+profile, so they are neither built nor started — an in-progress app build
+cannot break the database deploy. Removing a service's `profiles:` line turns
+it on.
 
 ```mermaid
 flowchart TB
@@ -301,6 +319,7 @@ flowchart TB
         ANTHROPIC["Anthropic API"]
         BDCLOUD["Bright Data Cloud<br/>Scraper Studio + fleet"]
         STORES["Real store sites"]
+        TEAM["Team laptops<br/>psql / pandas ingest"]
     end
 
     subgraph COOLIFY["Coolify VPS (Docker)"]
@@ -325,6 +344,7 @@ flowchart TB
     APIC -->|heal-prompt calls| ANTHROPIC
     APIC -->|alerts| RESEND
     APIC -->|alerts| TG
+    TEAM -->|"postgres :55432<br/>(direct TCP, password auth)"| PG
 ```
 
 Source: `diagrams/deployment.mmd`.

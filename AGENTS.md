@@ -32,20 +32,26 @@ Read these before doing product work, in order:
 
 ## Commands
 
-Run from `scrape-verse/`:
+Both compose files live at the **repo root**. Everything npm runs from
+`scrape-verse/`.
 
 ```sh
+docker compose -f docker-compose.dev.yml up -d   # repo root; postgres only
+
+cd scrape-verse
 npm install
-docker compose -f docker-compose.dev.yml up -d   # postgres only
 npm run dev:api     # :3001
 npm run dev:web     # :3000
 npm run dev:clone   # :3002
 npm test            # vitest (validator tests must stay green)
 ```
 
-Deployment: `docker-compose.prod.yml` is THE Coolify deployment unit
-(single Docker Compose resource; secrets via Coolify env vars). Never
-deploy without the user's go-ahead.
+Deployment: root `docker-compose.prod.yml` is THE Coolify deployment unit
+(single Docker Compose resource watching `main`; secrets via Coolify env
+vars). Only `postgres` deploys today — it is published on port `55432` for
+the team to write scraped data into, while `api`, `web`, and `clone-store`
+sit behind the `app` compose profile and are never built. Runbook:
+[docs/deploy.md](./docs/deploy.md). Never deploy without the user's go-ahead.
 
 Bright Data CLI (`brightdata`, v0.3.4+) drives Scraper Studio:
 `scraper create <url> "<desc>"`, `scraper run <id> [url]`,
@@ -90,10 +96,18 @@ Bright Data CLI (`brightdata`, v0.3.4+) drives Scraper Studio:
 
 - Scaffold complete on NestJS + pg-boss (swapped from Hono Aug 18, team
   decision); dashboard v1 on mock data; clone store working; dev/prod
-  compose split with Dockerfiles for all three apps.
+  compose split with Dockerfiles for all three apps. Both compose files moved
+  from `scrape-verse/` to the repo root Aug 20, and the DB role and database
+  were renamed `scrapeverse` -> `basketwatch`; re-create your local volume
+  (`docker compose -f docker-compose.dev.yml down -v`) or auth will fail.
 - API contract frozen Aug 18: shared types cover fleet, basket, feed,
   incidents, heal attempts and credit budget; `country` is a first-class
   dimension in the contract but not yet in the DB schema (gaps listed at the
   end of `docs/api-contract.md`).
+- Coolify deploy scaffolded Aug 20 on `basketwatch.spencerjireh.com`: the
+  root prod compose ships a public Postgres for the team to dump scraped data
+  into; the three app services are profile-gated placeholders. The Coolify
+  resource itself is created by hand — see `docs/deploy.md`.
 - Not yet: DB wiring for ingest, heal orchestrator service, notifier,
-  first deploy, real fleet (site vetting pending — PH gate Aug 19 EOD).
+  app services live on the deploy, real fleet (site vetting pending — PH gate
+  Aug 19 EOD).
