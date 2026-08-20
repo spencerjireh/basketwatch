@@ -4,9 +4,19 @@
 # ///
 """Scraper Studio collectors: create them, run them, record what they are.
 
-Studio is the primary collector for the fleet. The puller in catalogue.py is the
-fallback - it keeps the series unbroken when a collector fails, and every row it
-produces is labelled so the substitution is never silent.
+Studio collects the stores a browser is needed for. `catalogue.py` collects the eleven
+that publish a bulk endpoint, because paying a cloud browser to re-read a free JSON API
+is worse on cost, on row count and on latency - established the expensive way, at $26.54
+against a $5 ceiling.
+
+Wherever Studio does collect, the puller remains the fallback: it keeps the series
+unbroken when a collector fails, and every row it produces is labelled so the
+substitution is never silent.
+
+The `listing-page` template is abandoned. It rendered a full collection grid in a cloud
+browser at ~$2.19 a run and timed out on all ten canaries. `TEMPLATES` still carries it
+so existing records stay readable, but `seed_kind` should not be routing new stores to
+it - those stores have a bulk endpoint.
 
 Driving decisions, each of which cost something to learn:
 

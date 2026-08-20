@@ -42,9 +42,9 @@ Tier-1 cost: **$0.52** of a $5.00 ceiling across 433 Web Unlocker calls (ceiling
 
 ## Locked fleet
 
-Locked 2026-08-19. This is the decision, held in `fleet.lock.json`; the tables further down are the evidence behind it. Drawn from 31 fleet-ready stores (22 US, 9 PH) with 61 more on the bench.
+Locked 2026-08-20. This is the decision, held in `fleet.lock.json`; the tables further down are the evidence behind it. Drawn from 31 fleet-ready stores (22 US, 9 PH) with 61 more on the bench.
 
-Eight real stores, four per country, spanning five extraction shapes (json-ld, graphql, bare-html, spa-with-state, spa-opaque) so a breakage in one does not resemble a breakage in another. Weighted toward genuine grocers over online pantries per docs/prd.md section 2.6, and toward sites already proven end to end. Clears the PRD bar of 4+ US scrapers plus the clone store, with PH included. Members split into two roles. Index contributors supply the basket on both sides. The US source is ethnic grocers, which stock generic staples and fresh produce where the supermarket chains publish nothing and the online pantries sell diet goods. Reliability subjects scrape cleanly across different markup shapes and carry the self-healing story without feeding the index.
+Nineteen stores, thirteen US and six PH, spanning five extraction shapes: Shopify products.json, Magento GraphQL, JSON-LD product pages, bare-HTML product pages, and one client-rendered store reachable only through a cloud browser. Eleven publish a bulk endpoint and are collected over free HTTP; four are page-at-a-time and work either way; ph-landers has no HTTP path at all. Three carry method:none - their sitemaps contain no product URLs.
 
 Lock audit: all locked sites still fleet-ready, robots-clean, and present in the registry.
 
@@ -57,7 +57,7 @@ Members do one of two jobs. **Index contributors** supply the basket. **Reliabil
 | 3 | **Shop Suki** `ph-shopsuki` | PH | index | json-ld | low | - | 16 of 20 items settled with strong picks - Nestle Fresh Milk 1L, Angelina Super Loaf 640g, Balducci Spaghetti 500g, real white onions sold by weight, Absolute Distilled Water 6L. Server-rendered json-ld and a broad staples catalogue. |
 | 4 | **SM Markets** `ph-smmarkets` | PH | index | graphql | low | yes | Largest PH supermarket network and the broadest PH catalogue. Pages are a client-rendered shell, but the public Magento GraphQL endpoint is a structured fallback no selector change can break. Proven end to end. |
 | 5 | **MerryMart Wholesale** `ph-merrymartwholesale` | PH | index | bare-html | medium | - | Fully server-rendered PHP prices with no structured data at all - the bare-HTML shape the fleet otherwise lacks on the PH side, and the one most likely to break on a redesign, which makes it a good heal subject. |
-| 6 | **Landers Superstore** `ph-landers` | PH | index | spa-opaque | high | - | 10/10 basket categories from a 17,032-URL sitemap - the deepest basket coverage of any PH site - and a well-known consumer name for the demo. |
+| 6 | **Landers Superstore** `ph-landers` | PH | index | spa-opaque | high | yes | 10/10 basket categories from a 17,032-URL sitemap - the deepest basket coverage of any PH site - and a well-known consumer name for the demo. |
 | 7 | **Kesar Grocery** `us-kesargrocery` | US | index | bare-html | medium | - | The US index source. 13 of 20 items settled, 7/10 core, every one unit-priced, and genuinely generic goods including fresh produce: Basmati 4LB, whole wheat bread 24oz, Great Value elbow pasta 1LB, Amul cheese 1KG, organic bananas 3lb, beefsteak tomatoes, white onions, gala apples, navel oranges. 11,987 products in its sitemap and no structured data at all, which is why it needed bare-HTML extraction to surface. |
 | 8 | **MexGrocer** `us-mexgrocer` | US | index | json-ld | medium | - | Second US index source and a different cuisine, so the two do not share supply. 9 items settled, 5/10 core, Shopify search for reliable selection. Mahatma Long Grain Rice and Cafe de Olla ground coffee are real staples. |
 | 9 | **Dierbergs** `us-dierbergs` | US | reliability | json-ld | low | yes | Authentic St. Louis regional grocer with clean json-ld and real basket staples. Proven end to end on a bread SKU. |
@@ -87,7 +87,7 @@ Caveats carried by locked sites:
 - **Sukli** - 3/10 core items measured. Included for cross-country comparability, not depth.
 - **H Mart** - Basket coverage is sitemap-derived, not measured. No bulk endpoint.
 
-Bench (vetted, promote without re-running discovery): **PH** `ph-southstar`, `ph-snr`, `ph-medsgo`, `ph-rosepharmacy`; **US** `us-hmart`, `us-keyfood`, `us-netrition`, `us-swanson`, `us-smartandfinal`.
+Bench (vetted, promote without re-running discovery): **PH** `ph-southstar`, `ph-snr`, `ph-medsgo`, `ph-rosepharmacy`; **US** `us-keyfood`, `us-netrition`, `us-swanson`, `us-smartandfinal`.
 
 ## Fleet-ready
 

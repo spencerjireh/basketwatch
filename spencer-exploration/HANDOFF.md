@@ -101,9 +101,10 @@ this handoff is a document instead of a patch.
 
 ## 6. The catalogue layer
 
-`catalogue.py` produces the tracker data the app will actually serve: 17,746 products
-across 13 stores, 15,260 with a computed unit price. Rows carry the `priceRecordSchema`
-fields plus `store_id`, `country`, `category`, `size` and `unit_price`.
+`catalogue.py` produces most of the tracker data the app will serve: 28,376 products
+across 17 stores, 24,100 with a computed unit price. Rows carry the `priceRecordSchema`
+fields plus `store_id`, `country`, `category`, `size` and `unit_price`. The rest comes
+from Scraper Studio - see section 7 for which stores and why.
 
 Rows were validated against the real contract, and doing so caught two bugs worth
 knowing about when porting:
@@ -114,24 +115,21 @@ knowing about when porting:
 - **Shopify publishes no currency.** `/products.json` has no currency field at all, so
   it is derived from the store's country. A source-provided value always wins.
 
-Two files carry the durable record and should map onto Postgres directly:
-
-- `catalogue/runs.jsonl` - one row per store per run (rows, pages, ceiling reached,
-  coverage). This is the input `checkRowCount` needs; without it a truncated pull is
-  indistinguishable from a mass price change.
-- `catalogue/changes.jsonl` - one row per price move, carrying the previous price and
-  delta. This is the price history.
-
-Per-store catalogue JSON is regenerable and gitignored.
+Both files named here - `catalogue/runs.jsonl` and `catalogue/changes.jsonl` - have
+since been migrated into `catalogue.db` and are kept only as the pre-SQLite record. The
+tables they became are `runs` and `price_observations`; see section 7. Per-store
+catalogue JSON is now an export rather than the store.
 
 
-## 7. The catalogue is a SQLite database now, and Studio collects it
+## 7. The catalogue is a SQLite database, and the transport is split
 
 Two things changed on 2026-08-20 that the app inherits directly.
 
-**`catalogue.db` replaces the per-store JSON as the store.** It is committed, it is
-~11MB, and it opens with any SQLite client. Its schema is the closest thing to a written
-contract this project has, and it was designed to be ported rather than migrated around:
+### `catalogue.db` is the store
+
+It is committed, it is ~17MB, and it opens with any SQLite client. Its schema is the
+closest thing to a written contract this project has, and it was designed to be ported
+rather than migrated around:
 
     stores              fleet members: country, currency, method, endpoint, ceilings,
                         coverage, studio_collector_id, needs_browser
@@ -141,23 +139,40 @@ contract this project has, and it was designed to be ported rather than migrated
     price_observations  change-only history: price, unit_price, in_stock, observed_at,
                         source, run_id, change, previous_price, delta
     runs                one row per store per run, always, even at zero changes
-    incidents           reserved for the validator; written today when a Studio
-                        collector fails and the puller covers
+    incidents           written when a Studio collector fails and the puller covers
 
 `latest_price` is a view joining on `MAX(id)` rather than `MAX(observed_at)`, because
 observations written in the same second would otherwise tie and return both rows.
 
-The invariant to preserve when this moves to Postgres: **`run_id` is mandatory on every
-observation, and a run row is written unconditionally.** That is the entire mechanism by
+**The invariant to preserve when this moves to Postgres:** `run_id` is mandatory on every
+observation, and a run row is written unconditionally. That is the entire mechanism by
 which `checkRowCount` can distinguish a truncated pull from a genuine mass price move. A
 change-only history without per-run summaries is not safe.
 
-**Studio is the collector; the puller is the fallback.** Rows carry `source`, which is
-`studio` or `puller`. The app should render a fallback-sourced segment visibly
-differently rather than hiding it - the decision recorded is that a fallback fills the
+### The transport is split by what each site permits
+
+Not Studio-primary, which was an intermediate position that cost $26.54 against a $5
+ceiling before the evidence settled it:
+
+| group | count | collected by |
+|---|---|---|
+| publishes a bulk endpoint (Shopify `products.json`, Magento GraphQL) | 11 | free HTTP, 250 products per call |
+| page-at-a-time, works over HTTP | 4 | either; Studio verified on all four |
+| no HTTP path at all (`ph-landers`) | 1 | Studio only - zero rows over HTTP |
+
+Rows carry `source`, which is `studio` or `puller`. The app should render a
+fallback-sourced segment visibly differently rather than hiding it: a fallback fills the
 data *and* opens an incident, so continuity and honesty both hold. `priceRecordSchema`
 needs `source` alongside the size fields from section 1.
 
-One more contract note, learned the expensive way: **`unit` cannot be required.** 2,509
-of 17,792 rows have no parseable size, and they are still perfectly trackable prices.
-`z.string().min(1)` rejects 14% of the catalogue at the door.
+### One contract correction, learned the expensive way
+
+**`unit` cannot be required.** 4,276 of 28,376 rows have no parseable size, and they are
+still perfectly trackable prices. `z.string().min(1)` rejects 15% of the catalogue at the
+door.
+
+And a related rule the app should keep: where a collector's stated size disagrees with
+the size in the product title, **emit no unit price at all**. A collector returned `"1G"`
+for a product titled `"1Gal."`, which parses cleanly as one gram and priced cooking oil
+at PHP 799,950 per kilo. A missing unit price is a visible gap; a wrong one silently
+poisons every comparison the product exists to make.

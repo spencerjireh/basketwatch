@@ -83,9 +83,9 @@ def row(store_id: str, country: str, *, product_key, name, price, currency,
         url, in_stock=True, category=None, raw_size=None, source="puller") -> dict:
     """One catalogue row, shaped to the fleet output contract plus tracker fields.
 
-    `source` records which transport actually produced this row. Studio is the primary
-    collector; when a collector fails the puller covers for it, and the row says so
-    rather than the substitution being invisible.
+    `source` records which transport actually produced this row. Studio collects the
+    stores that need a browser; when one of its collectors fails the puller covers, and
+    the row says so rather than the substitution being invisible.
     """
     size = None if raw_size is NO_SIZE else parse_size(raw_size or name or "")
     return {
@@ -338,8 +338,9 @@ async def pull_store(entry: dict, cand: dict, client, api_key: str | None,
         fetch = free.get
 
     async def run_puller() -> tuple[list[dict], int]:
-        """The fallback path. Named rather than inline because it is now something the
-        Studio path falls back *to*, not the only thing that happens."""
+        """The HTTP path. For the eleven bulk-endpoint stores this is the primary and
+        only collector; for the Studio stores it is what a failed collector falls back
+        to, labelled so the difference is visible in the data."""
         if method in STRATEGIES:
             return await STRATEGIES[method](entry, cfg, fetch, max_pages)
         if method in ("sitemap", "sitemap-bounded"):
