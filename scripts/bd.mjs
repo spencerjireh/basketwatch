@@ -30,13 +30,20 @@ import { execFile } from "node:child_process";
 import { appendFile, mkdir, readFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import { promisify } from "node:util";
-import { config } from "dotenv";
 
 // The one .env at the repo root, one level up. Without this the caps below
 // silently fall back to their defaults, which looks identical to working.
-// (Was ../../.env while this lived in the app monorepo; it now sits at the
-// repo root, because it is an ops tool and outlived that monorepo.)
-config({ path: fileURLToPath(new URL("../.env", import.meta.url)) });
+//
+// Node's built-in loader rather than dotenv: this script sits at the repo root
+// now (it is an ops tool, and it outlived the monorepo it was written in), so
+// it has no node_modules to resolve a dependency from. Same semantics as
+// dotenv.config() -- a variable already set in the environment wins.
+try {
+  process.loadEnvFile(fileURLToPath(new URL("../.env", import.meta.url)));
+} catch {
+  // No .env, or a Node without loadEnvFile. The caps fall back to their
+  // defaults below, which are deliberately the conservative ones.
+}
 
 const exec = promisify(execFile);
 

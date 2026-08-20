@@ -148,7 +148,8 @@ them from environment variables, so there is still one place to look.
 ## The Node guard
 
 Nothing in this repo calls the Bright Data CLI directly for anything
-that spends. It goes through `scripts/bd.mjs`:
+that spends. It goes through `scripts/bd.mjs`, at the repo root. It has no
+dependencies and needs no install -- run it from anywhere in the repo:
 
 ```sh
 node scripts/bd.mjs --label=vet-us -- scrape https://example.com --country us
