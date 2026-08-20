@@ -1,0 +1,5630 @@
+{
+  "generated_at": "2026-08-19T12:13:04+00:00",
+  "items": {
+    "rice": {
+      "key": "rice",
+      "label": "Rice (white)",
+      "tier": "core",
+      "group": "cereals",
+      "group_weight_note": "bread and cereals lead PH at-home food spend at 11.0% (FIES 2018); rice dominates that group",
+      "numbeo_equivalent": "White Rice (1kg)",
+      "normal_unit": "g",
+      "target_size": {
+        "US": "5 lb",
+        "PH": "5 kg"
+      },
+      "match": {
+        "must": [
+          "rice"
+        ],
+        "must_by_country": {
+          "PH": [
+            "bigas"
+          ]
+        },
+        "exclude": [
+          "cake",
+          "cracker",
+          "vinegar",
+          "wine",
+          "paper",
+          "noodle",
+          "cereal",
+          "pudding",
+          "flour",
+          "bran",
+          "krispie",
+          "fried",
+          "syrup",
+          "drink",
+          "milk",
+          "shirataki",
+          "konjac",
+          "stick",
+          "sticks",
+          "bihon",
+          "brittle",
+          "puff",
+          "puffs"
+        ]
+      },
+      "categories": [
+        "rice",
+        "grain",
+        "grains",
+        "pantry",
+        "staple",
+        "staples",
+        "grocery"
+      ],
+      "min_base_quantity": 900,
+      "min_base_quantity_note": "Smaller than this and it is a snack or sachet named after the staple, not the staple. Applied only when a size parses."
+    },
+    "bread": {
+      "key": "bread",
+      "label": "White bread (loaf)",
+      "tier": "core",
+      "group": "cereals",
+      "group_weight_note": "bread and cereals 11.0% of PH at-home food spend",
+      "numbeo_equivalent": "Loaf of Fresh White Bread (500g)",
+      "normal_unit": "g",
+      "target_size": {
+        "US": "500 g loaf",
+        "PH": "500 g loaf"
+      },
+      "match": {
+        "must": [
+          "bread",
+          "loaf"
+        ],
+        "must_by_country": {
+          "PH": [
+            "tinapay",
+            "pandesal"
+          ]
+        },
+        "exclude": [
+          "crumb",
+          "crumbs",
+          "stick",
+          "pudding",
+          "spread",
+          "machine",
+          "board",
+          "banana",
+          "knife",
+          "basket",
+          "beef",
+          "pork",
+          "meat",
+          "luncheon",
+          "chicken",
+          "corned",
+          "sandwich",
+          "garlic",
+          "toast",
+          "stix",
+          "sticks",
+          "snack",
+          "biscuit",
+          "cracker"
+        ]
+      },
+      "categories": [
+        "bread",
+        "bakery",
+        "baked",
+        "breakfast"
+      ],
+      "min_base_quantity": 200,
+      "min_base_quantity_note": "Smaller than this and it is a snack or sachet named after the staple, not the staple. Applied only when a size parses."
+    },
+    "pasta": {
+      "key": "pasta",
+      "label": "Pasta (spaghetti)",
+      "tier": "core",
+      "group": "cereals",
+      "group_weight_note": "bread and cereals 11.0% of PH at-home food spend",
+      "numbeo_equivalent": null,
+      "normal_unit": "g",
+      "target_size": {
+        "US": "1 lb",
+        "PH": "500 g"
+      },
+      "match": {
+        "must": [
+          "pasta",
+          "spaghetti",
+          "macaroni",
+          "penne"
+        ],
+        "must_by_country": {},
+        "exclude": [
+          "sauce",
+          "salad",
+          "maker",
+          "strainer",
+          "server",
+          "bowl",
+          "seasoning",
+          "shirataki",
+          "konjac"
+        ]
+      },
+      "categories": [
+        "pasta",
+        "noodle",
+        "noodles",
+        "pantry",
+        "grocery",
+        "staple"
+      ],
+      "min_base_quantity": 200,
+      "min_base_quantity_note": "Smaller than this and it is a snack or sachet named after the staple, not the staple. Applied only when a size parses."
+    },
+    "chicken": {
+      "key": "chicken",
+      "label": "Chicken breast",
+      "tier": "core",
+      "group": "meat",
+      "group_weight_note": "meat 5.7% of PH at-home food spend (FIES 2018)",
+      "numbeo_equivalent": "Chicken Fillets (1kg)",
+      "normal_unit": "g",
+      "target_size": {
+        "US": "per lb",
+        "PH": "1 kg"
+      },
+      "match": {
+        "must": [
+          "chicken"
+        ],
+        "must_by_country": {
+          "PH": [
+            "manok"
+          ]
+        },
+        "exclude": [
+          "feed",
+          "flavor",
+          "flavour",
+          "broth",
+          "stock",
+          "cube",
+          "seasoning",
+          "spread",
+          "noodle",
+          "sandwich",
+          "pet",
+          "treat",
+          "soup",
+          "gumbo",
+          "snack",
+          "chips",
+          "curry",
+          "nugget",
+          "nuggets",
+          "loaf",
+          "spaghetti",
+          "karaage",
+          "tocino",
+          "sausage",
+          "empanada",
+          "turnover",
+          "hopia",
+          "pastry",
+          "pie"
+        ]
+      },
+      "categories": [
+        "chicken",
+        "poultry",
+        "meat",
+        "butcher",
+        "fresh",
+        "frozen"
+      ],
+      "min_base_quantity": 400,
+      "min_base_quantity_note": "Smaller than this and it is a snack or sachet named after the staple, not the staple. Applied only when a size parses."
+    },
+    "eggs": {
+      "key": "eggs",
+      "label": "Eggs (12)",
+      "tier": "core",
+      "group": "dairy_eggs",
+      "group_weight_note": "dairy and eggs are a distinct FIES sub-group; eggs are a near-universal staple",
+      "numbeo_equivalent": "Eggs (regular) (12)",
+      "normal_unit": "count",
+      "target_size": {
+        "US": "dozen",
+        "PH": "tray (30) or dozen"
+      },
+      "match": {
+        "must": [
+          "egg",
+          "eggs"
+        ],
+        "must_by_country": {
+          "PH": [
+            "itlog"
+          ]
+        },
+        "exclude": [
+          "replacer",
+          "whisk",
+          "plant",
+          "nog",
+          "substitute",
+          "holder",
+          "cooker",
+          "roll",
+          "eggplant",
+          "deviled",
+          "century",
+          "cracklet",
+          "cracklets",
+          "snack",
+          "chip",
+          "chips",
+          "pie"
+        ]
+      },
+      "categories": [
+        "egg",
+        "eggs",
+        "dairy",
+        "chilled",
+        "fresh",
+        "breakfast"
+      ],
+      "min_base_quantity": 4,
+      "min_base_quantity_note": "Smaller than this and it is a snack or sachet named after the staple, not the staple. Applied only when a size parses."
+    },
+    "milk": {
+      "key": "milk",
+      "label": "Milk (1 L)",
+      "tier": "core",
+      "group": "dairy_eggs",
+      "group_weight_note": "dairy sub-group; PH skews to powdered and UHT rather than fresh",
+      "numbeo_equivalent": "Milk (regular), (1 liter)",
+      "normal_unit": "ml",
+      "target_size": {
+        "US": "1 gal",
+        "PH": "1 L"
+      },
+      "match": {
+        "must": [
+          "milk"
+        ],
+        "must_by_country": {
+          "PH": [
+            "gatas"
+          ]
+        },
+        "exclude": [
+          "chocolate",
+          "candy",
+          "shake",
+          "bar",
+          "soap",
+          "bath",
+          "tea",
+          "coffee",
+          "biscuit",
+          "cookie",
+          "thistle",
+          "of magnesia",
+          "cleanser",
+          "macadamia",
+          "almond",
+          "oat",
+          "soy",
+          "coconut",
+          "creamer",
+          "creamers",
+          "all-purpose",
+          "soya",
+          "soymilk",
+          "soyfresh",
+          "nut",
+          "rice-milk"
+        ]
+      },
+      "categories": [
+        "milk",
+        "dairy",
+        "chilled",
+        "fresh",
+        "beverage",
+        "beverages"
+      ],
+      "min_base_quantity": 250,
+      "min_base_quantity_note": "Smaller than this and it is a snack or sachet named after the staple, not the staple. Applied only when a size parses."
+    },
+    "coffee": {
+      "key": "coffee",
+      "label": "Coffee (ground or instant)",
+      "tier": "core",
+      "group": "pantry",
+      "group_weight_note": "beverages sub-group; instant sachets dominate PH, ground dominates US",
+      "numbeo_equivalent": null,
+      "normal_unit": "g",
+      "target_size": {
+        "US": "12 oz ground",
+        "PH": "ground or instant refill"
+      },
+      "match": {
+        "must": [
+          "coffee"
+        ],
+        "must_by_country": {
+          "PH": [
+            "kape"
+          ]
+        },
+        "exclude": [
+          "maker",
+          "filter",
+          "grinder",
+          "press",
+          "cake",
+          "creamer",
+          "scrub",
+          "candy",
+          "liqueur",
+          "cup",
+          "syrup",
+          "jelly",
+          "biscuit",
+          "wafer",
+          "yogurt",
+          "ice-cream",
+          "table",
+          "milk",
+          "drink"
+        ]
+      },
+      "categories": [
+        "coffee",
+        "beverage",
+        "beverages",
+        "tea",
+        "pantry",
+        "grocery"
+      ],
+      "min_base_quantity": 100,
+      "min_base_quantity_note": "Smaller than this and it is a snack or sachet named after the staple, not the staple. Applied only when a size parses."
+    },
+    "sugar": {
+      "key": "sugar",
+      "label": "Sugar (white or brown)",
+      "tier": "core",
+      "group": "pantry",
+      "group_weight_note": "pantry staple, low price variability but high purchase frequency",
+      "numbeo_equivalent": null,
+      "normal_unit": "g",
+      "target_size": {
+        "US": "4 lb",
+        "PH": "1 kg"
+      },
+      "match": {
+        "must": [
+          "sugar"
+        ],
+        "must_by_country": {
+          "PH": [
+            "asukal"
+          ]
+        },
+        "exclude": [
+          "free",
+          "substitute",
+          "scrub",
+          "cookie",
+          "coated",
+          "snap-pea",
+          "snap",
+          "dressing",
+          "sandals",
+          "cane-juice",
+          "biscuit",
+          "biscuits",
+          "otap",
+          "wafer",
+          "candy"
+        ]
+      },
+      "categories": [
+        "sugar",
+        "sweetener",
+        "baking",
+        "pantry",
+        "grocery",
+        "staple"
+      ],
+      "min_base_quantity": 200,
+      "min_base_quantity_note": "Smaller than this and it is a snack or sachet named after the staple, not the staple. Applied only when a size parses."
+    },
+    "cooking_oil": {
+      "key": "cooking_oil",
+      "label": "Cooking oil",
+      "tier": "core",
+      "group": "pantry",
+      "group_weight_note": "pantry staple; PH skews to palm and canola, US to vegetable and canola",
+      "numbeo_equivalent": null,
+      "normal_unit": "ml",
+      "target_size": {
+        "US": "48 oz",
+        "PH": "1 L"
+      },
+      "match": {
+        "must": [
+          "oil"
+        ],
+        "must_by_country": {
+          "PH": [
+            "mantika"
+          ]
+        },
+        "exclude": [
+          "motor",
+          "engine",
+          "massage",
+          "essential",
+          "hair",
+          "body",
+          "lamp",
+          "diffuser",
+          "tea-tree",
+          "castor",
+          "baby",
+          "vinegar",
+          "slaw",
+          "sun",
+          "black-seed",
+          "sardines",
+          "sardine",
+          "tuna",
+          "canned",
+          "in-olive"
+        ]
+      },
+      "categories": [
+        "oil",
+        "cooking",
+        "condiment",
+        "condiments",
+        "pantry",
+        "grocery"
+      ],
+      "min_base_quantity": 250,
+      "min_base_quantity_note": "Smaller than this and it is a snack or sachet named after the staple, not the staple. Applied only when a size parses."
+    },
+    "bananas": {
+      "key": "bananas",
+      "label": "Bananas (1 kg)",
+      "tier": "core",
+      "group": "produce",
+      "group_weight_note": "fruit and vegetables sub-group; produce prices move fastest, so they carry the most signal",
+      "numbeo_equivalent": "Bananas (1kg)",
+      "normal_unit": "g",
+      "target_size": {
+        "US": "per lb",
+        "PH": "1 kg"
+      },
+      "match": {
+        "must": [
+          "banana",
+          "bananas"
+        ],
+        "must_by_country": {
+          "PH": [
+            "saging"
+          ]
+        },
+        "exclude": [
+          "bread",
+          "chip",
+          "chips",
+          "flavor",
+          "flavour",
+          "split",
+          "puree",
+          "dried",
+          "candy",
+          "milk",
+          "shake",
+          "leaf",
+          "boat",
+          "catsup",
+          "ketchup",
+          "cereal",
+          "flakes",
+          "cake",
+          "yogurt",
+          "juice",
+          "sauce",
+          "nut",
+          "pajama",
+          "brittle",
+          "pinasugbo",
+          "turon"
+        ]
+      },
+      "categories": [
+        "banana",
+        "fruit",
+        "fruits",
+        "produce",
+        "vegetable",
+        "vegetables",
+        "fresh"
+      ],
+      "min_base_quantity": 400,
+      "min_base_quantity_note": "Smaller than this and it is a snack or sachet named after the staple, not the staple. Applied only when a size parses."
+    },
+    "pork": {
+      "key": "pork",
+      "label": "Pork (lean cut)",
+      "tier": "stretch",
+      "group": "meat",
+      "group_weight_note": "meat 5.7% of PH at-home food spend; pork outweighs beef in PH consumption, which is why it takes the second meat slot",
+      "numbeo_equivalent": null,
+      "normal_unit": "g",
+      "target_size": {
+        "US": "per lb",
+        "PH": "1 kg"
+      },
+      "match": {
+        "must": [
+          "pork"
+        ],
+        "must_by_country": {
+          "PH": [
+            "baboy",
+            "liempo",
+            "kasim"
+          ]
+        },
+        "exclude": [
+          "rind",
+          "crackling",
+          "chicharon",
+          "flavor",
+          "flavour",
+          "seasoning",
+          "broth",
+          "cube",
+          "sausage",
+          "tocino",
+          "longganisa",
+          "pet",
+          "and-beans",
+          "bouillon",
+          "granule",
+          "powder",
+          "mix",
+          "hopia",
+          "empanada",
+          "turnover",
+          "pastry",
+          "chip",
+          "chips"
+        ]
+      },
+      "categories": [
+        "pork",
+        "meat",
+        "butcher",
+        "fresh",
+        "frozen"
+      ],
+      "min_base_quantity": 400,
+      "min_base_quantity_note": "Smaller than this and it is a snack or sachet named after the staple, not the staple. Applied only when a size parses."
+    },
+    "fish": {
+      "key": "fish",
+      "label": "Fish (tilapia or round scad)",
+      "tier": "stretch",
+      "group": "fish",
+      "group_weight_note": "fish and seafood 5.0% of PH at-home food spend, near parity with meat - and absent from Numbeo's basket entirely, which is why copying Numbeo would leave a real PH gap",
+      "numbeo_equivalent": null,
+      "normal_unit": "g",
+      "target_size": {
+        "US": "per lb",
+        "PH": "1 kg"
+      },
+      "match": {
+        "must": [
+          "tilapia",
+          "bangus",
+          "galunggong",
+          "milkfish",
+          "round scad",
+          "fish"
+        ],
+        "must_by_country": {
+          "PH": [
+            "isda"
+          ]
+        },
+        "exclude": [
+          "sauce",
+          "oil",
+          "ball",
+          "balls",
+          "cake",
+          "cracker",
+          "flavor",
+          "flavour",
+          "food",
+          "tank",
+          "pet",
+          "sticks",
+          "finger",
+          "canned",
+          "sardines",
+          "tuna",
+          "dried",
+          "salted",
+          "jeprox",
+          "danggit",
+          "tuyo",
+          "snack"
+        ]
+      },
+      "categories": [
+        "fish",
+        "seafood",
+        "fresh",
+        "frozen",
+        "meat"
+      ],
+      "min_base_quantity": 250,
+      "min_base_quantity_note": "Smaller than this and it is a snack or sachet named after the staple, not the staple. Applied only when a size parses."
+    },
+    "cheese": {
+      "key": "cheese",
+      "label": "Cheese (local)",
+      "tier": "stretch",
+      "group": "dairy_eggs",
+      "group_weight_note": "dairy sub-group; premium in PH, everyday in US, which makes the cross-country gap itself informative",
+      "numbeo_equivalent": "Local Cheese (1kg)",
+      "normal_unit": "g",
+      "target_size": {
+        "US": "1 lb",
+        "PH": "500 g"
+      },
+      "match": {
+        "must": [
+          "cheese"
+        ],
+        "must_by_country": {},
+        "exclude": [
+          "cake",
+          "flavor",
+          "flavour",
+          "curls",
+          "puffs",
+          "cracker",
+          "popcorn",
+          "sauce",
+          "spread-dip",
+          "board",
+          "grater",
+          "ring",
+          "stix",
+          "stick",
+          "sticks",
+          "bread"
+        ]
+      },
+      "categories": [
+        "cheese",
+        "dairy",
+        "chilled",
+        "deli",
+        "fresh"
+      ],
+      "min_base_quantity": 100,
+      "min_base_quantity_note": "Smaller than this and it is a snack or sachet named after the staple, not the staple. Applied only when a size parses."
+    },
+    "tomatoes": {
+      "key": "tomatoes",
+      "label": "Tomatoes (1 kg)",
+      "tier": "stretch",
+      "group": "produce",
+      "group_weight_note": "fruit and vegetables sub-group; high price volatility",
+      "numbeo_equivalent": "Tomato (1kg)",
+      "normal_unit": "g",
+      "target_size": {
+        "US": "per lb",
+        "PH": "1 kg"
+      },
+      "match": {
+        "must": [
+          "tomato",
+          "tomatoes"
+        ],
+        "must_by_country": {
+          "PH": [
+            "kamatis"
+          ]
+        },
+        "exclude": [
+          "sauce",
+          "paste",
+          "ketchup",
+          "catsup",
+          "canned",
+          "juice",
+          "soup",
+          "dried",
+          "sun-dried",
+          "seed",
+          "exfoliant",
+          "exfoliating",
+          "essence",
+          "skin",
+          "serum"
+        ]
+      },
+      "categories": [
+        "tomato",
+        "vegetable",
+        "vegetables",
+        "produce",
+        "fresh",
+        "fruits"
+      ],
+      "min_base_quantity": 250,
+      "min_base_quantity_note": "Smaller than this and it is a snack or sachet named after the staple, not the staple. Applied only when a size parses."
+    },
+    "potatoes": {
+      "key": "potatoes",
+      "label": "Potatoes (1 kg)",
+      "tier": "stretch",
+      "group": "produce",
+      "group_weight_note": "fruit and vegetables sub-group",
+      "numbeo_equivalent": "Potato (1kg)",
+      "normal_unit": "g",
+      "target_size": {
+        "US": "per lb",
+        "PH": "1 kg"
+      },
+      "match": {
+        "must": [
+          "potato",
+          "potatoes"
+        ],
+        "must_by_country": {
+          "PH": [
+            "patatas"
+          ]
+        },
+        "exclude": [
+          "chip",
+          "chips",
+          "crisps",
+          "fries",
+          "flakes",
+          "starch",
+          "sweet",
+          "salad",
+          "bread",
+          "instant",
+          "mashed",
+          "shoestring",
+          "stick",
+          "sticks",
+          "snack"
+        ]
+      },
+      "categories": [
+        "potato",
+        "vegetable",
+        "vegetables",
+        "produce",
+        "fresh"
+      ],
+      "min_base_quantity": 400,
+      "min_base_quantity_note": "Smaller than this and it is a snack or sachet named after the staple, not the staple. Applied only when a size parses."
+    },
+    "onions": {
+      "key": "onions",
+      "label": "Onions (1 kg)",
+      "tier": "stretch",
+      "group": "produce",
+      "group_weight_note": "fruit and vegetables sub-group; PH onion prices have been a national news story, making this a high-interest item",
+      "numbeo_equivalent": "Onion (1kg)",
+      "normal_unit": "g",
+      "target_size": {
+        "US": "per lb",
+        "PH": "1 kg"
+      },
+      "match": {
+        "must": [
+          "onion",
+          "onions"
+        ],
+        "must_by_country": {
+          "PH": [
+            "sibuyas"
+          ]
+        },
+        "exclude": [
+          "ring",
+          "rings",
+          "powder",
+          "soup",
+          "dip",
+          "flavor",
+          "flavour",
+          "fried",
+          "crispy",
+          "salt",
+          "seed",
+          "bistek",
+          "sauteed",
+          "beef",
+          "gourmet"
+        ]
+      },
+      "categories": [
+        "onion",
+        "vegetable",
+        "vegetables",
+        "produce",
+        "fresh"
+      ],
+      "min_base_quantity": 250,
+      "min_base_quantity_note": "Smaller than this and it is a snack or sachet named after the staple, not the staple. Applied only when a size parses."
+    },
+    "apples": {
+      "key": "apples",
+      "label": "Apples (1 kg)",
+      "tier": "stretch",
+      "group": "produce",
+      "group_weight_note": "fruit and vegetables sub-group; imported in PH, domestic in US - a clean import-premium signal",
+      "numbeo_equivalent": "Apples (1kg)",
+      "normal_unit": "g",
+      "target_size": {
+        "US": "per lb",
+        "PH": "1 kg"
+      },
+      "match": {
+        "must": [
+          "apple",
+          "apples"
+        ],
+        "must_by_country": {},
+        "exclude": [
+          "juice",
+          "sauce",
+          "cider",
+          "vinegar",
+          "pie",
+          "flavor",
+          "flavour",
+          "dried",
+          "chip",
+          "chips",
+          "candy",
+          "pineapple",
+          "custard",
+          "tea",
+          "powder",
+          "mix",
+          "litro",
+          "drink",
+          "iced",
+          "freshener",
+          "air",
+          "scent",
+          "deodoriser",
+          "deodorizer"
+        ]
+      },
+      "categories": [
+        "apple",
+        "fruit",
+        "fruits",
+        "produce",
+        "fresh"
+      ],
+      "min_base_quantity": 400,
+      "min_base_quantity_note": "Smaller than this and it is a snack or sachet named after the staple, not the staple. Applied only when a size parses."
+    },
+    "oranges": {
+      "key": "oranges",
+      "label": "Oranges (1 kg)",
+      "tier": "stretch",
+      "group": "produce",
+      "group_weight_note": "fruit and vegetables sub-group; retained for Numbeo comparability",
+      "numbeo_equivalent": "Oranges (1kg)",
+      "normal_unit": "g",
+      "target_size": {
+        "US": "per lb",
+        "PH": "1 kg"
+      },
+      "match": {
+        "must": [
+          "orange",
+          "oranges"
+        ],
+        "must_by_country": {
+          "PH": [
+            "dalandan"
+          ]
+        },
+        "exclude": [
+          "juice",
+          "soda",
+          "drink",
+          "flavor",
+          "flavour",
+          "candy",
+          "marmalade",
+          "peel",
+          "essential",
+          "chocolate",
+          "tru",
+          "softdrink"
+        ]
+      },
+      "categories": [
+        "orange",
+        "citrus",
+        "fruit",
+        "fruits",
+        "produce",
+        "fresh"
+      ],
+      "min_base_quantity": 400,
+      "min_base_quantity_note": "Smaller than this and it is a snack or sachet named after the staple, not the staple. Applied only when a size parses."
+    },
+    "canned_fish": {
+      "key": "canned_fish",
+      "label": "Canned sardines",
+      "tier": "stretch",
+      "group": "pantry",
+      "group_weight_note": "not in Numbeo, but a PH household staple and one of the most price-watched goods locally",
+      "numbeo_equivalent": null,
+      "normal_unit": "g",
+      "target_size": {
+        "US": "155 g tin",
+        "PH": "155 g tin"
+      },
+      "match": {
+        "must": [
+          "sardines",
+          "sardine"
+        ],
+        "must_by_country": {},
+        "exclude": [
+          "pet",
+          "cat",
+          "dog",
+          "flavor",
+          "flavour",
+          "pasta",
+          "spread",
+          "can-opener"
+        ]
+      },
+      "categories": [
+        "canned",
+        "tinned",
+        "pantry",
+        "grocery",
+        "fish",
+        "seafood"
+      ],
+      "min_base_quantity": 100,
+      "min_base_quantity_note": "Smaller than this and it is a snack or sachet named after the staple, not the staple. Applied only when a size parses."
+    },
+    "bottled_water": {
+      "key": "bottled_water",
+      "label": "Bottled water (1.5 L)",
+      "tier": "stretch",
+      "group": "beverages",
+      "group_weight_note": "beverages sub-group; Numbeo tracks it and it is a reliable low-variance control item",
+      "numbeo_equivalent": "Water (1.5 liter bottle)",
+      "normal_unit": "ml",
+      "target_size": {
+        "US": "1.5 L",
+        "PH": "1.5 L"
+      },
+      "match": {
+        "must": [
+          "water"
+        ],
+        "must_by_country": {
+          "PH": [
+            "tubig"
+          ]
+        },
+        "exclude": [
+          "sparkling",
+          "flavored",
+          "flavoured",
+          "coconut",
+          "rose",
+          "micellar",
+          "toner",
+          "dispenser",
+          "filter",
+          "purifier",
+          "bottle-only",
+          "tonic",
+          "soda",
+          "vitamin",
+          "plastic",
+          "tumbler",
+          "container",
+          "jug",
+          "gallon-container",
+          "flask",
+          "herring",
+          "fish",
+          "dried",
+          "salted",
+          "color",
+          "colour",
+          "reusable",
+          "sport",
+          "sports",
+          "bpa",
+          "trio",
+          "insulated"
+        ]
+      },
+      "categories": [
+        "water",
+        "beverage",
+        "beverages",
+        "drinks",
+        "grocery"
+      ],
+      "min_base_quantity": 500,
+      "min_base_quantity_note": "Smaller than this and it is a snack or sachet named after the staple, not the staple. Applied only when a size parses."
+    }
+  },
+  "stores": {
+    "ph-shopgaisano": {
+      "id": "ph-shopgaisano",
+      "name": "Shop Gaisano",
+      "country": "PH",
+      "structural_class": "json-ld",
+      "items": {
+        "rice": {
+          "url": "https://shopgaisano.com/products/great-value-v-160-rice-5kg",
+          "name": "Great Value V-160 Rice 5KG",
+          "price": 378.0,
+          "currency": null,
+          "size": {
+            "raw": "5KG",
+            "value": 5.0,
+            "uom": "kg",
+            "approximate": false,
+            "form": "plain",
+            "quantity": 5000.0,
+            "base_uom": "g"
+          },
+          "status": "verified",
+          "via": "shopify-search",
+          "store_taxonomy": "Great Value Grocery",
+          "target_size": "5 kg",
+          "tier": "core",
+          "label": "Rice (white)",
+          "normal_unit": "g",
+          "unit_price": {
+            "per_base_unit": 0.0756,
+            "base_uom": "g",
+            "basis": "per_kg",
+            "value": 75.6,
+            "approximate": false
+          }
+        },
+        "bread": {
+          "status": "not_found",
+          "note": "search returned no plain staple",
+          "target_size": "500 g loaf",
+          "tier": "core",
+          "label": "White bread (loaf)",
+          "normal_unit": "g",
+          "unit_price": null
+        },
+        "pasta": {
+          "status": "not_found",
+          "note": "search returned no plain staple",
+          "target_size": "500 g",
+          "tier": "core",
+          "label": "Pasta (spaghetti)",
+          "normal_unit": "g",
+          "unit_price": null
+        },
+        "chicken": {
+          "status": "not_stocked",
+          "note": "Searched its Shopify catalogue for chicken and whole chicken: only spreads, bouillon cubes, canned Progresso soup and dog treats. No raw or fresh chicken is sold online.",
+          "url": null,
+          "target_size": "1 kg",
+          "tier": "core",
+          "label": "Chicken breast",
+          "normal_unit": "g",
+          "unit_price": null
+        },
+        "eggs": {
+          "url": "https://shopgaisano.com/products/great-value-farm-fresh-eggs-medium-12s",
+          "name": "Great Value Farm Fresh Eggs Medium 12's",
+          "price": 125.0,
+          "currency": null,
+          "size": {
+            "raw": "12's",
+            "value": 12.0,
+            "uom": "count",
+            "approximate": false,
+            "form": "count",
+            "quantity": 12.0,
+            "base_uom": "count"
+          },
+          "status": "verified",
+          "via": "shopify-search",
+          "store_taxonomy": "Great Value grocery",
+          "target_size": "tray (30) or dozen",
+          "tier": "core",
+          "label": "Eggs (12)",
+          "normal_unit": "count",
+          "unit_price": {
+            "per_base_unit": 10.416667,
+            "base_uom": "count",
+            "basis": "per_item",
+            "value": 10.4167,
+            "approximate": false
+          }
+        },
+        "milk": {
+          "url": "https://shopgaisano.com/products/nestle-non-fat-milk-1l-1",
+          "name": "Nestle Non Fat Milk 1L",
+          "price": 117.75,
+          "currency": null,
+          "size": {
+            "raw": "1L",
+            "value": 1.0,
+            "uom": "l",
+            "approximate": false,
+            "form": "plain",
+            "quantity": 1000.0,
+            "base_uom": "ml"
+          },
+          "status": "verified",
+          "via": "shopify-search",
+          "store_taxonomy": "beverages food beverage grocery nestle",
+          "target_size": "1 L",
+          "tier": "core",
+          "label": "Milk (1 L)",
+          "normal_unit": "ml",
+          "unit_price": {
+            "per_base_unit": 0.11775,
+            "base_uom": "ml",
+            "basis": "per_litre",
+            "value": 117.75,
+            "approximate": false
+          }
+        },
+        "coffee": {
+          "url": "https://shopgaisano.com/products/nescafe-classic-tipid-pack-50g-1",
+          "name": "Nescafe Classic Tipid Pack 50g",
+          "price": null,
+          "currency": null,
+          "size": {
+            "raw": "50g",
+            "value": 50.0,
+            "uom": "g",
+            "approximate": false,
+            "form": "plain",
+            "quantity": 50.0,
+            "base_uom": "g"
+          },
+          "status": "curated",
+          "via": "manual",
+          "why": "Automation picked Nescafe Original 200g at PHP 949.95, which works out to PHP 4,750/kg - roughly 4.5x every other instant coffee in the same catalogue, so it is almost certainly a case or a mispriced line. The Tipid Pack is the standard instant refill and the representative PH form named in items.json.",
+          "target_size": "ground or instant refill",
+          "tier": "core",
+          "label": "Coffee (ground or instant)",
+          "normal_unit": "g",
+          "unit_price": null
+        },
+        "sugar": {
+          "url": "https://shopgaisano.com/products/great-value-brown-sugar-1-4-kg",
+          "name": "Great Value Brown Sugar 1/4 Kg",
+          "price": 19.0,
+          "currency": null,
+          "size": {
+            "raw": "1/4 Kg",
+            "value": 0.25,
+            "uom": "kg",
+            "approximate": false,
+            "form": "fraction",
+            "quantity": 250.0,
+            "base_uom": "g"
+          },
+          "status": "verified",
+          "via": "shopify-search",
+          "store_taxonomy": "Great Value grocery",
+          "target_size": "1 kg",
+          "tier": "core",
+          "label": "Sugar (white or brown)",
+          "normal_unit": "g",
+          "unit_price": {
+            "per_base_unit": 0.076,
+            "base_uom": "g",
+            "basis": "per_kg",
+            "value": 76.0,
+            "approximate": false
+          }
+        },
+        "cooking_oil": {
+          "url": "https://shopgaisano.com/products/golden-fiesta-canola-oil-1l",
+          "name": "Golden Fiesta Canola Oil 1L",
+          "price": 177.0,
+          "currency": null,
+          "size": {
+            "raw": "1L",
+            "value": 1.0,
+            "uom": "l",
+            "approximate": false,
+            "form": "plain",
+            "quantity": 1000.0,
+            "base_uom": "ml"
+          },
+          "status": "verified",
+          "via": "shopify-search",
+          "store_taxonomy": "cooking and pantry essentials grocery nutriasia",
+          "target_size": "1 L",
+          "tier": "core",
+          "label": "Cooking oil",
+          "normal_unit": "ml",
+          "unit_price": {
+            "per_base_unit": 0.177,
+            "base_uom": "ml",
+            "basis": "per_litre",
+            "value": 177.0,
+            "approximate": false
+          }
+        },
+        "bananas": {
+          "status": "not_found",
+          "note": "search returned no plain staple",
+          "target_size": "1 kg",
+          "tier": "core",
+          "label": "Bananas (1 kg)",
+          "normal_unit": "g",
+          "unit_price": null
+        },
+        "pork": {
+          "status": "not_found",
+          "note": "search returned no plain staple",
+          "target_size": "1 kg",
+          "tier": "stretch",
+          "label": "Pork (lean cut)",
+          "normal_unit": "g",
+          "unit_price": null
+        },
+        "fish": {
+          "status": "not_found",
+          "note": "search returned no plain staple",
+          "target_size": "1 kg",
+          "tier": "stretch",
+          "label": "Fish (tilapia or round scad)",
+          "normal_unit": "g",
+          "unit_price": null
+        },
+        "cheese": {
+          "status": "not_found",
+          "note": "search returned no plain staple",
+          "target_size": "500 g",
+          "tier": "stretch",
+          "label": "Cheese (local)",
+          "normal_unit": "g",
+          "unit_price": null
+        },
+        "tomatoes": {
+          "status": "not_found",
+          "note": "search returned no plain staple",
+          "target_size": "1 kg",
+          "tier": "stretch",
+          "label": "Tomatoes (1 kg)",
+          "normal_unit": "g",
+          "unit_price": null
+        },
+        "potatoes": {
+          "status": "not_found",
+          "note": "search returned no plain staple",
+          "target_size": "1 kg",
+          "tier": "stretch",
+          "label": "Potatoes (1 kg)",
+          "normal_unit": "g",
+          "unit_price": null
+        },
+        "onions": {
+          "status": "not_found",
+          "note": "search returned no plain staple",
+          "target_size": "1 kg",
+          "tier": "stretch",
+          "label": "Onions (1 kg)",
+          "normal_unit": "g",
+          "unit_price": null
+        },
+        "apples": {
+          "status": "not_found",
+          "note": "search returned no plain staple",
+          "target_size": "1 kg",
+          "tier": "stretch",
+          "label": "Apples (1 kg)",
+          "normal_unit": "g",
+          "unit_price": null
+        },
+        "oranges": {
+          "status": "not_found",
+          "note": "search returned no plain staple",
+          "target_size": "1 kg",
+          "tier": "stretch",
+          "label": "Oranges (1 kg)",
+          "normal_unit": "g",
+          "unit_price": null
+        },
+        "canned_fish": {
+          "url": "https://shopgaisano.com/products/familys-eoc-sardines-green-155g",
+          "name": "FAMILYS EOC SARDINES GREEN 155G",
+          "price": 24.8,
+          "currency": null,
+          "size": {
+            "raw": "155G",
+            "value": 155.0,
+            "uom": "g",
+            "approximate": false,
+            "form": "plain",
+            "quantity": 155.0,
+            "base_uom": "g"
+          },
+          "status": "verified",
+          "via": "shopify-search",
+          "store_taxonomy": "CANNED GOODS FOOD PANTRY",
+          "target_size": "155 g tin",
+          "tier": "stretch",
+          "label": "Canned sardines",
+          "normal_unit": "g",
+          "unit_price": {
+            "per_base_unit": 0.16,
+            "base_uom": "g",
+            "basis": "per_kg",
+            "value": 160.0,
+            "approximate": false
+          }
+        },
+        "bottled_water": {
+          "status": "not_found",
+          "note": "search returned no plain staple",
+          "target_size": "1.5 L",
+          "tier": "stretch",
+          "label": "Bottled water (1.5 L)",
+          "normal_unit": "ml",
+          "unit_price": null
+        }
+      },
+      "unresolved": [
+        "bread",
+        "pasta",
+        "chicken",
+        "bananas",
+        "pork",
+        "fish",
+        "cheese",
+        "tomatoes",
+        "potatoes",
+        "onions",
+        "apples",
+        "oranges",
+        "bottled_water"
+      ],
+      "verified_count": 7,
+      "chosen_url_count": 7,
+      "unit_priced_count": 6,
+      "core_settled": 6
+    },
+    "ph-ever": {
+      "id": "ph-ever",
+      "name": "Ever Supermarket",
+      "country": "PH",
+      "structural_class": "json-ld",
+      "items": {
+        "rice": {
+          "url": "https://ever.ph/products/100000092661-bangkal",
+          "name": "Farmboy Pandan Rice 5kg",
+          "price": 389.5,
+          "currency": null,
+          "size": {
+            "raw": "5kg",
+            "value": 5.0,
+            "uom": "kg",
+            "approximate": false,
+            "form": "plain",
+            "quantity": 5000.0,
+            "base_uom": "g"
+          },
+          "status": "verified",
+          "via": "shopify-search",
+          "store_taxonomy": "Bangkal Rice White Rice Bangkal",
+          "target_size": "5 kg",
+          "tier": "core",
+          "label": "Rice (white)",
+          "normal_unit": "g",
+          "unit_price": {
+            "per_base_unit": 0.0779,
+            "base_uom": "g",
+            "basis": "per_kg",
+            "value": 77.9,
+            "approximate": false
+          }
+        },
+        "bread": {
+          "url": "https://ever.ph/products/100000092449-pateros",
+          "name": "Melle's Butter Cheese Loaf Bread 550g",
+          "price": 91.25,
+          "currency": null,
+          "size": {
+            "raw": "550g",
+            "value": 550.0,
+            "uom": "g",
+            "approximate": false,
+            "form": "plain",
+            "quantity": 550.0,
+            "base_uom": "g"
+          },
+          "status": "verified",
+          "via": "shopify-search",
+          "store_taxonomy": "Bread Loaf Flavored Loaf Pateros Pateros",
+          "target_size": "500 g loaf",
+          "tier": "core",
+          "label": "White bread (loaf)",
+          "normal_unit": "g",
+          "unit_price": {
+            "per_base_unit": 0.165909,
+            "base_uom": "g",
+            "basis": "per_kg",
+            "value": 165.9091,
+            "approximate": false
+          }
+        },
+        "pasta": {
+          "url": "https://ever.ph/products/9000009648-commonwealth",
+          "name": "San Remo Fettuccine Pasta 500g",
+          "price": 97.0,
+          "currency": null,
+          "size": {
+            "raw": "500g",
+            "value": 500.0,
+            "uom": "g",
+            "approximate": false,
+            "form": "plain",
+            "quantity": 500.0,
+            "base_uom": "g"
+          },
+          "status": "verified",
+          "via": "shopify-search",
+          "store_taxonomy": "Commonwealth Other Pasta Other Specialty Pasta Commonwealth",
+          "target_size": "500 g",
+          "tier": "core",
+          "label": "Pasta (spaghetti)",
+          "normal_unit": "g",
+          "unit_price": {
+            "per_base_unit": 0.194,
+            "base_uom": "g",
+            "basis": "per_kg",
+            "value": 194.0,
+            "approximate": false
+          }
+        },
+        "chicken": {
+          "url": "https://ever.ph/products/200000086850-sucat",
+          "name": "Mamanok's Whole Chicken 1kg Frozen Packed",
+          "price": 203.5,
+          "currency": null,
+          "size": {
+            "raw": "1kg",
+            "value": 1.0,
+            "uom": "kg",
+            "approximate": false,
+            "form": "plain",
+            "quantity": 1000.0,
+            "base_uom": "g"
+          },
+          "status": "verified",
+          "via": "shopify-search",
+          "store_taxonomy": "Frozen Chicken Frozen Whole Chicken Sucat Sucat",
+          "target_size": "1 kg",
+          "tier": "core",
+          "label": "Chicken breast",
+          "normal_unit": "g",
+          "unit_price": {
+            "per_base_unit": 0.2035,
+            "base_uom": "g",
+            "basis": "per_kg",
+            "value": 203.5,
+            "approximate": false
+          }
+        },
+        "eggs": {
+          "url": "https://ever.ph/products/200000054511-commonwealth",
+          "name": "Bounty Fresh Eggs Premium Large 30s",
+          "price": 335.75,
+          "currency": null,
+          "size": {
+            "raw": "30s",
+            "value": 30.0,
+            "uom": "s",
+            "approximate": false,
+            "form": "plain",
+            "quantity": 30.0,
+            "base_uom": "count"
+          },
+          "status": "verified",
+          "via": "shopify-search",
+          "store_taxonomy": "Commonwealth Eggs Fresh Eggs Commonwealth",
+          "target_size": "tray (30) or dozen",
+          "tier": "core",
+          "label": "Eggs (12)",
+          "normal_unit": "count",
+          "unit_price": {
+            "per_base_unit": 11.191667,
+            "base_uom": "count",
+            "basis": "per_item",
+            "value": 11.1917,
+            "approximate": false
+          }
+        },
+        "milk": {
+          "url": "https://ever.ph/products/9000006942-commonwealth",
+          "name": "Magnolia Low Fat Milk 1L",
+          "price": 121.25,
+          "currency": null,
+          "size": {
+            "raw": "1L",
+            "value": 1.0,
+            "uom": "l",
+            "approximate": false,
+            "form": "plain",
+            "quantity": 1000.0,
+            "base_uom": "ml"
+          },
+          "status": "verified",
+          "via": "shopify-search",
+          "store_taxonomy": "Commonwealth Fresh Milk Low or Non Fat Milk Commonwealth",
+          "target_size": "1 L",
+          "tier": "core",
+          "label": "Milk (1 L)",
+          "normal_unit": "ml",
+          "unit_price": {
+            "per_base_unit": 0.12125,
+            "base_uom": "ml",
+            "basis": "per_litre",
+            "value": 121.25,
+            "approximate": false
+          }
+        },
+        "coffee": {
+          "url": "https://ever.ph/products/100000015871-commonwealth",
+          "name": "San Mig Super Coffee Sugar Free Original 3in1 Coffee Mix 20x7g",
+          "price": 166.75,
+          "currency": null,
+          "size": {
+            "raw": "20x7g",
+            "value": 140.0,
+            "uom": "g",
+            "approximate": false,
+            "form": "multipack",
+            "quantity": 140.0,
+            "base_uom": "g"
+          },
+          "status": "verified",
+          "via": "shopify-search",
+          "store_taxonomy": "Coffee MIxes Commonwealth Single Pack Sugar Free Coffee Mixes Commonwealth",
+          "target_size": "ground or instant refill",
+          "tier": "core",
+          "label": "Coffee (ground or instant)",
+          "normal_unit": "g",
+          "unit_price": {
+            "per_base_unit": 1.191071,
+            "base_uom": "g",
+            "basis": "per_kg",
+            "value": 1191.0714,
+            "approximate": false
+          }
+        },
+        "sugar": {
+          "url": "https://ever.ph/products/100000086396-commonwealth",
+          "name": "Ever Savers Brown Sugar 1kg",
+          "price": 78.25,
+          "currency": null,
+          "size": {
+            "raw": "1kg",
+            "value": 1.0,
+            "uom": "kg",
+            "approximate": false,
+            "form": "plain",
+            "quantity": 1000.0,
+            "base_uom": "g"
+          },
+          "status": "verified",
+          "via": "shopify-search",
+          "store_taxonomy": "Brown Sugar Commonwealth Sugar Commonwealth",
+          "target_size": "1 kg",
+          "tier": "core",
+          "label": "Sugar (white or brown)",
+          "normal_unit": "g",
+          "unit_price": {
+            "per_base_unit": 0.07825,
+            "base_uom": "g",
+            "basis": "per_kg",
+            "value": 78.25,
+            "approximate": false
+          }
+        },
+        "cooking_oil": {
+          "url": "https://ever.ph/products/9000006500-commonwealth",
+          "name": "Simply Pure Canola Oil 2L",
+          "price": 327.5,
+          "currency": null,
+          "size": {
+            "raw": "2L",
+            "value": 2.0,
+            "uom": "l",
+            "approximate": false,
+            "form": "plain",
+            "quantity": 2000.0,
+            "base_uom": "ml"
+          },
+          "status": "verified",
+          "via": "shopify-search",
+          "store_taxonomy": "Canola Oils Commonwealth Cooking Oils Commonwealth",
+          "target_size": "1 L",
+          "tier": "core",
+          "label": "Cooking oil",
+          "normal_unit": "ml",
+          "unit_price": {
+            "per_base_unit": 0.16375,
+            "base_uom": "ml",
+            "basis": "per_litre",
+            "value": 163.75,
+            "approximate": false
+          }
+        },
+        "bananas": {
+          "url": "https://ever.ph/products/200000087769-commonwealth",
+          "name": "Dizon Banana Lacatan Premium 500g",
+          "price": 78.75,
+          "currency": null,
+          "size": {
+            "raw": "500g",
+            "value": 500.0,
+            "uom": "g",
+            "approximate": false,
+            "form": "plain",
+            "quantity": 500.0,
+            "base_uom": "g"
+          },
+          "status": "verified",
+          "via": "shopify-search",
+          "store_taxonomy": "Commonwealth Fresh Fruits Commonwealth",
+          "target_size": "1 kg",
+          "tier": "core",
+          "label": "Bananas (1 kg)",
+          "normal_unit": "g",
+          "unit_price": {
+            "per_base_unit": 0.1575,
+            "base_uom": "g",
+            "basis": "per_kg",
+            "value": 157.5,
+            "approximate": false
+          }
+        },
+        "pork": {
+          "url": "https://ever.ph/products/200000086371-commonwealth",
+          "name": "Jupiter Pork Kasim Skinless Boneless 500g",
+          "price": 277.0,
+          "currency": null,
+          "size": {
+            "raw": "500g",
+            "value": 500.0,
+            "uom": "g",
+            "approximate": false,
+            "form": "plain",
+            "quantity": 500.0,
+            "base_uom": "g"
+          },
+          "status": "verified",
+          "via": "shopify-search",
+          "store_taxonomy": "Commonwealth Fresh Pork Commonwealth",
+          "target_size": "1 kg",
+          "tier": "stretch",
+          "label": "Pork (lean cut)",
+          "normal_unit": "g",
+          "unit_price": {
+            "per_base_unit": 0.554,
+            "base_uom": "g",
+            "basis": "per_kg",
+            "value": 554.0,
+            "approximate": false
+          }
+        },
+        "fish": {
+          "url": "https://ever.ph/products/200000077190-commonwealth",
+          "name": "Cold Storage Frozen Tilapia Fillets 700g",
+          "price": 315.25,
+          "currency": null,
+          "size": {
+            "raw": "700g",
+            "value": 700.0,
+            "uom": "g",
+            "approximate": false,
+            "form": "plain",
+            "quantity": 700.0,
+            "base_uom": "g"
+          },
+          "status": "verified",
+          "via": "shopify-search",
+          "store_taxonomy": "Commonwealth Frozen Fish Whole and Fillet Frozen Seafood Commonwealth",
+          "target_size": "1 kg",
+          "tier": "stretch",
+          "label": "Fish (tilapia or round scad)",
+          "normal_unit": "g",
+          "unit_price": {
+            "per_base_unit": 0.450357,
+            "base_uom": "g",
+            "basis": "per_kg",
+            "value": 450.3571,
+            "approximate": false
+          }
+        },
+        "cheese": {
+          "url": "https://ever.ph/products/9000007109-commonwealth",
+          "name": "Eden Cheese Original 160g",
+          "price": 57.25,
+          "currency": null,
+          "size": {
+            "raw": "160g",
+            "value": 160.0,
+            "uom": "g",
+            "approximate": false,
+            "form": "plain",
+            "quantity": 160.0,
+            "base_uom": "g"
+          },
+          "status": "verified",
+          "via": "shopify-search",
+          "store_taxonomy": "Cheese Cheese Blocks Commonwealth Commonwealth",
+          "target_size": "500 g",
+          "tier": "stretch",
+          "label": "Cheese (local)",
+          "normal_unit": "g",
+          "unit_price": {
+            "per_base_unit": 0.357812,
+            "base_uom": "g",
+            "basis": "per_kg",
+            "value": 357.8125,
+            "approximate": false
+          }
+        },
+        "tomatoes": {
+          "url": "https://ever.ph/products/200000084996-commonwealth",
+          "name": "Yesha Tomato Regular 250g",
+          "price": 30.5,
+          "currency": null,
+          "size": {
+            "raw": "250g",
+            "value": 250.0,
+            "uom": "g",
+            "approximate": false,
+            "form": "plain",
+            "quantity": 250.0,
+            "base_uom": "g"
+          },
+          "status": "verified",
+          "via": "shopify-search",
+          "store_taxonomy": "Commonwealth Fresh Vegetables Commonwealth",
+          "target_size": "1 kg",
+          "tier": "stretch",
+          "label": "Tomatoes (1 kg)",
+          "normal_unit": "g",
+          "unit_price": {
+            "per_base_unit": 0.122,
+            "base_uom": "g",
+            "basis": "per_kg",
+            "value": 122.0,
+            "approximate": false
+          }
+        },
+        "potatoes": {
+          "url": "https://ever.ph/products/200000084992-commonwealth",
+          "name": "Yesha Potato 500g",
+          "price": 101.75,
+          "currency": null,
+          "size": {
+            "raw": "500g",
+            "value": 500.0,
+            "uom": "g",
+            "approximate": false,
+            "form": "plain",
+            "quantity": 500.0,
+            "base_uom": "g"
+          },
+          "status": "verified",
+          "via": "shopify-search",
+          "store_taxonomy": "Commonwealth Fresh Vegetables Commonwealth",
+          "target_size": "1 kg",
+          "tier": "stretch",
+          "label": "Potatoes (1 kg)",
+          "normal_unit": "g",
+          "unit_price": {
+            "per_base_unit": 0.2035,
+            "base_uom": "g",
+            "basis": "per_kg",
+            "value": 203.5,
+            "approximate": false
+          }
+        },
+        "onions": {
+          "url": "https://ever.ph/products/200000084989-commonwealth",
+          "name": "Yesha Onion White 250g",
+          "price": 51.0,
+          "currency": null,
+          "size": {
+            "raw": "250g",
+            "value": 250.0,
+            "uom": "g",
+            "approximate": false,
+            "form": "plain",
+            "quantity": 250.0,
+            "base_uom": "g"
+          },
+          "status": "verified",
+          "via": "shopify-search",
+          "store_taxonomy": "Commonwealth Fresh Vegetables Commonwealth",
+          "target_size": "1 kg",
+          "tier": "stretch",
+          "label": "Onions (1 kg)",
+          "normal_unit": "g",
+          "unit_price": {
+            "per_base_unit": 0.204,
+            "base_uom": "g",
+            "basis": "per_kg",
+            "value": 204.0,
+            "approximate": false
+          }
+        },
+        "apples": {
+          "status": "not_found",
+          "note": "search returned no plain staple",
+          "target_size": "1 kg",
+          "tier": "stretch",
+          "label": "Apples (1 kg)",
+          "normal_unit": "g",
+          "unit_price": null
+        },
+        "oranges": {
+          "url": "https://ever.ph/products/200000086609-commonwealth",
+          "name": "Yesha Orange 500g",
+          "price": 127.25,
+          "currency": null,
+          "size": {
+            "raw": "500g",
+            "value": 500.0,
+            "uom": "g",
+            "approximate": false,
+            "form": "plain",
+            "quantity": 500.0,
+            "base_uom": "g"
+          },
+          "status": "verified",
+          "via": "shopify-search",
+          "store_taxonomy": "Commonwealth Fresh Fruits Commonwealth",
+          "target_size": "1 kg",
+          "tier": "stretch",
+          "label": "Oranges (1 kg)",
+          "normal_unit": "g",
+          "unit_price": {
+            "per_base_unit": 0.2545,
+            "base_uom": "g",
+            "basis": "per_kg",
+            "value": 254.5,
+            "approximate": false
+          }
+        },
+        "canned_fish": {
+          "url": "https://ever.ph/products/9000003423-baesa",
+          "name": "Mega Sardines in Tomato Sauce Easy Open 155g",
+          "price": 25.75,
+          "currency": null,
+          "size": {
+            "raw": "155g",
+            "value": 155.0,
+            "uom": "g",
+            "approximate": false,
+            "form": "plain",
+            "quantity": 155.0,
+            "base_uom": "g"
+          },
+          "status": "verified",
+          "via": "shopify-search",
+          "store_taxonomy": "Baesa Canned Seafood Sardines Baesa",
+          "target_size": "155 g tin",
+          "tier": "stretch",
+          "label": "Canned sardines",
+          "normal_unit": "g",
+          "unit_price": {
+            "per_base_unit": 0.166129,
+            "base_uom": "g",
+            "basis": "per_kg",
+            "value": 166.129,
+            "approximate": false
+          }
+        },
+        "bottled_water": {
+          "url": "https://ever.ph/products/100000064510-commonwealth",
+          "name": "Nature's Spring Purified Drinking Water 10L",
+          "price": 102.75,
+          "currency": null,
+          "size": {
+            "raw": "10L",
+            "value": 10.0,
+            "uom": "l",
+            "approximate": false,
+            "form": "plain",
+            "quantity": 10000.0,
+            "base_uom": "ml"
+          },
+          "status": "verified",
+          "via": "shopify-search",
+          "store_taxonomy": "Commonwealth Mineral Water Water Commonwealth",
+          "target_size": "1.5 L",
+          "tier": "stretch",
+          "label": "Bottled water (1.5 L)",
+          "normal_unit": "ml",
+          "unit_price": {
+            "per_base_unit": 0.010275,
+            "base_uom": "ml",
+            "basis": "per_litre",
+            "value": 10.275,
+            "approximate": false
+          }
+        }
+      },
+      "unresolved": [
+        "apples"
+      ],
+      "verified_count": 19,
+      "chosen_url_count": 19,
+      "unit_priced_count": 19,
+      "core_settled": 10
+    },
+    "ph-shopsuki": {
+      "id": "ph-shopsuki",
+      "name": "Shop Suki",
+      "country": "PH",
+      "structural_class": "json-ld",
+      "items": {
+        "rice": {
+          "url": "https://shopsuki.ph/products/premium-gold-rice-pgr-5kg",
+          "name": "Premium Gold Rice (PGR) 5kg",
+          "price": 272.0,
+          "currency": "PHP",
+          "size": {
+            "raw": "5kg",
+            "value": 5.0,
+            "uom": "kg",
+            "approximate": false,
+            "form": "plain",
+            "quantity": 5000.0,
+            "base_uom": "g"
+          },
+          "status": "verified",
+          "via": "json-ld",
+          "target_size": "5 kg",
+          "tier": "core",
+          "label": "Rice (white)",
+          "normal_unit": "g",
+          "unit_price": {
+            "per_base_unit": 0.0544,
+            "base_uom": "g",
+            "basis": "per_kg",
+            "value": 54.4,
+            "approximate": false
+          }
+        },
+        "bread": {
+          "url": "https://shopsuki.ph/products/lucky-charm-whole-wheat-pandesal-340g",
+          "name": "Lucky Charm Whole Wheat Pandesal 340g",
+          "price": 60.75,
+          "currency": "PHP",
+          "size": {
+            "raw": "340g",
+            "value": 340.0,
+            "uom": "g",
+            "approximate": false,
+            "form": "plain",
+            "quantity": 340.0,
+            "base_uom": "g"
+          },
+          "status": "verified",
+          "via": "json-ld",
+          "target_size": "500 g loaf",
+          "tier": "core",
+          "label": "White bread (loaf)",
+          "normal_unit": "g",
+          "unit_price": {
+            "per_base_unit": 0.178676,
+            "base_uom": "g",
+            "basis": "per_kg",
+            "value": 178.6765,
+            "approximate": false
+          }
+        },
+        "pasta": {
+          "url": "https://shopsuki.ph/products/royal-premium-elbow-macaroni-400g",
+          "name": "Royal Premium Elbow Macaroni 400g",
+          "price": 74.1,
+          "currency": "PHP",
+          "size": {
+            "raw": "400g",
+            "value": 400.0,
+            "uom": "g",
+            "approximate": false,
+            "form": "plain",
+            "quantity": 400.0,
+            "base_uom": "g"
+          },
+          "status": "verified",
+          "via": "json-ld",
+          "target_size": "500 g",
+          "tier": "core",
+          "label": "Pasta (spaghetti)",
+          "normal_unit": "g",
+          "unit_price": {
+            "per_base_unit": 0.18525,
+            "base_uom": "g",
+            "basis": "per_kg",
+            "value": 185.25,
+            "approximate": false
+          }
+        },
+        "chicken": {
+          "url": "https://shopsuki.ph/products/besuto-chicken-crackers-500g",
+          "name": "Besuto Chicken Crackers 500g",
+          "price": 113.8,
+          "currency": "PHP",
+          "size": {
+            "raw": "500g",
+            "value": 500.0,
+            "uom": "g",
+            "approximate": false,
+            "form": "plain",
+            "quantity": 500.0,
+            "base_uom": "g"
+          },
+          "status": "verified",
+          "via": "json-ld",
+          "target_size": "1 kg",
+          "tier": "core",
+          "label": "Chicken breast",
+          "normal_unit": "g",
+          "unit_price": {
+            "per_base_unit": 0.2276,
+            "base_uom": "g",
+            "basis": "per_kg",
+            "value": 227.6,
+            "approximate": false
+          }
+        },
+        "eggs": {
+          "url": "https://shopsuki.ph/products/master-crunchy-egg-bubble-gum-120s",
+          "name": "Mcmaster Crunchy Egg Bubble Gum 120's",
+          "price": 133.45,
+          "currency": "PHP",
+          "size": {
+            "raw": "120's",
+            "value": 120.0,
+            "uom": "count",
+            "approximate": false,
+            "form": "count",
+            "quantity": 120.0,
+            "base_uom": "count"
+          },
+          "status": "verified",
+          "via": "json-ld",
+          "target_size": "tray (30) or dozen",
+          "tier": "core",
+          "label": "Eggs (12)",
+          "normal_unit": "count",
+          "unit_price": {
+            "per_base_unit": 1.112083,
+            "base_uom": "count",
+            "basis": "per_item",
+            "value": 1.1121,
+            "approximate": false
+          },
+          "unit_price_outlier": {
+            "ratio_to_peer_median": 0.1,
+            "peer_median": 10.8042,
+            "peers": 4,
+            "note": "far from the same item's unit price at other stores in this country - likely a case, multipack or mis-picked listing"
+          }
+        },
+        "milk": {
+          "url": "https://shopsuki.ph/products/alaska-evaporated-filled-milk-classic-370ml",
+          "name": "Alaska Evaporated Filled Milk Classic 360ml",
+          "price": 60.9,
+          "currency": "PHP",
+          "size": {
+            "raw": "360ml",
+            "value": 360.0,
+            "uom": "ml",
+            "approximate": false,
+            "form": "plain",
+            "quantity": 360.0,
+            "base_uom": "ml"
+          },
+          "status": "verified",
+          "via": "json-ld",
+          "target_size": "1 L",
+          "tier": "core",
+          "label": "Milk (1 L)",
+          "normal_unit": "ml",
+          "unit_price": {
+            "per_base_unit": 0.169167,
+            "base_uom": "ml",
+            "basis": "per_litre",
+            "value": 169.1667,
+            "approximate": false
+          }
+        },
+        "coffee": {
+          "url": "https://shopsuki.ph/products/san-mig-3in1-coffee-original-20g",
+          "name": null,
+          "price": null,
+          "currency": null,
+          "size": {
+            "raw": "20g",
+            "value": 20.0,
+            "uom": "g",
+            "approximate": false,
+            "form": "plain",
+            "quantity": 20.0,
+            "base_uom": "g"
+          },
+          "status": "candidate_unverified",
+          "note": "URL selected from the sitemap but the page serves no price over plain HTTP - confirm with a Studio run",
+          "target_size": "ground or instant refill",
+          "tier": "core",
+          "label": "Coffee (ground or instant)",
+          "normal_unit": "g",
+          "unit_price": null
+        },
+        "sugar": {
+          "url": "https://shopsuki.ph/products/alter-trade-mascobado-sugar-500g",
+          "name": "Alter Trade Mascobado Sugar 500g",
+          "price": 129.75,
+          "currency": "PHP",
+          "size": {
+            "raw": "500g",
+            "value": 500.0,
+            "uom": "g",
+            "approximate": false,
+            "form": "plain",
+            "quantity": 500.0,
+            "base_uom": "g"
+          },
+          "status": "verified",
+          "via": "json-ld",
+          "target_size": "1 kg",
+          "tier": "core",
+          "label": "Sugar (white or brown)",
+          "normal_unit": "g",
+          "unit_price": {
+            "per_base_unit": 0.2595,
+            "base_uom": "g",
+            "basis": "per_kg",
+            "value": 259.5,
+            "approximate": false
+          }
+        },
+        "cooking_oil": {
+          "url": "https://shopsuki.ph/products/mersha-classical-pure-mineral-oil-120ml",
+          "name": null,
+          "price": null,
+          "currency": null,
+          "size": {
+            "raw": "120ml",
+            "value": 120.0,
+            "uom": "ml",
+            "approximate": false,
+            "form": "plain",
+            "quantity": 120.0,
+            "base_uom": "ml"
+          },
+          "status": "candidate_unverified",
+          "note": "URL selected from the sitemap but the page serves no price over plain HTTP - confirm with a Studio run",
+          "target_size": "1 L",
+          "tier": "core",
+          "label": "Cooking oil",
+          "normal_unit": "ml",
+          "unit_price": null
+        },
+        "bananas": {
+          "url": "https://shopsuki.ph/products/quaker-fio-oats-banana-and-honey-33g",
+          "name": null,
+          "price": null,
+          "currency": null,
+          "size": {
+            "raw": "33g",
+            "value": 33.0,
+            "uom": "g",
+            "approximate": false,
+            "form": "plain",
+            "quantity": 33.0,
+            "base_uom": "g"
+          },
+          "status": "candidate_unverified",
+          "note": "URL selected from the sitemap but the page serves no price over plain HTTP - confirm with a Studio run",
+          "target_size": "1 kg",
+          "tier": "core",
+          "label": "Bananas (1 kg)",
+          "normal_unit": "g",
+          "unit_price": null
+        },
+        "pork": {
+          "url": "https://shopsuki.ph/products/pork-belly-whole-approx-5kg",
+          "name": "Pork Belly Whole Approx. 5kg",
+          "price": 1727.25,
+          "currency": "PHP",
+          "size": {
+            "raw": "5kg",
+            "value": 5.0,
+            "uom": "kg",
+            "approximate": true,
+            "form": "plain",
+            "quantity": 5000.0,
+            "base_uom": "g"
+          },
+          "status": "verified",
+          "via": "json-ld",
+          "target_size": "1 kg",
+          "tier": "stretch",
+          "label": "Pork (lean cut)",
+          "normal_unit": "g",
+          "unit_price": {
+            "per_base_unit": 0.34545,
+            "base_uom": "g",
+            "basis": "per_kg",
+            "value": 345.45,
+            "approximate": true
+          }
+        },
+        "fish": {
+          "url": "https://shopsuki.ph/products/besuto-kropeck-fish-curry-250g",
+          "name": "Besuto Kropeck Fish Curry 250g",
+          "price": 61.45,
+          "currency": "PHP",
+          "size": {
+            "raw": "250g",
+            "value": 250.0,
+            "uom": "g",
+            "approximate": false,
+            "form": "plain",
+            "quantity": 250.0,
+            "base_uom": "g"
+          },
+          "status": "verified",
+          "via": "json-ld",
+          "target_size": "1 kg",
+          "tier": "stretch",
+          "label": "Fish (tilapia or round scad)",
+          "normal_unit": "g",
+          "unit_price": {
+            "per_base_unit": 0.2458,
+            "base_uom": "g",
+            "basis": "per_kg",
+            "value": 245.8,
+            "approximate": false
+          }
+        },
+        "cheese": {
+          "url": "https://shopsuki.ph/products/kraft-eden-cheese-160g",
+          "name": "Kraft Eden Cheese 160g",
+          "price": 58.2,
+          "currency": "PHP",
+          "size": {
+            "raw": "160g",
+            "value": 160.0,
+            "uom": "g",
+            "approximate": false,
+            "form": "plain",
+            "quantity": 160.0,
+            "base_uom": "g"
+          },
+          "status": "verified",
+          "via": "json-ld",
+          "target_size": "500 g",
+          "tier": "stretch",
+          "label": "Cheese (local)",
+          "normal_unit": "g",
+          "unit_price": {
+            "per_base_unit": 0.36375,
+            "base_uom": "g",
+            "basis": "per_kg",
+            "value": 363.75,
+            "approximate": false
+          }
+        },
+        "tomatoes": {
+          "status": "not_found",
+          "note": "no candidate URL in pool",
+          "target_size": "1 kg",
+          "tier": "stretch",
+          "label": "Tomatoes (1 kg)",
+          "normal_unit": "g",
+          "unit_price": null
+        },
+        "potatoes": {
+          "url": "https://shopsuki.ph/products/jack-n-jill-roller-coaster-potato-rings-cheddar-cheese-85g",
+          "name": null,
+          "price": null,
+          "currency": null,
+          "size": {
+            "raw": "85g",
+            "value": 85.0,
+            "uom": "g",
+            "approximate": false,
+            "form": "plain",
+            "quantity": 85.0,
+            "base_uom": "g"
+          },
+          "status": "candidate_unverified",
+          "note": "URL selected from the sitemap but the page serves no price over plain HTTP - confirm with a Studio run",
+          "target_size": "1 kg",
+          "tier": "stretch",
+          "label": "Potatoes (1 kg)",
+          "normal_unit": "g",
+          "unit_price": null
+        },
+        "onions": {
+          "url": "https://shopsuki.ph/products/besuto-prawn-cracker-onion-garlic-250g",
+          "name": "Besuto Prawn Cracker Onion Garlic 250g",
+          "price": 61.45,
+          "currency": "PHP",
+          "size": {
+            "raw": "250g",
+            "value": 250.0,
+            "uom": "g",
+            "approximate": false,
+            "form": "plain",
+            "quantity": 250.0,
+            "base_uom": "g"
+          },
+          "status": "verified",
+          "via": "json-ld",
+          "target_size": "1 kg",
+          "tier": "stretch",
+          "label": "Onions (1 kg)",
+          "normal_unit": "g",
+          "unit_price": {
+            "per_base_unit": 0.2458,
+            "base_uom": "g",
+            "basis": "per_kg",
+            "value": 245.8,
+            "approximate": false
+          }
+        },
+        "apples": {
+          "url": "https://shopsuki.ph/products/cali-ice-apple-330ml",
+          "name": null,
+          "price": null,
+          "currency": null,
+          "size": {
+            "raw": "330ml",
+            "value": 330.0,
+            "uom": "ml",
+            "approximate": false,
+            "form": "plain",
+            "quantity": 330.0,
+            "base_uom": "ml"
+          },
+          "status": "candidate_unverified",
+          "note": "URL selected from the sitemap but the page serves no price over plain HTTP - confirm with a Studio run",
+          "target_size": "1 kg",
+          "tier": "stretch",
+          "label": "Apples (1 kg)",
+          "normal_unit": "g",
+          "unit_price": null
+        },
+        "oranges": {
+          "url": "https://shopsuki.ph/products/c2-green-tea-dalandan-solo-230ml",
+          "name": null,
+          "price": null,
+          "currency": null,
+          "size": {
+            "raw": "230ml",
+            "value": 230.0,
+            "uom": "ml",
+            "approximate": false,
+            "form": "plain",
+            "quantity": 230.0,
+            "base_uom": "ml"
+          },
+          "status": "candidate_unverified",
+          "note": "URL selected from the sitemap but the page serves no price over plain HTTP - confirm with a Studio run",
+          "target_size": "1 kg",
+          "tier": "stretch",
+          "label": "Oranges (1 kg)",
+          "normal_unit": "g",
+          "unit_price": null
+        },
+        "canned_fish": {
+          "url": "https://shopsuki.ph/products/mega-sardines-in-tomato-sauce-155g",
+          "name": "Mega Sardines In Tomato Sauce 155g",
+          "price": 26.95,
+          "currency": "PHP",
+          "size": {
+            "raw": "155g",
+            "value": 155.0,
+            "uom": "g",
+            "approximate": false,
+            "form": "plain",
+            "quantity": 155.0,
+            "base_uom": "g"
+          },
+          "status": "verified",
+          "via": "json-ld",
+          "target_size": "155 g tin",
+          "tier": "stretch",
+          "label": "Canned sardines",
+          "normal_unit": "g",
+          "unit_price": {
+            "per_base_unit": 0.173871,
+            "base_uom": "g",
+            "basis": "per_kg",
+            "value": 173.871,
+            "approximate": false
+          }
+        },
+        "bottled_water": {
+          "url": "https://shopsuki.ph/products/refresh-mineral-water-500ml",
+          "name": "Refresh Mineral Water 500ml",
+          "price": 9.8,
+          "currency": "PHP",
+          "size": {
+            "raw": "500ml",
+            "value": 500.0,
+            "uom": "ml",
+            "approximate": false,
+            "form": "plain",
+            "quantity": 500.0,
+            "base_uom": "ml"
+          },
+          "status": "verified",
+          "via": "json-ld",
+          "target_size": "1.5 L",
+          "tier": "stretch",
+          "label": "Bottled water (1.5 L)",
+          "normal_unit": "ml",
+          "unit_price": {
+            "per_base_unit": 0.0196,
+            "base_uom": "ml",
+            "basis": "per_litre",
+            "value": 19.6,
+            "approximate": false
+          }
+        }
+      },
+      "unresolved": [
+        "coffee",
+        "cooking_oil",
+        "bananas",
+        "tomatoes",
+        "potatoes",
+        "apples",
+        "oranges"
+      ],
+      "pool_size": 2989,
+      "discovery": "sitemap",
+      "verified_count": 13,
+      "chosen_url_count": 19,
+      "unit_priced_count": 13,
+      "core_settled": 7
+    },
+    "ph-smmarkets": {
+      "id": "ph-smmarkets",
+      "name": "SM Markets",
+      "country": "PH",
+      "structural_class": "graphql",
+      "items": {
+        "rice": {
+          "status": "not_found",
+          "note": "12 results, none a plain staple",
+          "target_size": "5 kg",
+          "tier": "core",
+          "label": "Rice (white)",
+          "normal_unit": "g",
+          "unit_price": null
+        },
+        "bread": {
+          "status": "not_found",
+          "note": "12 results, none a plain staple",
+          "target_size": "500 g loaf",
+          "tier": "core",
+          "label": "White bread (loaf)",
+          "normal_unit": "g",
+          "unit_price": null
+        },
+        "pasta": {
+          "url": "https://smmarkets.ph/pasta-zara-spaghetti-1kg-20006506.html",
+          "name": "Pasta Zara Spaghetti | 1kg",
+          "price": 227.5,
+          "currency": "PHP",
+          "size": {
+            "raw": "1kg",
+            "value": 1.0,
+            "uom": "kg",
+            "approximate": false,
+            "form": "plain",
+            "quantity": 1000.0,
+            "base_uom": "g"
+          },
+          "status": "verified",
+          "via": "graphql",
+          "target_size": "500 g",
+          "tier": "core",
+          "label": "Pasta (spaghetti)",
+          "normal_unit": "g",
+          "unit_price": {
+            "per_base_unit": 0.2275,
+            "base_uom": "g",
+            "basis": "per_kg",
+            "value": 227.5,
+            "approximate": false
+          }
+        },
+        "chicken": {
+          "url": "https://smmarkets.ph/purefoods-tender-juicy-chicken-n-chili-500g.html",
+          "name": "Purefoods Tender Juicy Chicken N Chili | 500g",
+          "price": 123.0,
+          "currency": "PHP",
+          "size": {
+            "raw": "500g",
+            "value": 500.0,
+            "uom": "g",
+            "approximate": false,
+            "form": "plain",
+            "quantity": 500.0,
+            "base_uom": "g"
+          },
+          "status": "verified",
+          "via": "graphql",
+          "target_size": "1 kg",
+          "tier": "core",
+          "label": "Chicken breast",
+          "normal_unit": "g",
+          "unit_price": {
+            "per_base_unit": 0.246,
+            "base_uom": "g",
+            "basis": "per_kg",
+            "value": 246.0,
+            "approximate": false
+          }
+        },
+        "eggs": {
+          "url": "https://smmarkets.ph/sm-bonus-salted-duck-eggs-4pcs-20568521.html",
+          "name": "SM Bonus Salted Duck Eggs | 4pcs",
+          "price": 85.0,
+          "currency": "PHP",
+          "size": {
+            "raw": "4pcs",
+            "value": 4.0,
+            "uom": "pcs",
+            "approximate": false,
+            "form": "plain",
+            "quantity": 4.0,
+            "base_uom": "count"
+          },
+          "status": "verified",
+          "via": "graphql",
+          "target_size": "tray (30) or dozen",
+          "tier": "core",
+          "label": "Eggs (12)",
+          "normal_unit": "count",
+          "unit_price": {
+            "per_base_unit": 21.25,
+            "base_uom": "count",
+            "basis": "per_item",
+            "value": 21.25,
+            "approximate": false
+          }
+        },
+        "milk": {
+          "status": "not_found",
+          "note": "12 results, none a plain staple",
+          "target_size": "1 L",
+          "tier": "core",
+          "label": "Milk (1 L)",
+          "normal_unit": "ml",
+          "unit_price": null
+        },
+        "coffee": {
+          "status": "not_found",
+          "note": "12 results, none a plain staple",
+          "target_size": "ground or instant refill",
+          "tier": "core",
+          "label": "Coffee (ground or instant)",
+          "normal_unit": "g",
+          "unit_price": null
+        },
+        "sugar": {
+          "status": "not_found",
+          "note": "12 results, none a plain staple",
+          "target_size": "1 kg",
+          "tier": "core",
+          "label": "Sugar (white or brown)",
+          "normal_unit": "g",
+          "unit_price": null
+        },
+        "cooking_oil": {
+          "status": "not_found",
+          "note": "12 results, none a plain staple",
+          "target_size": "1 L",
+          "tier": "core",
+          "label": "Cooking oil",
+          "normal_unit": "ml",
+          "unit_price": null
+        },
+        "bananas": {
+          "status": "not_found",
+          "note": "12 results, none a plain staple",
+          "target_size": "1 kg",
+          "tier": "core",
+          "label": "Bananas (1 kg)",
+          "normal_unit": "g",
+          "unit_price": null
+        },
+        "pork": {
+          "status": "not_found",
+          "note": "12 results, none a plain staple",
+          "target_size": "1 kg",
+          "tier": "stretch",
+          "label": "Pork (lean cut)",
+          "normal_unit": "g",
+          "unit_price": null
+        },
+        "fish": {
+          "url": "https://smmarkets.ph/nsj-promo-tilapia-large-350g-500g.html",
+          "name": "NSJ Promo Tilapia Large | 350g-500g",
+          "price": 115.0,
+          "currency": "PHP",
+          "size": {
+            "raw": "350g-500g",
+            "value": 425.0,
+            "uom": "g",
+            "approximate": true,
+            "form": "range",
+            "quantity": 425.0,
+            "base_uom": "g"
+          },
+          "status": "verified",
+          "via": "graphql",
+          "target_size": "1 kg",
+          "tier": "stretch",
+          "label": "Fish (tilapia or round scad)",
+          "normal_unit": "g",
+          "unit_price": {
+            "per_base_unit": 0.270588,
+            "base_uom": "g",
+            "basis": "per_kg",
+            "value": 270.5882,
+            "approximate": true
+          }
+        },
+        "cheese": {
+          "url": "https://smmarkets.ph/winner-footlong-hotdog-with-cheese-500g-20034186.html",
+          "name": "Winner Footlong Hotdog With Cheese | 500g",
+          "price": 105.0,
+          "currency": "PHP",
+          "size": {
+            "raw": "500g",
+            "value": 500.0,
+            "uom": "g",
+            "approximate": false,
+            "form": "plain",
+            "quantity": 500.0,
+            "base_uom": "g"
+          },
+          "status": "verified",
+          "via": "graphql",
+          "target_size": "500 g",
+          "tier": "stretch",
+          "label": "Cheese (local)",
+          "normal_unit": "g",
+          "unit_price": {
+            "per_base_unit": 0.21,
+            "base_uom": "g",
+            "basis": "per_kg",
+            "value": 210.0,
+            "approximate": false
+          }
+        },
+        "tomatoes": {
+          "url": "https://smmarkets.ph/elrich-tomato-baguio-350g-400g-20587915.html",
+          "name": "Elrich Tomato Baguio | 350g-400g",
+          "price": 192.0,
+          "currency": "PHP",
+          "size": {
+            "raw": "350g-400g",
+            "value": 375.0,
+            "uom": "g",
+            "approximate": true,
+            "form": "range",
+            "quantity": 375.0,
+            "base_uom": "g"
+          },
+          "status": "verified",
+          "via": "graphql",
+          "target_size": "1 kg",
+          "tier": "stretch",
+          "label": "Tomatoes (1 kg)",
+          "normal_unit": "g",
+          "unit_price": {
+            "per_base_unit": 0.512,
+            "base_uom": "g",
+            "basis": "per_kg",
+            "value": 512.0,
+            "approximate": true
+          }
+        },
+        "potatoes": {
+          "url": "https://smmarkets.ph/ss-potato-jumbo-450g-500g.html",
+          "name": "SS Potato Jumbo | 450g-500g",
+          "price": 79.5,
+          "currency": "PHP",
+          "size": {
+            "raw": "450g-500g",
+            "value": 475.0,
+            "uom": "g",
+            "approximate": true,
+            "form": "range",
+            "quantity": 475.0,
+            "base_uom": "g"
+          },
+          "status": "verified",
+          "via": "graphql",
+          "target_size": "1 kg",
+          "tier": "stretch",
+          "label": "Potatoes (1 kg)",
+          "normal_unit": "g",
+          "unit_price": {
+            "per_base_unit": 0.167368,
+            "base_uom": "g",
+            "basis": "per_kg",
+            "value": 167.3684,
+            "approximate": true
+          }
+        },
+        "onions": {
+          "url": "https://smmarkets.ph/sk-kitchen-stuffed-paratha-om-and-onion-400g.html",
+          "name": "SK Kitchen Stuffed Paratha Om and Onion | 400g",
+          "price": 189.5,
+          "currency": "PHP",
+          "size": {
+            "raw": "400g",
+            "value": 400.0,
+            "uom": "g",
+            "approximate": false,
+            "form": "plain",
+            "quantity": 400.0,
+            "base_uom": "g"
+          },
+          "status": "verified",
+          "via": "graphql",
+          "target_size": "1 kg",
+          "tier": "stretch",
+          "label": "Onions (1 kg)",
+          "normal_unit": "g",
+          "unit_price": {
+            "per_base_unit": 0.47375,
+            "base_uom": "g",
+            "basis": "per_kg",
+            "value": 473.75,
+            "approximate": false
+          }
+        },
+        "apples": {
+          "url": "https://smmarkets.ph/elrich-green-apple-700g-800g-20587924.html",
+          "name": "Elrich Green Apple | 700g-800g",
+          "price": 144.0,
+          "currency": "PHP",
+          "size": {
+            "raw": "700g-800g",
+            "value": 750.0,
+            "uom": "g",
+            "approximate": true,
+            "form": "range",
+            "quantity": 750.0,
+            "base_uom": "g"
+          },
+          "status": "verified",
+          "via": "graphql",
+          "target_size": "1 kg",
+          "tier": "stretch",
+          "label": "Apples (1 kg)",
+          "normal_unit": "g",
+          "unit_price": {
+            "per_base_unit": 0.192,
+            "base_uom": "g",
+            "basis": "per_kg",
+            "value": 192.0,
+            "approximate": true
+          }
+        },
+        "oranges": {
+          "status": "not_found",
+          "note": "12 results, none a plain staple",
+          "target_size": "1 kg",
+          "tier": "stretch",
+          "label": "Oranges (1 kg)",
+          "normal_unit": "g",
+          "unit_price": null
+        },
+        "canned_fish": {
+          "status": "not_found",
+          "note": "12 results, none a plain staple",
+          "target_size": "155 g tin",
+          "tier": "stretch",
+          "label": "Canned sardines",
+          "normal_unit": "g",
+          "unit_price": null
+        },
+        "bottled_water": {
+          "status": "not_found",
+          "note": "12 results, none a plain staple",
+          "target_size": "1.5 L",
+          "tier": "stretch",
+          "label": "Bottled water (1.5 L)",
+          "normal_unit": "ml",
+          "unit_price": null
+        }
+      },
+      "unresolved": [
+        "rice",
+        "bread",
+        "milk",
+        "coffee",
+        "sugar",
+        "cooking_oil",
+        "bananas",
+        "pork",
+        "oranges",
+        "canned_fish",
+        "bottled_water"
+      ],
+      "verified_count": 9,
+      "chosen_url_count": 9,
+      "unit_priced_count": 9,
+      "core_settled": 3
+    },
+    "ph-merrymartwholesale": {
+      "id": "ph-merrymartwholesale",
+      "name": "MerryMart Wholesale",
+      "country": "PH",
+      "structural_class": "bare-html",
+      "items": {
+        "rice": {
+          "status": "not_found",
+          "note": "no candidate URL in pool",
+          "target_size": "5 kg",
+          "tier": "core",
+          "label": "Rice (white)",
+          "normal_unit": "g",
+          "unit_price": null
+        },
+        "bread": {
+          "status": "not_found",
+          "note": "no candidate URL in pool",
+          "target_size": "500 g loaf",
+          "tier": "core",
+          "label": "White bread (loaf)",
+          "normal_unit": "g",
+          "unit_price": null
+        },
+        "pasta": {
+          "url": "https://www.merrymartwholesale.com/products/del-monte-spaghetti-900g-1-case-includes-20-pcs-900g",
+          "name": null,
+          "price": null,
+          "currency": null,
+          "size": {
+            "raw": "900g",
+            "value": 900.0,
+            "uom": "g",
+            "approximate": false,
+            "form": "plain",
+            "quantity": 900.0,
+            "base_uom": "g"
+          },
+          "status": "candidate_unverified",
+          "note": "URL selected from the sitemap but the page serves no price over plain HTTP - confirm with a Studio run",
+          "target_size": "500 g",
+          "tier": "core",
+          "label": "Pasta (spaghetti)",
+          "normal_unit": "g",
+          "unit_price": null
+        },
+        "chicken": {
+          "url": "https://www.merrymartwholesale.com/products/ladys-choice-chicken-27ml-1-case-includes-72-pcs-27ml",
+          "name": null,
+          "price": null,
+          "currency": null,
+          "size": {
+            "raw": "27ml",
+            "value": 27.0,
+            "uom": "ml",
+            "approximate": false,
+            "form": "plain",
+            "quantity": 27.0,
+            "base_uom": "ml"
+          },
+          "status": "candidate_unverified",
+          "note": "URL selected from the sitemap but the page serves no price over plain HTTP - confirm with a Studio run",
+          "target_size": "1 kg",
+          "tier": "core",
+          "label": "Chicken breast",
+          "normal_unit": "g",
+          "unit_price": null
+        },
+        "eggs": {
+          "url": "https://www.merrymartwholesale.com/products/excellent-egg-noodles-200g-1-case-includes-18-pcs-200g",
+          "name": null,
+          "price": null,
+          "currency": null,
+          "size": {
+            "raw": "200g",
+            "value": 200.0,
+            "uom": "g",
+            "approximate": false,
+            "form": "plain",
+            "quantity": 200.0,
+            "base_uom": "g"
+          },
+          "status": "candidate_unverified",
+          "note": "URL selected from the sitemap but the page serves no price over plain HTTP - confirm with a Studio run",
+          "target_size": "tray (30) or dozen",
+          "tier": "core",
+          "label": "Eggs (12)",
+          "normal_unit": "count",
+          "unit_price": null
+        },
+        "milk": {
+          "url": "https://www.merrymartwholesale.com/products/alaska-evaporada-filled-milk-360ml-1-case-includes-48pcs-360ml",
+          "name": null,
+          "price": null,
+          "currency": null,
+          "size": {
+            "raw": "360ml",
+            "value": 360.0,
+            "uom": "ml",
+            "approximate": false,
+            "form": "plain",
+            "quantity": 360.0,
+            "base_uom": "ml"
+          },
+          "status": "candidate_unverified",
+          "note": "URL selected from the sitemap but the page serves no price over plain HTTP - confirm with a Studio run",
+          "target_size": "1 L",
+          "tier": "core",
+          "label": "Milk (1 L)",
+          "normal_unit": "ml",
+          "unit_price": null
+        },
+        "coffee": {
+          "url": "https://www.merrymartwholesale.com/products/nash-white-coffee-30g-twin-pack-1-case-includes-100-pcs-30g",
+          "name": null,
+          "price": null,
+          "currency": null,
+          "size": {
+            "raw": "30g",
+            "value": 30.0,
+            "uom": "g",
+            "approximate": false,
+            "form": "plain",
+            "quantity": 30.0,
+            "base_uom": "g"
+          },
+          "status": "candidate_unverified",
+          "note": "URL selected from the sitemap but the page serves no price over plain HTTP - confirm with a Studio run",
+          "target_size": "ground or instant refill",
+          "tier": "core",
+          "label": "Coffee (ground or instant)",
+          "normal_unit": "g",
+          "unit_price": null
+        },
+        "sugar": {
+          "status": "not_found",
+          "note": "no candidate URL in pool",
+          "target_size": "1 kg",
+          "tier": "core",
+          "label": "Sugar (white or brown)",
+          "normal_unit": "g",
+          "unit_price": null
+        },
+        "cooking_oil": {
+          "url": "https://www.merrymartwholesale.com/products/555-mackerel-natural-oil-eoc-425g-1-case-includes-48-pcs-425g",
+          "name": null,
+          "price": null,
+          "currency": null,
+          "size": {
+            "raw": "425g",
+            "value": 425.0,
+            "uom": "g",
+            "approximate": false,
+            "form": "plain",
+            "quantity": 425.0,
+            "base_uom": "g"
+          },
+          "status": "candidate_unverified",
+          "note": "URL selected from the sitemap but the page serves no price over plain HTTP - confirm with a Studio run",
+          "target_size": "1 L",
+          "tier": "core",
+          "label": "Cooking oil",
+          "normal_unit": "ml",
+          "unit_price": null
+        },
+        "bananas": {
+          "status": "not_found",
+          "note": "no candidate URL in pool",
+          "target_size": "1 kg",
+          "tier": "core",
+          "label": "Bananas (1 kg)",
+          "normal_unit": "g",
+          "unit_price": null
+        },
+        "pork": {
+          "status": "not_found",
+          "note": "no candidate URL in pool",
+          "target_size": "1 kg",
+          "tier": "stretch",
+          "label": "Pork (lean cut)",
+          "normal_unit": "g",
+          "unit_price": null
+        },
+        "fish": {
+          "status": "not_found",
+          "note": "no candidate URL in pool",
+          "target_size": "1 kg",
+          "tier": "stretch",
+          "label": "Fish (tilapia or round scad)",
+          "normal_unit": "g",
+          "unit_price": null
+        },
+        "cheese": {
+          "status": "not_found",
+          "note": "no candidate URL in pool",
+          "target_size": "500 g",
+          "tier": "stretch",
+          "label": "Cheese (local)",
+          "normal_unit": "g",
+          "unit_price": null
+        },
+        "tomatoes": {
+          "status": "not_found",
+          "note": "no candidate URL in pool",
+          "target_size": "1 kg",
+          "tier": "stretch",
+          "label": "Tomatoes (1 kg)",
+          "normal_unit": "g",
+          "unit_price": null
+        },
+        "potatoes": {
+          "status": "not_found",
+          "note": "no candidate URL in pool",
+          "target_size": "1 kg",
+          "tier": "stretch",
+          "label": "Potatoes (1 kg)",
+          "normal_unit": "g",
+          "unit_price": null
+        },
+        "onions": {
+          "status": "not_found",
+          "note": "no candidate URL in pool",
+          "target_size": "1 kg",
+          "tier": "stretch",
+          "label": "Onions (1 kg)",
+          "normal_unit": "g",
+          "unit_price": null
+        },
+        "apples": {
+          "status": "not_found",
+          "note": "no candidate URL in pool",
+          "target_size": "1 kg",
+          "tier": "stretch",
+          "label": "Apples (1 kg)",
+          "normal_unit": "g",
+          "unit_price": null
+        },
+        "oranges": {
+          "url": "https://www.merrymartwholesale.com/products/blue-orange-500ml-1-case-includes-15-pcs-500ml",
+          "name": null,
+          "price": null,
+          "currency": null,
+          "size": {
+            "raw": "500ml",
+            "value": 500.0,
+            "uom": "ml",
+            "approximate": false,
+            "form": "plain",
+            "quantity": 500.0,
+            "base_uom": "ml"
+          },
+          "status": "candidate_unverified",
+          "note": "URL selected from the sitemap but the page serves no price over plain HTTP - confirm with a Studio run",
+          "target_size": "1 kg",
+          "tier": "stretch",
+          "label": "Oranges (1 kg)",
+          "normal_unit": "g",
+          "unit_price": null
+        },
+        "canned_fish": {
+          "url": "https://www.merrymartwholesale.com/products/555-sardines-spanish-style-eoe-155g-1-case-includes-100-pcs-155g",
+          "name": null,
+          "price": null,
+          "currency": null,
+          "size": {
+            "raw": "155g",
+            "value": 155.0,
+            "uom": "g",
+            "approximate": false,
+            "form": "plain",
+            "quantity": 155.0,
+            "base_uom": "g"
+          },
+          "status": "candidate_unverified",
+          "note": "URL selected from the sitemap but the page serves no price over plain HTTP - confirm with a Studio run",
+          "target_size": "155 g tin",
+          "tier": "stretch",
+          "label": "Canned sardines",
+          "normal_unit": "g",
+          "unit_price": null
+        },
+        "bottled_water": {
+          "url": "https://www.merrymartwholesale.com/products/absolute-distilled-water-2000ml-1-case-includes-6-pcs-2000ml",
+          "name": null,
+          "price": null,
+          "currency": null,
+          "size": {
+            "raw": "2000ml",
+            "value": 2000.0,
+            "uom": "ml",
+            "approximate": false,
+            "form": "plain",
+            "quantity": 2000.0,
+            "base_uom": "ml"
+          },
+          "status": "candidate_unverified",
+          "note": "URL selected from the sitemap but the page serves no price over plain HTTP - confirm with a Studio run",
+          "target_size": "1.5 L",
+          "tier": "stretch",
+          "label": "Bottled water (1.5 L)",
+          "normal_unit": "ml",
+          "unit_price": null
+        }
+      },
+      "unresolved": [
+        "rice",
+        "bread",
+        "pasta",
+        "chicken",
+        "eggs",
+        "milk",
+        "coffee",
+        "sugar",
+        "cooking_oil",
+        "bananas",
+        "pork",
+        "fish",
+        "cheese",
+        "tomatoes",
+        "potatoes",
+        "onions",
+        "apples",
+        "oranges",
+        "canned_fish",
+        "bottled_water"
+      ],
+      "pool_size": 129,
+      "discovery": "crawl",
+      "verified_count": 0,
+      "chosen_url_count": 9,
+      "unit_priced_count": 0,
+      "core_settled": 0
+    },
+    "ph-landers": {
+      "id": "ph-landers",
+      "name": "Landers Superstore",
+      "country": "PH",
+      "structural_class": "spa-opaque",
+      "items": {
+        "rice": {
+          "url": "https://www.landers.ph/food-cupboard/don-quijote-premium-japanese-rice-10kg-140705-34162",
+          "name": null,
+          "price": null,
+          "currency": null,
+          "size": {
+            "raw": "10kg",
+            "value": 10.0,
+            "uom": "kg",
+            "approximate": false,
+            "form": "plain",
+            "quantity": 10000.0,
+            "base_uom": "g"
+          },
+          "status": "candidate_unverified",
+          "note": "URL selected from the sitemap but the page serves no price over plain HTTP - confirm with a Studio run",
+          "target_size": "5 kg",
+          "tier": "core",
+          "label": "Rice (white)",
+          "normal_unit": "g",
+          "unit_price": null
+        },
+        "bread": {
+          "url": "https://www.landers.ph/bakery/ichipan-white-bread-600g-131479-23495",
+          "name": null,
+          "price": null,
+          "currency": null,
+          "size": {
+            "raw": "600g",
+            "value": 600.0,
+            "uom": "g",
+            "approximate": false,
+            "form": "plain",
+            "quantity": 600.0,
+            "base_uom": "g"
+          },
+          "status": "candidate_unverified",
+          "note": "URL selected from the sitemap but the page serves no price over plain HTTP - confirm with a Studio run",
+          "target_size": "500 g loaf",
+          "tier": "core",
+          "label": "White bread (loaf)",
+          "normal_unit": "g",
+          "unit_price": null
+        },
+        "pasta": {
+          "url": "https://www.landers.ph/food-cupboard/royal-premium-spaghetti-900g-109581-17994",
+          "name": null,
+          "price": null,
+          "currency": null,
+          "size": {
+            "raw": "900g",
+            "value": 900.0,
+            "uom": "g",
+            "approximate": false,
+            "form": "plain",
+            "quantity": 900.0,
+            "base_uom": "g"
+          },
+          "status": "candidate_unverified",
+          "note": "URL selected from the sitemap but the page serves no price over plain HTTP - confirm with a Studio run",
+          "target_size": "500 g",
+          "tier": "core",
+          "label": "Pasta (spaghetti)",
+          "normal_unit": "g",
+          "unit_price": null
+        },
+        "chicken": {
+          "url": "https://www.landers.ph/rotisserie-meat-poultry-seafood/bounty-chicken-breast-approx-1-4kg-800776-7916",
+          "name": "Bounty Chicken Breast approx 1.4kg",
+          "price": null,
+          "currency": null,
+          "size": {
+            "raw": "1.4kg",
+            "value": 1.4,
+            "uom": "kg",
+            "approximate": true,
+            "form": "plain",
+            "quantity": 1400.0,
+            "base_uom": "g"
+          },
+          "status": "curated",
+          "via": "manual",
+          "why": "Automation picked frozen Ajinomoto Chicken Karaage, a prepared product. This is raw chicken breast sold by weight, matching the PRD basket item.",
+          "target_size": "1 kg",
+          "tier": "core",
+          "label": "Chicken breast",
+          "normal_unit": "g",
+          "unit_price": null
+        },
+        "eggs": {
+          "url": "https://www.landers.ph/dairy-chilled/jw-fresh-egg-medium-30pcs-113551-20022",
+          "name": null,
+          "price": null,
+          "currency": null,
+          "size": {
+            "raw": "30pcs",
+            "value": 30.0,
+            "uom": "pcs",
+            "approximate": false,
+            "form": "plain",
+            "quantity": 30.0,
+            "base_uom": "count"
+          },
+          "status": "candidate_unverified",
+          "note": "URL selected from the sitemap but the page serves no price over plain HTTP - confirm with a Studio run",
+          "target_size": "tray (30) or dozen",
+          "tier": "core",
+          "label": "Eggs (12)",
+          "normal_unit": "count",
+          "unit_price": null
+        },
+        "milk": {
+          "url": "https://www.landers.ph/beverages/lactel-whole-milk-1l-129172-27064",
+          "name": null,
+          "price": null,
+          "currency": null,
+          "size": {
+            "raw": "1l",
+            "value": 1.0,
+            "uom": "l",
+            "approximate": false,
+            "form": "plain",
+            "quantity": 1000.0,
+            "base_uom": "ml"
+          },
+          "status": "candidate_unverified",
+          "note": "URL selected from the sitemap but the page serves no price over plain HTTP - confirm with a Studio run",
+          "target_size": "1 L",
+          "tier": "core",
+          "label": "Milk (1 L)",
+          "normal_unit": "ml",
+          "unit_price": null
+        },
+        "coffee": {
+          "url": "https://www.landers.ph/beverages/folgers-classic-roast-ground-coffee-1-23kg-119051-6581",
+          "name": "Folgers Classic Roast Ground Coffee 1.23kg",
+          "price": null,
+          "currency": null,
+          "size": {
+            "raw": "1.23kg",
+            "value": 1.23,
+            "uom": "kg",
+            "approximate": false,
+            "form": "plain",
+            "quantity": 1230.0,
+            "base_uom": "g"
+          },
+          "status": "curated",
+          "via": "manual",
+          "why": "Automation picked Binggrae Coffee Milk, a ready-to-drink beverage. Folgers ground is the closest analogue to the US 12oz ground-coffee basket item, and the same brand exists on both sides, which makes the cross-country comparison honest.",
+          "target_size": "ground or instant refill",
+          "tier": "core",
+          "label": "Coffee (ground or instant)",
+          "normal_unit": "g",
+          "unit_price": null
+        },
+        "sugar": {
+          "url": "https://www.landers.ph/food-cupboard/eagle-refined-sugar-1kg-112960-27080",
+          "name": null,
+          "price": null,
+          "currency": null,
+          "size": {
+            "raw": "1kg",
+            "value": 1.0,
+            "uom": "kg",
+            "approximate": false,
+            "form": "plain",
+            "quantity": 1000.0,
+            "base_uom": "g"
+          },
+          "status": "candidate_unverified",
+          "note": "URL selected from the sitemap but the page serves no price over plain HTTP - confirm with a Studio run",
+          "target_size": "1 kg",
+          "tier": "core",
+          "label": "Sugar (white or brown)",
+          "normal_unit": "g",
+          "unit_price": null
+        },
+        "cooking_oil": {
+          "url": "https://www.landers.ph/food-cupboard/bertolli-classic-olive-oil-1-5l-130283-22728",
+          "name": null,
+          "price": null,
+          "currency": null,
+          "size": {
+            "raw": "5l",
+            "value": 5.0,
+            "uom": "l",
+            "approximate": false,
+            "form": "plain",
+            "quantity": 5000.0,
+            "base_uom": "ml"
+          },
+          "status": "candidate_unverified",
+          "note": "URL selected from the sitemap but the page serves no price over plain HTTP - confirm with a Studio run",
+          "target_size": "1 L",
+          "tier": "core",
+          "label": "Cooking oil",
+          "normal_unit": "ml",
+          "unit_price": null
+        },
+        "bananas": {
+          "url": "https://www.landers.ph/food-cupboard/orell-s-banana-thins-200g-127246-41954",
+          "name": null,
+          "price": null,
+          "currency": null,
+          "size": {
+            "raw": "200g",
+            "value": 200.0,
+            "uom": "g",
+            "approximate": false,
+            "form": "plain",
+            "quantity": 200.0,
+            "base_uom": "g"
+          },
+          "status": "candidate_unverified",
+          "note": "URL selected from the sitemap but the page serves no price over plain HTTP - confirm with a Studio run",
+          "target_size": "1 kg",
+          "tier": "core",
+          "label": "Bananas (1 kg)",
+          "normal_unit": "g",
+          "unit_price": null
+        },
+        "pork": {
+          "url": "https://www.landers.ph/frozen/plant-based-liempo-250g-143367-36966",
+          "name": null,
+          "price": null,
+          "currency": null,
+          "size": {
+            "raw": "250g",
+            "value": 250.0,
+            "uom": "g",
+            "approximate": false,
+            "form": "plain",
+            "quantity": 250.0,
+            "base_uom": "g"
+          },
+          "status": "candidate_unverified",
+          "note": "URL selected from the sitemap but the page serves no price over plain HTTP - confirm with a Studio run",
+          "target_size": "1 kg",
+          "tier": "stretch",
+          "label": "Pork (lean cut)",
+          "normal_unit": "g",
+          "unit_price": null
+        },
+        "fish": {
+          "url": "https://www.landers.ph/food-cupboard/fresh-pick-galunggong-buo-500g-132831-25166",
+          "name": null,
+          "price": null,
+          "currency": null,
+          "size": {
+            "raw": "500g",
+            "value": 500.0,
+            "uom": "g",
+            "approximate": false,
+            "form": "plain",
+            "quantity": 500.0,
+            "base_uom": "g"
+          },
+          "status": "candidate_unverified",
+          "note": "URL selected from the sitemap but the page serves no price over plain HTTP - confirm with a Studio run",
+          "target_size": "1 kg",
+          "tier": "stretch",
+          "label": "Fish (tilapia or round scad)",
+          "normal_unit": "g",
+          "unit_price": null
+        },
+        "cheese": {
+          "url": "https://www.landers.ph/dairy-chilled/magnolia-regular-cheese-440g-106573-11127",
+          "name": null,
+          "price": null,
+          "currency": null,
+          "size": {
+            "raw": "440g",
+            "value": 440.0,
+            "uom": "g",
+            "approximate": false,
+            "form": "plain",
+            "quantity": 440.0,
+            "base_uom": "g"
+          },
+          "status": "candidate_unverified",
+          "note": "URL selected from the sitemap but the page serves no price over plain HTTP - confirm with a Studio run",
+          "target_size": "500 g",
+          "tier": "stretch",
+          "label": "Cheese (local)",
+          "normal_unit": "g",
+          "unit_price": null
+        },
+        "tomatoes": {
+          "url": "https://www.landers.ph/food-cupboard/capri-diced-tomatoes-400g-131692-23681",
+          "name": null,
+          "price": null,
+          "currency": null,
+          "size": {
+            "raw": "400g",
+            "value": 400.0,
+            "uom": "g",
+            "approximate": false,
+            "form": "plain",
+            "quantity": 400.0,
+            "base_uom": "g"
+          },
+          "status": "candidate_unverified",
+          "note": "URL selected from the sitemap but the page serves no price over plain HTTP - confirm with a Studio run",
+          "target_size": "1 kg",
+          "tier": "stretch",
+          "label": "Tomatoes (1 kg)",
+          "normal_unit": "g",
+          "unit_price": null
+        },
+        "potatoes": {
+          "url": "https://www.landers.ph/fruits-vegetables/organic-potato-regular-lg-approx-350g-800613-27736",
+          "name": null,
+          "price": null,
+          "currency": null,
+          "size": {
+            "raw": "350g",
+            "value": 350.0,
+            "uom": "g",
+            "approximate": true,
+            "form": "plain",
+            "quantity": 350.0,
+            "base_uom": "g"
+          },
+          "status": "candidate_unverified",
+          "note": "URL selected from the sitemap but the page serves no price over plain HTTP - confirm with a Studio run",
+          "target_size": "1 kg",
+          "tier": "stretch",
+          "label": "Potatoes (1 kg)",
+          "normal_unit": "g",
+          "unit_price": null
+        },
+        "onions": {
+          "url": "https://www.landers.ph/food-cupboard/dani-oregano-onion-30g-129340-21617",
+          "name": null,
+          "price": null,
+          "currency": null,
+          "size": {
+            "raw": "30g",
+            "value": 30.0,
+            "uom": "g",
+            "approximate": false,
+            "form": "plain",
+            "quantity": 30.0,
+            "base_uom": "g"
+          },
+          "status": "candidate_unverified",
+          "note": "URL selected from the sitemap but the page serves no price over plain HTTP - confirm with a Studio run",
+          "target_size": "1 kg",
+          "tier": "stretch",
+          "label": "Onions (1 kg)",
+          "normal_unit": "g",
+          "unit_price": null
+        },
+        "apples": {
+          "url": "https://www.landers.ph/food-cupboard/kellogg-s-apple-wholegrain-cereal-286g-143498-36939",
+          "name": null,
+          "price": null,
+          "currency": null,
+          "size": {
+            "raw": "286g",
+            "value": 286.0,
+            "uom": "g",
+            "approximate": false,
+            "form": "plain",
+            "quantity": 286.0,
+            "base_uom": "g"
+          },
+          "status": "candidate_unverified",
+          "note": "URL selected from the sitemap but the page serves no price over plain HTTP - confirm with a Studio run",
+          "target_size": "1 kg",
+          "tier": "stretch",
+          "label": "Apples (1 kg)",
+          "normal_unit": "g",
+          "unit_price": null
+        },
+        "oranges": {
+          "url": "https://www.landers.ph/fruits-vegetables/dalandan-approx-800g-147170-42457",
+          "name": null,
+          "price": null,
+          "currency": null,
+          "size": {
+            "raw": "800g",
+            "value": 800.0,
+            "uom": "g",
+            "approximate": true,
+            "form": "plain",
+            "quantity": 800.0,
+            "base_uom": "g"
+          },
+          "status": "candidate_unverified",
+          "note": "URL selected from the sitemap but the page serves no price over plain HTTP - confirm with a Studio run",
+          "target_size": "1 kg",
+          "tier": "stretch",
+          "label": "Oranges (1 kg)",
+          "normal_unit": "g",
+          "unit_price": null
+        },
+        "canned_fish": {
+          "url": "https://www.landers.ph/food-cupboard/master-sardines-in-oil-spanish-style-120g-109574-9223",
+          "name": null,
+          "price": null,
+          "currency": null,
+          "size": {
+            "raw": "120g",
+            "value": 120.0,
+            "uom": "g",
+            "approximate": false,
+            "form": "plain",
+            "quantity": 120.0,
+            "base_uom": "g"
+          },
+          "status": "candidate_unverified",
+          "note": "URL selected from the sitemap but the page serves no price over plain HTTP - confirm with a Studio run",
+          "target_size": "155 g tin",
+          "tier": "stretch",
+          "label": "Canned sardines",
+          "normal_unit": "g",
+          "unit_price": null
+        },
+        "bottled_water": {
+          "url": "https://www.landers.ph/food-cupboard/wellsley-farms-premium-chunk-chicken-breast-in-water-354g-135876-28756",
+          "name": null,
+          "price": null,
+          "currency": null,
+          "size": {
+            "raw": "354g",
+            "value": 354.0,
+            "uom": "g",
+            "approximate": false,
+            "form": "plain",
+            "quantity": 354.0,
+            "base_uom": "g"
+          },
+          "status": "candidate_unverified",
+          "note": "URL selected from the sitemap but the page serves no price over plain HTTP - confirm with a Studio run",
+          "target_size": "1.5 L",
+          "tier": "stretch",
+          "label": "Bottled water (1.5 L)",
+          "normal_unit": "ml",
+          "unit_price": null
+        }
+      },
+      "unresolved": [
+        "rice",
+        "bread",
+        "pasta",
+        "eggs",
+        "milk",
+        "sugar",
+        "cooking_oil",
+        "bananas",
+        "pork",
+        "fish",
+        "cheese",
+        "tomatoes",
+        "potatoes",
+        "onions",
+        "apples",
+        "oranges",
+        "canned_fish",
+        "bottled_water"
+      ],
+      "pool_size": 17002,
+      "discovery": "sitemap",
+      "verified_count": 2,
+      "chosen_url_count": 20,
+      "unit_priced_count": 0,
+      "core_settled": 2
+    },
+    "us-kesargrocery": {
+      "id": "us-kesargrocery",
+      "name": "Kesar Grocery",
+      "country": "US",
+      "structural_class": "bare-html",
+      "items": {
+        "rice": {
+          "url": "https://www.kesargrocery.com/basmati-rice-4-lb-sku475551/",
+          "name": "Kesar Dehraduni Basmati Rice - 4 LB",
+          "price": 8.49,
+          "currency": null,
+          "size": {
+            "raw": "4 LB",
+            "value": 4.0,
+            "uom": "lb",
+            "approximate": false,
+            "form": "plain",
+            "quantity": 1814.368,
+            "base_uom": "g"
+          },
+          "status": "verified",
+          "via": "bare-html",
+          "target_size": "5 lb",
+          "tier": "core",
+          "label": "Rice (white)",
+          "normal_unit": "g",
+          "unit_price": {
+            "per_base_unit": 0.004679,
+            "base_uom": "g",
+            "basis": "per_kg",
+            "value": 4.6793,
+            "approximate": false
+          }
+        },
+        "bread": {
+          "url": "https://www.kesargrocery.com/100-whole-wheat-bread-24-oz./",
+          "name": "100% Whole Wheat Bread (24 Oz.)",
+          "price": 6.49,
+          "currency": null,
+          "size": {
+            "raw": "24 Oz",
+            "value": 24.0,
+            "uom": "oz",
+            "approximate": false,
+            "form": "plain",
+            "quantity": 680.388,
+            "base_uom": "g"
+          },
+          "status": "verified",
+          "via": "bare-html",
+          "target_size": "500 g loaf",
+          "tier": "core",
+          "label": "White bread (loaf)",
+          "normal_unit": "g",
+          "unit_price": {
+            "per_base_unit": 0.009539,
+            "base_uom": "g",
+            "basis": "per_kg",
+            "value": 9.5387,
+            "approximate": false
+          }
+        },
+        "pasta": {
+          "url": "https://www.kesargrocery.com/great-value-elbows-pasta-1-lb-454-gm/",
+          "name": "Great Value Elbows Pasta (1 LB - 454 GM)",
+          "price": 2.74,
+          "currency": null,
+          "size": {
+            "raw": "1 LB",
+            "value": 1.0,
+            "uom": "lb",
+            "approximate": false,
+            "form": "plain",
+            "quantity": 453.592,
+            "base_uom": "g"
+          },
+          "status": "verified",
+          "via": "bare-html",
+          "target_size": "1 lb",
+          "tier": "core",
+          "label": "Pasta (spaghetti)",
+          "normal_unit": "g",
+          "unit_price": {
+            "per_base_unit": 0.006041,
+            "base_uom": "g",
+            "basis": "per_kg",
+            "value": 6.0407,
+            "approximate": false
+          }
+        },
+        "chicken": {
+          "url": "https://www.kesargrocery.com/shahnawaz-chicken-shami-kebab-10-oz/",
+          "name": null,
+          "price": null,
+          "currency": null,
+          "size": {
+            "raw": "10 oz",
+            "value": 10.0,
+            "uom": "oz",
+            "approximate": false,
+            "form": "plain",
+            "quantity": 283.495,
+            "base_uom": "g"
+          },
+          "status": "candidate_unverified",
+          "note": "URL selected from the sitemap but the page serves no price over plain HTTP - confirm with a Studio run",
+          "target_size": "per lb",
+          "tier": "core",
+          "label": "Chicken breast",
+          "normal_unit": "g",
+          "unit_price": null
+        },
+        "eggs": {
+          "url": "https://www.kesargrocery.com/kcb-cake-rusk-10-oz-no-eggs-sku447011/",
+          "name": null,
+          "price": null,
+          "currency": null,
+          "size": {
+            "raw": "10 oz",
+            "value": 10.0,
+            "uom": "oz",
+            "approximate": false,
+            "form": "plain",
+            "quantity": 283.495,
+            "base_uom": "g"
+          },
+          "status": "candidate_unverified",
+          "note": "URL selected from the sitemap but the page serves no price over plain HTTP - confirm with a Studio run",
+          "target_size": "dozen",
+          "tier": "core",
+          "label": "Eggs (12)",
+          "normal_unit": "count",
+          "unit_price": null
+        },
+        "milk": {
+          "url": "https://www.kesargrocery.com/deep-dahi-whole-milk-2-lb/",
+          "name": null,
+          "price": null,
+          "currency": null,
+          "size": {
+            "raw": "2 lb",
+            "value": 2.0,
+            "uom": "lb",
+            "approximate": false,
+            "form": "plain",
+            "quantity": 907.184,
+            "base_uom": "g"
+          },
+          "status": "candidate_unverified",
+          "note": "URL selected from the sitemap but the page serves no price over plain HTTP - confirm with a Studio run",
+          "target_size": "1 gal",
+          "tier": "core",
+          "label": "Milk (1 L)",
+          "normal_unit": "ml",
+          "unit_price": null
+        },
+        "coffee": {
+          "url": "https://www.kesargrocery.com/cothas-coffee-1lbs-sku392851/",
+          "name": "Cothas Coffee Speciality Bland - 16 Oz (454 Gm)",
+          "price": 10.99,
+          "currency": null,
+          "size": {
+            "raw": "16 Oz",
+            "value": 16.0,
+            "uom": "oz",
+            "approximate": false,
+            "form": "plain",
+            "quantity": 453.592,
+            "base_uom": "g"
+          },
+          "status": "verified",
+          "via": "bare-html",
+          "target_size": "12 oz ground",
+          "tier": "core",
+          "label": "Coffee (ground or instant)",
+          "normal_unit": "g",
+          "unit_price": {
+            "per_base_unit": 0.024229,
+            "base_uom": "g",
+            "basis": "per_kg",
+            "value": 24.2288,
+            "approximate": false
+          }
+        },
+        "sugar": {
+          "url": "https://www.kesargrocery.com/indian-sugar-2-lb-sku475761/",
+          "name": "Indian Sugar (2 LB)",
+          "price": 3.99,
+          "currency": null,
+          "size": {
+            "raw": "2 LB",
+            "value": 2.0,
+            "uom": "lb",
+            "approximate": false,
+            "form": "plain",
+            "quantity": 907.184,
+            "base_uom": "g"
+          },
+          "status": "verified",
+          "via": "bare-html",
+          "target_size": "4 lb",
+          "tier": "core",
+          "label": "Sugar (white or brown)",
+          "normal_unit": "g",
+          "unit_price": {
+            "per_base_unit": 0.004398,
+            "base_uom": "g",
+            "basis": "per_kg",
+            "value": 4.3982,
+            "approximate": false
+          }
+        },
+        "cooking_oil": {
+          "url": "https://www.kesargrocery.com/swad-almond-oil-473-ml/",
+          "name": "Swad Almond Oil 473 ml",
+          "price": 10.99,
+          "currency": null,
+          "size": {
+            "raw": "473 ml",
+            "value": 473.0,
+            "uom": "ml",
+            "approximate": false,
+            "form": "plain",
+            "quantity": 473.0,
+            "base_uom": "ml"
+          },
+          "status": "verified",
+          "via": "bare-html",
+          "target_size": "48 oz",
+          "tier": "core",
+          "label": "Cooking oil",
+          "normal_unit": "ml",
+          "unit_price": {
+            "per_base_unit": 0.023235,
+            "base_uom": "ml",
+            "basis": "per_litre",
+            "value": 23.2347,
+            "approximate": false
+          }
+        },
+        "bananas": {
+          "url": "https://www.kesargrocery.com/organic-bananas-3-lbs./",
+          "name": "Organic Bananas (3 Lbs.)",
+          "price": 5.39,
+          "currency": null,
+          "size": {
+            "raw": "3 Lbs",
+            "value": 3.0,
+            "uom": "lbs",
+            "approximate": false,
+            "form": "plain",
+            "quantity": 1360.776,
+            "base_uom": "g"
+          },
+          "status": "verified",
+          "via": "bare-html",
+          "target_size": "per lb",
+          "tier": "core",
+          "label": "Bananas (1 kg)",
+          "normal_unit": "g",
+          "unit_price": {
+            "per_base_unit": 0.003961,
+            "base_uom": "g",
+            "basis": "per_kg",
+            "value": 3.961,
+            "approximate": false
+          }
+        },
+        "pork": {
+          "status": "not_found",
+          "note": "no candidate URL in pool",
+          "target_size": "per lb",
+          "tier": "stretch",
+          "label": "Pork (lean cut)",
+          "normal_unit": "g",
+          "unit_price": null
+        },
+        "fish": {
+          "url": "https://www.kesargrocery.com/aachi-fish-fry-masala-7-oz-200-gm/",
+          "name": null,
+          "price": null,
+          "currency": null,
+          "size": {
+            "raw": "7 oz",
+            "value": 7.0,
+            "uom": "oz",
+            "approximate": false,
+            "form": "plain",
+            "quantity": 198.4465,
+            "base_uom": "g"
+          },
+          "status": "candidate_unverified",
+          "note": "URL selected from the sitemap but the page serves no price over plain HTTP - confirm with a Studio run",
+          "target_size": "per lb",
+          "tier": "stretch",
+          "label": "Fish (tilapia or round scad)",
+          "normal_unit": "g",
+          "unit_price": null
+        },
+        "cheese": {
+          "url": "https://www.kesargrocery.com/amul-cheese-block-1-kg-sku393561/",
+          "name": "Amul Cheese Block - 1 KG",
+          "price": 19.99,
+          "currency": null,
+          "size": {
+            "raw": "1 KG",
+            "value": 1.0,
+            "uom": "kg",
+            "approximate": false,
+            "form": "plain",
+            "quantity": 1000.0,
+            "base_uom": "g"
+          },
+          "status": "verified",
+          "via": "bare-html",
+          "target_size": "1 lb",
+          "tier": "stretch",
+          "label": "Cheese (local)",
+          "normal_unit": "g",
+          "unit_price": {
+            "per_base_unit": 0.01999,
+            "base_uom": "g",
+            "basis": "per_kg",
+            "value": 19.99,
+            "approximate": false
+          }
+        },
+        "tomatoes": {
+          "url": "https://www.kesargrocery.com/beefsteak-tomatoes-6-ct./",
+          "name": "Beefsteak Tomatoes (3 Lbs)",
+          "price": 11.99,
+          "currency": null,
+          "size": {
+            "raw": "3 Lbs",
+            "value": 3.0,
+            "uom": "lbs",
+            "approximate": false,
+            "form": "plain",
+            "quantity": 1360.776,
+            "base_uom": "g"
+          },
+          "status": "verified",
+          "via": "bare-html",
+          "target_size": "per lb",
+          "tier": "stretch",
+          "label": "Tomatoes (1 kg)",
+          "normal_unit": "g",
+          "unit_price": {
+            "per_base_unit": 0.008811,
+            "base_uom": "g",
+            "basis": "per_kg",
+            "value": 8.8111,
+            "approximate": false
+          }
+        },
+        "potatoes": {
+          "url": "https://www.kesargrocery.com/dynamic-duo-fresh-creamer-potatoes-5-lb./",
+          "name": "Dynamic Duo Fresh Creamer Potatoes (5 Lb.)",
+          "price": 11.39,
+          "currency": null,
+          "size": {
+            "raw": "5 Lb",
+            "value": 5.0,
+            "uom": "lb",
+            "approximate": false,
+            "form": "plain",
+            "quantity": 2267.96,
+            "base_uom": "g"
+          },
+          "status": "verified",
+          "via": "bare-html",
+          "target_size": "per lb",
+          "tier": "stretch",
+          "label": "Potatoes (1 kg)",
+          "normal_unit": "g",
+          "unit_price": {
+            "per_base_unit": 0.005022,
+            "base_uom": "g",
+            "basis": "per_kg",
+            "value": 5.0221,
+            "approximate": false
+          }
+        },
+        "onions": {
+          "url": "https://www.kesargrocery.com/white-onions-3-lb/",
+          "name": "White Onions - 3 Lb.",
+          "price": 6.99,
+          "currency": null,
+          "size": {
+            "raw": "3 Lb",
+            "value": 3.0,
+            "uom": "lb",
+            "approximate": false,
+            "form": "plain",
+            "quantity": 1360.776,
+            "base_uom": "g"
+          },
+          "status": "verified",
+          "via": "bare-html",
+          "target_size": "per lb",
+          "tier": "stretch",
+          "label": "Onions (1 kg)",
+          "normal_unit": "g",
+          "unit_price": {
+            "per_base_unit": 0.005137,
+            "base_uom": "g",
+            "basis": "per_kg",
+            "value": 5.1368,
+            "approximate": false
+          }
+        },
+        "apples": {
+          "url": "https://www.kesargrocery.com/freshness-guaranteed-gala-apples-3-lb/",
+          "name": "Freshness Guaranteed Gala Apples (3 LB)",
+          "price": 7.99,
+          "currency": null,
+          "size": {
+            "raw": "3 LB",
+            "value": 3.0,
+            "uom": "lb",
+            "approximate": false,
+            "form": "plain",
+            "quantity": 1360.776,
+            "base_uom": "g"
+          },
+          "status": "verified",
+          "via": "bare-html",
+          "target_size": "per lb",
+          "tier": "stretch",
+          "label": "Apples (1 kg)",
+          "normal_unit": "g",
+          "unit_price": {
+            "per_base_unit": 0.005872,
+            "base_uom": "g",
+            "basis": "per_kg",
+            "value": 5.8716,
+            "approximate": false
+          }
+        },
+        "oranges": {
+          "url": "https://www.kesargrocery.com/fresh-navel-oranges-3-lb-sku561691/",
+          "name": "Fresh Navel Oranges (3 LB)",
+          "price": 7.99,
+          "currency": null,
+          "size": {
+            "raw": "3 LB",
+            "value": 3.0,
+            "uom": "lb",
+            "approximate": false,
+            "form": "plain",
+            "quantity": 1360.776,
+            "base_uom": "g"
+          },
+          "status": "verified",
+          "via": "bare-html",
+          "target_size": "per lb",
+          "tier": "stretch",
+          "label": "Oranges (1 kg)",
+          "normal_unit": "g",
+          "unit_price": {
+            "per_base_unit": 0.005872,
+            "base_uom": "g",
+            "basis": "per_kg",
+            "value": 5.8716,
+            "approximate": false
+          }
+        },
+        "canned_fish": {
+          "status": "not_found",
+          "note": "no candidate URL in pool",
+          "target_size": "155 g tin",
+          "tier": "stretch",
+          "label": "Canned sardines",
+          "normal_unit": "g",
+          "unit_price": null
+        },
+        "bottled_water": {
+          "url": "https://www.kesargrocery.com/woodwards-gripe-water-130-ml/",
+          "name": null,
+          "price": null,
+          "currency": null,
+          "size": {
+            "raw": "130 ml",
+            "value": 130.0,
+            "uom": "ml",
+            "approximate": false,
+            "form": "plain",
+            "quantity": 130.0,
+            "base_uom": "ml"
+          },
+          "status": "candidate_unverified",
+          "note": "URL selected from the sitemap but the page serves no price over plain HTTP - confirm with a Studio run",
+          "target_size": "1.5 L",
+          "tier": "stretch",
+          "label": "Bottled water (1.5 L)",
+          "normal_unit": "ml",
+          "unit_price": null
+        }
+      },
+      "unresolved": [
+        "chicken",
+        "eggs",
+        "milk",
+        "pork",
+        "fish",
+        "canned_fish",
+        "bottled_water"
+      ],
+      "pool_size": 9825,
+      "discovery": "sitemap",
+      "verified_count": 13,
+      "chosen_url_count": 18,
+      "unit_priced_count": 13,
+      "core_settled": 7
+    },
+    "us-mexgrocer": {
+      "id": "us-mexgrocer",
+      "name": "MexGrocer",
+      "country": "US",
+      "structural_class": "json-ld",
+      "items": {
+        "rice": {
+          "url": "https://www.mexgrocer.com/products/arroz-mahatma-long-grain-rice-poly",
+          "name": "Arroz - Mahatma Long Grain Rice Poly - 2 lb",
+          "price": 8.95,
+          "currency": null,
+          "size": {
+            "raw": "2 lb",
+            "value": 2.0,
+            "uom": "lb",
+            "approximate": false,
+            "form": "plain",
+            "quantity": 907.184,
+            "base_uom": "g"
+          },
+          "status": "verified",
+          "via": "shopify-search",
+          "store_taxonomy": "Arroz b2b20 GROCERY MAHATMA RICE GROCERY",
+          "target_size": "5 lb",
+          "tier": "core",
+          "label": "Rice (white)",
+          "normal_unit": "g",
+          "unit_price": {
+            "per_base_unit": 0.009866,
+            "base_uom": "g",
+            "basis": "per_kg",
+            "value": 9.8657,
+            "approximate": false
+          }
+        },
+        "bread": {
+          "status": "not_found",
+          "note": "search returned no plain staple",
+          "target_size": "500 g loaf",
+          "tier": "core",
+          "label": "White bread (loaf)",
+          "normal_unit": "g",
+          "unit_price": null
+        },
+        "pasta": {
+          "status": "not_found",
+          "note": "search returned no plain staple",
+          "target_size": "1 lb",
+          "tier": "core",
+          "label": "Pasta (spaghetti)",
+          "normal_unit": "g",
+          "unit_price": null
+        },
+        "chicken": {
+          "url": "https://www.mexgrocer.com/products/knorr-tomato-chicken-boullion",
+          "name": "Knorr Tomato/Chicken Boullion - 15.9 oz",
+          "price": 13.95,
+          "currency": null,
+          "size": {
+            "raw": "15.9 oz",
+            "value": 15.9,
+            "uom": "oz",
+            "approximate": false,
+            "form": "plain",
+            "quantity": 450.757,
+            "base_uom": "g"
+          },
+          "status": "verified",
+          "via": "shopify-search",
+          "store_taxonomy": "b2b20 BOULLION GROCERY KNORR SEASONINGS GROCERY",
+          "target_size": "per lb",
+          "tier": "core",
+          "label": "Chicken breast",
+          "normal_unit": "g",
+          "unit_price": {
+            "per_base_unit": 0.030948,
+            "base_uom": "g",
+            "basis": "per_kg",
+            "value": 30.9479,
+            "approximate": false
+          }
+        },
+        "eggs": {
+          "status": "not_found",
+          "note": "search returned no plain staple",
+          "target_size": "dozen",
+          "tier": "core",
+          "label": "Eggs (12)",
+          "normal_unit": "count",
+          "unit_price": null
+        },
+        "milk": {
+          "status": "not_found",
+          "note": "search returned no plain staple",
+          "target_size": "1 gal",
+          "tier": "core",
+          "label": "Milk (1 L)",
+          "normal_unit": "ml",
+          "unit_price": null
+        },
+        "coffee": {
+          "url": "https://www.mexgrocer.com/products/cafe-de-olla-mexican-coffee-ground-by-mexgrocer-com",
+          "name": "Cafe de Olla Mexican Coffee Ground by Mexgrocer.com - 12 oz",
+          "price": 18.95,
+          "currency": null,
+          "size": {
+            "raw": "12 oz",
+            "value": 12.0,
+            "uom": "oz",
+            "approximate": false,
+            "form": "plain",
+            "quantity": 340.194,
+            "base_uom": "g"
+          },
+          "status": "verified",
+          "via": "shopify-search",
+          "store_taxonomy": "b2b20 BEVERAGES / COFFEE COFFEE COFFEE / TEAS GROCERY HOTDRINKS MEXGROCER GROCERY",
+          "target_size": "12 oz ground",
+          "tier": "core",
+          "label": "Coffee (ground or instant)",
+          "normal_unit": "g",
+          "unit_price": {
+            "per_base_unit": 0.055704,
+            "base_uom": "g",
+            "basis": "per_kg",
+            "value": 55.7035,
+            "approximate": false
+          }
+        },
+        "sugar": {
+          "url": "https://www.mexgrocer.com/products/zulka-spicy-sweet-shaker-cane-sugar-with-chili-powder-and-lime",
+          "name": "Zulka Spicy Sweet Shaker - Cane Sugar with Chili Powder and Lime - 8.82 oz",
+          "price": 9.95,
+          "currency": null,
+          "size": {
+            "raw": "8.82 oz",
+            "value": 8.82,
+            "uom": "oz",
+            "approximate": false,
+            "form": "plain",
+            "quantity": 250.0426,
+            "base_uom": "g"
+          },
+          "status": "verified",
+          "via": "shopify-search",
+          "store_taxonomy": "b2b20 GROCERY Spicy SUGARS ZULKA GROCERY",
+          "target_size": "4 lb",
+          "tier": "core",
+          "label": "Sugar (white or brown)",
+          "normal_unit": "g",
+          "unit_price": {
+            "per_base_unit": 0.039793,
+            "base_uom": "g",
+            "basis": "per_kg",
+            "value": 39.7932,
+            "approximate": false
+          }
+        },
+        "cooking_oil": {
+          "status": "not_found",
+          "note": "search returned no plain staple",
+          "target_size": "48 oz",
+          "tier": "core",
+          "label": "Cooking oil",
+          "normal_unit": "ml",
+          "unit_price": null
+        },
+        "bananas": {
+          "url": "https://www.mexgrocer.com/products/banana-leaves-hojas-de-platano",
+          "name": "Goya Banana Leaves - Hojas de Platano - 3 lb",
+          "price": 48.95,
+          "currency": null,
+          "size": {
+            "raw": "3 lb",
+            "value": 3.0,
+            "uom": "lb",
+            "approximate": false,
+            "form": "plain",
+            "quantity": 1360.776,
+            "base_uom": "g"
+          },
+          "status": "verified",
+          "via": "shopify-search",
+          "store_taxonomy": "b2b20 FRESH FRESH PRODUCE GOYA GOYA FOODS HOJATAMAL IOTM PRODUCE RETAIL-ONLY FRESH",
+          "target_size": "per lb",
+          "tier": "core",
+          "label": "Bananas (1 kg)",
+          "normal_unit": "g",
+          "unit_price": {
+            "per_base_unit": 0.035972,
+            "base_uom": "g",
+            "basis": "per_kg",
+            "value": 35.9721,
+            "approximate": false
+          }
+        },
+        "pork": {
+          "status": "not_found",
+          "note": "search returned no plain staple",
+          "target_size": "per lb",
+          "tier": "stretch",
+          "label": "Pork (lean cut)",
+          "normal_unit": "g",
+          "unit_price": null
+        },
+        "fish": {
+          "status": "not_found",
+          "note": "search returned no plain staple",
+          "target_size": "per lb",
+          "tier": "stretch",
+          "label": "Fish (tilapia or round scad)",
+          "normal_unit": "g",
+          "unit_price": null
+        },
+        "cheese": {
+          "url": "https://www.mexgrocer.com/products/el-mexicano-queso-panela-whole-milk-cheese-10-oz",
+          "name": "El Mexicano Queso Panela Whole Milk Cheese - 10 oz",
+          "price": 28.95,
+          "currency": null,
+          "size": {
+            "raw": "10 oz",
+            "value": 10.0,
+            "uom": "oz",
+            "approximate": false,
+            "form": "plain",
+            "quantity": 283.495,
+            "base_uom": "g"
+          },
+          "status": "verified",
+          "via": "shopify-search",
+          "store_taxonomy": "b2b20 CHEESES EL MEXICANO FRESH HEALTHY RETAIL-ONLY FRESH",
+          "target_size": "1 lb",
+          "tier": "stretch",
+          "label": "Cheese (local)",
+          "normal_unit": "g",
+          "unit_price": {
+            "per_base_unit": 0.102118,
+            "base_uom": "g",
+            "basis": "per_kg",
+            "value": 102.1182,
+            "approximate": false
+          }
+        },
+        "tomatoes": {
+          "url": "https://www.mexgrocer.com/products/knorr-tomato-chicken-boullion",
+          "name": "Knorr Tomato/Chicken Boullion - 15.9 oz",
+          "price": 13.95,
+          "currency": null,
+          "size": {
+            "raw": "15.9 oz",
+            "value": 15.9,
+            "uom": "oz",
+            "approximate": false,
+            "form": "plain",
+            "quantity": 450.757,
+            "base_uom": "g"
+          },
+          "status": "verified",
+          "via": "shopify-search",
+          "store_taxonomy": "b2b20 BOULLION GROCERY KNORR SEASONINGS GROCERY",
+          "target_size": "per lb",
+          "tier": "stretch",
+          "label": "Tomatoes (1 kg)",
+          "normal_unit": "g",
+          "unit_price": {
+            "per_base_unit": 0.030948,
+            "base_uom": "g",
+            "basis": "per_kg",
+            "value": 30.9479,
+            "approximate": false
+          }
+        },
+        "potatoes": {
+          "status": "not_found",
+          "note": "search returned no plain staple",
+          "target_size": "per lb",
+          "tier": "stretch",
+          "label": "Potatoes (1 kg)",
+          "normal_unit": "g",
+          "unit_price": null
+        },
+        "onions": {
+          "url": "https://www.mexgrocer.com/products/herdez-whole-jalapenos",
+          "name": "Herdez Whole Jalape\u00f1os Pickled with Carrots & Onions \u2013 27 oz",
+          "price": 7.95,
+          "currency": null,
+          "size": {
+            "raw": "27 oz",
+            "value": 27.0,
+            "uom": "oz",
+            "approximate": false,
+            "form": "plain",
+            "quantity": 765.4365,
+            "base_uom": "g"
+          },
+          "status": "verified",
+          "via": "shopify-search",
+          "store_taxonomy": "b2b20 CHILI PEPPERS HERDEZ JALAPE\u00d1OS CHILI PEPPERS",
+          "target_size": "per lb",
+          "tier": "stretch",
+          "label": "Onions (1 kg)",
+          "normal_unit": "g",
+          "unit_price": {
+            "per_base_unit": 0.010386,
+            "base_uom": "g",
+            "basis": "per_kg",
+            "value": 10.3862,
+            "approximate": false
+          }
+        },
+        "apples": {
+          "status": "not_found",
+          "note": "search returned no plain staple",
+          "target_size": "per lb",
+          "tier": "stretch",
+          "label": "Apples (1 kg)",
+          "normal_unit": "g",
+          "unit_price": null
+        },
+        "oranges": {
+          "url": "https://www.mexgrocer.com/products/goya-naranja-agria-bitter-orange-marinade",
+          "name": "Goya Naranja Agria - Bitter Orange Marinade - 24 oz",
+          "price": 6.95,
+          "currency": null,
+          "size": {
+            "raw": "24 oz",
+            "value": 24.0,
+            "uom": "oz",
+            "approximate": false,
+            "form": "plain",
+            "quantity": 680.388,
+            "base_uom": "g"
+          },
+          "status": "verified",
+          "via": "shopify-search",
+          "store_taxonomy": "b2b20 GOYA GOYA FOODS GROCERY MARINADE SALE sale-price GROCERY",
+          "target_size": "per lb",
+          "tier": "stretch",
+          "label": "Oranges (1 kg)",
+          "normal_unit": "g",
+          "unit_price": {
+            "per_base_unit": 0.010215,
+            "base_uom": "g",
+            "basis": "per_kg",
+            "value": 10.2148,
+            "approximate": false
+          }
+        },
+        "canned_fish": {
+          "status": "not_found",
+          "note": "search returned no plain staple",
+          "target_size": "155 g tin",
+          "tier": "stretch",
+          "label": "Canned sardines",
+          "normal_unit": "g",
+          "unit_price": null
+        },
+        "bottled_water": {
+          "status": "not_found",
+          "note": "search returned no plain staple",
+          "target_size": "1.5 L",
+          "tier": "stretch",
+          "label": "Bottled water (1.5 L)",
+          "normal_unit": "ml",
+          "unit_price": null
+        }
+      },
+      "unresolved": [
+        "bread",
+        "pasta",
+        "eggs",
+        "milk",
+        "cooking_oil",
+        "pork",
+        "fish",
+        "potatoes",
+        "apples",
+        "canned_fish",
+        "bottled_water"
+      ],
+      "verified_count": 9,
+      "chosen_url_count": 9,
+      "unit_priced_count": 9,
+      "core_settled": 5
+    },
+    "us-dierbergs": {
+      "id": "us-dierbergs",
+      "name": "Dierbergs",
+      "country": "US",
+      "structural_class": "json-ld",
+      "items": {
+        "rice": {
+          "status": "not_found",
+          "note": "no candidate URL in pool",
+          "target_size": "5 lb",
+          "tier": "core",
+          "label": "Rice (white)",
+          "normal_unit": "g",
+          "unit_price": null
+        },
+        "bread": {
+          "url": "https://www.dierbergs.com/item/bakehouse-italian-supremo-bread-37509",
+          "name": null,
+          "price": null,
+          "currency": null,
+          "size": null,
+          "status": "candidate_unverified",
+          "note": "URL selected from the sitemap but the page serves no price over plain HTTP - confirm with a Studio run",
+          "target_size": "500 g loaf",
+          "tier": "core",
+          "label": "White bread (loaf)",
+          "normal_unit": "g",
+          "unit_price": null,
+          "size_unparsed": true
+        },
+        "pasta": {
+          "url": "https://www.dierbergs.com/item/caprese-pasta-243574",
+          "name": null,
+          "price": null,
+          "currency": null,
+          "size": null,
+          "status": "candidate_unverified",
+          "note": "URL selected from the sitemap but the page serves no price over plain HTTP - confirm with a Studio run",
+          "target_size": "1 lb",
+          "tier": "core",
+          "label": "Pasta (spaghetti)",
+          "normal_unit": "g",
+          "unit_price": null,
+          "size_unparsed": true
+        },
+        "chicken": {
+          "url": "https://www.dierbergs.com/item/bobs-smokehouse-pulled-chicken-plain-242904",
+          "name": null,
+          "price": null,
+          "currency": null,
+          "size": null,
+          "status": "candidate_unverified",
+          "note": "URL selected from the sitemap but the page serves no price over plain HTTP - confirm with a Studio run",
+          "target_size": "per lb",
+          "tier": "core",
+          "label": "Chicken breast",
+          "normal_unit": "g",
+          "unit_price": null,
+          "size_unparsed": true
+        },
+        "eggs": {
+          "status": "not_found",
+          "note": "no candidate URL in pool",
+          "target_size": "dozen",
+          "tier": "core",
+          "label": "Eggs (12)",
+          "normal_unit": "count",
+          "unit_price": null
+        },
+        "milk": {
+          "status": "not_found",
+          "note": "no candidate URL in pool",
+          "target_size": "1 gal",
+          "tier": "core",
+          "label": "Milk (1 L)",
+          "normal_unit": "ml",
+          "unit_price": null
+        },
+        "coffee": {
+          "status": "not_found",
+          "note": "no candidate URL in pool",
+          "target_size": "12 oz ground",
+          "tier": "core",
+          "label": "Coffee (ground or instant)",
+          "normal_unit": "g",
+          "unit_price": null
+        },
+        "sugar": {
+          "status": "not_found",
+          "note": "no candidate URL in pool",
+          "target_size": "4 lb",
+          "tier": "core",
+          "label": "Sugar (white or brown)",
+          "normal_unit": "g",
+          "unit_price": null
+        },
+        "cooking_oil": {
+          "url": "https://www.dierbergs.com/item/bakehouse-olive-oil-and-sea-salt-crostini-495699",
+          "name": null,
+          "price": null,
+          "currency": null,
+          "size": null,
+          "status": "candidate_unverified",
+          "note": "URL selected from the sitemap but the page serves no price over plain HTTP - confirm with a Studio run",
+          "target_size": "48 oz",
+          "tier": "core",
+          "label": "Cooking oil",
+          "normal_unit": "ml",
+          "unit_price": null,
+          "size_unparsed": true
+        },
+        "bananas": {
+          "status": "not_found",
+          "note": "no candidate URL in pool",
+          "target_size": "per lb",
+          "tier": "core",
+          "label": "Bananas (1 kg)",
+          "normal_unit": "g",
+          "unit_price": null
+        },
+        "pork": {
+          "url": "https://www.dierbergs.com/item/double-smoked-pork-burnt-ends-245052",
+          "name": null,
+          "price": null,
+          "currency": null,
+          "size": null,
+          "status": "candidate_unverified",
+          "note": "URL selected from the sitemap but the page serves no price over plain HTTP - confirm with a Studio run",
+          "target_size": "per lb",
+          "tier": "stretch",
+          "label": "Pork (lean cut)",
+          "normal_unit": "g",
+          "unit_price": null,
+          "size_unparsed": true
+        },
+        "fish": {
+          "url": "https://www.dierbergs.com/item/fish-premium-cod-loin-sandwich-242124",
+          "name": null,
+          "price": null,
+          "currency": null,
+          "size": null,
+          "status": "candidate_unverified",
+          "note": "URL selected from the sitemap but the page serves no price over plain HTTP - confirm with a Studio run",
+          "target_size": "per lb",
+          "tier": "stretch",
+          "label": "Fish (tilapia or round scad)",
+          "normal_unit": "g",
+          "unit_price": null,
+          "size_unparsed": true
+        },
+        "cheese": {
+          "url": "https://www.dierbergs.com/item/classic-meat-and-cheese-tray-99990160",
+          "name": null,
+          "price": null,
+          "currency": null,
+          "size": null,
+          "status": "candidate_unverified",
+          "note": "URL selected from the sitemap but the page serves no price over plain HTTP - confirm with a Studio run",
+          "target_size": "1 lb",
+          "tier": "stretch",
+          "label": "Cheese (local)",
+          "normal_unit": "g",
+          "unit_price": null,
+          "size_unparsed": true
+        },
+        "tomatoes": {
+          "url": "https://www.dierbergs.com/item/florentine-feta-tomato-quiche-brunch-breakfast-entree-245123",
+          "name": null,
+          "price": null,
+          "currency": null,
+          "size": null,
+          "status": "candidate_unverified",
+          "note": "URL selected from the sitemap but the page serves no price over plain HTTP - confirm with a Studio run",
+          "target_size": "per lb",
+          "tier": "stretch",
+          "label": "Tomatoes (1 kg)",
+          "normal_unit": "g",
+          "unit_price": null,
+          "size_unparsed": true
+        },
+        "potatoes": {
+          "url": "https://www.dierbergs.com/item/kosher-mustard-style-potato-243800",
+          "name": null,
+          "price": null,
+          "currency": null,
+          "size": null,
+          "status": "candidate_unverified",
+          "note": "URL selected from the sitemap but the page serves no price over plain HTTP - confirm with a Studio run",
+          "target_size": "per lb",
+          "tier": "stretch",
+          "label": "Potatoes (1 kg)",
+          "normal_unit": "g",
+          "unit_price": null,
+          "size_unparsed": true
+        },
+        "onions": {
+          "status": "not_found",
+          "note": "no candidate URL in pool",
+          "target_size": "per lb",
+          "tier": "stretch",
+          "label": "Onions (1 kg)",
+          "normal_unit": "g",
+          "unit_price": null
+        },
+        "apples": {
+          "url": "https://www.dierbergs.com/item/bakehouse-apple-crunch-muffins-4ct-37999",
+          "name": null,
+          "price": null,
+          "currency": null,
+          "size": {
+            "raw": "4ct",
+            "value": 4.0,
+            "uom": "ct",
+            "approximate": false,
+            "form": "plain",
+            "quantity": 4.0,
+            "base_uom": "count"
+          },
+          "status": "candidate_unverified",
+          "note": "URL selected from the sitemap but the page serves no price over plain HTTP - confirm with a Studio run",
+          "target_size": "per lb",
+          "tier": "stretch",
+          "label": "Apples (1 kg)",
+          "normal_unit": "g",
+          "unit_price": null
+        },
+        "oranges": {
+          "url": "https://www.dierbergs.com/item/bakehouse-orange-cranberry-muffins-4ct-37996",
+          "name": null,
+          "price": null,
+          "currency": null,
+          "size": {
+            "raw": "4ct",
+            "value": 4.0,
+            "uom": "ct",
+            "approximate": false,
+            "form": "plain",
+            "quantity": 4.0,
+            "base_uom": "count"
+          },
+          "status": "candidate_unverified",
+          "note": "URL selected from the sitemap but the page serves no price over plain HTTP - confirm with a Studio run",
+          "target_size": "per lb",
+          "tier": "stretch",
+          "label": "Oranges (1 kg)",
+          "normal_unit": "g",
+          "unit_price": null
+        },
+        "canned_fish": {
+          "status": "not_found",
+          "note": "no candidate URL in pool",
+          "target_size": "155 g tin",
+          "tier": "stretch",
+          "label": "Canned sardines",
+          "normal_unit": "g",
+          "unit_price": null
+        },
+        "bottled_water": {
+          "url": "https://www.dierbergs.com/item/tranquil-waters-arrangement-99991687",
+          "name": null,
+          "price": null,
+          "currency": null,
+          "size": null,
+          "status": "candidate_unverified",
+          "note": "URL selected from the sitemap but the page serves no price over plain HTTP - confirm with a Studio run",
+          "target_size": "1.5 L",
+          "tier": "stretch",
+          "label": "Bottled water (1.5 L)",
+          "normal_unit": "ml",
+          "unit_price": null,
+          "size_unparsed": true
+        }
+      },
+      "unresolved": [
+        "rice",
+        "bread",
+        "pasta",
+        "chicken",
+        "eggs",
+        "milk",
+        "coffee",
+        "sugar",
+        "cooking_oil",
+        "bananas",
+        "pork",
+        "fish",
+        "cheese",
+        "tomatoes",
+        "potatoes",
+        "onions",
+        "apples",
+        "oranges",
+        "canned_fish",
+        "bottled_water"
+      ],
+      "pool_size": 874,
+      "discovery": "sitemap",
+      "verified_count": 0,
+      "chosen_url_count": 12,
+      "unit_priced_count": 0,
+      "core_settled": 0
+    },
+    "us-thefreshmarket": {
+      "id": "us-thefreshmarket",
+      "name": "The Fresh Market",
+      "country": "US",
+      "structural_class": "json-ld",
+      "items": {
+        "rice": {
+          "status": "not_found",
+          "note": "no candidate URL in pool",
+          "target_size": "5 lb",
+          "tier": "core",
+          "label": "Rice (white)",
+          "normal_unit": "g",
+          "unit_price": null
+        },
+        "bread": {
+          "status": "not_found",
+          "note": "no candidate URL in pool",
+          "target_size": "500 g loaf",
+          "tier": "core",
+          "label": "White bread (loaf)",
+          "normal_unit": "g",
+          "unit_price": null
+        },
+        "pasta": {
+          "status": "not_found",
+          "note": "no candidate URL in pool",
+          "target_size": "1 lb",
+          "tier": "core",
+          "label": "Pasta (spaghetti)",
+          "normal_unit": "g",
+          "unit_price": null
+        },
+        "chicken": {
+          "url": "https://www.thefreshmarket.com/specials/meals/little-big-meals/seafood-cakes-or-crispy-chicken",
+          "name": null,
+          "price": null,
+          "currency": null,
+          "size": null,
+          "status": "candidate_unverified",
+          "note": "URL selected from the sitemap but the page serves no price over plain HTTP - confirm with a Studio run",
+          "target_size": "per lb",
+          "tier": "core",
+          "label": "Chicken breast",
+          "normal_unit": "g",
+          "unit_price": null,
+          "size_unparsed": true
+        },
+        "eggs": {
+          "status": "not_found",
+          "note": "no candidate URL in pool",
+          "target_size": "dozen",
+          "tier": "core",
+          "label": "Eggs (12)",
+          "normal_unit": "count",
+          "unit_price": null
+        },
+        "milk": {
+          "status": "not_found",
+          "note": "no candidate URL in pool",
+          "target_size": "1 gal",
+          "tier": "core",
+          "label": "Milk (1 L)",
+          "normal_unit": "ml",
+          "unit_price": null
+        },
+        "coffee": {
+          "status": "not_found",
+          "note": "no candidate URL in pool",
+          "target_size": "12 oz ground",
+          "tier": "core",
+          "label": "Coffee (ground or instant)",
+          "normal_unit": "g",
+          "unit_price": null
+        },
+        "sugar": {
+          "status": "not_found",
+          "note": "no candidate URL in pool",
+          "target_size": "4 lb",
+          "tier": "core",
+          "label": "Sugar (white or brown)",
+          "normal_unit": "g",
+          "unit_price": null
+        },
+        "cooking_oil": {
+          "status": "not_found",
+          "note": "no candidate URL in pool",
+          "target_size": "48 oz",
+          "tier": "core",
+          "label": "Cooking oil",
+          "normal_unit": "ml",
+          "unit_price": null
+        },
+        "bananas": {
+          "status": "not_found",
+          "note": "no candidate URL in pool",
+          "target_size": "per lb",
+          "tier": "core",
+          "label": "Bananas (1 kg)",
+          "normal_unit": "g",
+          "unit_price": null
+        },
+        "pork": {
+          "status": "not_found",
+          "note": "no candidate URL in pool",
+          "target_size": "per lb",
+          "tier": "stretch",
+          "label": "Pork (lean cut)",
+          "normal_unit": "g",
+          "unit_price": null
+        },
+        "fish": {
+          "status": "not_found",
+          "note": "no candidate URL in pool",
+          "target_size": "per lb",
+          "tier": "stretch",
+          "label": "Fish (tilapia or round scad)",
+          "normal_unit": "g",
+          "unit_price": null
+        },
+        "cheese": {
+          "status": "not_found",
+          "note": "no candidate URL in pool",
+          "target_size": "1 lb",
+          "tier": "stretch",
+          "label": "Cheese (local)",
+          "normal_unit": "g",
+          "unit_price": null
+        },
+        "tomatoes": {
+          "status": "not_found",
+          "note": "no candidate URL in pool",
+          "target_size": "per lb",
+          "tier": "stretch",
+          "label": "Tomatoes (1 kg)",
+          "normal_unit": "g",
+          "unit_price": null
+        },
+        "potatoes": {
+          "status": "not_found",
+          "note": "no candidate URL in pool",
+          "target_size": "per lb",
+          "tier": "stretch",
+          "label": "Potatoes (1 kg)",
+          "normal_unit": "g",
+          "unit_price": null
+        },
+        "onions": {
+          "status": "not_found",
+          "note": "no candidate URL in pool",
+          "target_size": "per lb",
+          "tier": "stretch",
+          "label": "Onions (1 kg)",
+          "normal_unit": "g",
+          "unit_price": null
+        },
+        "apples": {
+          "status": "not_found",
+          "note": "no candidate URL in pool",
+          "target_size": "per lb",
+          "tier": "stretch",
+          "label": "Apples (1 kg)",
+          "normal_unit": "g",
+          "unit_price": null
+        },
+        "oranges": {
+          "status": "not_found",
+          "note": "no candidate URL in pool",
+          "target_size": "per lb",
+          "tier": "stretch",
+          "label": "Oranges (1 kg)",
+          "normal_unit": "g",
+          "unit_price": null
+        },
+        "canned_fish": {
+          "status": "not_found",
+          "note": "no candidate URL in pool",
+          "target_size": "155 g tin",
+          "tier": "stretch",
+          "label": "Canned sardines",
+          "normal_unit": "g",
+          "unit_price": null
+        },
+        "bottled_water": {
+          "status": "not_found",
+          "note": "no candidate URL in pool",
+          "target_size": "1.5 L",
+          "tier": "stretch",
+          "label": "Bottled water (1.5 L)",
+          "normal_unit": "ml",
+          "unit_price": null
+        }
+      },
+      "unresolved": [
+        "rice",
+        "bread",
+        "pasta",
+        "chicken",
+        "eggs",
+        "milk",
+        "coffee",
+        "sugar",
+        "cooking_oil",
+        "bananas",
+        "pork",
+        "fish",
+        "cheese",
+        "tomatoes",
+        "potatoes",
+        "onions",
+        "apples",
+        "oranges",
+        "canned_fish",
+        "bottled_water"
+      ],
+      "pool_size": 50,
+      "discovery": "sitemap",
+      "verified_count": 0,
+      "chosen_url_count": 1,
+      "unit_priced_count": 0,
+      "core_settled": 0
+    },
+    "us-wegmans": {
+      "id": "us-wegmans",
+      "name": "Wegmans",
+      "country": "US",
+      "structural_class": "spa-with-state",
+      "items": {
+        "rice": {
+          "status": "not_found",
+          "note": "no candidate URL in pool",
+          "target_size": "5 lb",
+          "tier": "core",
+          "label": "Rice (white)",
+          "normal_unit": "g",
+          "unit_price": null
+        },
+        "bread": {
+          "status": "not_found",
+          "note": "no candidate URL in pool",
+          "target_size": "500 g loaf",
+          "tier": "core",
+          "label": "White bread (loaf)",
+          "normal_unit": "g",
+          "unit_price": null
+        },
+        "pasta": {
+          "url": "https://www.wegmans.com/shop/featured/summer12026-mailer-Pasta-night",
+          "name": null,
+          "price": null,
+          "currency": null,
+          "size": null,
+          "status": "candidate_unverified",
+          "note": "URL selected from the sitemap but the page serves no price over plain HTTP - confirm with a Studio run",
+          "target_size": "1 lb",
+          "tier": "core",
+          "label": "Pasta (spaghetti)",
+          "normal_unit": "g",
+          "unit_price": null,
+          "size_unparsed": true
+        },
+        "chicken": {
+          "url": "https://www.wegmans.com/shop/featured/summer12026-mailer-Chicken",
+          "name": null,
+          "price": null,
+          "currency": null,
+          "size": null,
+          "status": "candidate_unverified",
+          "note": "URL selected from the sitemap but the page serves no price over plain HTTP - confirm with a Studio run",
+          "target_size": "per lb",
+          "tier": "core",
+          "label": "Chicken breast",
+          "normal_unit": "g",
+          "unit_price": null,
+          "size_unparsed": true
+        },
+        "eggs": {
+          "status": "not_found",
+          "note": "no candidate URL in pool",
+          "target_size": "dozen",
+          "tier": "core",
+          "label": "Eggs (12)",
+          "normal_unit": "count",
+          "unit_price": null
+        },
+        "milk": {
+          "status": "not_found",
+          "note": "no candidate URL in pool",
+          "target_size": "1 gal",
+          "tier": "core",
+          "label": "Milk (1 L)",
+          "normal_unit": "ml",
+          "unit_price": null
+        },
+        "coffee": {
+          "status": "not_found",
+          "note": "no candidate URL in pool",
+          "target_size": "12 oz ground",
+          "tier": "core",
+          "label": "Coffee (ground or instant)",
+          "normal_unit": "g",
+          "unit_price": null
+        },
+        "sugar": {
+          "url": "https://www.wegmans.com/values-in-action/feel-your-best/reducing-added-sugars",
+          "name": null,
+          "price": null,
+          "currency": null,
+          "size": null,
+          "status": "candidate_unverified",
+          "note": "URL selected from the sitemap but the page serves no price over plain HTTP - confirm with a Studio run",
+          "target_size": "4 lb",
+          "tier": "core",
+          "label": "Sugar (white or brown)",
+          "normal_unit": "g",
+          "unit_price": null,
+          "size_unparsed": true
+        },
+        "cooking_oil": {
+          "url": "https://www.wegmans.com/cooking-techniques/grilling-seafood-with-basting-oil",
+          "name": null,
+          "price": null,
+          "currency": null,
+          "size": null,
+          "status": "candidate_unverified",
+          "note": "URL selected from the sitemap but the page serves no price over plain HTTP - confirm with a Studio run",
+          "target_size": "48 oz",
+          "tier": "core",
+          "label": "Cooking oil",
+          "normal_unit": "ml",
+          "unit_price": null,
+          "size_unparsed": true
+        },
+        "bananas": {
+          "status": "not_found",
+          "note": "no candidate URL in pool",
+          "target_size": "per lb",
+          "tier": "core",
+          "label": "Bananas (1 kg)",
+          "normal_unit": "g",
+          "unit_price": null
+        },
+        "pork": {
+          "status": "not_found",
+          "note": "no candidate URL in pool",
+          "target_size": "per lb",
+          "tier": "stretch",
+          "label": "Pork (lean cut)",
+          "normal_unit": "g",
+          "unit_price": null
+        },
+        "fish": {
+          "url": "https://www.wegmans.com/cooking-techniques/grilling-steaky-fish",
+          "name": null,
+          "price": null,
+          "currency": null,
+          "size": null,
+          "status": "candidate_unverified",
+          "note": "URL selected from the sitemap but the page serves no price over plain HTTP - confirm with a Studio run",
+          "target_size": "per lb",
+          "tier": "stretch",
+          "label": "Fish (tilapia or round scad)",
+          "normal_unit": "g",
+          "unit_price": null,
+          "size_unparsed": true
+        },
+        "cheese": {
+          "url": "https://www.wegmans.com/shop/featured/holiday-2025-cheese-finishing-touches",
+          "name": null,
+          "price": null,
+          "currency": null,
+          "size": null,
+          "status": "candidate_unverified",
+          "note": "URL selected from the sitemap but the page serves no price over plain HTTP - confirm with a Studio run",
+          "target_size": "1 lb",
+          "tier": "stretch",
+          "label": "Cheese (local)",
+          "normal_unit": "g",
+          "unit_price": null,
+          "size_unparsed": true
+        },
+        "tomatoes": {
+          "status": "not_found",
+          "note": "no candidate URL in pool",
+          "target_size": "per lb",
+          "tier": "stretch",
+          "label": "Tomatoes (1 kg)",
+          "normal_unit": "g",
+          "unit_price": null
+        },
+        "potatoes": {
+          "status": "not_found",
+          "note": "no candidate URL in pool",
+          "target_size": "per lb",
+          "tier": "stretch",
+          "label": "Potatoes (1 kg)",
+          "normal_unit": "g",
+          "unit_price": null
+        },
+        "onions": {
+          "status": "not_found",
+          "note": "no candidate URL in pool",
+          "target_size": "per lb",
+          "tier": "stretch",
+          "label": "Onions (1 kg)",
+          "normal_unit": "g",
+          "unit_price": null
+        },
+        "apples": {
+          "status": "not_found",
+          "note": "no candidate URL in pool",
+          "target_size": "per lb",
+          "tier": "stretch",
+          "label": "Apples (1 kg)",
+          "normal_unit": "g",
+          "unit_price": null
+        },
+        "oranges": {
+          "status": "not_found",
+          "note": "no candidate URL in pool",
+          "target_size": "per lb",
+          "tier": "stretch",
+          "label": "Oranges (1 kg)",
+          "normal_unit": "g",
+          "unit_price": null
+        },
+        "canned_fish": {
+          "status": "not_found",
+          "note": "no candidate URL in pool",
+          "target_size": "155 g tin",
+          "tier": "stretch",
+          "label": "Canned sardines",
+          "normal_unit": "g",
+          "unit_price": null
+        },
+        "bottled_water": {
+          "status": "not_found",
+          "note": "no candidate URL in pool",
+          "target_size": "1.5 L",
+          "tier": "stretch",
+          "label": "Bottled water (1.5 L)",
+          "normal_unit": "ml",
+          "unit_price": null
+        }
+      },
+      "unresolved": [
+        "rice",
+        "bread",
+        "pasta",
+        "chicken",
+        "eggs",
+        "milk",
+        "coffee",
+        "sugar",
+        "cooking_oil",
+        "bananas",
+        "pork",
+        "fish",
+        "cheese",
+        "tomatoes",
+        "potatoes",
+        "onions",
+        "apples",
+        "oranges",
+        "canned_fish",
+        "bottled_water"
+      ],
+      "pool_size": 175,
+      "discovery": "sitemap",
+      "verified_count": 0,
+      "chosen_url_count": 6,
+      "unit_priced_count": 0,
+      "core_settled": 0
+    },
+    "us-meijer": {
+      "id": "us-meijer",
+      "name": "Meijer",
+      "country": "US",
+      "structural_class": "bare-html",
+      "items": {
+        "rice": {
+          "status": "not_found",
+          "note": "no candidate URL in pool",
+          "target_size": "5 lb",
+          "tier": "core",
+          "label": "Rice (white)",
+          "normal_unit": "g",
+          "unit_price": null
+        },
+        "bread": {
+          "status": "not_found",
+          "note": "no candidate URL in pool",
+          "target_size": "500 g loaf",
+          "tier": "core",
+          "label": "White bread (loaf)",
+          "normal_unit": "g",
+          "unit_price": null
+        },
+        "pasta": {
+          "status": "not_found",
+          "note": "no candidate URL in pool",
+          "target_size": "1 lb",
+          "tier": "core",
+          "label": "Pasta (spaghetti)",
+          "normal_unit": "g",
+          "unit_price": null
+        },
+        "chicken": {
+          "status": "not_found",
+          "note": "no candidate URL in pool",
+          "target_size": "per lb",
+          "tier": "core",
+          "label": "Chicken breast",
+          "normal_unit": "g",
+          "unit_price": null
+        },
+        "eggs": {
+          "status": "not_found",
+          "note": "no candidate URL in pool",
+          "target_size": "dozen",
+          "tier": "core",
+          "label": "Eggs (12)",
+          "normal_unit": "count",
+          "unit_price": null
+        },
+        "milk": {
+          "status": "not_found",
+          "note": "no candidate URL in pool",
+          "target_size": "1 gal",
+          "tier": "core",
+          "label": "Milk (1 L)",
+          "normal_unit": "ml",
+          "unit_price": null
+        },
+        "coffee": {
+          "status": "not_found",
+          "note": "no candidate URL in pool",
+          "target_size": "12 oz ground",
+          "tier": "core",
+          "label": "Coffee (ground or instant)",
+          "normal_unit": "g",
+          "unit_price": null
+        },
+        "sugar": {
+          "status": "not_found",
+          "note": "no candidate URL in pool",
+          "target_size": "4 lb",
+          "tier": "core",
+          "label": "Sugar (white or brown)",
+          "normal_unit": "g",
+          "unit_price": null
+        },
+        "cooking_oil": {
+          "status": "not_found",
+          "note": "no candidate URL in pool",
+          "target_size": "48 oz",
+          "tier": "core",
+          "label": "Cooking oil",
+          "normal_unit": "ml",
+          "unit_price": null
+        },
+        "bananas": {
+          "status": "not_found",
+          "note": "no candidate URL in pool",
+          "target_size": "per lb",
+          "tier": "core",
+          "label": "Bananas (1 kg)",
+          "normal_unit": "g",
+          "unit_price": null
+        },
+        "pork": {
+          "status": "not_found",
+          "note": "no candidate URL in pool",
+          "target_size": "per lb",
+          "tier": "stretch",
+          "label": "Pork (lean cut)",
+          "normal_unit": "g",
+          "unit_price": null
+        },
+        "fish": {
+          "status": "not_found",
+          "note": "no candidate URL in pool",
+          "target_size": "per lb",
+          "tier": "stretch",
+          "label": "Fish (tilapia or round scad)",
+          "normal_unit": "g",
+          "unit_price": null
+        },
+        "cheese": {
+          "status": "not_found",
+          "note": "no candidate URL in pool",
+          "target_size": "1 lb",
+          "tier": "stretch",
+          "label": "Cheese (local)",
+          "normal_unit": "g",
+          "unit_price": null
+        },
+        "tomatoes": {
+          "status": "not_found",
+          "note": "no candidate URL in pool",
+          "target_size": "per lb",
+          "tier": "stretch",
+          "label": "Tomatoes (1 kg)",
+          "normal_unit": "g",
+          "unit_price": null
+        },
+        "potatoes": {
+          "status": "not_found",
+          "note": "no candidate URL in pool",
+          "target_size": "per lb",
+          "tier": "stretch",
+          "label": "Potatoes (1 kg)",
+          "normal_unit": "g",
+          "unit_price": null
+        },
+        "onions": {
+          "status": "not_found",
+          "note": "no candidate URL in pool",
+          "target_size": "per lb",
+          "tier": "stretch",
+          "label": "Onions (1 kg)",
+          "normal_unit": "g",
+          "unit_price": null
+        },
+        "apples": {
+          "status": "not_found",
+          "note": "no candidate URL in pool",
+          "target_size": "per lb",
+          "tier": "stretch",
+          "label": "Apples (1 kg)",
+          "normal_unit": "g",
+          "unit_price": null
+        },
+        "oranges": {
+          "status": "not_found",
+          "note": "no candidate URL in pool",
+          "target_size": "per lb",
+          "tier": "stretch",
+          "label": "Oranges (1 kg)",
+          "normal_unit": "g",
+          "unit_price": null
+        },
+        "canned_fish": {
+          "status": "not_found",
+          "note": "no candidate URL in pool",
+          "target_size": "155 g tin",
+          "tier": "stretch",
+          "label": "Canned sardines",
+          "normal_unit": "g",
+          "unit_price": null
+        },
+        "bottled_water": {
+          "status": "not_found",
+          "note": "no candidate URL in pool",
+          "target_size": "1.5 L",
+          "tier": "stretch",
+          "label": "Bottled water (1.5 L)",
+          "normal_unit": "ml",
+          "unit_price": null
+        }
+      },
+      "unresolved": [
+        "rice",
+        "bread",
+        "pasta",
+        "chicken",
+        "eggs",
+        "milk",
+        "coffee",
+        "sugar",
+        "cooking_oil",
+        "bananas",
+        "pork",
+        "fish",
+        "cheese",
+        "tomatoes",
+        "potatoes",
+        "onions",
+        "apples",
+        "oranges",
+        "canned_fish",
+        "bottled_water"
+      ],
+      "pool_size": 0,
+      "discovery": "none",
+      "verified_count": 0,
+      "chosen_url_count": 0,
+      "unit_priced_count": 0,
+      "core_settled": 0
+    }
+  },
+  "totals": {
+    "stores": 12,
+    "verified_items": 72,
+    "possible_items": 240,
+    "unit_price_outliers": 1,
+    "core_items": 10,
+    "tracked_items": 20
+  }
+}

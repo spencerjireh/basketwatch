@@ -1,0 +1,2336 @@
+{
+  "results": [
+    {
+      "id": "us-unitedsupermarkets",
+      "name": "United Supermarkets",
+      "country": "US",
+      "vertical": "grocery",
+      "homepage": "https://www.shopunitedsupermarkets.com",
+      "why": "Round 4: Texas regional grocer with a dedicated shop subdomain - the pattern that works when the main site gates its catalogue",
+      "home": {
+        "status": 0,
+        "final_url": "https://www.shopunitedsupermarkets.com",
+        "bytes": 0,
+        "error": "ReadTimeout: ",
+        "waf": []
+      },
+      "home_class": "blocked",
+      "search_api": {
+        "kind": null,
+        "endpoint": null,
+        "tried": [
+          {
+            "kind": "shopify",
+            "status": 404,
+            "valid": false
+          },
+          {
+            "kind": "magento-graphql",
+            "status": 404,
+            "valid": false
+          },
+          {
+            "kind": "woocommerce",
+            "status": 404,
+            "valid": false
+          }
+        ]
+      },
+      "robots": {
+        "fetched": true,
+        "sitemaps": [],
+        "disallow_star": [],
+        "allow_star": [
+          "/"
+        ]
+      },
+      "discovery": {
+        "via": "none",
+        "categories_crawled": []
+      },
+      "sitemap": {
+        "tried": [
+          {
+            "url": "https://www.shopunitedsupermarkets.com/sitemap.xml",
+            "status": 404,
+            "bytes": 162762
+          },
+          {
+            "url": "https://www.shopunitedsupermarkets.com/sitemap_index.xml",
+            "status": 404,
+            "bytes": 162761
+          },
+          {
+            "url": "https://www.shopunitedsupermarkets.com/sitemap.txt",
+            "status": 404,
+            "bytes": 162762
+          },
+          {
+            "url": "https://www.shopunitedsupermarkets.com/sitemap-index.xml",
+            "status": 404,
+            "bytes": 162762
+          }
+        ],
+        "total_urls": 0,
+        "product_like_urls": 0
+      },
+      "basket": {
+        "bread": {
+          "count": 1,
+          "samples": [
+            "https://www.shopunitedsupermarkets.com/shop/aisles/bread-bakery/baguettes-french-bread.html"
+          ],
+          "sample": "https://www.shopunitedsupermarkets.com/shop/aisles/bread-bakery/baguettes-french-bread.html"
+        },
+        "eggs": {
+          "count": 1,
+          "samples": [
+            "https://www.shopunitedsupermarkets.com/shop/aisles/dairy-eggs-cheese.html"
+          ],
+          "sample": "https://www.shopunitedsupermarkets.com/shop/aisles/dairy-eggs-cheese.html"
+        },
+        "pasta": {
+          "count": 3,
+          "samples": [
+            "https://www.shopunitedsupermarkets.com/shop/aisles/grains-pasta-sides.html",
+            "https://www.shopunitedsupermarkets.com/shop/aisles/grains-pasta-sides/pasta-side-dishes.html",
+            "https://www.shopunitedsupermarkets.com/shop/aisles/grains-pasta-sides/macaroni-cheese.html"
+          ],
+          "sample": "https://www.shopunitedsupermarkets.com/shop/aisles/grains-pasta-sides.html"
+        },
+        "rice": {
+          "count": 1,
+          "samples": [
+            "https://www.shopunitedsupermarkets.com/shop/aisles/grains-pasta-sides/rice-side-dishes.html"
+          ],
+          "sample": "https://www.shopunitedsupermarkets.com/shop/aisles/grains-pasta-sides/rice-side-dishes.html"
+        }
+      },
+      "basket_coverage": 4,
+      "product_probes": [],
+      "verdict_class": "blocked",
+      "structural_class": "unknown",
+      "evidence_url": null,
+      "robots_allows_product": true,
+      "tier1": {
+        "calls": [
+          {
+            "url": "https://www.shopunitedsupermarkets.com",
+            "status": 200,
+            "bytes": 821670,
+            "role": "home"
+          },
+          {
+            "url": "https://www.shopunitedsupermarkets.com/shop/aisles/bread-bakery/baguettes-french-bread.html",
+            "status": 200,
+            "bytes": 365379,
+            "role": "product"
+          },
+          {
+            "url": "https://www.shopunitedsupermarkets.com/shop/aisles/dairy-eggs-cheese.html",
+            "status": 200,
+            "bytes": 419383,
+            "role": "product"
+          }
+        ],
+        "probes": [
+          {
+            "url": "https://www.shopunitedsupermarkets.com/shop/aisles/bread-bakery/baguettes-french-bread.html",
+            "status": 200,
+            "bytes": 365379,
+            "class": "spa_empty",
+            "reason": "200 but no price in raw HTML",
+            "signals": {
+              "jsonld_product": false,
+              "jsonld_price": false,
+              "microdata_price": false,
+              "meta_price": false,
+              "distinct_currency_strings": 0,
+              "embedded_state": false,
+              "api_paths": [
+                "/api/seller/",
+                "/api/v1/core/",
+                "/api/v1/core/Search_Results",
+                "/api/v1/marketplace/sellerShipMethods",
+                "/api/v1/sellerShipMethods"
+              ],
+              "bytes": 365379
+            }
+          },
+          {
+            "url": "https://www.shopunitedsupermarkets.com/shop/aisles/dairy-eggs-cheese.html",
+            "status": 200,
+            "bytes": 419383,
+            "class": "spa_empty",
+            "reason": "200 but no price in raw HTML",
+            "signals": {
+              "jsonld_product": false,
+              "jsonld_price": false,
+              "microdata_price": false,
+              "meta_price": false,
+              "distinct_currency_strings": 0,
+              "embedded_state": false,
+              "api_paths": [
+                "/api/seller/",
+                "/api/v1/core/",
+                "/api/v1/core/Search_Results",
+                "/api/v1/marketplace/sellerShipMethods",
+                "/api/v1/sellerShipMethods"
+              ],
+              "bytes": 419383
+            }
+          }
+        ],
+        "verdict_class": "spa_empty",
+        "structural_class": "spa-opaque",
+        "evidence_url": "https://www.shopunitedsupermarkets.com/shop/aisles/bread-bakery/baguettes-french-bread.html"
+      }
+    },
+    {
+      "id": "us-wholefoods",
+      "name": "Whole Foods Market",
+      "country": "US",
+      "vertical": "grocery",
+      "homepage": "https://www.wholefoodsmarket.com",
+      "why": "Round 4: national grocer; control for whether majors ever publish staples",
+      "home": {
+        "status": 0,
+        "final_url": "https://www.wholefoodsmarket.com",
+        "bytes": 0,
+        "error": "ConnectTimeout: ",
+        "waf": []
+      },
+      "home_class": "blocked",
+      "search_api": {
+        "kind": null,
+        "endpoint": null,
+        "tried": [
+          {
+            "kind": "shopify",
+            "status": 0,
+            "valid": false
+          },
+          {
+            "kind": "magento-graphql",
+            "status": 0,
+            "valid": false
+          },
+          {
+            "kind": "woocommerce",
+            "status": 0,
+            "valid": false
+          }
+        ]
+      },
+      "robots": {
+        "fetched": false,
+        "sitemaps": [],
+        "disallow_star": [],
+        "allow_star": []
+      },
+      "discovery": {
+        "via": "none",
+        "categories_crawled": []
+      },
+      "sitemap": {
+        "tried": [
+          {
+            "url": "https://www.wholefoodsmarket.com/sitemap.xml",
+            "status": 0,
+            "bytes": 0
+          },
+          {
+            "url": "https://www.wholefoodsmarket.com/sitemap_index.xml",
+            "status": 0,
+            "bytes": 0
+          },
+          {
+            "url": "https://www.wholefoodsmarket.com/sitemap.txt",
+            "status": 0,
+            "bytes": 0
+          },
+          {
+            "url": "https://www.wholefoodsmarket.com/sitemap-index.xml",
+            "status": 0,
+            "bytes": 0
+          }
+        ],
+        "total_urls": 0,
+        "product_like_urls": 0
+      },
+      "basket": {},
+      "basket_coverage": 0,
+      "product_probes": [],
+      "verdict_class": "blocked",
+      "structural_class": "unknown",
+      "evidence_url": null,
+      "robots_allows_product": true,
+      "tier1": {
+        "calls": [
+          {
+            "url": "https://www.wholefoodsmarket.com",
+            "status": 200,
+            "bytes": 167392,
+            "role": "home"
+          },
+          {
+            "url": "https://www.wholefoodsmarket.com/eateries/build-your-own-meals",
+            "status": 200,
+            "bytes": 167806,
+            "role": "product"
+          },
+          {
+            "url": "https://www.wholefoodsmarket.com/mission-in-action/responsible-sourcing",
+            "status": 200,
+            "bytes": 90909,
+            "role": "product"
+          }
+        ],
+        "probes": [
+          {
+            "url": "https://www.wholefoodsmarket.com/eateries/build-your-own-meals",
+            "status": 200,
+            "bytes": 167806,
+            "class": "spa_empty",
+            "reason": "200 but no price in raw HTML",
+            "signals": {
+              "jsonld_product": false,
+              "jsonld_price": false,
+              "microdata_price": false,
+              "meta_price": false,
+              "distinct_currency_strings": 2,
+              "embedded_state": true,
+              "api_paths": [],
+              "bytes": 167806
+            }
+          },
+          {
+            "url": "https://www.wholefoodsmarket.com/mission-in-action/responsible-sourcing",
+            "status": 200,
+            "bytes": 90909,
+            "class": "spa_empty",
+            "reason": "200 but no price in raw HTML",
+            "signals": {
+              "jsonld_product": false,
+              "jsonld_price": false,
+              "microdata_price": false,
+              "meta_price": false,
+              "distinct_currency_strings": 2,
+              "embedded_state": true,
+              "api_paths": [],
+              "bytes": 90909
+            }
+          }
+        ],
+        "verdict_class": "spa_empty",
+        "structural_class": "spa-with-state",
+        "evidence_url": "https://www.wholefoodsmarket.com/eateries/build-your-own-meals"
+      }
+    },
+    {
+      "id": "us-umamicart",
+      "name": "Umamicart",
+      "country": "US",
+      "vertical": "ethnic-grocery",
+      "homepage": "https://www.umamicart.com",
+      "why": "Round 4: US Asian grocery, delivery-first with a public catalogue",
+      "home": {
+        "status": 200,
+        "final_url": "https://www.umamicart.com",
+        "bytes": 107456,
+        "error": null,
+        "waf": [
+          "cf-ray",
+          "server:cloudflare"
+        ]
+      },
+      "home_class": "spa_empty",
+      "search_api": {
+        "kind": null,
+        "endpoint": null,
+        "tried": [
+          {
+            "kind": "shopify",
+            "status": 200,
+            "valid": false
+          },
+          {
+            "kind": "magento-graphql",
+            "status": 404,
+            "valid": false
+          },
+          {
+            "kind": "woocommerce",
+            "status": 404,
+            "valid": false
+          }
+        ]
+      },
+      "robots": {
+        "fetched": true,
+        "sitemaps": [
+          "https://umamicart.com/sitemap_index.xml"
+        ],
+        "disallow_star": [
+          "/wp-admin/",
+          "/wp-login.php",
+          "/feed/",
+          "/?s="
+        ],
+        "allow_star": [
+          "/",
+          "/wp-admin/admin-ajax.php"
+        ]
+      },
+      "discovery": {
+        "via": "none",
+        "categories_crawled": [
+          "https://www.umamicart.com/category/asian-cooking-techniques/",
+          "https://www.umamicart.com/category/asian-recipes/",
+          "https://www.umamicart.com/category/asian-ingredients/",
+          "https://www.umamicart.com/category/chinese-recipes/",
+          "https://www.umamicart.com/category/japanese-recipes/",
+          "https://www.umamicart.com/category/korean-recipes/",
+          "https://www.umamicart.com/category/thai-recipes/",
+          "https://www.umamicart.com/category/vietnamese-recipes/"
+        ]
+      },
+      "sitemap": {
+        "tried": [
+          {
+            "url": "https://umamicart.com/sitemap_index.xml",
+            "status": 200,
+            "bytes": 1048
+          },
+          {
+            "url": "https://www.umamicart.com/post-sitemap1.xml",
+            "status": 200,
+            "bytes": 25241,
+            "nested": true
+          },
+          {
+            "url": "https://www.umamicart.com/post-sitemap2.xml",
+            "status": 200,
+            "bytes": 40167,
+            "nested": true
+          },
+          {
+            "url": "https://www.umamicart.com/page-sitemap1.xml",
+            "status": 0,
+            "bytes": 0,
+            "nested": true
+          },
+          {
+            "url": "https://www.umamicart.com/page-sitemap2.xml",
+            "status": 200,
+            "bytes": 27893,
+            "nested": true
+          }
+        ],
+        "total_urls": 588,
+        "product_like_urls": 0
+      },
+      "basket": {
+        "eggs": {
+          "count": 5,
+          "samples": [
+            "https://www.umamicart.com/what-is-century-egg/",
+            "https://www.umamicart.com/how-to-make-chinese-steamed-egg/",
+            "https://www.umamicart.com/egg-drop-soup-recipe/"
+          ],
+          "sample": "https://www.umamicart.com/what-is-century-egg/"
+        },
+        "chicken": {
+          "count": 31,
+          "samples": [
+            "https://www.umamicart.com/simple-chicken-curry-recipe/",
+            "https://www.umamicart.com/chinese-chicken-recipes/",
+            "https://www.umamicart.com/asian-chicken-recipes/"
+          ],
+          "sample": "https://www.umamicart.com/simple-chicken-curry-recipe/"
+        },
+        "rice": {
+          "count": 29,
+          "samples": [
+            "https://www.umamicart.com/what-is-jasmine-rice/",
+            "https://www.umamicart.com/what-is-basmati-rice/",
+            "https://www.umamicart.com/how-to-make-fried-rice/"
+          ],
+          "sample": "https://www.umamicart.com/what-is-jasmine-rice/"
+        },
+        "milk": {
+          "count": 3,
+          "samples": [
+            "https://www.umamicart.com/what-is-coconut-milk/",
+            "https://www.umamicart.com/coconut-milk/",
+            "https://www.umamicart.com/blogs/recipes/bubble-milk-tea/"
+          ],
+          "sample": "https://www.umamicart.com/what-is-coconut-milk/"
+        },
+        "bread": {
+          "count": 1,
+          "samples": [
+            "https://www.umamicart.com/naan-bread-recipe/"
+          ],
+          "sample": "https://www.umamicart.com/naan-bread-recipe/"
+        },
+        "coffee": {
+          "count": 4,
+          "samples": [
+            "https://www.umamicart.com/coffee-vs-red-bull-caffeine/",
+            "https://www.umamicart.com/how-much-caffeine-in-coffee-pods/",
+            "https://www.umamicart.com/is-coffee-good-for-sore-throat/"
+          ],
+          "sample": "https://www.umamicart.com/coffee-vs-red-bull-caffeine/"
+        },
+        "sugar": {
+          "count": 2,
+          "samples": [
+            "https://www.umamicart.com/dunkin-sugar-free-flavors/",
+            "https://www.umamicart.com/blogs/recipes/palm-sugar-steak-with-fish-sauce/"
+          ],
+          "sample": "https://www.umamicart.com/dunkin-sugar-free-flavors/"
+        },
+        "bananas": {
+          "count": 1,
+          "samples": [
+            "https://www.umamicart.com/blogs/recipes/banana-leaf-grilled-fish/"
+          ],
+          "sample": "https://www.umamicart.com/blogs/recipes/banana-leaf-grilled-fish/"
+        }
+      },
+      "basket_coverage": 8,
+      "product_probes": [
+        {
+          "url": "https://www.umamicart.com/what-is-century-egg/",
+          "status": 200,
+          "bytes": 154887,
+          "class": "spa_empty",
+          "reason": "200 but no price in raw HTML",
+          "signals": {
+            "jsonld_product": false,
+            "jsonld_price": false,
+            "microdata_price": false,
+            "meta_price": false,
+            "distinct_currency_strings": 0,
+            "embedded_state": false,
+            "api_paths": [],
+            "bytes": 154887
+          }
+        },
+        {
+          "url": "https://www.umamicart.com/simple-chicken-curry-recipe/",
+          "status": 200,
+          "bytes": 156817,
+          "class": "spa_empty",
+          "reason": "200 but no price in raw HTML",
+          "signals": {
+            "jsonld_product": false,
+            "jsonld_price": false,
+            "microdata_price": false,
+            "meta_price": false,
+            "distinct_currency_strings": 0,
+            "embedded_state": false,
+            "api_paths": [],
+            "bytes": 156817
+          }
+        }
+      ],
+      "verdict_class": "spa_empty",
+      "structural_class": "spa-opaque",
+      "evidence_url": "https://www.umamicart.com/what-is-century-egg/",
+      "robots_allows_product": true,
+      "tier1": {
+        "calls": [
+          {
+            "url": "https://www.umamicart.com/what-is-century-egg/",
+            "status": 200,
+            "bytes": 154801,
+            "role": "product"
+          },
+          {
+            "url": "https://www.umamicart.com/simple-chicken-curry-recipe/",
+            "status": 200,
+            "bytes": 157056,
+            "role": "product"
+          }
+        ],
+        "probes": [
+          {
+            "url": "https://www.umamicart.com/what-is-century-egg/",
+            "status": 200,
+            "bytes": 154801,
+            "class": "spa_empty",
+            "reason": "200 but no price in raw HTML",
+            "signals": {
+              "jsonld_product": false,
+              "jsonld_price": false,
+              "microdata_price": false,
+              "meta_price": false,
+              "distinct_currency_strings": 0,
+              "embedded_state": false,
+              "api_paths": [],
+              "bytes": 154801
+            }
+          },
+          {
+            "url": "https://www.umamicart.com/simple-chicken-curry-recipe/",
+            "status": 200,
+            "bytes": 157056,
+            "class": "spa_empty",
+            "reason": "200 but no price in raw HTML",
+            "signals": {
+              "jsonld_product": false,
+              "jsonld_price": false,
+              "microdata_price": false,
+              "meta_price": false,
+              "distinct_currency_strings": 0,
+              "embedded_state": false,
+              "api_paths": [],
+              "bytes": 157056
+            }
+          }
+        ],
+        "verdict_class": "spa_empty",
+        "structural_class": "spa-opaque",
+        "evidence_url": "https://www.umamicart.com/what-is-century-egg/"
+      }
+    },
+    {
+      "id": "us-yamibuy",
+      "name": "Yamibuy",
+      "country": "US",
+      "vertical": "ethnic-grocery",
+      "homepage": "https://www.yamibuy.com",
+      "why": "Round 4: US Asian grocery marketplace, rice and pantry depth",
+      "home": {
+        "status": 202,
+        "final_url": "https://www.yami.com/",
+        "bytes": 2032,
+        "error": null,
+        "waf": [
+          "server:cloudfront",
+          "x-amz-cf-id"
+        ]
+      },
+      "home_class": "spa_empty",
+      "search_api": {
+        "kind": null,
+        "endpoint": null,
+        "tried": [
+          {
+            "kind": "shopify",
+            "status": 404,
+            "valid": false
+          },
+          {
+            "kind": "magento-graphql",
+            "status": 202,
+            "valid": false
+          },
+          {
+            "kind": "woocommerce",
+            "status": 202,
+            "valid": false
+          }
+        ]
+      },
+      "robots": {
+        "fetched": false,
+        "sitemaps": [],
+        "disallow_star": [],
+        "allow_star": []
+      },
+      "discovery": {
+        "via": "none",
+        "categories_crawled": []
+      },
+      "sitemap": {
+        "tried": [
+          {
+            "url": "https://www.yamibuy.com/sitemap.xml",
+            "status": 404,
+            "bytes": 555
+          },
+          {
+            "url": "https://www.yamibuy.com/sitemap_index.xml",
+            "status": 404,
+            "bytes": 555
+          },
+          {
+            "url": "https://www.yamibuy.com/sitemap.txt",
+            "status": 202,
+            "bytes": 2032
+          },
+          {
+            "url": "https://www.yamibuy.com/sitemap-index.xml",
+            "status": 404,
+            "bytes": 555
+          }
+        ],
+        "total_urls": 0,
+        "product_like_urls": 0
+      },
+      "basket": {},
+      "basket_coverage": 0,
+      "product_probes": [],
+      "verdict_class": "no_product_urls",
+      "structural_class": "unknown",
+      "evidence_url": null,
+      "robots_allows_product": true,
+      "tier1": {
+        "calls": [
+          {
+            "url": "https://www.yamibuy.com",
+            "status": 200,
+            "bytes": 468752,
+            "role": "home"
+          },
+          {
+            "url": "https://www.yamibuy.com/us/en/p/liveling-apple-cider-vinegar-cleanse/1155033591",
+            "status": 200,
+            "bytes": 275003,
+            "role": "product"
+          },
+          {
+            "url": "https://www.yamibuy.com/us/en/p/bb-lab-pomegranate-s-collagen/1026147171",
+            "status": 200,
+            "bytes": 252742,
+            "role": "product"
+          }
+        ],
+        "probes": [
+          {
+            "url": "https://www.yamibuy.com/us/en/p/liveling-apple-cider-vinegar-cleanse/1155033591",
+            "status": 200,
+            "bytes": 275003,
+            "class": "server_rendered",
+            "reason": "price present in raw HTML",
+            "signals": {
+              "jsonld_product": true,
+              "jsonld_price": true,
+              "microdata_price": false,
+              "meta_price": false,
+              "distinct_currency_strings": 27,
+              "embedded_state": true,
+              "api_paths": [],
+              "bytes": 275003
+            }
+          },
+          {
+            "url": "https://www.yamibuy.com/us/en/p/bb-lab-pomegranate-s-collagen/1026147171",
+            "status": 200,
+            "bytes": 252742,
+            "class": "server_rendered",
+            "reason": "price present in raw HTML",
+            "signals": {
+              "jsonld_product": true,
+              "jsonld_price": true,
+              "microdata_price": false,
+              "meta_price": false,
+              "distinct_currency_strings": 27,
+              "embedded_state": true,
+              "api_paths": [],
+              "bytes": 252742
+            }
+          }
+        ],
+        "verdict_class": "server_rendered",
+        "structural_class": "json-ld",
+        "evidence_url": "https://www.yamibuy.com/us/en/p/liveling-apple-cider-vinegar-cleanse/1155033591"
+      }
+    },
+    {
+      "id": "us-willystreet",
+      "name": "Willy Street Co-op",
+      "country": "US",
+      "vertical": "grocery",
+      "homepage": "https://www.willystreet.coop",
+      "why": "Round 4: Madison food co-op, publishes product and price listings",
+      "home": {
+        "status": 200,
+        "final_url": "https://www.willystreet.coop",
+        "bytes": 499460,
+        "error": null,
+        "waf": [
+          "x-sucuri-id"
+        ]
+      },
+      "home_class": "server_rendered",
+      "search_api": {
+        "kind": null,
+        "endpoint": null,
+        "tried": [
+          {
+            "kind": "shopify",
+            "status": 0,
+            "valid": false
+          },
+          {
+            "kind": "magento-graphql",
+            "status": 404,
+            "valid": false
+          },
+          {
+            "kind": "woocommerce",
+            "status": 0,
+            "valid": false
+          }
+        ]
+      },
+      "robots": {
+        "fetched": true,
+        "sitemaps": [
+          "https://www.willystreet.coop/sitemap_index.xml"
+        ],
+        "disallow_star": [],
+        "allow_star": []
+      },
+      "discovery": {
+        "via": "sitemap",
+        "categories_crawled": []
+      },
+      "sitemap": {
+        "tried": [
+          {
+            "url": "https://www.willystreet.coop/sitemap_index.xml",
+            "status": 200,
+            "bytes": 2581
+          },
+          {
+            "url": "https://www.willystreet.coop/post-sitemap.xml",
+            "status": 200,
+            "bytes": 94443,
+            "nested": true
+          },
+          {
+            "url": "https://www.willystreet.coop/page-sitemap.xml",
+            "status": 200,
+            "bytes": 58794,
+            "nested": true
+          },
+          {
+            "url": "https://www.willystreet.coop/recipe-sitemap.xml",
+            "status": 200,
+            "bytes": 241221,
+            "nested": true
+          },
+          {
+            "url": "https://www.willystreet.coop/tribe_venue-sitemap.xml",
+            "status": 200,
+            "bytes": 2026,
+            "nested": true
+          }
+        ],
+        "total_urls": 1344,
+        "product_like_urls": 185
+      },
+      "basket": {
+        "coffee": {
+          "count": 3,
+          "samples": [
+            "https://www.willystreet.coop/uncategorized/willy-east-adding-products-removing-juice-coffee-bar/",
+            "https://www.willystreet.coop/uncategorized/willy-west-juice-coffee-bar-temporarily-closed/",
+            "https://www.willystreet.coop/uncategorized/juice-coffee-bar-temporarily-closing/"
+          ],
+          "sample": "https://www.willystreet.coop/uncategorized/willy-east-adding-products-removing-juice-coffee-bar/"
+        },
+        "milk": {
+          "count": 1,
+          "samples": [
+            "https://www.willystreet.coop/uncategorized/introducing-crystal-ball-farm-milk/"
+          ],
+          "sample": "https://www.willystreet.coop/uncategorized/introducing-crystal-ball-farm-milk/"
+        },
+        "eggs": {
+          "count": 1,
+          "samples": [
+            "https://www.willystreet.coop/resources/know-your-egg-beef-pork-farmers/"
+          ],
+          "sample": "https://www.willystreet.coop/resources/know-your-egg-beef-pork-farmers/"
+        }
+      },
+      "basket_coverage": 3,
+      "product_probes": [
+        {
+          "url": "https://www.willystreet.coop/uncategorized/willy-east-adding-products-removing-juice-coffee-bar/",
+          "status": 200,
+          "bytes": 162958,
+          "class": "spa_empty",
+          "reason": "200 but no price in raw HTML",
+          "signals": {
+            "jsonld_product": false,
+            "jsonld_price": false,
+            "microdata_price": false,
+            "meta_price": false,
+            "distinct_currency_strings": 0,
+            "embedded_state": false,
+            "api_paths": [],
+            "bytes": 162958
+          }
+        },
+        {
+          "url": "https://www.willystreet.coop/uncategorized/introducing-crystal-ball-farm-milk/",
+          "status": 200,
+          "bytes": 162617,
+          "class": "spa_empty",
+          "reason": "200 but no price in raw HTML",
+          "signals": {
+            "jsonld_product": false,
+            "jsonld_price": false,
+            "microdata_price": false,
+            "meta_price": false,
+            "distinct_currency_strings": 0,
+            "embedded_state": false,
+            "api_paths": [],
+            "bytes": 162617
+          }
+        },
+        {
+          "url": "https://www.willystreet.coop/uncategorized/product-listings/",
+          "status": 200,
+          "bytes": 161701,
+          "class": "spa_empty",
+          "reason": "200 but no price in raw HTML",
+          "signals": {
+            "jsonld_product": false,
+            "jsonld_price": false,
+            "microdata_price": false,
+            "meta_price": false,
+            "distinct_currency_strings": 0,
+            "embedded_state": false,
+            "api_paths": [],
+            "bytes": 161701
+          }
+        }
+      ],
+      "verdict_class": "spa_empty",
+      "structural_class": "spa-opaque",
+      "evidence_url": "https://www.willystreet.coop/uncategorized/willy-east-adding-products-removing-juice-coffee-bar/",
+      "robots_allows_product": true,
+      "tier1": {
+        "calls": [
+          {
+            "url": "https://www.willystreet.coop/uncategorized/willy-east-adding-products-removing-juice-coffee-bar/",
+            "status": 200,
+            "bytes": 162964,
+            "role": "product"
+          },
+          {
+            "url": "https://www.willystreet.coop/uncategorized/introducing-crystal-ball-farm-milk/",
+            "status": 200,
+            "bytes": 162617,
+            "role": "product"
+          }
+        ],
+        "probes": [
+          {
+            "url": "https://www.willystreet.coop/uncategorized/willy-east-adding-products-removing-juice-coffee-bar/",
+            "status": 200,
+            "bytes": 162964,
+            "class": "spa_empty",
+            "reason": "200 but no price in raw HTML",
+            "signals": {
+              "jsonld_product": false,
+              "jsonld_price": false,
+              "microdata_price": false,
+              "meta_price": false,
+              "distinct_currency_strings": 0,
+              "embedded_state": false,
+              "api_paths": [],
+              "bytes": 162964
+            }
+          },
+          {
+            "url": "https://www.willystreet.coop/uncategorized/introducing-crystal-ball-farm-milk/",
+            "status": 200,
+            "bytes": 162617,
+            "class": "spa_empty",
+            "reason": "200 but no price in raw HTML",
+            "signals": {
+              "jsonld_product": false,
+              "jsonld_price": false,
+              "microdata_price": false,
+              "meta_price": false,
+              "distinct_currency_strings": 0,
+              "embedded_state": false,
+              "api_paths": [],
+              "bytes": 162617
+            }
+          }
+        ],
+        "verdict_class": "spa_empty",
+        "structural_class": "spa-opaque",
+        "evidence_url": "https://www.willystreet.coop/uncategorized/willy-east-adding-products-removing-juice-coffee-bar/"
+      }
+    },
+    {
+      "id": "us-weaversway",
+      "name": "Weavers Way Co-op",
+      "country": "US",
+      "vertical": "grocery",
+      "homepage": "https://www.weaversway.coop",
+      "why": "Round 4: Philadelphia co-op",
+      "home": {
+        "status": 0,
+        "final_url": "https://www.weaversway.coop",
+        "bytes": 0,
+        "error": "ReadTimeout: ",
+        "waf": []
+      },
+      "home_class": "blocked",
+      "search_api": {
+        "kind": null,
+        "endpoint": null,
+        "tried": [
+          {
+            "kind": "shopify",
+            "status": 200,
+            "valid": false
+          },
+          {
+            "kind": "magento-graphql",
+            "status": 404,
+            "valid": false
+          },
+          {
+            "kind": "woocommerce",
+            "status": 404,
+            "valid": false
+          }
+        ]
+      },
+      "robots": {
+        "fetched": true,
+        "sitemaps": [],
+        "disallow_star": [
+          "/wp-admin/",
+          "/readme.html"
+        ],
+        "allow_star": [
+          "/wp-content/uploads/"
+        ]
+      },
+      "discovery": {
+        "via": "sitemap",
+        "categories_crawled": []
+      },
+      "sitemap": {
+        "tried": [
+          {
+            "url": "https://www.weaversway.coop/sitemap.xml",
+            "status": 200,
+            "bytes": 1580
+          },
+          {
+            "url": "https://weaversway.coop/wp-sitemap-posts-page-1.xml",
+            "status": 200,
+            "bytes": 7951,
+            "nested": true
+          },
+          {
+            "url": "https://weaversway.coop/wp-sitemap-posts-announcement-1.xml",
+            "status": 200,
+            "bytes": 2409,
+            "nested": true
+          },
+          {
+            "url": "https://weaversway.coop/wp-sitemap-posts-article-1.xml",
+            "status": 200,
+            "bytes": 6871,
+            "nested": true
+          },
+          {
+            "url": "https://weaversway.coop/wp-sitemap-posts-content-1.xml",
+            "status": 200,
+            "bytes": 50574,
+            "nested": true
+          }
+        ],
+        "total_urls": 509,
+        "product_like_urls": 323
+      },
+      "basket": {
+        "pasta": {
+          "count": 5,
+          "samples": [
+            "https://weaversway.coop/content/feature-vera-pasta-sauce-6-4-7-2/",
+            "https://weaversway.coop/content/feature-vera-pasta-6-4-7-2/",
+            "https://weaversway.coop/content/feature-ww-homemade-macaroni-salad-7-2-7-9/"
+          ],
+          "sample": "https://weaversway.coop/content/feature-vera-pasta-sauce-6-4-7-2/"
+        },
+        "chicken": {
+          "count": 3,
+          "samples": [
+            "https://weaversway.coop/content/feature-ww-chicken-marinades-9-3-9-30/",
+            "https://weaversway.coop/content/feature-ww-mango-curried-chicken-salad-10-1-11-4/",
+            "https://weaversway.coop/content/feature-ww-chicken-tenders-5-13-6-2/"
+          ],
+          "sample": "https://weaversway.coop/content/feature-ww-chicken-marinades-9-3-9-30/"
+        },
+        "cooking_oil": {
+          "count": 1,
+          "samples": [
+            "https://weaversway.coop/content/feature-field-day-org-olive-oil-11-5-11-14/"
+          ],
+          "sample": "https://weaversway.coop/content/feature-field-day-org-olive-oil-11-5-11-14/"
+        },
+        "eggs": {
+          "count": 1,
+          "samples": [
+            "https://weaversway.coop/content/feature-merrymead-egg-nog-12-15-12-31/"
+          ],
+          "sample": "https://weaversway.coop/content/feature-merrymead-egg-nog-12-15-12-31/"
+        },
+        "coffee": {
+          "count": 1,
+          "samples": [
+            "https://weaversway.coop/content/feature-royal-mile-coffee-4-1-4-14/"
+          ],
+          "sample": "https://weaversway.coop/content/feature-royal-mile-coffee-4-1-4-14/"
+        },
+        "bread": {
+          "count": 1,
+          "samples": [
+            "https://weaversway.coop/content/feature-metropolitan-bakery-loaf-5-13-6-2/"
+          ],
+          "sample": "https://weaversway.coop/content/feature-metropolitan-bakery-loaf-5-13-6-2/"
+        }
+      },
+      "basket_coverage": 6,
+      "product_probes": [
+        {
+          "url": "https://weaversway.coop/content/feature-vera-pasta-sauce-6-4-7-2/",
+          "status": 500,
+          "bytes": 44899,
+          "class": "blocked",
+          "reason": "http 500",
+          "signals": {}
+        },
+        {
+          "url": "https://weaversway.coop/content/feature-ww-chicken-marinades-9-3-9-30/",
+          "status": 500,
+          "bytes": 44921,
+          "class": "blocked",
+          "reason": "http 500",
+          "signals": {}
+        },
+        {
+          "url": "https://weaversway.coop/announcement/weavers-way-is-a-2025-fffi-grant-recipient/",
+          "status": 200,
+          "bytes": 80956,
+          "class": "spa_empty",
+          "reason": "200 but no price in raw HTML",
+          "signals": {
+            "jsonld_product": false,
+            "jsonld_price": false,
+            "microdata_price": false,
+            "meta_price": false,
+            "distinct_currency_strings": 0,
+            "embedded_state": false,
+            "api_paths": [],
+            "bytes": 80956
+          }
+        }
+      ],
+      "verdict_class": "spa_empty",
+      "structural_class": "spa-opaque",
+      "evidence_url": "https://weaversway.coop/announcement/weavers-way-is-a-2025-fffi-grant-recipient/",
+      "robots_allows_product": true,
+      "tier1": {
+        "calls": [
+          {
+            "url": "https://weaversway.coop/content/feature-vera-pasta-sauce-6-4-7-2/",
+            "status": 200,
+            "bytes": 0,
+            "role": "product"
+          },
+          {
+            "url": "https://weaversway.coop/content/feature-ww-chicken-marinades-9-3-9-30/",
+            "status": 200,
+            "bytes": 0,
+            "role": "product"
+          }
+        ],
+        "probes": [
+          {
+            "url": "https://weaversway.coop/content/feature-vera-pasta-sauce-6-4-7-2/",
+            "status": 200,
+            "bytes": 0,
+            "class": "spa_empty",
+            "reason": "200 but no price in raw HTML",
+            "signals": {
+              "jsonld_product": false,
+              "jsonld_price": false,
+              "microdata_price": false,
+              "meta_price": false,
+              "distinct_currency_strings": 0,
+              "embedded_state": false,
+              "api_paths": [],
+              "bytes": 0
+            }
+          },
+          {
+            "url": "https://weaversway.coop/content/feature-ww-chicken-marinades-9-3-9-30/",
+            "status": 200,
+            "bytes": 0,
+            "class": "spa_empty",
+            "reason": "200 but no price in raw HTML",
+            "signals": {
+              "jsonld_product": false,
+              "jsonld_price": false,
+              "microdata_price": false,
+              "meta_price": false,
+              "distinct_currency_strings": 0,
+              "embedded_state": false,
+              "api_paths": [],
+              "bytes": 0
+            }
+          }
+        ],
+        "verdict_class": "spa_empty",
+        "structural_class": "spa-opaque",
+        "evidence_url": "https://weaversway.coop/content/feature-vera-pasta-sauce-6-4-7-2/"
+      }
+    },
+    {
+      "id": "us-hungermountain",
+      "name": "Hunger Mountain Co-op",
+      "country": "US",
+      "vertical": "grocery",
+      "homepage": "https://hungermountain.coop",
+      "why": "Round 4: Vermont co-op",
+      "home": {
+        "status": 200,
+        "final_url": "https://hungermountain.coop",
+        "bytes": 128096,
+        "error": null,
+        "waf": [
+          "cf-ray",
+          "cookie:__cf_bm",
+          "server:cloudflare"
+        ]
+      },
+      "home_class": "spa_empty",
+      "search_api": {
+        "kind": "woocommerce",
+        "endpoint": "https://hungermountain.coop/wp-json/wc/store/products",
+        "tried": [
+          {
+            "kind": "shopify",
+            "status": 200,
+            "valid": false
+          },
+          {
+            "kind": "magento-graphql",
+            "status": 404,
+            "valid": false
+          },
+          {
+            "kind": "woocommerce",
+            "status": 200,
+            "valid": true
+          }
+        ]
+      },
+      "robots": {
+        "fetched": true,
+        "sitemaps": [
+          "https://hungermountain.coop/sitemap_index.xml"
+        ],
+        "disallow_star": [
+          "/wp-content/uploads/wc-logs/",
+          "/wp-content/uploads/woocommerce_transient_files/",
+          "/wp-content/uploads/woocommerce_uploads/",
+          "/*?add-to-cart=",
+          "/*?*add-to-cart=",
+          "/wp-admin/"
+        ],
+        "allow_star": [
+          "/wp-admin/admin-ajax.php"
+        ]
+      },
+      "discovery": {
+        "via": "sitemap",
+        "categories_crawled": []
+      },
+      "sitemap": {
+        "tried": [
+          {
+            "url": "https://hungermountain.coop/sitemap_index.xml",
+            "status": 200,
+            "bytes": 1616
+          },
+          {
+            "url": "https://hungermountain.coop/page-sitemap.xml",
+            "status": 200,
+            "bytes": 8131,
+            "nested": true
+          },
+          {
+            "url": "https://hungermountain.coop/partner-sitemap.xml",
+            "status": 0,
+            "bytes": 0,
+            "nested": true
+          },
+          {
+            "url": "https://hungermountain.coop/bulk_finder-sitemap.xml",
+            "status": 200,
+            "bytes": 112677,
+            "nested": true
+          },
+          {
+            "url": "https://hungermountain.coop/co_opportunities-sitemap.xml",
+            "status": 200,
+            "bytes": 9154,
+            "nested": true
+          }
+        ],
+        "total_urls": 947,
+        "product_like_urls": 269
+      },
+      "basket": {
+        "pasta": {
+          "count": 16,
+          "samples": [
+            "https://hungermountain.coop/bulk_finder/pasta-b-soba-noodles/",
+            "https://hungermountain.coop/bulk_finder/pasta-flats-soy-semo/",
+            "https://hungermountain.coop/bulk_finder/pasta-farfalle-tricl/"
+          ],
+          "sample": "https://hungermountain.coop/bulk_finder/pasta-b-soba-noodles/"
+        },
+        "rice": {
+          "count": 11,
+          "samples": [
+            "https://hungermountain.coop/bulk_finder/white-rice-long-comm/",
+            "https://hungermountain.coop/bulk_finder/rice-eco-brn-basmati/",
+            "https://hungermountain.coop/bulk_finder/rice-brwn-lng-grn-og/"
+          ],
+          "sample": "https://hungermountain.coop/bulk_finder/white-rice-long-comm/"
+        },
+        "coffee": {
+          "count": 2,
+          "samples": [
+            "https://hungermountain.coop/bulk_finder/tk-dark-roast-coffee/",
+            "https://hungermountain.coop/bulk_finder/tk-coffee-bob-senate/"
+          ],
+          "sample": "https://hungermountain.coop/bulk_finder/tk-dark-roast-coffee/"
+        },
+        "milk": {
+          "count": 1,
+          "samples": [
+            "https://hungermountain.coop/bulk_finder/og-milk-thistle-seed/"
+          ],
+          "sample": "https://hungermountain.coop/bulk_finder/og-milk-thistle-seed/"
+        },
+        "bananas": {
+          "count": 1,
+          "samples": [
+            "https://hungermountain.coop/bulk_finder/granola-blueb-banana/"
+          ],
+          "sample": "https://hungermountain.coop/bulk_finder/granola-blueb-banana/"
+        },
+        "sugar": {
+          "count": 1,
+          "samples": [
+            "https://hungermountain.coop/bulk_finder/org-cranberry-w-sugar/"
+          ],
+          "sample": "https://hungermountain.coop/bulk_finder/org-cranberry-w-sugar/"
+        }
+      },
+      "basket_coverage": 6,
+      "product_probes": [
+        {
+          "url": "https://hungermountain.coop/bulk_finder/pasta-b-soba-noodles/",
+          "status": 200,
+          "bytes": 85680,
+          "class": "spa_empty",
+          "reason": "200 but no price in raw HTML",
+          "signals": {
+            "jsonld_product": false,
+            "jsonld_price": false,
+            "microdata_price": false,
+            "meta_price": false,
+            "distinct_currency_strings": 0,
+            "embedded_state": false,
+            "api_paths": [],
+            "bytes": 85680
+          }
+        },
+        {
+          "url": "https://hungermountain.coop/bulk_finder/white-rice-long-comm/",
+          "status": 200,
+          "bytes": 85672,
+          "class": "spa_empty",
+          "reason": "200 but no price in raw HTML",
+          "signals": {
+            "jsonld_product": false,
+            "jsonld_price": false,
+            "microdata_price": false,
+            "meta_price": false,
+            "distinct_currency_strings": 0,
+            "embedded_state": false,
+            "api_paths": [],
+            "bytes": 85672
+          }
+        },
+        {
+          "url": "https://hungermountain.coop/bulk_finder/tk-full-city-mayan-decaf-2lb/",
+          "status": 200,
+          "bytes": 85859,
+          "class": "spa_empty",
+          "reason": "200 but no price in raw HTML",
+          "signals": {
+            "jsonld_product": false,
+            "jsonld_price": false,
+            "microdata_price": false,
+            "meta_price": false,
+            "distinct_currency_strings": 0,
+            "embedded_state": false,
+            "api_paths": [],
+            "bytes": 85859
+          }
+        }
+      ],
+      "verdict_class": "spa_empty",
+      "structural_class": "spa-opaque",
+      "evidence_url": "https://hungermountain.coop/bulk_finder/pasta-b-soba-noodles/",
+      "robots_allows_product": true,
+      "tier1": {
+        "calls": [
+          {
+            "url": "https://hungermountain.coop/bulk_finder/pasta-b-soba-noodles/",
+            "status": 200,
+            "bytes": 85681,
+            "role": "product"
+          },
+          {
+            "url": "https://hungermountain.coop/bulk_finder/white-rice-long-comm/",
+            "status": 200,
+            "bytes": 85672,
+            "role": "product"
+          }
+        ],
+        "probes": [
+          {
+            "url": "https://hungermountain.coop/bulk_finder/pasta-b-soba-noodles/",
+            "status": 200,
+            "bytes": 85681,
+            "class": "spa_empty",
+            "reason": "200 but no price in raw HTML",
+            "signals": {
+              "jsonld_product": false,
+              "jsonld_price": false,
+              "microdata_price": false,
+              "meta_price": false,
+              "distinct_currency_strings": 0,
+              "embedded_state": false,
+              "api_paths": [],
+              "bytes": 85681
+            }
+          },
+          {
+            "url": "https://hungermountain.coop/bulk_finder/white-rice-long-comm/",
+            "status": 200,
+            "bytes": 85672,
+            "class": "spa_empty",
+            "reason": "200 but no price in raw HTML",
+            "signals": {
+              "jsonld_product": false,
+              "jsonld_price": false,
+              "microdata_price": false,
+              "meta_price": false,
+              "distinct_currency_strings": 0,
+              "embedded_state": false,
+              "api_paths": [],
+              "bytes": 85672
+            }
+          }
+        ],
+        "verdict_class": "spa_empty",
+        "structural_class": "spa-opaque",
+        "evidence_url": "https://hungermountain.coop/bulk_finder/pasta-b-soba-noodles/"
+      }
+    },
+    {
+      "id": "us-elsuper",
+      "name": "El Super",
+      "country": "US",
+      "vertical": "ethnic-grocery",
+      "homepage": "https://www.elsupermarkets.com",
+      "why": "Round 4: Hispanic-American chain, staple-heavy catalogue",
+      "home": {
+        "status": 0,
+        "final_url": "https://www.elsupermarkets.com",
+        "bytes": 0,
+        "error": "ReadError: ",
+        "waf": []
+      },
+      "home_class": "blocked",
+      "search_api": {
+        "kind": null,
+        "endpoint": null,
+        "tried": [
+          {
+            "kind": "shopify",
+            "status": 0,
+            "valid": false
+          },
+          {
+            "kind": "magento-graphql",
+            "status": 404,
+            "valid": false
+          },
+          {
+            "kind": "woocommerce",
+            "status": 404,
+            "valid": false
+          }
+        ]
+      },
+      "robots": {
+        "fetched": true,
+        "sitemaps": [
+          "https://elsupermarkets.com/wp-sitemap.xml"
+        ],
+        "disallow_star": [
+          "/wp-admin/"
+        ],
+        "allow_star": [
+          "/wp-admin/admin-ajax.php"
+        ]
+      },
+      "discovery": {
+        "via": "sitemap",
+        "categories_crawled": []
+      },
+      "sitemap": {
+        "tried": [
+          {
+            "url": "https://elsupermarkets.com/wp-sitemap.xml",
+            "status": 200,
+            "bytes": 1274
+          },
+          {
+            "url": "https://elsupermarkets.com/es/wp-sitemap-posts-post-1.xml",
+            "status": 200,
+            "bytes": 25534,
+            "nested": true
+          },
+          {
+            "url": "https://elsupermarkets.com/wp-sitemap-posts-post-1.xml",
+            "status": 200,
+            "bytes": 24744,
+            "nested": true
+          },
+          {
+            "url": "https://elsupermarkets.com/es/wp-sitemap-posts-page-1.xml",
+            "status": 200,
+            "bytes": 7827,
+            "nested": true
+          },
+          {
+            "url": "https://elsupermarkets.com/wp-sitemap-posts-page-1.xml",
+            "status": 200,
+            "bytes": 8675,
+            "nested": true
+          }
+        ],
+        "total_urls": 577,
+        "product_like_urls": 123
+      },
+      "basket": {
+        "pasta": {
+          "count": 4,
+          "samples": [
+            "https://elsupermarkets.com/es/ensalada-mediterranea-con-pasta/",
+            "https://elsupermarkets.com/es/sopa-cremosa-de-tomate-y-pasta/",
+            "https://elsupermarkets.com/es/pasta-con-camarones-al-ajo-y-limon/"
+          ],
+          "sample": "https://elsupermarkets.com/es/ensalada-mediterranea-con-pasta/"
+        },
+        "rice": {
+          "count": 1,
+          "samples": [
+            "https://elsupermarkets.com/es/bocadillos-de-rice-krispies-de-tres-leches/"
+          ],
+          "sample": "https://elsupermarkets.com/es/bocadillos-de-rice-krispies-de-tres-leches/"
+        }
+      },
+      "basket_coverage": 2,
+      "product_probes": [
+        {
+          "url": "https://elsupermarkets.com/es/ensalada-mediterranea-con-pasta/",
+          "status": 200,
+          "bytes": 192976,
+          "class": "spa_empty",
+          "reason": "200 but no price in raw HTML",
+          "signals": {
+            "jsonld_product": false,
+            "jsonld_price": false,
+            "microdata_price": false,
+            "meta_price": false,
+            "distinct_currency_strings": 0,
+            "embedded_state": false,
+            "api_paths": [],
+            "bytes": 192976
+          }
+        },
+        {
+          "url": "https://elsupermarkets.com/es/bocadillos-de-rice-krispies-de-tres-leches/",
+          "status": 200,
+          "bytes": 189407,
+          "class": "spa_empty",
+          "reason": "200 but no price in raw HTML",
+          "signals": {
+            "jsonld_product": false,
+            "jsonld_price": false,
+            "microdata_price": false,
+            "meta_price": false,
+            "distinct_currency_strings": 0,
+            "embedded_state": false,
+            "api_paths": [],
+            "bytes": 189407
+          }
+        },
+        {
+          "url": "https://elsupermarkets.com/es/acciondegracias2025-reglas/",
+          "status": 200,
+          "bytes": 151453,
+          "class": "spa_empty",
+          "reason": "200 but no price in raw HTML",
+          "signals": {
+            "jsonld_product": false,
+            "jsonld_price": false,
+            "microdata_price": false,
+            "meta_price": false,
+            "distinct_currency_strings": 1,
+            "embedded_state": false,
+            "api_paths": [],
+            "bytes": 151453
+          }
+        }
+      ],
+      "verdict_class": "spa_empty",
+      "structural_class": "spa-opaque",
+      "evidence_url": "https://elsupermarkets.com/es/ensalada-mediterranea-con-pasta/",
+      "robots_allows_product": true,
+      "tier1": {
+        "calls": [
+          {
+            "url": "https://elsupermarkets.com/es/ensalada-mediterranea-con-pasta/",
+            "status": 200,
+            "bytes": 192976,
+            "role": "product"
+          },
+          {
+            "url": "https://elsupermarkets.com/es/bocadillos-de-rice-krispies-de-tres-leches/",
+            "status": 200,
+            "bytes": 189407,
+            "role": "product"
+          }
+        ],
+        "probes": [
+          {
+            "url": "https://elsupermarkets.com/es/ensalada-mediterranea-con-pasta/",
+            "status": 200,
+            "bytes": 192976,
+            "class": "spa_empty",
+            "reason": "200 but no price in raw HTML",
+            "signals": {
+              "jsonld_product": false,
+              "jsonld_price": false,
+              "microdata_price": false,
+              "meta_price": false,
+              "distinct_currency_strings": 0,
+              "embedded_state": false,
+              "api_paths": [],
+              "bytes": 192976
+            }
+          },
+          {
+            "url": "https://elsupermarkets.com/es/bocadillos-de-rice-krispies-de-tres-leches/",
+            "status": 200,
+            "bytes": 189407,
+            "class": "spa_empty",
+            "reason": "200 but no price in raw HTML",
+            "signals": {
+              "jsonld_product": false,
+              "jsonld_price": false,
+              "microdata_price": false,
+              "meta_price": false,
+              "distinct_currency_strings": 0,
+              "embedded_state": false,
+              "api_paths": [],
+              "bytes": 189407
+            }
+          }
+        ],
+        "verdict_class": "spa_empty",
+        "structural_class": "spa-opaque",
+        "evidence_url": "https://elsupermarkets.com/es/ensalada-mediterranea-con-pasta/"
+      }
+    },
+    {
+      "id": "us-hungryroot",
+      "name": "Hungryroot",
+      "country": "US",
+      "vertical": "grocery",
+      "homepage": "https://www.hungryroot.com",
+      "why": "Round 4: delivery-first grocer",
+      "home": {
+        "status": 200,
+        "final_url": "https://www.hungryroot.com",
+        "bytes": 379757,
+        "error": null,
+        "waf": [
+          "cf-ray",
+          "cookie:__cf_bm",
+          "server:cloudflare"
+        ]
+      },
+      "home_class": "server_rendered",
+      "search_api": {
+        "kind": null,
+        "endpoint": null,
+        "tried": [
+          {
+            "kind": "shopify",
+            "status": 404,
+            "valid": false
+          },
+          {
+            "kind": "magento-graphql",
+            "status": 404,
+            "valid": false
+          },
+          {
+            "kind": "woocommerce",
+            "status": 404,
+            "valid": false
+          }
+        ]
+      },
+      "robots": {
+        "fetched": true,
+        "sitemaps": [
+          "https://www.hungryroot.com/sitemap.xml"
+        ],
+        "disallow_star": [
+          "/admin/",
+          "/password-reset/",
+          "/templates/"
+        ],
+        "allow_star": []
+      },
+      "discovery": {
+        "via": "sitemap",
+        "categories_crawled": []
+      },
+      "sitemap": {
+        "tried": [
+          {
+            "url": "https://www.hungryroot.com/sitemap.xml",
+            "status": 200,
+            "bytes": 415
+          },
+          {
+            "url": "https://www.hungryroot.com/sitemap-blog.xml",
+            "status": 200,
+            "bytes": 63458,
+            "nested": true
+          },
+          {
+            "url": "https://www.hungryroot.com/sitemap-recipes.xml",
+            "status": 0,
+            "bytes": 0,
+            "nested": true
+          },
+          {
+            "url": "https://www.hungryroot.com/sitemap-products.xml",
+            "status": 200,
+            "bytes": 232507,
+            "nested": true
+          },
+          {
+            "url": "https://www.hungryroot.com/sitemap-0.xml",
+            "status": 200,
+            "bytes": 2435,
+            "nested": true
+          }
+        ],
+        "total_urls": 1408,
+        "product_like_urls": 962
+      },
+      "basket": {
+        "sugar": {
+          "count": 4,
+          "samples": [
+            "https://www.hungryroot.com/products/banana-maple-brown-sugar-overnight-oats-2-pack-1042/",
+            "https://www.hungryroot.com/products/low-sugar-sour-gummies-1756/",
+            "https://www.hungryroot.com/products/classic-cola-zero-sugar-1983/"
+          ],
+          "sample": "https://www.hungryroot.com/products/banana-maple-brown-sugar-overnight-oats-2-pack-1042/"
+        },
+        "eggs": {
+          "count": 8,
+          "samples": [
+            "https://www.hungryroot.com/products/pasture-raised-hard-boiled-eggs-2-pack-1221/",
+            "https://www.hungryroot.com/products/spinach-bell-pepper-egg-bite-553/",
+            "https://www.hungryroot.com/products/pasture-raised-liquid-whole-eggs-621/"
+          ],
+          "sample": "https://www.hungryroot.com/products/pasture-raised-hard-boiled-eggs-2-pack-1221/"
+        },
+        "rice": {
+          "count": 20,
+          "samples": [
+            "https://www.hungryroot.com/products/vanilla-rice-pudding-2-pack-1337/",
+            "https://www.hungryroot.com/products/brown-rice-quinoa-blend-360/",
+            "https://www.hungryroot.com/products/lentil-quinoa-rice-mix-470/"
+          ],
+          "sample": "https://www.hungryroot.com/products/vanilla-rice-pudding-2-pack-1337/"
+        },
+        "chicken": {
+          "count": 69,
+          "samples": [
+            "https://www.hungryroot.com/products/chicken-maple-mini-stick-5-pack-2022/",
+            "https://www.hungryroot.com/products/organic-sweet-italian-chicken-sausage-353/",
+            "https://www.hungryroot.com/products/organic-spinach-garlic-chicken-sausage-354/"
+          ],
+          "sample": "https://www.hungryroot.com/products/chicken-maple-mini-stick-5-pack-2022/"
+        },
+        "milk": {
+          "count": 17,
+          "samples": [
+            "https://www.hungryroot.com/products/almond-milk-ricotta-alternative-8oz-2072/",
+            "https://www.hungryroot.com/products/original-oat-milk-777/",
+            "https://www.hungryroot.com/products/whole-milk-ricotta-879/"
+          ],
+          "sample": "https://www.hungryroot.com/products/almond-milk-ricotta-alternative-8oz-2072/"
+        },
+        "bananas": {
+          "count": 3,
+          "samples": [
+            "https://www.hungryroot.com/products/organic-dark-chocolate-banana-bites-661/",
+            "https://www.hungryroot.com/products/banana-creme-protein-shake-1589/",
+            "https://www.hungryroot.com/products/strawberry-banana-glow-smoothie-1837/"
+          ],
+          "sample": "https://www.hungryroot.com/products/organic-dark-chocolate-banana-bites-661/"
+        },
+        "bread": {
+          "count": 11,
+          "samples": [
+            "https://www.hungryroot.com/products/bread-and-butter-pickle-slices-794/",
+            "https://www.hungryroot.com/products/organic-sprouted-soft-wheat-bread-1304/",
+            "https://www.hungryroot.com/products/mini-banana-bread-loaf-1397/"
+          ],
+          "sample": "https://www.hungryroot.com/products/bread-and-butter-pickle-slices-794/"
+        },
+        "pasta": {
+          "count": 12,
+          "samples": [
+            "https://www.hungryroot.com/products/organic-chiocciole-pasta-976/",
+            "https://www.hungryroot.com/products/organic-rigatoni-pasta-1013/",
+            "https://www.hungryroot.com/products/tubetti-rigati-pasta-1306/"
+          ],
+          "sample": "https://www.hungryroot.com/products/organic-chiocciole-pasta-976/"
+        },
+        "coffee": {
+          "count": 2,
+          "samples": [
+            "https://www.hungryroot.com/products/big-coffee-cake-muffin-1254/",
+            "https://www.hungryroot.com/products/holler-mountain-ground-coffee-1832/"
+          ],
+          "sample": "https://www.hungryroot.com/products/big-coffee-cake-muffin-1254/"
+        },
+        "cooking_oil": {
+          "count": 5,
+          "samples": [
+            "https://www.hungryroot.com/products/rosemary-olive-oil-focaccia-1603/",
+            "https://www.hungryroot.com/products/sizzle-extra-virgin-olive-oil-2107/",
+            "https://www.hungryroot.com/products/olive-oil-sea-salt-hummus-2109/"
+          ],
+          "sample": "https://www.hungryroot.com/products/rosemary-olive-oil-focaccia-1603/"
+        }
+      },
+      "basket_coverage": 10,
+      "product_probes": [
+        {
+          "url": "https://www.hungryroot.com/products/banana-maple-brown-sugar-overnight-oats-2-pack-1042/",
+          "status": 200,
+          "bytes": 91434,
+          "class": "spa_empty",
+          "reason": "200 but no price in raw HTML",
+          "signals": {
+            "jsonld_product": true,
+            "jsonld_price": false,
+            "microdata_price": false,
+            "meta_price": false,
+            "distinct_currency_strings": 0,
+            "embedded_state": false,
+            "api_paths": [],
+            "bytes": 91434
+          }
+        },
+        {
+          "url": "https://www.hungryroot.com/products/pasture-raised-hard-boiled-eggs-2-pack-1221/",
+          "status": 200,
+          "bytes": 103369,
+          "class": "spa_empty",
+          "reason": "200 but no price in raw HTML",
+          "signals": {
+            "jsonld_product": true,
+            "jsonld_price": false,
+            "microdata_price": false,
+            "meta_price": false,
+            "distinct_currency_strings": 0,
+            "embedded_state": false,
+            "api_paths": [],
+            "bytes": 103369
+          }
+        },
+        {
+          "url": "https://www.hungryroot.com/products/raspberry-fig-bars-6-pack-563/",
+          "status": 200,
+          "bytes": 88552,
+          "class": "spa_empty",
+          "reason": "200 but no price in raw HTML",
+          "signals": {
+            "jsonld_product": true,
+            "jsonld_price": false,
+            "microdata_price": false,
+            "meta_price": false,
+            "distinct_currency_strings": 0,
+            "embedded_state": false,
+            "api_paths": [],
+            "bytes": 88552
+          }
+        }
+      ],
+      "verdict_class": "spa_empty",
+      "structural_class": "spa-opaque",
+      "evidence_url": "https://www.hungryroot.com/products/banana-maple-brown-sugar-overnight-oats-2-pack-1042/",
+      "robots_allows_product": true,
+      "tier1": {
+        "calls": [
+          {
+            "url": "https://www.hungryroot.com/products/banana-maple-brown-sugar-overnight-oats-2-pack-1042/",
+            "status": 200,
+            "bytes": 91434,
+            "role": "product"
+          },
+          {
+            "url": "https://www.hungryroot.com/products/pasture-raised-hard-boiled-eggs-2-pack-1221/",
+            "status": 200,
+            "bytes": 103369,
+            "role": "product"
+          }
+        ],
+        "probes": [
+          {
+            "url": "https://www.hungryroot.com/products/banana-maple-brown-sugar-overnight-oats-2-pack-1042/",
+            "status": 200,
+            "bytes": 91434,
+            "class": "spa_empty",
+            "reason": "200 but no price in raw HTML",
+            "signals": {
+              "jsonld_product": true,
+              "jsonld_price": false,
+              "microdata_price": false,
+              "meta_price": false,
+              "distinct_currency_strings": 0,
+              "embedded_state": false,
+              "api_paths": [],
+              "bytes": 91434
+            }
+          },
+          {
+            "url": "https://www.hungryroot.com/products/pasture-raised-hard-boiled-eggs-2-pack-1221/",
+            "status": 200,
+            "bytes": 103369,
+            "class": "spa_empty",
+            "reason": "200 but no price in raw HTML",
+            "signals": {
+              "jsonld_product": true,
+              "jsonld_price": false,
+              "microdata_price": false,
+              "meta_price": false,
+              "distinct_currency_strings": 0,
+              "embedded_state": false,
+              "api_paths": [],
+              "bytes": 103369
+            }
+          }
+        ],
+        "verdict_class": "spa_empty",
+        "structural_class": "spa-opaque",
+        "evidence_url": "https://www.hungryroot.com/products/banana-maple-brown-sugar-overnight-oats-2-pack-1042/"
+      }
+    },
+    {
+      "id": "us-imperfectfoods",
+      "name": "Imperfect Foods",
+      "country": "US",
+      "vertical": "grocery",
+      "homepage": "https://www.imperfectfoods.com",
+      "why": "Round 4: surplus grocery delivery, staples at a discount",
+      "home": {
+        "status": 200,
+        "final_url": "https://www.imperfectfoods.com",
+        "bytes": 292971,
+        "error": null,
+        "waf": [
+          "x-amz-cf-id"
+        ]
+      },
+      "home_class": "server_rendered",
+      "search_api": {
+        "kind": null,
+        "endpoint": null,
+        "tried": [
+          {
+            "kind": "shopify",
+            "status": 0,
+            "valid": false
+          },
+          {
+            "kind": "magento-graphql",
+            "status": 0,
+            "valid": false
+          },
+          {
+            "kind": "woocommerce",
+            "status": 404,
+            "valid": false
+          }
+        ]
+      },
+      "robots": {
+        "fetched": true,
+        "sitemaps": [
+          "https://www.imperfectfoods.com/sitemap.xml"
+        ],
+        "disallow_star": [],
+        "allow_star": [
+          "/"
+        ]
+      },
+      "discovery": {
+        "via": "sitemap",
+        "categories_crawled": []
+      },
+      "sitemap": {
+        "tried": [
+          {
+            "url": "https://www.imperfectfoods.com/sitemap.xml",
+            "status": 200,
+            "bytes": 2800
+          }
+        ],
+        "total_urls": 16,
+        "product_like_urls": 0
+      },
+      "basket": {},
+      "basket_coverage": 0,
+      "product_probes": [],
+      "verdict_class": "no_product_urls",
+      "structural_class": "unknown",
+      "evidence_url": null,
+      "robots_allows_product": true,
+      "tier1": {
+        "calls": [
+          {
+            "url": "https://www.imperfectfoods.com",
+            "status": 200,
+            "bytes": 292971,
+            "role": "home"
+          },
+          {
+            "url": "/robots.txt",
+            "status": 200,
+            "bytes": 419,
+            "role": "robots"
+          },
+          {
+            "url": "https://www.imperfectfoods.com/sitemap.xml",
+            "status": 200,
+            "bytes": 2800,
+            "role": "sitemap"
+          },
+          {
+            "url": "https://www.imperfectfoods.com/sitemap.xml",
+            "status": 200,
+            "bytes": 2800,
+            "role": "sitemap"
+          }
+        ],
+        "probes": [],
+        "verdict_class": "no_product_urls",
+        "note": "price present in raw HTML"
+      }
+    },
+    {
+      "id": "us-freshdirect2",
+      "name": "FreshDirect (round 4 retry)",
+      "country": "US",
+      "vertical": "grocery",
+      "homepage": "https://www.freshdirect.com",
+      "why": "Round 4: retry the PRD authenticity anchor now that search-API detection exists",
+      "home": {
+        "status": 0,
+        "final_url": "https://www.freshdirect.com",
+        "bytes": 0,
+        "error": "RemoteProtocolError: <StreamReset stream_id:3, error_code:2, remote_reset:True>",
+        "waf": []
+      },
+      "home_class": "blocked",
+      "search_api": {
+        "kind": null,
+        "endpoint": null,
+        "tried": [
+          {
+            "kind": "shopify",
+            "status": 0,
+            "valid": false
+          },
+          {
+            "kind": "magento-graphql",
+            "status": 0,
+            "valid": false
+          },
+          {
+            "kind": "woocommerce",
+            "status": 0,
+            "valid": false
+          }
+        ]
+      },
+      "robots": {
+        "fetched": false,
+        "sitemaps": [],
+        "disallow_star": [],
+        "allow_star": []
+      },
+      "discovery": {
+        "via": "none",
+        "categories_crawled": []
+      },
+      "sitemap": {
+        "tried": [
+          {
+            "url": "https://www.freshdirect.com/sitemap.xml",
+            "status": 0,
+            "bytes": 0
+          },
+          {
+            "url": "https://www.freshdirect.com/sitemap_index.xml",
+            "status": 0,
+            "bytes": 0
+          },
+          {
+            "url": "https://www.freshdirect.com/sitemap.txt",
+            "status": 0,
+            "bytes": 0
+          },
+          {
+            "url": "https://www.freshdirect.com/sitemap-index.xml",
+            "status": 0,
+            "bytes": 0
+          }
+        ],
+        "total_urls": 0,
+        "product_like_urls": 0
+      },
+      "basket": {},
+      "basket_coverage": 0,
+      "product_probes": [],
+      "verdict_class": "blocked",
+      "structural_class": "unknown",
+      "evidence_url": null,
+      "robots_allows_product": true,
+      "tier1": {
+        "calls": [
+          {
+            "url": "https://www.freshdirect.com",
+            "status": 200,
+            "bytes": 782583,
+            "role": "home"
+          },
+          {
+            "url": "https://www.freshdirect.com/dai/dai_yogur/sc/dai_yogur_grk/p/dai_fage_0_35oz",
+            "status": 200,
+            "bytes": 854218,
+            "role": "product"
+          },
+          {
+            "url": "https://www.freshdirect.com/section/sec_pcar_flash_savings",
+            "status": 200,
+            "bytes": 0,
+            "role": "product"
+          }
+        ],
+        "probes": [
+          {
+            "url": "https://www.freshdirect.com/dai/dai_yogur/sc/dai_yogur_grk/p/dai_fage_0_35oz",
+            "status": 200,
+            "bytes": 854218,
+            "class": "server_rendered",
+            "reason": "price present in raw HTML",
+            "signals": {
+              "jsonld_product": true,
+              "jsonld_price": true,
+              "microdata_price": false,
+              "meta_price": false,
+              "distinct_currency_strings": 32,
+              "embedded_state": true,
+              "api_paths": [],
+              "bytes": 854218
+            }
+          },
+          {
+            "url": "https://www.freshdirect.com/section/sec_pcar_flash_savings",
+            "status": 200,
+            "bytes": 0,
+            "class": "spa_empty",
+            "reason": "200 but no price in raw HTML",
+            "signals": {
+              "jsonld_product": false,
+              "jsonld_price": false,
+              "microdata_price": false,
+              "meta_price": false,
+              "distinct_currency_strings": 0,
+              "embedded_state": false,
+              "api_paths": [],
+              "bytes": 0
+            }
+          }
+        ],
+        "verdict_class": "server_rendered",
+        "structural_class": "json-ld",
+        "evidence_url": "https://www.freshdirect.com/dai/dai_yogur/sc/dai_yogur_grk/p/dai_fage_0_35oz"
+      }
+    },
+    {
+      "id": "us-bostonorganics",
+      "name": "Boston Organics",
+      "country": "US",
+      "vertical": "grocery",
+      "homepage": "https://www.bostonorganics.com",
+      "why": "Round 4: small independent delivery grocer, likely a simple stack",
+      "home": {
+        "status": 200,
+        "final_url": "https://bostonorganics.com/",
+        "bytes": 45493,
+        "error": null,
+        "waf": [
+          "cf-ray",
+          "server:cloudflare"
+        ]
+      },
+      "home_class": "spa_empty",
+      "search_api": {
+        "kind": null,
+        "endpoint": null,
+        "tried": [
+          {
+            "kind": "shopify",
+            "status": 200,
+            "valid": false
+          },
+          {
+            "kind": "magento-graphql",
+            "status": 404,
+            "valid": false
+          },
+          {
+            "kind": "woocommerce",
+            "status": 404,
+            "valid": false
+          }
+        ]
+      },
+      "robots": {
+        "fetched": true,
+        "sitemaps": [],
+        "disallow_star": [],
+        "allow_star": [
+          "/"
+        ]
+      },
+      "discovery": {
+        "via": "sitemap",
+        "categories_crawled": []
+      },
+      "sitemap": {
+        "tried": [
+          {
+            "url": "https://www.bostonorganics.com/sitemap.xml",
+            "status": 200,
+            "bytes": 296
+          },
+          {
+            "url": "https://bostonorganics.com/wp-sitemap-posts-page-1.xml",
+            "status": 200,
+            "bytes": 287,
+            "nested": true
+          }
+        ],
+        "total_urls": 1,
+        "product_like_urls": 0
+      },
+      "basket": {},
+      "basket_coverage": 0,
+      "product_probes": [],
+      "verdict_class": "no_product_urls",
+      "structural_class": "unknown",
+      "evidence_url": null,
+      "robots_allows_product": true,
+      "tier1": {
+        "calls": [
+          {
+            "url": "https://www.bostonorganics.com",
+            "status": 200,
+            "bytes": 45493,
+            "role": "home"
+          },
+          {
+            "url": "/robots.txt",
+            "status": 200,
+            "bytes": 1866,
+            "role": "robots"
+          },
+          {
+            "url": "https://www.bostonorganics.com/sitemap.xml",
+            "status": 200,
+            "bytes": 296,
+            "role": "sitemap"
+          },
+          {
+            "url": "https://bostonorganics.com/wp-sitemap-posts-page-1.xml",
+            "status": 200,
+            "bytes": 287,
+            "role": "sitemap"
+          },
+          {
+            "url": "https://www.bostonorganics.com/sitemap_index.xml",
+            "status": 200,
+            "bytes": 46066,
+            "role": "sitemap"
+          }
+        ],
+        "probes": [],
+        "verdict_class": "no_product_urls",
+        "note": "200 but no price in raw HTML"
+      }
+    }
+  ],
+  "harness_failures": [],
+  "budget": {
+    "cap_usd": 1.0,
+    "calls": 33,
+    "start_balance": 48.95,
+    "spent_usd": 0.07,
+    "ceiling_hit": false
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "_comment": "Hand-picked corrections where automated selection chose the wrong product. Slug and title matching cannot reliably tell a grocery staple from a lookalike, so these are curated. Merged over the automated picks by basket.py; each records why.",
+  "overrides": {
+    "ph-landers": {
+      "coffee": {
+        "url": "https://www.landers.ph/beverages/folgers-classic-roast-ground-coffee-1-23kg-119051-6581",
+        "name": "Folgers Classic Roast Ground Coffee 1.23kg",
+        "why": "Automation picked Binggrae Coffee Milk, a ready-to-drink beverage. Folgers ground is the closest analogue to the US 12oz ground-coffee basket item, and the same brand exists on both sides, which makes the cross-country comparison honest."
+      },
+      "chicken": {
+        "url": "https://www.landers.ph/rotisserie-meat-poultry-seafood/bounty-chicken-breast-approx-1-4kg-800776-7916",
+        "name": "Bounty Chicken Breast approx 1.4kg",
+        "why": "Automation picked frozen Ajinomoto Chicken Karaage, a prepared product. This is raw chicken breast sold by weight, matching the PRD basket item."
+      }
+    },
+    "ph-shopgaisano": {
+      "coffee": {
+        "url": "https://shopgaisano.com/products/nescafe-classic-tipid-pack-50g-1",
+        "name": "Nescafe Classic Tipid Pack 50g",
+        "why": "Automation picked Nescafe Original 200g at PHP 949.95, which works out to PHP 4,750/kg - roughly 4.5x every other instant coffee in the same catalogue, so it is almost certainly a case or a mispriced line. The Tipid Pack is the standard instant refill and the representative PH form named in items.json."
+      }
+    }
+  },
+  "not_available": {
+    "_comment": "Items a store genuinely does not stock, confirmed by hand. Recorded so nobody re-investigates, and so the index knows the gap is real rather than a scraper fault.",
+    "ph-shopgaisano": {
+      "chicken": "Searched its Shopify catalogue for chicken and whole chicken: only spreads, bouillon cubes, canned Progresso soup and dog treats. No raw or fresh chicken is sold online."
+    }
+  }
+}
