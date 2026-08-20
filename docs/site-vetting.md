@@ -2,14 +2,14 @@
 title: Site vetting — the browser pass over the registry
 tags: [hackathon, vetting]
 created: 2026-08-20
-status: reconciled against spencer-exploration/registry.json
+status: reconciled against lab/spencer-exploration/registry.json
 ---
 
 # Site vetting: the browser pass
 
 **This document is not the fleet decision.** The fleet is
-`spencer-exploration/fleet.lock.json`, scored from
-`spencer-exploration/registry.json` (163 candidates, 32 fleet-ready, PH gate
+`lab/spencer-exploration/fleet.lock.json`, scored from
+`lab/spencer-exploration/registry.json` (163 candidates, 32 fleet-ready, PH gate
 passed with 9). This is a second, independent pass run in a real browser over
 19 of those candidates, and it exists to answer one question the registry
 cannot: what is on the sites its collectors never actually reached.
@@ -134,7 +134,7 @@ Recorded so the next reader weights the table correctly.
 ## Unlocker probes (five calls)
 
 Balance was $52.00 before and after with no pending charge. Saved HTML is in
-`edjin-exploration/raw/`.
+`lab/edjin-exploration/raw/`.
 
 | Site | Call | Outcome |
 |---|---|---|
@@ -153,7 +153,7 @@ content.
 
 ## Reproduce
 
-From `edjin-exploration/`:
+From `lab/edjin-exploration/`:
 
 ```sh
 npm install
@@ -162,9 +162,9 @@ node vet.mjs --only=Landers     # one site
 node vet.mjs --rescore          # recompute verdicts from vet.json, no network
 ```
 
-Results are committed in `edjin-exploration/vet.json`, with the per-site
+Results are committed in `lab/edjin-exploration/vet.json`, with the per-site
 staple URLs in `vet-seed.md`. Saved Unlocker HTML is in
-`edjin-exploration/raw/`, which is gitignored. The browser runs headed by
+`lab/edjin-exploration/raw/`, which is gitignored. The browser runs headed by
 default, because headless tripped a Cloudflare challenge on Landers that a
 headed window did not; `--headless` opts back in.
 

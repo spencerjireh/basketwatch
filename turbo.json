@@ -1,0 +1,42 @@
+{
+  "$schema": "https://turborepo.com/schema.json",
+  "ui": "tui",
+  "globalDependencies": [".npmrc", "pnpm-workspace.yaml"],
+  "globalEnv": ["NODE_ENV"],
+  "globalPassThroughEnv": ["CI", "TURBO_TOKEN"],
+  "tasks": {
+    "build": {
+      "dependsOn": ["^build"],
+      "inputs": ["$TURBO_DEFAULT$", "!**/*.test.ts", "!**/*.test.tsx", "!**/*.md"],
+      "outputs": ["dist/**", ".next/**", "!.next/cache/**"],
+      "env": ["API_INTERNAL_URL", "NEXT_PUBLIC_*"]
+    },
+    "typecheck": {
+      "dependsOn": ["^build"],
+      "outputs": []
+    },
+    "lint": {
+      "dependsOn": ["^build"],
+      "outputs": []
+    },
+    "test": {
+      "dependsOn": ["^build"],
+      "outputs": []
+    },
+    "dev": {
+      "dependsOn": ["^build"],
+      "cache": false,
+      "persistent": true,
+      // Turbo 2 runs tasks in strict env mode, so anything not declared here is
+      // stripped before the task sees it. Without this list an inline
+      // DATABASE_URL never reaches the API, which then silently falls back to
+      // the repo-root .env -- and that points at production.
+      "passThroughEnv": ["DATABASE_URL", "PORT", "LOG_LEVEL", "API_INTERNAL_URL"]
+    },
+    "db:generate": { "cache": false },
+    "db:migrate": { "cache": false },
+    "db:check": { "cache": false },
+    "db:studio": { "cache": false, "persistent": true },
+    "clean": { "cache": false }
+  }
+}
