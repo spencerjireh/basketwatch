@@ -193,6 +193,42 @@ async def create_collector(entry: dict, cfg: dict, desc: str) -> dict:
             "description_sha": description_sha(desc), "status": "created"}
 
 
+async def canary(collector_id: str, url: str, out_path: Path) -> dict:
+    """One URL, synchronously, to decide whether a collector may enter the fleet.
+
+    --sync is single-URL only and server-capped at 25-50s, which makes it useless for a
+    catalogue pull and exactly right for this. A collector stays 'pending' until it
+    passes, so an unproven collector can never quietly become the source of record.
+    """
+    code, out, err = await _cli(
+        ["scraper", "run", collector_id, url, "--sync", "--json", "-o", str(out_path)],
+        deadline=SYNC_TIMEOUT + 60)
+    if not out_path.exists():
+        raise StudioError(f"canary failed ({code}): {err.strip()[-200:]}")
+    data = json.loads(out_path.read_text())
+    rows = data if isinstance(data, list) else data.get("data") or [data]
+    if not rows:
+        raise StudioEmpty("canary returned no rows")
+    return rows[0]
+
+
+def canary_verdict(raw: dict, host: str) -> tuple[bool, str]:
+    """What a usable row has to look like. The failure modes here are all observed.
+
+    The hostname-as-name case is the one that matters: a client-rendered page scraped
+    before it paints yields the site name and no price, and it raises no error at all.
+    """
+    name = (raw.get("name") or raw.get("title") or "").strip()
+    price = coerce_price(raw.get("price"))
+    if not name:
+        return False, "no name"
+    if host and name.lower().strip("/") in {host.lower(), f"www.{host.lower()}"}:
+        return False, f"name is the hostname ({name}) - page not rendered before extract"
+    if price is None:
+        return False, f"no usable price (got {raw.get('price')!r})"
+    return True, f"{name[:40]} @ {price}"
+
+
 async def run_batch(collector_id: str, urls: list[str], out_path: Path,
                     attempts: int = BATCH_ATTEMPTS) -> list[dict]:
     """Run one collector over a bounded URL list and read the rows back from a file.
@@ -327,6 +363,8 @@ async def main() -> int:
     ap.add_argument("--force", nargs="*", default=[],
                     help="recreate these store ids even if a collector exists")
     ap.add_argument("--create", action="store_true", help="actually create collectors")
+    ap.add_argument("--verify", action="store_true",
+                    help="canary each created collector and promote the ones that pass")
     args = ap.parse_args()
 
     lock = json.loads((HERE / "fleet.lock.json").read_text())
@@ -346,6 +384,33 @@ async def main() -> int:
             mark = "have" if have and not needs_creation(reg, e["id"], desc, False) else "CREATE"
             print(f"  {e['id']:<24} {seed_kind(cfg):<13} {len(desc):>3} chars  {mark}")
         print("\ndry run - nothing created. Re-run with --create to spend credits.")
+        return 0
+
+    if args.verify:
+        reg = load_registry()
+        by_id = {e["id"]: e for e in fleet}
+        for sid, rec in reg["collectors"].items():
+            if sid not in by_id or not rec.get("collector_id"):
+                continue
+            if rec.get("status") == "ready":
+                print(f"  {sid:<24} already ready", flush=True)
+                continue
+            seed = rec.get("seed_url") or by_id[sid]["catalogue"]["studio"]["seed_url"]
+            host = urlparse(seed).netloc
+            out = HERE / "catalogue" / f"{sid}.canary.json"
+            try:
+                raw = await canary(rec["collector_id"], seed, out)
+            except StudioError as exc:
+                rec["status"] = "failed"
+                rec["canary_error"] = str(exc)[:200]
+                save_registry(reg)
+                print(f"  {sid:<24} FAILED {exc}"[:150], flush=True)
+                continue
+            ok, why = canary_verdict(raw, host)
+            rec["status"] = "ready" if ok else "born_broken"
+            rec["verified"] = {"at": None, "ok": ok, "detail": why}
+            save_registry(reg)
+            print(f"  {sid:<24} {'READY' if ok else 'BORN BROKEN'}  {why}"[:150], flush=True)
         return 0
 
     reg["cli_version"] = await cli_version()

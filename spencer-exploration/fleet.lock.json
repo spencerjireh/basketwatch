@@ -169,9 +169,10 @@
         "studio": {
           "template": "product-page",
           "seed_url": "https://www.landers.ph/anti-hoarding-and-anti-panic-buying-list/baguio-canola-oil-1-5l-115977-6990",
-          "status": "ready",
+          "status": "partial",
           "max_urls": 300,
-          "cost_class": "browser_page"
+          "cost_class": "browser_page",
+          "note": "Two heals. Yields roughly 1 usable row per 10 URLs on /food-cupboard/, 4 of 5 on /anti-hoarding-and-anti-panic-buying-list/. Still strictly better than the 0 rows HTTP produces, and the only access path this store has."
         }
       }
     },
