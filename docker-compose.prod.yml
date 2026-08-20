@@ -58,7 +58,7 @@ services:
   api:
     profiles: ["app"]
     build:
-      context: ./basketwatch
+      context: .
       dockerfile: apps/api/Dockerfile
     restart: unless-stopped
     environment:
@@ -97,7 +97,7 @@ services:
   web:
     profiles: ["app"]
     build:
-      context: ./basketwatch
+      context: .
       dockerfile: apps/web/Dockerfile
       args:
         # Build-time, not runtime. Next evaluates rewrites() during `next build`
