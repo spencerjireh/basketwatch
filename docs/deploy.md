@@ -43,6 +43,29 @@ means no CORS config. The Bright Data webhook target is therefore
 `*.spencerjireh.com` record and certificate does not cover a two-level name
 like `store.basketwatch.spencerjireh.com`.
 
+### Why Postgres listens on 55432 inside the container too
+
+The VPS carries a `DOCKER-USER` rule that drops external traffic to container
+port 5432:
+
+```
+-A DOCKER-USER ! -s 10.0.0.0/8 -p tcp -m tcp --dport 5432 -j DROP
+```
+
+It protects every Postgres container on the box, including another Coolify
+database. Docker DNATs a published port *before* the FORWARD chain runs, so a
+`55432:5432` mapping is still matched on the container-side port and dropped —
+publishing on a non-standard host port does not dodge it.
+
+So Postgres runs with `-p 55432` and the mapping is `55432:55432`. The rule
+never matches, the firewall is untouched, every other database stays protected,
+and the whole thing is declared in the repo instead of living in a root shell's
+in-memory rule set.
+
+The consequence to remember: inside the compose network the database is
+`postgres:55432`, not `postgres:5432`. The `api` service's `DATABASE_URL`
+already says so.
+
 ### Why Postgres uses the raw IP
 
 `*.spencerjireh.com` is an A record to `152.53.136.253` with the Cloudflare
@@ -62,8 +85,13 @@ connection strings here and in `scrape-verse/.env.example`.
 ### 1. Generate the database password
 
 ```sh
-openssl rand -base64 32
+openssl rand -hex 32
 ```
+
+Hex, not base64. Base64 emits `+`, `/`, and `=`, all of which need
+percent-encoding inside a `postgres://user:pass@host` string — and the failure
+looks exactly like a wrong password. 32 bytes of hex is 256 bits with nothing
+to escape.
 
 Keep it in a password manager. It goes into the Coolify env and nowhere else —
 never into `.env.example`, a commit, or the demo video.
@@ -92,15 +120,19 @@ Environment variables:
 
 Then deploy.
 
-### 3. Open the port on the host
+### 3. Confirm the port is reachable
 
-Publishing `55432` in compose only opens it as far as the Docker host. If the
-VPS runs a firewall or sits behind a cloud security group, the port has to be
-allowed there too, or connections from outside will simply hang with nothing
-useful in any log.
+Checked on Aug 20 and **no change was needed**: the VPS runs no `ufw`, its
+`iptables` INPUT policy is `ACCEPT` with only a fail2ban rule on port 22, and
+there is no cloud security group in front of it — ports 8000 and 22000 were
+both reachable from outside during testing. The only thing that ever blocked
+`55432` was the `DOCKER-USER` rule described above, which the internal-port
+change sidesteps.
+
+Re-check with this if a connection ever hangs:
 
 ```sh
-sudo ufw allow 55432/tcp    # if the VPS uses ufw
+ssh vps 'iptables -S DOCKER-USER; iptables -S INPUT'
 ```
 
 Confirm from a machine that is not the VPS:
