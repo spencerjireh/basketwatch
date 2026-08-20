@@ -6,11 +6,11 @@ Browser-based site vetting, and the evidence behind
 This is the counterpart to `spencer-exploration/`, and it exists for the same
 reason: exploration produces a lot of throwaway scripts and a little durable
 evidence, and mixing either into the product tree is how the product tree
-rots. Nothing here is imported by `scrape-verse/`, and its one dependency,
+rots. Nothing here is imported by `basketwatch/`, and its one dependency,
 `playwright-core`, is installed here rather than in the product workspace.
 
 The one exception is deliberate: the credit guard lives at
-`scrape-verse/scripts/bd.mjs`, not here, because `AGENTS.md` mandates it for
+`scripts/bd.mjs`, not here, because `AGENTS.md` mandates it for
 every Bright Data call anywhere in the repo and the heal orchestrator will
 enforce the same caps in Phase 3. It is tooling, not exploration.
 

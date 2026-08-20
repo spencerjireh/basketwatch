@@ -2,12 +2,21 @@
 title: Architecture (HLD)
 tags: [hackathon, hld]
 created: 2026-08-15
+updated: 2026-08-20
 status: v1
 ---
 
 # HLD: Self-Healing Price Tracker ("Into the Scrape-Verse" 2026)
 
-Status: draft v1 for team review. Aug 15, 2026.
+Status: draft v1 for team review, Aug 15, 2026, amended Aug 20 where the build
+diverged from it. The shape held; three things changed in the detail:
+
+- **The dashboard is Next.js**, not a Vite SPA, and nginx is gone with it
+  (section 3.4 and 3.6).
+- **PH is in scope** — the gate passed Aug 19 (section 2).
+- **The app lives in `basketwatch/`**, on pnpm + Turborepo. The clone store was
+  deleted in that rebuild and is pending; section 3.5 describes what it will be,
+  not what exists today.
 Companions: [hackathon-brief](hackathon-brief.md) (rules, judging, experiment
 findings) and [prd](prd.md) (confirmed scope).
 Diagrams are inline mermaid below; exported PNGs and `.mmd` sources live in
@@ -36,7 +45,9 @@ Goals
 
 Non-goals (explicitly out)
 - User accounts / auth of any kind.
-- Philippines site coverage.
+- ~~Philippines site coverage.~~ **Superseded.** The PRD (Aug 18) made country
+  a first-class dimension rather than a feature, and the PH gate passed on
+  Aug 19 with nine fleet-ready sites. PH is in scope.
 - Human approval gates in the heal loop (auto-approve with audit instead).
 - Scraping anything login-walled, paywalled, or private (hackathon rule).
 
@@ -268,20 +279,31 @@ here for readability).
 Drizzle ORM + migrations. Raw run payloads kept (jsonb) so incidents can be
 replayed/re-validated during development.
 
-### 3.4 Dashboard (React + Vite + Tailwind + shadcn/ui, Recharts)
+### 3.4 Dashboard (Next.js App Router + Tailwind + Recharts)
 - **Public**: basket index line (the hero chart — gaps visualize breakage,
   heals close the line), per-product store comparison, price-drop feed.
 - **Ops ("web" view)**: fleet health board (state machine per scraper),
   incident timeline, heal audit viewer showing evidence -> prompt -> Studio
   diff -> verdict, credit spend meter.
-- SPA + REST is enough; SSE for live run status if time allows.
+- Server components fetch on first paint; only the live feed and fleet board
+  open an EventSource. No component library: the primitives are hand-built, and
+  the heal audit uses the native `<dialog>` element for focus trapping and
+  escape-to-close.
+- The dashboard is a **pure client of the API** and never touches Postgres. A
+  lint rule makes that structural rather than aspirational.
 
-### 3.5 Clone store ("chaos target")
+### 3.5 Clone store ("chaos target") — pending rebuild
 Static store page (10 basket products) served on a subdomain of the VPS with
 `?layout=b` / env-flag mutation: renames CSS classes, moves price into a
 nested span, switches price format. Purpose: scripted, guaranteed
 break-and-heal demo moment + integration-test target during development.
 Disclosed as a test target in the submission.
+
+**Not built, and deliberately last.** The first implementation was deleted with
+the old app on Aug 20. The description above is the target, not the state.
+Team decision Aug 20: it stays the required demo centrepiece and is rebuilt
+after the read path, ingest and the heal loop — a chaos target is only
+demonstrable once there is an engine to break. See PRD decision 5.
 
 ### 3.6 Deployment
 Coolify VPS. **`docker-compose.prod.yml` at the repo root is the deployment
@@ -293,11 +315,16 @@ Resend, Telegram token, webhook secret) via Coolify env vars. Full runbook in
 [deploy.md](deploy.md).
 
 Domains: `basketwatch.spencerjireh.com` serves the dashboard, and the API sits
-behind it same-origin at `/api/` (the web container's nginx proxies `/api/` to
-`api:3001` and strips the prefix), so the API needs no host of its own and the
-Bright Data webhook target is
-`https://basketwatch.spencerjireh.com/api/ingest/<scraper>`. The clone store
-gets `parkers-pantry.spencerjireh.com`.
+behind it same-origin at `/api/`. The API sets a global `api` prefix with no
+exclusions and the Next.js server rewrites `/api/:path*` through **without
+stripping**, so the path is identical from browser to container, the API needs
+no host of its own, and the Bright Data webhook target is
+`https://basketwatch.spencerjireh.com/api/ingest/<scraper>`.
+
+Two consequences of replacing nginx with the Next server: the web container
+listens on **3000**, not 80, and `API_INTERNAL_URL` is a **build argument** --
+Next evaluates `rewrites()` during `next build` and bakes the result into its
+routes manifest, so setting it at runtime does nothing.
 
 Postgres is the exception to "internal-only": it is published on host port
 `55432` so the team can write scraped data into it directly from their
@@ -331,11 +358,11 @@ flowchart TB
     subgraph COOLIFY["Coolify VPS (Docker)"]
         PROXY["Reverse proxy + TLS<br/>(Coolify-managed)"]
         subgraph APP["app stack (docker compose)"]
-            WEB["dashboard<br/>React SPA"]
+            WEB["dashboard<br/>Next.js :3000"]
             APIC["orchestrator-api<br/>NestJS + pg-boss"]
             PG[("postgres 16<br/>volume-backed")]
         end
-        CLONE["clone-store<br/>static site + mutation flag<br/>(separate subdomain)"]
+        CLONE["clone-store<br/>static site + mutation flag<br/>(pending rebuild)"]
     end
 
     JUDGE -->|https| PROXY
@@ -353,7 +380,9 @@ flowchart TB
     TEAM -->|"postgres :55432<br/>(direct to VPS IP,<br/>bypasses Cloudflare)"| PG
 ```
 
-Source: `diagrams/deployment.mmd`.
+Source: `diagrams/deployment.mmd`. The exported PNGs beside the `.mmd` sources
+still show the pre-rebuild topology; the inline mermaid above is current, and
+the PNGs need re-exporting before they are used in the submission.
 
 ## 4. External interfaces
 
@@ -385,6 +414,24 @@ API contract (defined day 1).
 | Fri 22 | Demo video, README, Scraper Studio usage writeup, submission draft |
 | Sat 23 | Buffer + submit |
 
+**Where this actually stands, Aug 20.** The week went differently: Mon to Wed
+went on site vetting (163 candidates scored, 32 fleet-ready), the catalogue
+migration into Postgres, and then the rebuild into `basketwatch/`. Against the
+table above:
+
+| Planned | Actual |
+|---|---|
+| Sun 17 — scaffold, schema, ingest storing runs | Scaffold and schema done. **Ingest does not persist**; it validates and returns. |
+| Mon 18 — validator, 4+ scrapers, baselines forming | Validator done and tested. Four Studio collectors exist from vetting, but the fleet is not on a schedule and **no baselines exist**. |
+| Tue 19 — heal orchestrator end-to-end | **Not started.** The day went to PH vetting, which passed the gate. |
+| Wed 20 — dashboard core, notifier | Dashboard core done, on fixtures. **Notifier not started.** Day also absorbed the rebuild. |
+
+So three planned days are outstanding with three days left, and they are the
+three that depend on each other: ingest -> validator -> heal. The critical path
+is now a single item — an endpoint and a writer that touch the database. Until
+that lands, the price history that the definition of done wants "4+ days" of
+has not started accumulating.
+
 ## 7. Risks
 
 | Risk | Impact | Mitigation |
@@ -404,5 +451,5 @@ API contract (defined day 1).
    chicken, oil, pasta, bananas)? Adjust freely.
 3. Names: engine codename + product name (Spider-Man theming encouraged by
    the tracks). Decide with framing on Thu, but a repo name is needed Sun.
-4. Next.js vs Vite SPA for the dashboard — either fine on Coolify; default
-   is Vite SPA unless someone feels strongly.
+4. ~~Next.js vs Vite SPA for the dashboard~~ — resolved Aug 20: Next.js App
+   Router, in the basketwatch rebuild.

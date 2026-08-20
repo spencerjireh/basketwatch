@@ -1,12 +1,12 @@
 # Handoff: what exploration decided that the app has to absorb
 
-Exploration deliberately stops at the repo boundary. Nothing under `scrape-verse/`
+Exploration deliberately stops at the repo boundary. Nothing under `basketwatch/`
 was touched. This file states the changes the app needs and why, so whoever picks it
 up is not reverse-engineering intent from JSON.
 
 ## 1. The output contract needs size and unit price
 
-`priceRecordSchema` in `scrape-verse/packages/shared/src/index.ts` currently carries
+`priceRecordSchema` in `basketwatch/packages/contract/src/ingest.ts` currently carries
 `unit` as free text - "500g", "16 oz. Loaf.", "5kg". That is enough to display and
 useless to compare.
 
