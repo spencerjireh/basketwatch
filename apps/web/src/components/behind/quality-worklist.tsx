@@ -30,17 +30,14 @@ export function QualityWorklist({ rails }: { rails: Rail[] }) {
   return (
     <div className="flex flex-col gap-6">
       <section>
-        <h3 className="font-mono text-[10px] uppercase tracking-[0.14em] text-mute">
+        <h3 className="caps">
           {flagged.length} pin{flagged.length === 1 ? "" : "s"} flagged
         </h3>
-        <ul className="mt-2.5 flex flex-col gap-1.5">
+        <ul className="mt-2.5 flex flex-col">
           {flagged.map(({ rail, pin }) => (
             <li
               key={`${rail.country}:${rail.itemKey}:${pin.storeId}`}
-              className={cn(
-                "shelf-edge px-3 py-2.5",
-                pin.flag === "suspect" ? "border-l-broken" : "border-l-drift",
-              )}
+              className="border-b border-line py-2.5 last:border-b-0"
             >
               <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
                 <span className="font-mono text-[10.5px] uppercase tracking-[0.1em]">
@@ -76,24 +73,21 @@ export function QualityWorklist({ rails }: { rails: Rail[] }) {
 
       {thin.length > 0 ? (
         <section>
-          <h3 className="font-mono text-[10px] uppercase tracking-[0.14em] text-mute">
+          <h3 className="caps">
             {thin.length} item{thin.length === 1 ? "" : "s"} with too few pins to compare
           </h3>
           <p className="mt-1.5 text-[12.5px] text-mute">
             The outlier rule needs three priced pins to have a median worth measuring against.
             Below that it never fires, so these are unchecked rather than clean.
           </p>
-          <ul className="mt-2 flex flex-wrap gap-1.5">
-            {thin.map((rail) => (
-              <li
-                key={`${rail.country}:${rail.itemKey}`}
-                className="rounded border border-line px-2 py-0.5 font-mono text-[10.5px] text-mute"
-              >
-                {rail.itemKey.replace(/_/g, " ")} · {rail.country} ·{" "}
-                {rail.pins.filter((p) => p.unitPrice).length} priced
-              </li>
-            ))}
-          </ul>
+          <p className="mt-2 font-mono text-[10.5px] text-mute">
+            {thin
+              .map(
+                (rail) =>
+                  `${rail.itemKey.replace(/_/g, " ")} (${rail.country}, ${rail.pins.filter((p) => p.unitPrice).length} priced)`,
+              )
+              .join(" · ")}
+          </p>
         </section>
       ) : null}
     </div>

@@ -12,8 +12,7 @@ import { QualityWorklist } from "@/components/behind/quality-worklist";
 import { EventFeed } from "@/components/feed/event-feed";
 import { FleetBoard } from "@/components/fleet/fleet-board";
 import { AuditDialog } from "@/components/incident/audit-dialog";
-import { Panel } from "@/components/ui/panel";
-import { Pill } from "@/components/ui/pill";
+import { Section } from "@/components/ui/section";
 import { formatMoney } from "@/lib/format";
 
 /**
@@ -21,7 +20,7 @@ import { formatMoney } from "@/lib/format";
  * and whoever is deciding whether to believe the front page.
  *
  * Client-side because the audit dialog is shared state across the fleet board
- * and the activity feed -- both open the same receipt. The data still arrives
+ * and the activity feed -- both open the same audit. The data still arrives
  * from a server component above, so first paint is server-rendered.
  */
 export function BehindBoard({
@@ -51,36 +50,32 @@ export function BehindBoard({
 
   return (
     <>
-      <div className="flex flex-wrap gap-2">
-        <Pill className="text-live">
-          <span className="size-1.5 rounded-full bg-live" aria-hidden />
-          {healthy} healthy
-        </Pill>
+      {/* The state of the world in one sentence, colour on the words only. */}
+      <p className="font-mono text-[12px]">
+        <span className="text-live">{healthy} healthy</span>
         {attention > 0 ? (
-          <Pill className="text-drift">
-            <span className="size-1.5 rounded-full bg-drift" aria-hidden />
-            {attention} need attention
-          </Pill>
+          <>
+            {" · "}
+            <span className="text-drift">{attention} need attention</span>
+          </>
         ) : null}
-        <Pill className="text-mute">
+        {" · "}
+        <span className="text-mute">
           {formatMoney(budget.spentToday.amount, budget.spentToday.currency)} of{" "}
           {formatMoney(budget.dailyCeiling.amount, budget.dailyCeiling.currency)} spent today
-        </Pill>
-      </div>
+        </span>
+      </p>
 
-      <div className="mt-5 grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
-        <Panel
+      <div className="mt-8 grid grid-cols-1 gap-x-16 gap-y-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+        <Section
           title="Live"
-          caption="One strip per store, coloured by state. A store is not a scraper: most are pulled over plain HTTP and have no collector."
+          caption="One row per store, coloured by state. A store is not a scraper: most are pulled over plain HTTP and have no collector."
         >
           <FleetBoard fleet={fleet} onOpenIncident={setOpenIncidentId} />
-        </Panel>
+        </Section>
 
-        <div className="flex flex-col gap-4">
-          <Panel
-            title="Provenance"
-            caption="Where the numbers on the front page come from."
-          >
+        <div className="flex flex-col gap-10">
+          <Section title="Provenance" caption="Where the numbers on the front page come from.">
             <dl className="flex flex-col gap-3 text-[13px]">
               <Fact term={`${contributing} stores`}>
                 Each publishes its own catalogue. Fifteen are read over plain HTTP and cost nothing
@@ -100,22 +95,22 @@ export function BehindBoard({
                 instead of interpolating across it.
               </Fact>
             </dl>
-          </Panel>
+          </Section>
 
-          <Panel title="Activity" caption="Runs, incidents and alerts, newest first.">
+          <Section title="Activity" caption="Runs, incidents and alerts, newest first.">
             <EventFeed events={feed} onOpenIncident={setOpenIncidentId} />
-          </Panel>
+          </Section>
         </div>
 
-        <Panel
+        <Section
           title="Data quality"
           caption="The pins we do not fully believe, and what is wrong with each one."
           className="lg:col-span-2"
         >
           <QualityWorklist rails={rails} />
-        </Panel>
+        </Section>
 
-        <Panel
+        <Section
           title="Healing"
           caption="Incident, attempt, canary, receipt."
           className="lg:col-span-2"
@@ -124,22 +119,24 @@ export function BehindBoard({
             <p className="text-[13px] text-mute">No incidents recorded.</p>
           ) : (
             <div>
-              <p className="text-[13px] text-mute">
+              <p className="max-w-[72ch] text-[13px] text-mute">
                 {incidents.length} incident{incidents.length === 1 ? "" : "s"} on record. Automatic
                 repair is not wired up yet, so nothing here has been healed without a person — and
                 the board says so rather than showing an empty timeline that implies it did.
               </p>
-              <ul className="mt-3 flex flex-col gap-1.5">
+              <ul className="mt-3 flex flex-col">
                 {incidents.map((incident) => (
                   <li
                     key={incident.id}
-                    className="shelf-edge flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1 border-l-broken px-3 py-2.5"
+                    className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1 border-b border-line py-2.5 last:border-b-0"
                   >
-                    <span className="min-w-0 flex-1 truncate text-[13px]">{incident.summary}</span>
+                    <span className="min-w-0 flex-1 truncate text-[13px]">
+                      <span className="text-broken">broken</span> · {incident.summary}
+                    </span>
                     <button
                       type="button"
                       onClick={() => setOpenIncidentId(incident.id)}
-                      className="rounded border border-line px-2 py-0.5 font-mono text-[10px] text-mute transition-colors hover:border-heal/40 hover:text-heal"
+                      className="font-mono text-[11px] text-mute underline decoration-1 underline-offset-4 transition-colors hover:text-heal"
                     >
                       open audit
                     </button>
@@ -148,7 +145,7 @@ export function BehindBoard({
               </ul>
             </div>
           )}
-        </Panel>
+        </Section>
       </div>
 
       <AuditDialog incident={openIncident} onClose={() => setOpenIncidentId(null)} />
@@ -159,7 +156,7 @@ export function BehindBoard({
 function Fact({ term, children }: { term: string; children: React.ReactNode }) {
   return (
     <div>
-      <dt className="font-mono text-[11px] uppercase tracking-[0.1em]">{term}</dt>
+      <dt className="caps text-ink">{term}</dt>
       <dd className="mt-0.5 text-mute">{children}</dd>
     </div>
   );
