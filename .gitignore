@@ -9,6 +9,7 @@ dist/
 __pycache__/
 .venv/
 scratch/
+docker-compose.local.yml
 .playwright-mcp/
 .DS_Store
 *.log

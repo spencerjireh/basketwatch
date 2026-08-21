@@ -13,6 +13,7 @@ type FleetRow = {
   last_run_at: string | null;
   last_run_rows: number | null;
   last_run_status: string | null;
+  last_run_null_rate_pct: string | null;
   incident_id: string | null;
   incident_state: string | null;
   heals_today: string;
@@ -42,12 +43,13 @@ export class FleetRepository {
         r.at as last_run_at,
         r.rows as last_run_rows,
         r.status as last_run_status,
+        r.null_rate_pct::text as last_run_null_rate_pct,
         inc.id::text as incident_id,
         inc.state as incident_state,
         coalesce(heals.n, 0)::text as heals_today
       from stores s
       left join lateral (
-        select at, rows, status from runs
+        select at, rows, status, null_rate_pct from runs
         where runs.store_id = s.store_id
         order by at desc limit 1
       ) r on true
@@ -78,10 +80,9 @@ export class FleetRepository {
           status,
           lastRunAt: row.last_run_at === null ? null : new Date(row.last_run_at).toISOString(),
           lastRunRows: row.last_run_rows ?? 0,
-          // No column, and nothing computes it yet: the validator owns null
-          // rates and has not run against a stored run. Reporting 0 is a
-          // placeholder, but inventing a plausible percentage would be worse.
-          nullRatePct: 0,
+          nullRatePct: row.last_run_null_rate_pct
+            ? Number.parseFloat(row.last_run_null_rate_pct)
+            : 0,
           healsToday: Number(row.heals_today),
           openIncidentId: status === "healthy" ? null : row.incident_id,
         } satisfies FleetScraper,

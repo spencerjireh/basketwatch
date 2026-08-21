@@ -7,6 +7,8 @@ import {
 import {
   type CheckResult,
   type HealDecisionResponse,
+  type HealDiff,
+  type HealPreviewPromptResponse,
   type HealTriggerBody,
   type HealTriggerResponse,
   type IncidentEvidence,
@@ -25,6 +27,18 @@ export class HealOrchestrator {
     private readonly studio: StudioClient,
     private readonly repository: HealRepository,
   ) {}
+
+  // -----------------------------------------------------------------------
+  // Preview prompt
+  // -----------------------------------------------------------------------
+
+  async previewPrompt(scraperId: string): Promise<HealPreviewPromptResponse> {
+    const scraper = await this.repository.findScraperWithStore(scraperId);
+    if (!scraper) throw new NotFoundException(`Scraper ${scraperId} not found.`);
+
+    const { prompt, findings } = await this.resolvePrompt(scraperId, {});
+    return { scraperId, prompt, findings };
+  }
 
   // -----------------------------------------------------------------------
   // Trigger
@@ -67,6 +81,7 @@ export class HealOrchestrator {
     let status: HealTriggerResponse["status"] = "error";
     let previewResult: unknown[] | null = null;
     let diffSummary: string | null = null;
+    let diff: HealDiff = null;
 
     try {
       const progress = await this.studio.proposeHeal(scraperId, prompt);
@@ -75,6 +90,7 @@ export class HealOrchestrator {
         status = "pending_answer";
         previewResult = progress.previewResult;
         diffSummary = progress.diff?.title ?? null;
+        diff = progress.diff as HealDiff ?? null;
 
         const hasChanges =
           progress.diff?.template_a !== undefined &&
@@ -99,6 +115,7 @@ export class HealOrchestrator {
 
     if (status !== "pending_answer") {
       await this.repository.finishAttempt(attemptId, "failed", null, null);
+      await this.repository.reopenIncident(incidentId);
     }
 
     return {
@@ -111,6 +128,7 @@ export class HealOrchestrator {
       status,
       previewResult,
       diffSummary,
+      diff,
       durationMs: Date.now() - startedAt,
     };
   }
@@ -161,6 +179,7 @@ export class HealOrchestrator {
     }
 
     await this.repository.finishAttempt(pending.attemptId, "rejected", null, null);
+    await this.repository.reopenIncident(pending.incidentId);
 
     this.logger.log(`${scraperId}: heal rejected (attempt ${pending.attemptId})`);
     return {

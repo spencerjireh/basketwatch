@@ -28,7 +28,8 @@ RUN pnpm turbo run build --filter=@basketwatch/web
 
 # ---- runtime: Next standalone. No pnpm here, and no node_modules copy. ----
 FROM node:24-alpine AS runner
-ENV NODE_ENV=production PORT=3000 HOSTNAME=0.0.0.0 NEXT_TELEMETRY_DISABLED=1
+ARG API_INTERNAL_URL=http://api:3001
+ENV NODE_ENV=production PORT=3000 HOSTNAME=0.0.0.0 NEXT_TELEMETRY_DISABLED=1 API_INTERNAL_URL=$API_INTERNAL_URL
 WORKDIR /app
 RUN addgroup -S app && adduser -S app -G app
 # output: "standalone" plus outputFileTracingRoot at the monorepo root emits a

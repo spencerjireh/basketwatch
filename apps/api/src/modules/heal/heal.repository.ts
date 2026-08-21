@@ -165,6 +165,14 @@ export class HealRepository {
     `);
   }
 
+  /** Revert an incident from 'healing' back to 'open' (e.g. after a failed attempt). */
+  async reopenIncident(incidentId: string): Promise<void> {
+    await this.db.execute(sql`
+      update incidents set state = 'open'
+      where id = ${incidentId}::uuid and state = 'healing'
+    `);
+  }
+
   /** Count of previous attempts on this incident (for the attempt number). */
   async attemptCount(incidentId: string): Promise<number> {
     const rows = (await this.db.execute(sql`

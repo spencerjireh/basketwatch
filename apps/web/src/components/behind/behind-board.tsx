@@ -11,6 +11,7 @@ import type {
 import { QualityWorklist } from "@/components/behind/quality-worklist";
 import { EventFeed } from "@/components/feed/event-feed";
 import { FleetBoard } from "@/components/fleet/fleet-board";
+import { HealDialog } from "@/components/fleet/heal-dialog";
 import { AuditDialog } from "@/components/incident/audit-dialog";
 import { Section } from "@/components/ui/section";
 import { formatMoney } from "@/lib/format";
@@ -43,6 +44,7 @@ export function BehindBoard({
     () => incidents.find((incident) => incident.id === openIncidentId) ?? null,
     [incidents, openIncidentId],
   );
+  const [healTarget, setHealTarget] = useState<FleetScraper | null>(null);
 
   const healthy = fleet.filter((s) => s.status === "healthy").length;
   const attention = fleet.length - healthy;
@@ -71,7 +73,7 @@ export function BehindBoard({
           title="Live"
           caption="One row per store, coloured by state. A store is not a scraper: most are pulled over plain HTTP and have no collector."
         >
-          <FleetBoard fleet={fleet} onOpenIncident={setOpenIncidentId} />
+          <FleetBoard fleet={fleet} onOpenIncident={setOpenIncidentId} onHeal={setHealTarget} />
         </Section>
 
         <div className="flex flex-col gap-10">
@@ -149,6 +151,14 @@ export function BehindBoard({
       </div>
 
       <AuditDialog incident={openIncident} onClose={() => setOpenIncidentId(null)} />
+      {healTarget?.collectorId ? (
+        <HealDialog
+          scraperId={healTarget.collectorId}
+          storeName={healTarget.name}
+          open={!!healTarget}
+          onClose={() => setHealTarget(null)}
+        />
+      ) : null}
     </>
   );
 }
