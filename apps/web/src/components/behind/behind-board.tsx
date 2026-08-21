@@ -9,6 +9,7 @@ import type {
   Rail,
 } from "@basketwatch/contract";
 import { QualityWorklist } from "@/components/behind/quality-worklist";
+import { useCountry } from "@/components/country/country";
 import { EventFeed } from "@/components/feed/event-feed";
 import { FleetBoard } from "@/components/fleet/fleet-board";
 import { AuditDialog } from "@/components/incident/audit-dialog";
@@ -24,29 +25,37 @@ import { formatMoney } from "@/lib/format";
  * from a server component above, so first paint is server-rendered.
  */
 export function BehindBoard({
-  fleet,
+  fleet: wholeFleet,
   feed,
   incidents,
   budget,
-  rails,
-  rowsLastPull,
+  rails: allRails,
 }: {
   fleet: FleetScraper[];
   feed: FeedEvent[];
   incidents: Incident[];
   budget: CreditBudget;
   rails: Rail[];
-  rowsLastPull: number;
 }) {
+  const { country } = useCountry();
   const [openIncidentId, setOpenIncidentId] = useState<string | null>(null);
   const openIncident = useMemo(
     () => incidents.find((incident) => incident.id === openIncidentId) ?? null,
     [incidents, openIncidentId],
   );
 
+  // The board and worklist follow the country switcher; the feed, incidents
+  // and budget stay fleet-wide -- they are machinery, not country data, and an
+  // incident carries no country of its own.
+  const fleet = wholeFleet.filter((s) => s.country === country);
+  const rails = allRails.filter((rail) => rail.country === country);
+
   const healthy = fleet.filter((s) => s.status === "healthy").length;
   const attention = fleet.length - healthy;
   const contributing = fleet.length;
+  // Summed from the filtered fleet rather than written down, so it cannot
+  // drift away from what the stores on the board actually returned.
+  const rowsLastPull = fleet.reduce((total, scraper) => total + scraper.lastRunRows, 0);
 
   return (
     <>

@@ -1,10 +1,11 @@
-import type { BasketItem, BasketPoint, Country } from "@basketwatch/contract";
+import {
+  COUNTRY_NAME,
+  DEFAULT_CURRENCY_BY_COUNTRY,
+  type BasketItem,
+  type BasketPoint,
+  type Country,
+} from "@basketwatch/contract";
 import { formatMoney, formatQuantity } from "@/lib/format";
-
-const COUNTRY_NAME: Record<Country, string> = {
-  US: "United States",
-  PH: "Philippines",
-};
 
 /**
  * The basket as a table: staples down, the cheapest usable price against each,
@@ -23,7 +24,7 @@ export function BasketTable({
   /** the latest day on the index, which is where the total and coverage come from */
   point: BasketPoint | undefined;
 }) {
-  const currency = items[0]?.price.currency ?? "USD";
+  const currency = items[0]?.price.currency ?? DEFAULT_CURRENCY_BY_COUNTRY[country];
   const priced = new Map(items.map((item) => [item.itemKey, item]));
   const missing = point?.missingItemKeys ?? [];
   const complete = point?.total !== null && point?.total !== undefined;

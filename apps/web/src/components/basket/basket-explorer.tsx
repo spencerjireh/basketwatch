@@ -1,18 +1,19 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import type { ReactNode } from "react";
-import type { Country, Rail } from "@basketwatch/contract";
+import type { Rail } from "@basketwatch/contract";
 import { buildTerrainGrid } from "@/lib/terrain/model";
-import { cn } from "@/lib/utils";
+import { useCountry } from "@/components/country/country";
 import { SelectionProvider } from "@/components/terrain/selection";
 import { TerrainHero } from "@/components/terrain/terrain-hero";
 import { StapleSection } from "@/components/basket/staple-section";
 
 /**
- * The one client boundary on the front page. It owns the country -- a mode,
- * not a column, because the two currencies are never compared -- so the
- * landscape and the staple sections below it always show the same world.
+ * The one client boundary on the front page. The country arrives from the
+ * global provider -- a mode, not a column, because the two currencies are
+ * never compared -- so the landscape and the staple sections below it always
+ * show the same world as the nav switcher.
  *
  * `midBand` is server-rendered content (the cheapest cart, the time strip)
  * sandwiched between the landscape and the staple detail: the answer sits
@@ -20,41 +21,12 @@ import { StapleSection } from "@/components/basket/staple-section";
  * answer to land on the evidence.
  */
 export function BasketExplorer({ rails, midBand }: { rails: Rail[]; midBand?: ReactNode }) {
-  const countries = useMemo(
-    () => [...new Set(rails.map((rail) => rail.country))] as Country[],
-    [rails],
-  );
-  const [country, setCountry] = useState<Country | undefined>(countries[0]);
-  const grid = useMemo(
-    () => (country ? buildTerrainGrid(rails, country) : null),
-    [rails, country],
-  );
+  const { country } = useCountry();
+  const grid = useMemo(() => buildTerrainGrid(rails, country), [rails, country]);
   const shown = rails.filter((rail) => rail.country === country);
 
   return (
     <SelectionProvider>
-      {countries.length > 1 ? (
-        <div className="flex gap-5" role="tablist" aria-label="Country">
-          {countries.map((c) => (
-            <button
-              key={c}
-              type="button"
-              role="tab"
-              aria-selected={c === country}
-              onClick={() => setCountry(c)}
-              className={cn(
-                "caps pb-1 transition-colors",
-                c === country
-                  ? "border-b border-ink text-ink"
-                  : "border-b border-transparent hover:text-ink",
-              )}
-            >
-              {c === "US" ? "United States" : "Philippines"}
-            </button>
-          ))}
-        </div>
-      ) : null}
-
       <div className="mt-4">
         <TerrainHero grid={grid} />
       </div>
