@@ -59,7 +59,7 @@ export default async function Page() {
         </h1>
         <p className="mt-3 text-[14px] text-mute">
           Priced off the shelf in {totalStores} stores across two countries, at the same quantities
-          on both sides. Not a survey, and not an average — the cheapest unit price we can actually
+          in each. Not a survey, and not an average — the cheapest unit price we can actually
           see.
         </p>
       </section>
