@@ -39,7 +39,16 @@ export class FleetPullHandler implements OnApplicationBootstrap {
       QUEUES.scrapeRun,
       async (jobs) => {
         for (const job of jobs) {
-          await this.pullers.runStore(job.data.storeId, { dryRun: false, trigger: "cron" });
+          const result = await this.pullers.runStore(job.data.storeId, {
+            dryRun: false,
+            trigger: "cron",
+          });
+          if (result.runId) {
+            await this.boss.send(QUEUES.validateRun, {
+              runId: Number(result.runId),
+              storeId: job.data.storeId,
+            });
+          }
         }
       },
       // One store at a time, and never the same store twice at once: a pull

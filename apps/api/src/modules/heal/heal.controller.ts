@@ -1,6 +1,7 @@
-import { Body, Controller, Param, Post, UseGuards } from "@nestjs/common";
+import { Body, Controller, Get, Param, Post, UseGuards } from "@nestjs/common";
 import {
   type HealDecisionResponse,
+  type HealPreviewPromptResponse,
   type HealTriggerBody,
   type HealTriggerResponse,
   healTriggerBodySchema,
@@ -13,6 +14,18 @@ import { HealOrchestrator } from "./heal.orchestrator.js";
 @UseGuards(OpsTokenGuard)
 export class HealController {
   constructor(private readonly orchestrator: HealOrchestrator) {}
+
+  /**
+   * GET /api/heal/:scraperId/preview-prompt
+   *
+   * Returns the auto-generated prompt the trigger would use, without
+   * actually triggering a heal. Lets the dashboard show the prompt in the
+   * textarea so the operator can edit before firing.
+   */
+  @Get(":scraperId/preview-prompt")
+  previewPrompt(@Param("scraperId") scraperId: string): Promise<HealPreviewPromptResponse> {
+    return this.orchestrator.previewPrompt(scraperId);
+  }
 
   /**
    * POST /api/heal/:scraperId/trigger

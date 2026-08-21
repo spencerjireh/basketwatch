@@ -126,6 +126,10 @@ export const runs = pgTable(
     coverage: text("coverage"),
     creditsUsd: numeric("credits_usd", { precision: 10, scale: 4 }),
     rawOutput: jsonb("raw_output"),
+    /** spider-sense verdict + findings from the validate-run handler */
+    findings: jsonb("findings"),
+    /** computed from the run's products; drives the fleet board's null column */
+    nullRatePct: numeric("null_rate_pct", { precision: 5, scale: 2 }),
   },
   (t) => ({
     storeAt: index("idx_runs_store").on(t.storeId, t.at),
@@ -292,9 +296,9 @@ export const basketMap = pgTable(
 );
 
 export const baselines = pgTable("baselines", {
-  scraperId: text("scraper_id")
+  storeId: text("store_id")
     .primaryKey()
-    .references(() => scrapers.id),
+    .references(() => stores.storeId),
   fieldNullRates: jsonb("field_null_rates").notNull(),
   expectedRowCount: integer("expected_row_count").notNull(),
   valueRanges: jsonb("value_ranges").notNull(), // per-field p5/p95
