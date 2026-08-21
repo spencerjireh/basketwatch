@@ -66,6 +66,7 @@ just up             # local postgres
 just dev            # contract watch + api :3001 + dashboard :3000
 just check          # typecheck, lint, test, build
 just db-migrate     # local database; see the warning below
+just db-backup      # dump the DEPLOYED database before anything risky
 just guard --report # Bright Data spend
 ```
 

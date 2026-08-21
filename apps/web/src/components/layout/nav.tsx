@@ -22,12 +22,12 @@ export function Nav() {
 
   return (
     <header className="border-b border-line">
-      <div className="mx-auto flex w-full max-w-[1240px] flex-wrap items-center gap-x-6 gap-y-2 px-5 py-3">
-        <Link href="/" className="font-display text-[17px] font-semibold [font-stretch:expanded]">
+      <div className="mx-auto flex w-full max-w-[1240px] flex-wrap items-baseline gap-x-8 gap-y-2 px-5 py-4">
+        <Link href="/" className="font-display text-[19px]">
           Basketwatch
         </Link>
 
-        <nav aria-label="Sections" className="flex gap-1">
+        <nav aria-label="Sections" className="flex gap-6">
           {LINKS.map((link) => {
             const active = link.href === "/" ? pathname === "/" : pathname.startsWith(link.href);
             return (
@@ -36,10 +36,10 @@ export function Nav() {
                 href={link.href}
                 aria-current={active ? "page" : undefined}
                 className={cn(
-                  "rounded px-2.5 py-1 font-mono text-[11px] uppercase tracking-[0.1em] transition-colors",
+                  "text-[13px] transition-colors",
                   active
-                    ? "bg-rail-high text-chalk"
-                    : "text-mute hover:bg-rail hover:text-chalk",
+                    ? "text-ink underline decoration-1 underline-offset-8"
+                    : "text-mute hover:text-ink",
                 )}
               >
                 {link.label}

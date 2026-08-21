@@ -1,36 +1,32 @@
 @import "tailwindcss";
 
 /*
- * Basketwatch design tokens.
+ * Basketwatch design tokens -- the gallery edition.
  *
- * The ground is a slate-ink with a visible cool cast rather than a neutral
- * near-black, and the four state colours are the scraper state machine, not
- * decoration. The index line is drawn in `heal` blue on purpose: it makes a red
- * hatched gap read as damage against it.
+ * The ground is warm paper and the type is ink. Colour is reserved for the
+ * scraper state machine (live/drift/broken/heal), darkened from the old dark
+ * theme so each holds AA contrast as text on a light ground.
  *
- * `tape` is the receipt paper used only by the heal audit. That screen is
- * genuinely an itemised ledger with costs, so it gets the material that matches.
+ * `clay` is the terrain relief material. The 3D hero and the SVG ridgeline
+ * both draw with it, which is what makes the fallback read as the same object
+ * rather than a downgrade.
  */
 @theme {
-  --color-board: #0f1518;
-  --color-rail: #172024;
-  --color-rail-high: #1d282d;
-  --color-line: #243036;
-  --color-chalk: #e6ebe8;
-  --color-mute: #8fa09b;
-  --color-tape: #f2ecde;
-  --color-tape-ink: #2a2620;
+  --color-paper: #faf7f2;
+  --color-ink: #1f1c18;
+  --color-mute: #6e675d;
+  --color-line: #e6e1d6;
+  --color-wash: #f2eee6;
+  --color-clay: #e8e0d0;
 
-  --color-live: #57b894;
-  --color-drift: #d9a64e;
-  --color-broken: #e2564a;
-  --color-heal: #7fa7ff;
+  --color-live: #1e7a4f;
+  --color-drift: #91660b;
+  --color-broken: #b23222;
+  --color-heal: #2f56b8;
 
-  --font-display: var(--font-archivo), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-newsreader), ui-serif, Georgia, serif;
   --font-sans: var(--font-archivo), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-sometype), ui-monospace, SFMono-Regular, monospace;
-
-  --radius-panel: 10px;
 }
 
 @layer base {
@@ -39,12 +35,12 @@
   }
 
   html {
-    color-scheme: dark;
+    color-scheme: light;
   }
 
   body {
-    background-color: var(--color-board);
-    color: var(--color-chalk);
+    background-color: var(--color-paper);
+    color: var(--color-ink);
     font-family: var(--font-sans);
     font-size: 14px;
     line-height: 1.5;
@@ -59,35 +55,25 @@
   }
 
   :focus-visible {
-    outline: 2px solid var(--color-heal);
+    outline: 2px solid var(--color-ink);
     outline-offset: 2px;
   }
 }
 
 @layer utilities {
-  /*
-   * The shelf-edge label: grocery stores print price on a strip at the shelf
-   * edge, unit price small underneath. Every basket row and every fleet row is
-   * one of these, which encodes something true -- a product, at a store, with a
-   * unit price -- rather than decorating.
-   */
-  .shelf-edge {
-    position: relative;
-    border: 1px solid var(--color-line);
-    border-left-width: 3px;
-    border-radius: 4px;
-    background-color: var(--color-rail);
+  /* The hairline. Every section of the page hangs from one of these rather
+     than sitting in a box; the rule is the structure. */
+  .rule {
+    border-top: 1px solid var(--color-line);
   }
 
-  /* Thermal receipt tape, torn along the bottom edge. */
-  .receipt {
-    background-color: var(--color-tape);
-    color: var(--color-tape-ink);
+  /* The label voice: column heads, metadata, tab captions. */
+  .caps {
     font-family: var(--font-mono);
-  }
-
-  .receipt-rule {
-    border-top: 1px dashed color-mix(in oklab, var(--color-tape-ink) 35%, transparent);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--color-mute);
   }
 }
 
