@@ -1,4 +1,4 @@
-import { Controller, Get, Post, UseGuards } from "@nestjs/common";
+import { Controller, Get, Param, Post, UseGuards } from "@nestjs/common";
 import { type FleetResponse } from "@basketwatch/contract";
 import { OpsTokenGuard } from "../../common/guards/ops-token.guard.js";
 import { FleetService } from "./fleet.service.js";
@@ -38,5 +38,19 @@ export class FleetController {
   @UseGuards(OpsTokenGuard)
   async captureCode(): Promise<{ captured: number; failed: number; skipped: number }> {
     return this.service.captureAllCode();
+  }
+
+  /**
+   * POST /api/fleet/capture-code/:scraperId
+   *
+   * Capture template code for a single scraper.
+   */
+  @Post("capture-code/:scraperId")
+  @UseGuards(OpsTokenGuard)
+  async captureOneCode(
+    @Param("scraperId") scraperId: string,
+  ): Promise<{ ok: boolean; scraperId: string }> {
+    const result = await this.service.captureOneCode(scraperId);
+    return { ok: result, scraperId };
   }
 }

@@ -23,4 +23,9 @@ export class FleetService {
   async captureAllCode(): Promise<{ captured: number; failed: number; skipped: number }> {
     return this.codeCapture.captureAllMissing();
   }
+
+  async captureOneCode(scraperId: string): Promise<boolean> {
+    const result = await this.codeCapture.captureCode(scraperId);
+    return result !== null;
+  }
 }

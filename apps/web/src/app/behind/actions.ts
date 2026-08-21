@@ -91,3 +91,23 @@ export async function seedBaselines(): Promise<{ ok: boolean; data: Record<strin
     return { ok: false, data: { error: String(err) } };
   }
 }
+
+export async function captureAllCode(): Promise<{ ok: boolean; data: Record<string, unknown> }> {
+  try {
+    const data = (await opsPost("/api/fleet/capture-code")) as Record<string, unknown>;
+    return { ok: !("error" in data), data };
+  } catch (err) {
+    return { ok: false, data: { error: String(err) } };
+  }
+}
+
+export async function captureOneCode(
+  scraperId: string,
+): Promise<{ ok: boolean; data: Record<string, unknown> }> {
+  try {
+    const data = (await opsPost(`/api/fleet/capture-code/${scraperId}`)) as Record<string, unknown>;
+    return { ok: !("error" in data), data };
+  } catch (err) {
+    return { ok: false, data: { error: String(err) } };
+  }
+}

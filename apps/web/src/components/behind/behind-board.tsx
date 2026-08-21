@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import type {
   CreditBudget,
   FeedEvent,
@@ -8,6 +8,7 @@ import type {
   Incident,
   Rail,
 } from "@basketwatch/contract";
+import { captureOneCode } from "@/app/behind/actions";
 import { QualityWorklist } from "@/components/behind/quality-worklist";
 import { EventFeed } from "@/components/feed/event-feed";
 import { FleetBoard } from "@/components/fleet/fleet-board";
@@ -45,6 +46,15 @@ export function BehindBoard({
     [incidents, openIncidentId],
   );
   const [healTarget, setHealTarget] = useState<FleetScraper | null>(null);
+  const [capturingId, setCapturingId] = useState<string | null>(null);
+
+  const handleCaptureCode = useCallback(async (scraper: FleetScraper) => {
+    if (!scraper.collectorId || capturingId) return;
+    setCapturingId(scraper.collectorId);
+    await captureOneCode(scraper.collectorId);
+    setCapturingId(null);
+    window.location.reload();
+  }, [capturingId]);
 
   const healthy = fleet.filter((s) => s.status === "healthy").length;
   const attention = fleet.length - healthy;
@@ -73,7 +83,12 @@ export function BehindBoard({
           title="Live"
           caption="One row per store, coloured by state. A store is not a scraper: most are pulled over plain HTTP and have no collector."
         >
-          <FleetBoard fleet={fleet} onOpenIncident={setOpenIncidentId} onHeal={setHealTarget} />
+          <FleetBoard
+            fleet={fleet}
+            onOpenIncident={setOpenIncidentId}
+            onHeal={setHealTarget}
+            onCaptureCode={handleCaptureCode}
+          />
         </Section>
 
         <div className="flex flex-col gap-10">
