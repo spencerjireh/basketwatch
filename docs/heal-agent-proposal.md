@@ -274,6 +274,102 @@ heals populate `claudeDiagnosis` with the LLM's reasoning and leave
 timeline unified with zero contract changes beyond the two new
 `incidentKinds`.
 
+## Template visibility
+
+### The API gap
+
+Bright Data does not expose a public API endpoint to retrieve the
+current scraper template (source code). The `collectors_list` endpoint
+returns output schemas and metadata only. The `automate_template/progress`
+endpoint (used during `scraper create`) returns step status, not the
+generated code. The CLI has no `scraper view` or `scraper export`
+command.
+
+The **only programmatic path** to the template is through the heal
+flow: when `refactor_template/progress` reaches `pending_answer` /
+`user_approval`, the response includes:
+
+- `diff.template_a` -- the current template (before)
+- `diff.template_b` -- the proposed fix (after)
+- `preview_result` -- sample output from the proposed fix
+
+Outside of this, the template is only visible in the Scraper Studio
+web IDE at `https://brightdata.com/cp/scrapers/{collector_id}`.
+
+### On-demand template capture via reject
+
+The approval gate doubles as a read path: trigger a heal with a
+minimal prompt, read the template from `diff.template_a`, then
+**reject** the proposed changes. The scraper is left untouched. The
+cost is one page load (~$0.01-0.05).
+
+```sh
+# Trigger a minimal heal just to read the template
+node lab/scripts/bd.mjs --label=template-capture -- \
+  scraper heal <id> "Inspect current state" --url <url> \
+  --pretty -o scratch/templates/<id>.json
+
+# Read diff.template_a from the output (the current code)
+# Then reject -- scraper stays unchanged
+node lab/scripts/bd.mjs --label=template-reject -- \
+  scraper approve <id> --reject
+```
+
+This lets the heal agent proactively grab templates for any scraper
+in the fleet. On first deploy, a one-time sweep captures the baseline
+template for every active scraper. Cost for 16 scrapers: ~$0.16-0.80.
+
+### Template tracking strategy
+
+Because the heal agent needs the template to write targeted prompts
+(e.g. "the selector `.product-price > span` is broken" rather than
+"prices are missing"), we persist templates across heal cycles:
+
+1. **Initial capture**: on first deploy (or when a new scraper is
+   created), trigger a minimal heal + reject to grab the baseline
+   template via `diff.template_a`. Store it in the database.
+
+2. **On every real heal**: capture both `diff.template_a` (confirms
+   our stored version is current) and `diff.template_b` (the
+   proposed fix). On approval, save `template_b` as the new current.
+   On rejection, keep the existing stored version.
+
+3. **Before composing a heal prompt**: the agent reads the stored
+   template to identify which selectors, variables, or logic paths
+   are relevant to the incident, then writes a targeted prompt with
+   code-level context.
+
+4. **Version history**: each template version is stored with the
+   heal attempt ID and timestamp, so the full evolution of a
+   scraper's code is auditable.
+
+### Storage
+
+A `template_code` column on `scrapers` holds the current template.
+The `heal_attempts` table already has `studio_diff` for before/after
+diffs. The stored template is the resolved "current" after applying
+all approved heals.
+
+```sql
+ALTER TABLE scrapers ADD COLUMN template_code text;
+ALTER TABLE scrapers ADD COLUMN template_updated_at timestamptz;
+```
+
+Alternatively, for full version history:
+
+```sql
+CREATE TABLE scraper_templates (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  scraper_id text NOT NULL REFERENCES scrapers(id),
+  heal_attempt_id uuid REFERENCES heal_attempts(id),
+  code text NOT NULL,
+  captured_at timestamptz NOT NULL DEFAULT now()
+);
+```
+
+The simpler column approach is sufficient for the hackathon; the
+version-history table is a post-hackathon refinement.
+
 ## Where this lives in the codebase
 
 As of PR #14, the repo root **is** the product monorepo (pnpm + Turborepo).
