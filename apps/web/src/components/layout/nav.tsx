@@ -2,6 +2,8 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { COUNTRY_NAME, countries } from "@basketwatch/contract";
+import { CountryLink, useCountry } from "@/components/country/country";
 import { cn } from "@/lib/utils";
 
 /**
@@ -10,6 +12,9 @@ import { cn } from "@/lib/utils";
  * collected both. "Behind the data" is a door, not a disclaimer -- the fleet and
  * the incidents are the reason to believe the first two pages, so they stay one
  * click away rather than hidden.
+ *
+ * The country switcher lives here because it scopes all three pages at once:
+ * one flip and the basket, the catalogue and the fleet all change world.
  */
 const LINKS = [
   { href: "/", label: "Basket" },
@@ -19,6 +24,7 @@ const LINKS = [
 
 export function Nav() {
   const pathname = usePathname();
+  const { country, setCountry } = useCountry();
 
   return (
     <header className="border-b border-line">
@@ -31,7 +37,7 @@ export function Nav() {
           {LINKS.map((link) => {
             const active = link.href === "/" ? pathname === "/" : pathname.startsWith(link.href);
             return (
-              <Link
+              <CountryLink
                 key={link.href}
                 href={link.href}
                 aria-current={active ? "page" : undefined}
@@ -43,10 +49,29 @@ export function Nav() {
                 )}
               >
                 {link.label}
-              </Link>
+              </CountryLink>
             );
           })}
         </nav>
+
+        <div className="ml-auto flex gap-5" role="group" aria-label="Country">
+          {countries.map((c) => (
+            <button
+              key={c}
+              type="button"
+              aria-pressed={c === country}
+              onClick={() => setCountry(c)}
+              className={cn(
+                "caps pb-1 transition-colors",
+                c === country
+                  ? "border-b border-ink text-ink"
+                  : "border-b border-transparent text-mute hover:text-ink",
+              )}
+            >
+              {COUNTRY_NAME[c]}
+            </button>
+          ))}
+        </div>
       </div>
     </header>
   );
