@@ -1,16 +1,17 @@
 ---
-title: Heal prompt guidelines -- findings from experiments
+title: Heal prompt guidelines
 tags: [hackathon, brightdata, heal, guidelines]
 created: 2026-08-21
-scraper: heal-exp-sukli (c_mt2anl8x8toit6mod) on sukli.com (Shopify)
-account: test account (61ea7f02-...)
+updated: 2026-08-21
 ---
 
 # Heal prompt guidelines
 
-Findings from structured experiments on Bright Data's `scraper heal`
-feature, Aug 21 2026. These guidelines feed directly into the heal
-agent's prompt generator.
+Rules for composing prompts that the heal orchestrator sends to Bright
+Data's `scraper heal` engine. Derived from structured experiments on
+Sukli (Shopify) and validated against Dierbergs (custom site) during
+Phase 1 integration testing. Full experiment data is in
+[heal-test-findings.md](../lab/edjin-exploration/heal-test-findings.md).
 
 ## Results table
 
@@ -183,123 +184,11 @@ not the default path.
    selectors), `auto_save: true` can skip the approval gate. Reserve
    manual review for complex sites or first-time heals.
 
-## Implementation plan
+## Related documents
 
-Build iteratively, starting immediately after this PR lands. Each
-phase is demoable on its own and adds value without depending on later
-phases. Stop wherever the hackathon clock runs out -- each phase is a
-clean stopping point. Spencer reviews in parallel as we build.
-
-### Phase 1 -- Manual-trigger heal with numbered-list prompt
-
-**Scope**: one new endpoint, one utility function, no scheduler.
-
-Build `POST /api/heal/:scraperId/trigger` that:
-
-1. Reads the scraper's latest run from `price_observations` / `runs`.
-2. Runs the spider-sense validator checks against that run (null fields,
-   type mismatches, row-count drop).
-3. Composes a numbered-list prompt from the broken fields:
-   ```typescript
-   const items = brokenFields.map((f, i) =>
-     `(${i + 1}) ${f.name} ${f.symptom}.`
-   )
-   const prompt = `Fix these issues:\n\n${items.join('\n')}`
-   ```
-4. Calls `POST /dca/collectors/{id}/refactor_template` with the prompt.
-5. Polls progress with a 5-minute timeout.
-6. Returns the `preview_result` and diff summary. Does NOT auto-approve.
-
-The operator (us) reviews the preview and manually approves or rejects
-via `POST /api/heal/:scraperId/approve` or `/reject`.
-
-**Deliverable**: a demoable detection-to-heal loop. The validator
-catches the break, the prompt generator describes it, Bright Data
-fixes it, and the operator confirms.
-
-**Deferred to Phase 2**: retry logic, template capture, auto-approve,
-scheduling.
-
-### Phase 2 -- Retry escalation (two attempts, then incident)
-
-Add retry logic to the trigger endpoint:
-
-| Attempt | Prompt style | Source |
-|---|---|---|
-| 1 | Numbered list with symptoms | Validator output |
-| 2 | Problem description only (no selectors) | Validator output, reframed |
-| 3 | Open incident, stop | -- |
-
-If attempt 1 times out (5 min), the endpoint automatically fires
-attempt 2 with a different prompt style (R2A-style: "price returns
-null, title uses fragile class" without prescribing selectors). If
-attempt 2 also fails, it creates an incident record in `heal_attempts`
-with `status: 'escalated'` and stops.
-
-Still no auto-approve. The operator reviews the preview from whichever
-attempt succeeded.
-
-**Deliverable**: escalation strategy (R4A -> R2A -> give up) with
-incident records for failed heals.
-
-**Deferred to Phase 3**: template capture, auto-approve, scheduling.
-
-### Phase 3 -- Template capture and selector-enriched prompts
-
-Add the heal-and-reject template capture from the proposal:
-
-1. On scraper creation or first heal, trigger a minimal heal ("Inspect
-   current state"), read `diff.template_a`, reject, and store the
-   template code in a `template_code` column on `scrapers`.
-2. On every approved heal, update the stored template from
-   `diff.template_b`.
-3. The prompt generator in Phase 1 now reads the stored template and
-   adds selector hints to the numbered list:
-
-   ```
-   (1) price returns null. Current selector: product-price .price.
-       Add .first() to avoid matching sidebar prices.
-   ```
-
-This makes attempt 1 equivalent to R4A (our best result: $0.24,
-perfect fix). Attempt 2 remains selector-free as a fallback in case
-the stored template is stale.
-
-**Deferred to Phase 4**: auto-approve, scheduling.
-
-### Phase 4 -- Auto-approve for high-confidence fixes (post-hackathon)
-
-Add a confidence scorer that checks:
-
-- Did the `preview_result` contain all expected fields?
-- Are the values within expected ranges (price > 0, title non-empty)?
-- Did the diff touch only the fields mentioned in the prompt?
-
-If all checks pass, approve with `auto_save: true`. Otherwise, hold
-for manual review. This is the transition from "operator in the loop"
-to "operator on exception."
-
-### What we deliberately skip
-
-- **LLM-composed prompts**: the experiments showed deterministic
-  templates outperform AI-written prompts. Only reconsider if Phase 2
-  escalation fails on > 30% of real incidents.
-- **Scheduled heal runs**: the pull schedule already detects breakage.
-  Heal runs should be triggered by incidents, not by cron.
-- **`custom_input` parameter**: undocumented, untested. Worth exploring
-  post-hackathon but not a dependency for any phase.
-
-## Experiment cost summary
-
-| Category | Cost |
-|---|---|
-| Successful heals (R1A, R1B, R2A, R2B, R4A, R4B) | ~$2.62 |
-| Failed/timeout heals (R3A, R5A) | ~$0.50 |
-| Mexgrocer heals (both failed) | ~$7.56 |
-| Sukli collection baseline (accidental crawl) | ~$1.86 |
-| Other baselines and overhead | ~$0.50 |
-| **Total experiment spend** | **~$13.04** |
-
-Lessons: mexgrocer was too complex and should have been abandoned
-sooner. Collection-page baselines are expensive. Future experiments
-should use the cheapest viable scraper.
+- [Heal test findings](../lab/edjin-exploration/heal-test-findings.md) --
+  full experiment data and Phase 1 integration test results.
+- [Heal integration plan](plans/heal-integration-plan.md) --
+  the phased pipeline plan built on these guidelines.
+- [Heal prompt experiments](../lab/edjin-exploration/heal-prompt-experiments.md) --
+  original experiment design and methodology.
