@@ -65,6 +65,27 @@ export class HealOrchestrator {
 
     const pending = await this.repository.findPendingAttemptWithTiming(scraperId);
     if (!pending) {
+      // No local attempt -- check if BD has an orphaned heal awaiting approval
+      try {
+        const orphanCheck = await this.studio.checkProgress(scraperId);
+        if (orphanCheck.status === "pending_answer" && orphanCheck.diff) {
+          return {
+            scraperId,
+            status: "orphaned" as const,
+            attemptId: null,
+            incidentId: null,
+            step: null,
+            completedSteps: [],
+            startedAt: null,
+            elapsedMs: null,
+            previewResult: orphanCheck.previewResult,
+            diffSummary: orphanCheck.diff?.title ?? null,
+            diff: orphanCheck.diff as HealDiff,
+          };
+        }
+      } catch {
+        // BD unreachable or no collector -- treat as idle
+      }
       return {
         scraperId,
         status: "idle",
@@ -282,6 +303,57 @@ export class HealOrchestrator {
       scraperId,
       attemptId: pending.attemptId,
       verdict: "rejected",
+    };
+  }
+
+  // -----------------------------------------------------------------------
+  // Recover orphaned heal
+  // -----------------------------------------------------------------------
+
+  async recover(scraperId: string): Promise<HealStatusResponse> {
+    const scraper = await this.repository.findScraperWithStore(scraperId);
+    if (!scraper) throw new NotFoundException(`Scraper ${scraperId} not found.`);
+
+    const progress = await this.studio.checkProgress(scraperId);
+    if (progress.status !== "pending_answer" || !progress.diff) {
+      throw new BadRequestException(
+        "No orphaned heal found on Bright Data for this scraper.",
+      );
+    }
+
+    const storeId = scraper.store_id;
+    const incidentId = await this.ensureIncident(scraperId, storeId, []);
+    const attemptNumber = (await this.repository.attemptCount(incidentId)) + 1;
+
+    const attemptId = await this.repository.recordAttempt(
+      incidentId,
+      attemptNumber,
+      "Recovered orphaned BD heal",
+      "Recovered from orphaned Bright Data heal",
+    );
+
+    if (progress.diff) {
+      await this.repository
+        .updateAttemptDiff(attemptId, JSON.stringify(progress.diff))
+        .catch((err: unknown) => {
+          this.logger.warn(`Failed to persist recovered diff: ${err instanceof Error ? err.message : String(err)}`);
+        });
+    }
+
+    this.logger.log(`${scraperId}: recovered orphaned BD heal as attempt ${attemptId}`);
+
+    return {
+      scraperId,
+      status: "pending_answer",
+      attemptId,
+      incidentId,
+      step: null,
+      completedSteps: [],
+      startedAt: new Date().toISOString(),
+      elapsedMs: 0,
+      previewResult: progress.previewResult,
+      diffSummary: progress.diff?.title ?? null,
+      diff: progress.diff as HealDiff,
     };
   }
 

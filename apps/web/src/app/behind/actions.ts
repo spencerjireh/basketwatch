@@ -83,6 +83,17 @@ export async function rejectHeal(
   }
 }
 
+export async function recoverHeal(
+  scraperId: string,
+): Promise<{ ok: boolean; data: Record<string, unknown> }> {
+  try {
+    const data = (await opsPost(`/api/heal/${scraperId}/recover`)) as Record<string, unknown>;
+    return { ok: !("error" in data), data };
+  } catch (err) {
+    return { ok: false, data: { error: String(err) } };
+  }
+}
+
 export async function seedBaselines(): Promise<{ ok: boolean; data: Record<string, unknown> }> {
   try {
     const data = (await opsPost("/api/fleet/seed-baselines")) as Record<string, unknown>;
@@ -109,5 +120,16 @@ export async function captureOneCode(
     return { ok: !("error" in data), data };
   } catch (err) {
     return { ok: false, data: { error: String(err) } };
+  }
+}
+
+export async function captureCodeStatus(
+  scraperId: string,
+): Promise<{ hasTemplate: boolean }> {
+  try {
+    const data = (await opsGet(`/api/fleet/capture-status/${scraperId}`)) as Record<string, unknown>;
+    return { hasTemplate: !!data.hasTemplate };
+  } catch {
+    return { hasTemplate: false };
   }
 }

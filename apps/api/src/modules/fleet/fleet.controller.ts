@@ -43,14 +43,25 @@ export class FleetController {
   /**
    * POST /api/fleet/capture-code/:scraperId
    *
-   * Capture template code for a single scraper.
+   * Fire-and-forget: starts capture in background, returns immediately.
+   * Poll GET /api/fleet/capture-status/:scraperId to check completion.
    */
   @Post("capture-code/:scraperId")
   @UseGuards(OpsTokenGuard)
-  async captureOneCode(
+  captureOneCode(
     @Param("scraperId") scraperId: string,
-  ): Promise<{ ok: boolean; scraperId: string }> {
-    const result = await this.service.captureOneCode(scraperId);
-    return { ok: result, scraperId };
+  ): { status: string; scraperId: string } {
+    this.service.captureOneCodeAsync(scraperId);
+    return { status: "started", scraperId };
+  }
+
+  /** GET /api/fleet/capture-status/:scraperId */
+  @Get("capture-status/:scraperId")
+  @UseGuards(OpsTokenGuard)
+  async captureStatus(
+    @Param("scraperId") scraperId: string,
+  ): Promise<{ hasTemplate: boolean; scraperId: string }> {
+    const hasTemplate = await this.service.hasTemplate(scraperId);
+    return { hasTemplate, scraperId };
   }
 }

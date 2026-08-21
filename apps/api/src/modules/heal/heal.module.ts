@@ -9,6 +9,6 @@ import { StudioClient } from "./studio.client.js";
 @Module({
   controllers: [HealController],
   providers: [HealOrchestrator, HealBudget, HealRepository, StudioClient, CodeCaptureService],
-  exports: [HealOrchestrator, HealBudget, CodeCaptureService],
+  exports: [HealOrchestrator, HealBudget, CodeCaptureService, HealRepository],
 })
 export class HealModule {}

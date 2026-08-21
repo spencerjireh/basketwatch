@@ -68,4 +68,16 @@ export class HealController {
   reject(@Param("scraperId") scraperId: string): Promise<HealDecisionResponse> {
     return this.orchestrator.reject(scraperId);
   }
+
+  /**
+   * POST /api/heal/:scraperId/recover
+   *
+   * Adopt an orphaned BD heal that has no local attempt record. Creates an
+   * attempt and incident, persists the diff, and transitions to pending_answer
+   * so the UI can approve or reject.
+   */
+  @Post(":scraperId/recover")
+  recover(@Param("scraperId") scraperId: string): Promise<HealStatusResponse> {
+    return this.orchestrator.recover(scraperId);
+  }
 }

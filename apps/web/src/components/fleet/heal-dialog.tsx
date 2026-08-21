@@ -1,10 +1,12 @@
 "use client";
 
+import { diffLines } from "diff";
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
   approveHeal,
   fetchHealStatus,
   fetchPreviewPrompt,
+  recoverHeal,
   rejectHeal,
   triggerHeal,
 } from "@/app/behind/actions";
@@ -69,6 +71,7 @@ type HealState =
       startedAt: number;
       finishedAt: number;
     }
+  | { step: "orphaned"; diff: DiffData | null; previewResult: unknown[] | null }
   | { step: "deciding" }
   | { step: "done"; verdict: string; startedAt: number; finishedAt: number }
   | { step: "error"; message: string };
@@ -113,6 +116,15 @@ export function HealDialog({
 
     (async () => {
       const statusRes = await fetchHealStatus(scraperId);
+      if (statusRes.ok && statusRes.data.status === "orphaned") {
+        setState({
+          step: "orphaned",
+          diff: (statusRes.data.diff as DiffData) ?? null,
+          previewResult: (statusRes.data.previewResult as unknown[]) ?? null,
+        });
+        return;
+      }
+
       if (
         statusRes.ok &&
         statusRes.data.status !== "idle" &&
@@ -289,6 +301,46 @@ export function HealDialog({
     }
   }, [scraperId, state]);
 
+  const handleRecover = useCallback(async () => {
+    setState({ step: "deciding" });
+    const result = await recoverHeal(scraperId);
+    if (result.ok && result.data.status === "pending_answer") {
+      setState({
+        step: "pending",
+        prompt: "",
+        diff: (result.data.diff as DiffData) ?? null,
+        previewResult: (result.data.previewResult as unknown[]) ?? null,
+        startedAt: Date.now(),
+        finishedAt: Date.now(),
+      });
+    } else {
+      setState({ step: "error", message: JSON.stringify(result.data) });
+    }
+  }, [scraperId]);
+
+  const handleRejectOrphaned = useCallback(async () => {
+    setState({ step: "deciding" });
+    try {
+      // Recover first to create an attempt record, then reject it
+      const recoverResult = await recoverHeal(scraperId);
+      if (recoverResult.ok) {
+        const rejectResult = await rejectHeal(scraperId);
+        if (rejectResult.ok) {
+          setState({
+            step: "done",
+            verdict: "rejected",
+            startedAt: Date.now(),
+            finishedAt: Date.now(),
+          });
+          return;
+        }
+      }
+      setState({ step: "error", message: "Failed to reject orphaned heal." });
+    } catch (err) {
+      setState({ step: "error", message: String(err) });
+    }
+  }, [scraperId]);
+
   return (
     <dialog
       ref={ref}
@@ -326,6 +378,7 @@ export function HealDialog({
             bdStep={state.bdStep}
             completedSteps={state.completedSteps}
             onCancel={handleCancel}
+            onBackground={handleClose}
           />
         )}
 
@@ -338,6 +391,15 @@ export function HealDialog({
             finishedAt={state.finishedAt}
             onApprove={handleApprove}
             onReject={handleReject}
+          />
+        )}
+
+        {state.step === "orphaned" && (
+          <OrphanedView
+            diff={state.diff}
+            previewResult={state.previewResult}
+            onRecover={handleRecover}
+            onReject={handleRejectOrphaned}
           />
         )}
 
@@ -616,11 +678,13 @@ function TriggeringView({
   bdStep,
   completedSteps,
   onCancel,
+  onBackground,
 }: {
   startedAt: number;
   bdStep: string | null;
   completedSteps: string[];
   onCancel: () => void;
+  onBackground: () => void;
 }) {
   const [elapsed, setElapsed] = useState(0);
 
@@ -677,13 +741,73 @@ function TriggeringView({
         Bright Data is generating a fix. This usually takes 1-5 minutes.
       </p>
 
-      <button
-        type="button"
-        onClick={onCancel}
-        className="mt-3 w-full rounded-sm border border-line py-1.5 text-[11px] uppercase tracking-[0.14em] text-mute transition-colors hover:border-broken hover:text-broken"
-      >
-        Cancel
-      </button>
+      <div className="mt-3 flex gap-2">
+        <button
+          type="button"
+          onClick={onBackground}
+          className="flex-1 rounded-sm border border-heal/30 py-1.5 text-[11px] uppercase tracking-[0.14em] text-heal transition-colors hover:border-heal hover:bg-heal/5"
+        >
+          Continue in background
+        </button>
+        <button
+          type="button"
+          onClick={onCancel}
+          className="flex-1 rounded-sm border border-line py-1.5 text-[11px] uppercase tracking-[0.14em] text-mute transition-colors hover:border-broken hover:text-broken"
+        >
+          Cancel
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function OrphanedView({
+  diff,
+  previewResult,
+  onRecover,
+  onReject,
+}: {
+  diff: DiffData | null;
+  previewResult: unknown[] | null;
+  onRecover: () => void;
+  onReject: () => void;
+}) {
+  return (
+    <div className="py-4">
+      <p className="caps text-warning">Orphaned heal detected</p>
+      <p className="mt-2 text-[11px] text-mute">
+        A previous heal is awaiting approval on Bright Data, but has no matching
+        record locally. You can adopt it to review and approve/reject, or dismiss
+        it entirely.
+      </p>
+
+      {diff && <DiffView diff={diff} />}
+
+      {previewResult && previewResult.length > 0 && (
+        <div className="mt-3">
+          <p className="caps">Preview result</p>
+          <pre className="mt-1 max-h-40 overflow-auto rounded-sm border border-line bg-wash p-2 text-[10px] leading-relaxed">
+            {JSON.stringify(previewResult, null, 2)}
+          </pre>
+        </div>
+      )}
+
+      <div className="mt-4 flex gap-2">
+        <button
+          type="button"
+          onClick={onRecover}
+          className="flex-1 rounded-sm bg-heal py-1.5 text-[11px] uppercase tracking-[0.14em] text-white transition-colors hover:bg-heal/80"
+        >
+          Adopt and review
+        </button>
+        <button
+          type="button"
+          onClick={onReject}
+          className="flex-1 rounded-sm border border-line py-1.5 text-[11px] uppercase tracking-[0.14em] text-mute transition-colors hover:border-broken hover:text-broken"
+        >
+          Dismiss
+        </button>
+      </div>
     </div>
   );
 }
@@ -843,51 +967,65 @@ function TimingBadge({
 // ---------------------------------------------------------------------------
 
 function DiffView({ diff }: { diff: DiffData }) {
-  const [tab, setTab] = useState<"before" | "after">("after");
-  const raw = tab === "before" ? diff.template_a : diff.template_b;
-  const steps = extractSteps(raw);
+  const stepsA = extractSteps(diff.template_a);
+  const stepsB = extractSteps(diff.template_b);
+  const maxSteps = Math.max(stepsA.length, stepsB.length);
 
   return (
     <div className="mt-3">
-      <div className="flex items-center gap-1">
-        <p className="caps flex-1">Scraper code</p>
-        <button
-          type="button"
-          onClick={() => setTab("before")}
-          className={`rounded-sm px-2 py-0.5 text-[10px] transition-colors ${
-            tab === "before"
-              ? "bg-broken/10 text-broken"
-              : "text-mute hover:text-ink"
-          }`}
-        >
-          Before
-        </button>
-        <button
-          type="button"
-          onClick={() => setTab("after")}
-          className={`rounded-sm px-2 py-0.5 text-[10px] transition-colors ${
-            tab === "after"
-              ? "bg-live/10 text-live"
-              : "text-mute hover:text-ink"
-          }`}
-        >
-          After
-        </button>
-      </div>
-      <div className="mt-1 max-h-60 overflow-auto rounded-sm border border-line bg-wash">
-        {steps.map((step, i) => {
-          const code = extractCode(step);
-          if (!code) return null;
+      <p className="caps">Code changes</p>
+      <div className="mt-1 max-h-72 overflow-auto rounded-sm border border-line bg-wash">
+        {Array.from({ length: maxSteps }, (_, i) => {
+          const codeA = stepsA[i] ? extractCode(stepsA[i]) : "";
+          const codeB = stepsB[i] ? extractCode(stepsB[i]) : "";
+          if (!codeA && !codeB) return null;
+          const changes = diffLines(codeA ?? "", codeB ?? "");
+          const hasChanges = changes.some((c) => c.added || c.removed);
+          if (!hasChanges) return null;
           return (
-            <div key={i} className="border-b border-line p-2 last:border-b-0">
-              <p className="text-[9px] text-mute">
-                Step {i}{" "}
-                {Object.keys(step)
-                  .filter((k) => k !== "code" && k !== "parse")
-                  .join(", ")}
+            <div key={i} className="border-b border-line last:border-b-0">
+              <p className="sticky top-0 bg-wash px-2 py-1 text-[9px] text-mute">
+                Step {i}
               </p>
-              <pre className="mt-1 whitespace-pre-wrap break-words text-[10px] leading-[1.6]">
-                {code}
+              <pre className="text-[10px] leading-[1.6]">
+                {changes.map((part, j) => {
+                  if (!part.added && !part.removed) {
+                    const lines = part.value.split("\n");
+                    if (lines[lines.length - 1] === "") lines.pop();
+                    if (lines.length <= 4) {
+                      return lines.map((line, k) => (
+                        <div key={`${j}-${k}`} className="px-2 text-mute/60">
+                          {"  "}{line}
+                        </div>
+                      ));
+                    }
+                    return [
+                      <div key={`${j}-0`} className="px-2 text-mute/60">
+                        {"  "}{lines[0]}
+                      </div>,
+                      <div key={`${j}-sep`} className="px-2 text-mute/30 italic">
+                        {"  "}... {lines.length - 2} unchanged lines ...
+                      </div>,
+                      <div key={`${j}-end`} className="px-2 text-mute/60">
+                        {"  "}{lines[lines.length - 1]}
+                      </div>,
+                    ];
+                  }
+                  const lines = part.value.split("\n");
+                  if (lines[lines.length - 1] === "") lines.pop();
+                  return lines.map((line, k) => (
+                    <div
+                      key={`${j}-${k}`}
+                      className={
+                        part.added
+                          ? "bg-live/8 px-2 text-live"
+                          : "bg-broken/8 px-2 text-broken"
+                      }
+                    >
+                      {part.added ? "+ " : "- "}{line}
+                    </div>
+                  ));
+                })}
               </pre>
             </div>
           );
