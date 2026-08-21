@@ -14,11 +14,13 @@ export function FleetBoard({
   onOpenIncident,
   onHeal,
   onCaptureCode,
+  capturingId,
 }: {
   fleet: FleetScraper[];
   onOpenIncident?: (incidentId: string) => void;
   onHeal?: (scraper: FleetScraper) => void;
   onCaptureCode?: (scraper: FleetScraper) => void;
+  capturingId?: string | null;
 }) {
   return (
     <ul className="flex flex-col">
@@ -89,10 +91,11 @@ export function FleetBoard({
               {scraper.collectorId && !scraper.hasTemplate && onCaptureCode ? (
                 <button
                   type="button"
+                  disabled={capturingId === scraper.collectorId}
                   onClick={() => onCaptureCode(scraper)}
-                  className="rounded border border-line px-2 py-0.5 font-mono text-[10px] text-mute transition-colors hover:border-heal/40 hover:text-heal"
+                  className="rounded border border-line px-2 py-0.5 font-mono text-[10px] text-mute transition-colors hover:border-heal/40 hover:text-heal disabled:opacity-50"
                 >
-                  capture code
+                  {capturingId === scraper.collectorId ? "capturing..." : "capture code"}
                 </button>
               ) : null}
             </div>
