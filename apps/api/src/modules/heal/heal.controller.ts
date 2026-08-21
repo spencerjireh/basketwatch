@@ -2,6 +2,7 @@ import { Body, Controller, Get, Param, Post, UseGuards } from "@nestjs/common";
 import {
   type HealDecisionResponse,
   type HealPreviewPromptResponse,
+  type HealStatusResponse,
   type HealTriggerBody,
   type HealTriggerResponse,
   healTriggerBodySchema,
@@ -25,6 +26,18 @@ export class HealController {
   @Get(":scraperId/preview-prompt")
   previewPrompt(@Param("scraperId") scraperId: string): Promise<HealPreviewPromptResponse> {
     return this.orchestrator.previewPrompt(scraperId);
+  }
+
+  /**
+   * GET /api/heal/:scraperId/status
+   *
+   * Single-shot progress check: returns the current BD pipeline step and
+   * timing for an in-flight heal, or "idle" if nothing is running.
+   * The frontend polls this every 3-5 seconds for live status.
+   */
+  @Get(":scraperId/status")
+  status(@Param("scraperId") scraperId: string): Promise<HealStatusResponse> {
+    return this.orchestrator.getStatus(scraperId);
   }
 
   /**

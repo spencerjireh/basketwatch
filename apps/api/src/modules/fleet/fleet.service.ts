@@ -1,5 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { type FleetScraper } from "@basketwatch/contract";
+import { CodeCaptureService } from "../heal/code-capture.service.js";
 import { ValidatorService } from "../validator/validator.service.js";
 import { FleetRepository } from "./fleet.repository.js";
 
@@ -8,6 +9,7 @@ export class FleetService {
   constructor(
     private readonly repository: FleetRepository,
     private readonly validator: ValidatorService,
+    private readonly codeCapture: CodeCaptureService,
   ) {}
 
   async list(): Promise<FleetScraper[]> {
@@ -16,5 +18,9 @@ export class FleetService {
 
   async seedBaselines(): Promise<number> {
     return this.validator.seedAllBaselines();
+  }
+
+  async captureAllCode(): Promise<{ captured: number; failed: number; skipped: number }> {
+    return this.codeCapture.captureAllMissing();
   }
 }
