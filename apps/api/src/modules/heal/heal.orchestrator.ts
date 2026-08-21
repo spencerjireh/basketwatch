@@ -97,8 +97,9 @@ export class HealOrchestrator {
       status = "error";
     }
 
-    const verdict = status === "pending_answer" ? null : "failed";
-    await this.repository.finishAttempt(attemptId, verdict ?? "pending", null, null);
+    if (status !== "pending_answer") {
+      await this.repository.finishAttempt(attemptId, "failed", null, null);
+    }
 
     return {
       attemptId,
