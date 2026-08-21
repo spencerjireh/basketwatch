@@ -4,7 +4,7 @@ import { StatusDot, statusLabel, statusStyle } from "@/components/common/status-
 import { cn } from "@/lib/utils";
 
 /**
- * The rack: one shelf-edge strip per store, coloured on its left edge by state.
+ * The rack: one hairline row per store, state carried by the coloured word.
  *
  * A store is not a scraper. Most stores are pulled over HTTP and have no Studio
  * collector, which is why the collector id is shown only when one exists.
@@ -17,11 +17,11 @@ export function FleetBoard({
   onOpenIncident?: (incidentId: string) => void;
 }) {
   return (
-    <ul className="flex flex-col gap-2">
+    <ul className="flex flex-col">
       {fleet.map((scraper) => {
         const style = statusStyle(scraper.status);
         return (
-          <li key={scraper.storeId} className={cn("shelf-edge px-3 py-2.5", style.edge)}>
+          <li key={scraper.storeId} className="border-b border-line py-2.5 last:border-b-0">
             <div className="flex items-center gap-2.5">
               <StatusDot status={scraper.status} />
               <span className="min-w-0 flex-1 truncate font-medium">{scraper.name}</span>
@@ -61,7 +61,7 @@ export function FleetBoard({
               <button
                 type="button"
                 onClick={() => onOpenIncident(scraper.openIncidentId as string)}
-                className="mt-1.5 ml-[18px] rounded border border-line px-2 py-0.5 font-mono text-[10px] text-mute transition-colors hover:border-heal/40 hover:text-heal"
+                className="mt-1.5 ml-[18px] font-mono text-[11px] text-mute underline decoration-1 underline-offset-4 transition-colors hover:text-heal"
               >
                 open audit
               </button>

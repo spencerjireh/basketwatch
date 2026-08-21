@@ -111,7 +111,7 @@ export function ProductSearch() {
             value={q}
             onChange={(event) => setQ(event.target.value)}
             placeholder="Search 28,000 products — try rice, milk, coffee"
-            className="w-full rounded-[6px] border border-line bg-rail px-3.5 py-2.5 text-[14px] text-chalk placeholder:text-mute focus:border-heal/50 focus:outline-none"
+            className="w-full border-b border-line bg-transparent px-0 py-2.5 font-display text-[22px] text-ink placeholder:font-sans placeholder:text-[14px] placeholder:text-mute focus:border-ink focus:outline-none"
           />
         </label>
 
@@ -169,11 +169,11 @@ export function ProductSearch() {
 
         {hits.length > 0 ? (
           <>
-            <ul className="flex flex-col gap-1.5">
+            <ul className="rule flex flex-col">
               {hits.map((hit) => (
                 <li
                   key={`${hit.storeId}:${hit.productKey}`}
-                  className="shelf-edge flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 border-l-line px-3 py-2.5"
+                  className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 border-b border-line py-2.5"
                 >
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-[13px]">{hit.name}</p>
@@ -183,17 +183,19 @@ export function ProductSearch() {
                     </p>
                   </div>
                   <div className="shrink-0 text-right">
-                    <p className="font-mono text-[13px]">
-                      {hit.price ? formatMoney(hit.price.amount, hit.price.currency) : "not priced"}
-                    </p>
                     {hit.unitPrice && hit.unitPriceBasis ? (
-                      <p className="font-mono text-[10.5px] text-live">
+                      <p className="font-mono text-[15px]">
                         {formatMoney(hit.unitPrice.amount, hit.unitPrice.currency)}{" "}
-                        {BASIS_LABEL[hit.unitPriceBasis]}
+                        <span className="text-[10.5px] text-mute">
+                          {BASIS_LABEL[hit.unitPriceBasis]}
+                        </span>
                       </p>
                     ) : (
                       <p className="font-mono text-[10.5px] text-mute">no size on the label</p>
                     )}
+                    <p className="font-mono text-[10.5px] text-mute">
+                      {hit.price ? formatMoney(hit.price.amount, hit.price.currency) : "not priced"}
+                    </p>
                   </div>
                 </li>
               ))}
@@ -203,7 +205,7 @@ export function ProductSearch() {
               <button
                 type="button"
                 onClick={() => void loadMore()}
-                className="mt-4 rounded border border-line px-3 py-1.5 font-mono text-[11px] text-mute transition-colors hover:border-heal/40 hover:text-heal"
+                className="mt-4 font-mono text-[11px] text-mute underline decoration-1 underline-offset-4 transition-colors hover:text-heal"
               >
                 Show more
               </button>
@@ -232,8 +234,8 @@ function Choice({
 }) {
   return (
     <div className="flex items-center gap-2">
-      <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-mute">{label}</span>
-      <div className="flex gap-1">
+      <span className="caps">{label}</span>
+      <div className="flex gap-3">
         {options.map(([optionValue, optionLabel]) => (
           <button
             key={optionValue}
@@ -241,10 +243,10 @@ function Choice({
             aria-pressed={value === optionValue}
             onClick={() => onChange(optionValue)}
             className={cn(
-              "rounded border px-2 py-0.5 font-mono text-[10.5px] transition-colors",
+              "border-b pb-0.5 font-mono text-[10.5px] uppercase tracking-[0.08em] transition-colors",
               value === optionValue
-                ? "border-heal/40 bg-heal/10 text-heal"
-                : "border-line text-mute hover:text-chalk",
+                ? "border-ink text-ink"
+                : "border-transparent text-mute hover:text-ink",
             )}
           >
             {optionLabel}
