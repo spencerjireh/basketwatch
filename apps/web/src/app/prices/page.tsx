@@ -1,5 +1,4 @@
 import { ProductSearch } from "@/components/products/product-search";
-import { Panel } from "@/components/ui/panel";
 
 export const metadata = {
   title: "Prices — Basketwatch",
@@ -17,7 +16,7 @@ export default function PricesPage() {
   return (
     <main className="mx-auto min-h-screen w-full max-w-[840px] px-5 pb-24 pt-8">
       <section className="max-w-[58ch]">
-        <h1 className="font-display text-[26px] font-semibold tracking-[-0.01em] [font-stretch:expanded]">
+        <h1 className="font-display text-[30px] leading-[1.15] tracking-[-0.01em]">
           Every product we track
         </h1>
         <p className="mt-2.5 text-[14px] text-mute">
@@ -26,13 +25,9 @@ export default function PricesPage() {
         </p>
       </section>
 
-      <Panel
-        title="Search"
-        caption="Across every store at once. Filter by unit to compare like with like."
-        className="mt-6"
-      >
+      <div className="rule mt-8 pt-6">
         <ProductSearch />
-      </Panel>
+      </div>
     </main>
   );
 }

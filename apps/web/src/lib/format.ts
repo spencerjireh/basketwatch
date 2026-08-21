@@ -63,3 +63,21 @@ export function formatRelative(iso: string, now: number): string {
   if (hours < 24) return `${hours}h ago`;
   return `${Math.round(hours / 24)}d ago`;
 }
+
+/** "0.5 kg" reads worse than "500 g" on a shelf, and this is a shelf. */
+export function formatQuantity(quantity: number, uom: string | null): string {
+  if (uom === "count") return `${quantity}`;
+  if (uom === "kg" && quantity < 1) return `${Math.round(quantity * 1000)} g`;
+  if (uom === "l" && quantity < 1) return `${Math.round(quantity * 1000)} ml`;
+  return `${quantity} ${uom ?? ""}`.trim();
+}
+
+const BASIS_LABEL: Record<string, string> = {
+  per_kg: "per kg",
+  per_litre: "per litre",
+  per_item: "each",
+};
+
+export function formatBasis(basis: string | null): string {
+  return basis ? (BASIS_LABEL[basis] ?? "") : "";
+}

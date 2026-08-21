@@ -35,7 +35,7 @@ export default async function BehindPage() {
   return (
     <main className="mx-auto min-h-screen w-full max-w-[1240px] px-5 pb-24 pt-8">
       <section className="max-w-[62ch]">
-        <h1 className="font-display text-[26px] font-semibold tracking-[-0.01em] [font-stretch:expanded]">
+        <h1 className="font-display text-[30px] leading-[1.15] tracking-[-0.01em]">
           Behind the data
         </h1>
         <p className="mt-2.5 text-[14px] text-mute">
@@ -45,7 +45,7 @@ export default async function BehindPage() {
         </p>
       </section>
 
-      <div className="mt-6">
+      <div className="mt-8">
         <BehindBoard
           fleet={fleet}
           feed={feed.items}

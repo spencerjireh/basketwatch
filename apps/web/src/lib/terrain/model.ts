@@ -1,0 +1,152 @@
+import type { Country, Money, Rail } from "@basketwatch/contract";
+
+/**
+ * The terrain model: one grid per country, rows are staples, columns are
+ * stores, and a cell's height is how many times the cheapest that store
+ * prices that staple.
+ *
+ * This module is pure math with no React and no three.js in it, because two
+ * renderers draw it -- the 3D relief and the SVG ridgeline -- and they must
+ * never disagree about what the landscape says.
+ */
+
+export type TerrainCell = {
+  itemKey: string;
+  label: string;
+  storeId: string;
+  storeName: string;
+  productName: string;
+  unitPrice: Money;
+  unitPriceBasis: string | null;
+  /** unit price over the cheapest unit price for this staple; always >= 1 */
+  ratio: number;
+  /** 0..1, log-scaled and capped so one 9x outlier cannot flatten the relief */
+  height: number;
+  capped: boolean;
+  cheapest: boolean;
+  flag: "ok" | "imprecise";
+};
+
+export type CellRef = { country: Country; itemKey: string; storeId: string };
+
+export type TerrainGrid = {
+  country: Country;
+  currency: string;
+  staples: { itemKey: string; label: string }[];
+  stores: { storeId: string; storeName: string }[];
+  /** cells[stapleIdx][storeIdx]; null is a gap -- no pin, no price, or suspect */
+  cells: (TerrainCell | null)[][];
+  maxRatio: number;
+};
+
+export const RATIO_CAP = 8;
+
+export function heightFor(ratio: number): number {
+  return Math.min(1, Math.log(Math.max(1, ratio)) / Math.log(RATIO_CAP));
+}
+
+/**
+ * A pin becomes a cell only if it would be drawn on the staple strip too:
+ * not suspect, and carrying a unit price. Same filter, same truth -- the
+ * terrain can never show a pin the quality worklist excluded.
+ */
+export function buildTerrainGrid(rails: Rail[], country: Country): TerrainGrid | null {
+  const countryRails = rails.filter((rail) => rail.country === country);
+  if (countryRails.length === 0) return null;
+
+  type Usable = { rail: Rail; pins: Map<string, Rail["pins"][number]> };
+  const usable: Usable[] = countryRails.map((rail) => ({
+    rail,
+    pins: new Map(
+      rail.pins
+        .filter((pin) => pin.flag !== "suspect" && pin.unitPrice !== null)
+        .map((pin) => [pin.storeId, pin]),
+    ),
+  }));
+
+  const storeNames = new Map<string, string>();
+  for (const { pins } of usable) {
+    for (const pin of pins.values()) storeNames.set(pin.storeId, pin.storeName);
+  }
+
+  // Column order: cheapest terrain on the left. Stores sort by their mean
+  // ratio across the staples they price, so the landscape rises left to right
+  // and the ordering is deterministic between server and client.
+  const ratioSums = new Map<string, { sum: number; count: number }>();
+  const minByRail = new Map<Rail, number>();
+  for (const { rail, pins } of usable) {
+    if (pins.size === 0) continue;
+    const min = Math.min(...[...pins.values()].map((pin) => pin.unitPrice?.amount ?? Infinity));
+    minByRail.set(rail, min);
+    for (const pin of pins.values()) {
+      const amount = pin.unitPrice?.amount;
+      if (amount === undefined || min <= 0) continue;
+      const entry = ratioSums.get(pin.storeId) ?? { sum: 0, count: 0 };
+      entry.sum += amount / min;
+      entry.count += 1;
+      ratioSums.set(pin.storeId, entry);
+    }
+  }
+
+  const stores = [...storeNames.entries()]
+    .map(([storeId, storeName]) => {
+      const entry = ratioSums.get(storeId);
+      return { storeId, storeName, mean: entry ? entry.sum / entry.count : Infinity };
+    })
+    .sort((a, b) => a.mean - b.mean || a.storeName.localeCompare(b.storeName))
+    .map(({ storeId, storeName }) => ({ storeId, storeName }));
+
+  let maxRatio = 1;
+  const staples: TerrainGrid["staples"] = [];
+  const cells: (TerrainCell | null)[][] = [];
+
+  for (const { rail, pins } of usable) {
+    const min = minByRail.get(rail);
+    staples.push({ itemKey: rail.itemKey, label: rail.label });
+    cells.push(
+      stores.map(({ storeId }) => {
+        const pin = pins.get(storeId);
+        const amount = pin?.unitPrice?.amount;
+        if (!pin || amount === undefined || min === undefined || min <= 0) return null;
+        const ratio = amount / min;
+        maxRatio = Math.max(maxRatio, ratio);
+        return {
+          itemKey: rail.itemKey,
+          label: rail.label,
+          storeId: pin.storeId,
+          storeName: pin.storeName,
+          productName: pin.productName,
+          unitPrice: pin.unitPrice as Money,
+          unitPriceBasis: pin.unitPriceBasis,
+          ratio,
+          height: heightFor(ratio),
+          capped: ratio > RATIO_CAP,
+          cheapest: pin.cheapest,
+          flag: pin.flag === "imprecise" ? "imprecise" : "ok",
+        };
+      }),
+    );
+  }
+
+  // Degenerate guard: below two stores or two staples with anything on them,
+  // there is no landscape to draw, only a remark.
+  const rowsWithCells = cells.filter((row) => row.some(Boolean)).length;
+  if (stores.length < 2 || rowsWithCells < 2) return null;
+
+  return {
+    country,
+    currency: countryRails[0]?.currency ?? "USD",
+    staples,
+    stores,
+    cells,
+    maxRatio,
+  };
+}
+
+export function findCell(grid: TerrainGrid, ref: CellRef): TerrainCell | null {
+  if (ref.country !== grid.country) return null;
+  const row = grid.staples.findIndex((staple) => staple.itemKey === ref.itemKey);
+  const col = grid.stores.findIndex((store) => store.storeId === ref.storeId);
+  if (row < 0 || col < 0) return null;
+  return grid.cells[row]?.[col] ?? null;
+}
