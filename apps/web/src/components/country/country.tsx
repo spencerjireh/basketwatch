@@ -66,12 +66,18 @@ export function CountryUrlSync() {
   const params = useSearchParams();
   const ctx = useContext(CountryContext);
   if (!ctx) throw new Error("CountryUrlSync must be used inside a CountryProvider");
-  const fromUrl = parseCountry(params.get("country"));
   const { country, setCountry } = ctx;
 
+  // The truth is read from window.location, not from the params hook: our own
+  // replaceState updates the location synchronously, but the router mirrors
+  // it into useSearchParams a beat later, and an effect trusting the stale
+  // mirror would revert the very flip that just happened. The hook's job here
+  // is only to fire this effect when the router-visible URL changes -- deep
+  // links, Link navigations, back/forward.
   useEffect(() => {
-    if (fromUrl !== country) setCountry(fromUrl);
-  }, [fromUrl, country, setCountry]);
+    const real = parseCountry(new URLSearchParams(window.location.search).get("country"));
+    if (real !== country) setCountry(real);
+  }, [params, country, setCountry]);
 
   return null;
 }
