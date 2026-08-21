@@ -28,7 +28,7 @@ const TerrainScene = dynamic(() => import("./terrain-scene"), {
  * shifts the page.
  */
 export function TerrainHero({ grid }: { grid: TerrainGrid | null }) {
-  const { hovered, selected, setHovered, select } = useSelection();
+  const { hovered, selected, setHovered, select, clear } = useSelection();
   const [webgl, setWebgl] = useState<boolean | null>(null);
   const [sceneLive, setSceneLive] = useState(false);
 
@@ -71,8 +71,10 @@ export function TerrainHero({ grid }: { grid: TerrainGrid | null }) {
             <TerrainScene
               grid={grid}
               hovered={hovered}
+              selected={selected}
               onHover={setHovered}
               onSelect={select}
+              onClear={clear}
               onReady={() => setSceneLive(true)}
             />
           </div>
