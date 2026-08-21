@@ -47,8 +47,8 @@ export class StudioClient {
   }
 
   /**
-   * Trigger a heal and poll until the approval gate (pending_answer) or
-   * timeout. Returns the progress snapshot that contains the diff and preview.
+   * Trigger a heal on BD. Returns immediately after the POST succeeds --
+   * does NOT poll. The frontend polls via checkProgress / getStatus instead.
    */
   async proposeHeal(collectorId: string, prompt: string): Promise<HealProgressResult> {
     this.logger.log(`${collectorId}: triggering heal -- ${prompt.slice(0, 80)}...`);
@@ -69,7 +69,16 @@ export class StudioClient {
       );
     }
 
-    return this.pollProgress(collectorId);
+    // Return initial running state; frontend will poll checkProgress for updates
+    return {
+      id: "",
+      status: "running",
+      step: "planner",
+      completedSteps: [],
+      diff: null,
+      previewResult: null,
+      success: null,
+    };
   }
 
   /**
@@ -151,6 +160,32 @@ export class StudioClient {
       previewResult: null,
       success: null,
     };
+  }
+
+  /**
+   * Trigger + poll -- used only by CodeCaptureService where we need the diff
+   * synchronously.
+   */
+  async proposeHealAndWait(collectorId: string, prompt: string): Promise<HealProgressResult> {
+    this.logger.log(`${collectorId}: triggering heal (blocking) -- ${prompt.slice(0, 80)}...`);
+
+    const triggerRes = await fetch(
+      `${BD_API}/dca/collectors/${collectorId}/refactor_template`,
+      {
+        method: "POST",
+        headers: this.headers(),
+        body: JSON.stringify({ prompt }),
+      },
+    );
+
+    if (!triggerRes.ok) {
+      const text = await triggerRes.text();
+      throw new StudioHealError(
+        `Failed to trigger heal for ${collectorId}: ${triggerRes.status} ${text}`,
+      );
+    }
+
+    return this.pollProgress(collectorId);
   }
 
   /**

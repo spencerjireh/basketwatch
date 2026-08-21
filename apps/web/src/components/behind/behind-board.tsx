@@ -51,9 +51,13 @@ export function BehindBoard({
   const handleCaptureCode = useCallback(async (scraper: FleetScraper) => {
     if (!scraper.collectorId || capturingId) return;
     setCapturingId(scraper.collectorId);
-    await captureOneCode(scraper.collectorId);
+    const result = await captureOneCode(scraper.collectorId);
     setCapturingId(null);
-    window.location.reload();
+    if (result.ok) {
+      window.location.reload();
+    } else {
+      alert(`Capture failed: ${result.data?.error ?? "unknown error"}`);
+    }
   }, [capturingId]);
 
   const healthy = fleet.filter((s) => s.status === "healthy").length;
