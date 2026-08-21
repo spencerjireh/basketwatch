@@ -30,7 +30,7 @@ export function Nav() {
     <header className="border-b border-line">
       <div className="mx-auto flex w-full max-w-[1240px] flex-wrap items-baseline gap-x-8 gap-y-2 px-5 py-4">
         <Link href="/" className="font-display text-[19px]">
-          Basketwatch
+          basketwatch<span className="text-live">.</span>
         </Link>
 
         <nav aria-label="Sections" className="flex gap-6">
