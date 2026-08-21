@@ -73,7 +73,10 @@ const MB = 1024 * 1024;
 const CLI_TIMEOUT_MS = num(process.env.BD_CLI_TIMEOUT_MS, 10 * 60 * 1000);
 
 async function cli(args) {
-  const { stdout } = await exec("npx", ["brightdata", ...args], {
+  const cliArgs = process.env.BRIGHTDATA_API_KEY
+    ? ["-k", process.env.BRIGHTDATA_API_KEY, ...args]
+    : args;
+  const { stdout } = await exec("bdata", cliArgs, {
     maxBuffer: 32 * 1024 * 1024,
     timeout: CLI_TIMEOUT_MS,
   });
@@ -96,6 +99,7 @@ function parseBytes(text) {
 async function meter() {
   const zones = {};
   let balanceUsd = null;
+  let pendingUsd = 0;
   try {
     for (const line of (await cli(["budget", "zones"])).split(/\r?\n/)) {
       const cells = line.split("|").map((c) => c.trim());
@@ -108,16 +112,39 @@ async function meter() {
   } catch {
     /* metering must never be the reason an action fails */
   }
-  try {
-    balanceUsd = Number(/Balance\s+\$([0-9.]+)/.exec(await cli(["budget", "balance"]))?.[1] ?? Number.NaN);
-  } catch {
-    balanceUsd = null;
+
+  // Use the direct API for balance: it returns pending_costs which the
+  // CLI's `budget balance` ignores. Net available = balance - pending.
+  const apiKey = process.env.BRIGHTDATA_API_KEY;
+  if (apiKey) {
+    try {
+      const res = await fetch("https://api.brightdata.com/customer/balance", {
+        headers: { Authorization: `Bearer ${apiKey}` },
+      });
+      if (res.ok) {
+        const data = await res.json();
+        const gross = Number(data.balance ?? NaN);
+        pendingUsd = Number(data.pending_costs ?? 0);
+        balanceUsd = Number.isNaN(gross) ? null : Number((gross - pendingUsd).toFixed(2));
+      }
+    } catch {
+      /* fall through to CLI */
+    }
   }
+  if (balanceUsd === null) {
+    try {
+      balanceUsd = Number(/Balance\s+\$([0-9.]+)/.exec(await cli(["budget", "balance"]))?.[1] ?? Number.NaN);
+      if (Number.isNaN(balanceUsd)) balanceUsd = null;
+    } catch {
+      balanceUsd = null;
+    }
+  }
+
   const totals = Object.values(zones).reduce(
     (acc, z) => ({ usd: Number((acc.usd + z.usd).toFixed(4)), bytes: acc.bytes + z.bytes }),
     { usd: 0, bytes: 0 },
   );
-  return { zones, totals, balanceUsd: Number.isNaN(balanceUsd) ? null : balanceUsd };
+  return { zones, totals, balanceUsd, pendingUsd };
 }
 
 function diff(before, after) {
@@ -191,15 +218,39 @@ const mb = (bytes) => `${(bytes / MB).toFixed(1)} MB`;
 async function preflight(label, args) {
   const rows = await ledger();
   const before = await meter();
-  const spentToday = spentSince(today(rows), before.totals.usd);
-  const spentHour = spentSince(since(rows, 60 * 60 * 1000), before.totals.usd);
+
+  // Zone-based spend (Unlocker, SERP, Browser proxies).
+  const spentTodayZones = spentSince(today(rows), before.totals.usd);
+  const spentHourZones = spentSince(since(rows, 60 * 60 * 1000), before.totals.usd);
+
+  // Balance-based spend (catches everything including Studio CPM).
+  // Uses the recorded balanceBefore from the earliest ledger entry in the
+  // window vs the current balance.
+  const balanceSpentInWindow = (windowRows) => {
+    if (!windowRows.length || before.balanceUsd === null) return 0;
+    const earliest = windowRows.reduce((best, r) =>
+      (r.balanceBefore ?? r.balanceAfter ?? Infinity) > (best.balanceBefore ?? best.balanceAfter ?? Infinity) ? r : best,
+      windowRows[0],
+    );
+    const startBalance = earliest.balanceBefore ?? earliest.balanceAfter ?? null;
+    if (startBalance === null) return 0;
+    return Number(Math.max(0, startBalance - before.balanceUsd).toFixed(2));
+  };
+  const spentTodayBalance = balanceSpentInWindow(today(rows));
+  const spentHourBalance = balanceSpentInWindow(since(rows, 60 * 60 * 1000));
+
+  const spentToday = Math.max(spentTodayZones, spentTodayBalance);
+  const spentHour = Math.max(spentHourZones, spentHourBalance);
 
   console.log(`action    ${label}`);
-  console.log(`command   brightdata ${args.join(" ")}`);
+  console.log(`command   bdata ${args.join(" ")}`);
   console.log(
     `spent     ${usd(spentToday)} today of ${usd(CAPS.dailyUsd)}, ${usd(spentHour)} in the last hour of ${usd(CAPS.perHourUsd)}`,
   );
-  console.log(`balance   ${before.balanceUsd === null ? "unavailable" : usd(before.balanceUsd)}`);
+  if (spentTodayBalance > spentTodayZones) {
+    console.log(`          (${usd(spentTodayBalance)} from balance drop, ${usd(spentTodayZones)} from zones)`);
+  }
+  console.log(`balance   ${before.balanceUsd === null ? "unavailable" : usd(before.balanceUsd)}${before.pendingUsd ? ` (${usd(before.pendingUsd)} pending)` : ""}`);
 
   const breaches = [];
   if (spentToday >= CAPS.dailyUsd) breaches.push(`daily ceiling reached (${usd(spentToday)} of ${usd(CAPS.dailyUsd)})`);
@@ -243,6 +294,17 @@ async function run(label, args) {
 
   const after = await meter();
   const delta = diff(before, after);
+
+  // Balance-based cost: catches Scraper Studio CPM spend that never
+  // appears in zone totals. `budget balance` rounds to the dollar, so
+  // small actions read as $0 -- but a runaway crawl ($12+ in one shot)
+  // will show up here even when zones report nothing.
+  const balanceDrop =
+    before.balanceUsd !== null && after.balanceUsd !== null
+      ? Number(Math.max(0, before.balanceUsd - after.balanceUsd).toFixed(2))
+      : 0;
+  const effectiveCost = Math.max(delta.usd, balanceDrop);
+
   const entry = {
     ts: new Date().toISOString(),
     label,
@@ -250,11 +312,14 @@ async function run(label, args) {
     ok,
     seconds: Number(((Date.now() - startedAt) / 1000).toFixed(1)),
     usd: delta.usd,
+    balanceDrop,
+    effectiveCost,
     bytes: delta.bytes,
     zones: delta.perZone,
     cumBeforeUsd: before.totals.usd,
     cumAfterUsd: after.totals.usd,
     cumAfterBytes: after.totals.bytes,
+    balanceBefore: before.balanceUsd,
     balanceAfter: after.balanceUsd,
   };
   await record(entry);
@@ -263,15 +328,18 @@ async function run(label, args) {
     ? ` (${Object.entries(delta.perZone)
         .map(([zone, d]) => `${zone} ${usd(d.usd)}/${mb(d.bytes)}`)
         .join(", ")})`
-    : " (usage not reported yet; it lands in a later action's delta)";
-  console.log(`\ncost      ${usd(delta.usd)} and ${mb(delta.bytes)} on this action${attributed}`);
+    : "";
+  const balanceNote = balanceDrop > 0 ? ` (balance dropped ${usd(balanceDrop)})` : "";
+  console.log(`\ncost      ${usd(effectiveCost)} on this action${attributed}${balanceNote}`);
+  if (delta.bytes > 0) console.log(`bandwidth ${mb(delta.bytes)}`);
+  console.log(`balance   ${after.balanceUsd === null ? "unavailable" : usd(after.balanceUsd)}`);
   console.log(`cumulative ${usd(after.totals.usd)} and ${mb(after.totals.bytes)} across all zones`);
 
-  const overCost = delta.usd > CAPS.perActionUsd;
+  const overCost = effectiveCost > CAPS.perActionUsd;
   const overBandwidth = delta.bytes > CAPS.perActionMb * MB;
   if (overCost || overBandwidth) {
     console.error(
-      `\nHALT. This action ${overCost ? `cost ${usd(delta.usd)}, over the ${usd(CAPS.perActionUsd)} per-action cap` : ""}${
+      `\nHALT. This action ${overCost ? `cost ${usd(effectiveCost)}, over the ${usd(CAPS.perActionUsd)} per-action cap` : ""}${
         overCost && overBandwidth ? " and " : ""
       }${overBandwidth ? `pulled ${mb(delta.bytes)}, over the ${CAPS.perActionMb} MB per-action cap` : ""}.`,
     );
@@ -290,40 +358,42 @@ async function report() {
 
   const byLabel = new Map();
   for (const row of rows) {
-    const current = byLabel.get(row.label) ?? { count: 0, usd: 0, bytes: 0, failures: 0 };
+    const current = byLabel.get(row.label) ?? { count: 0, usd: 0, effectiveCost: 0, bytes: 0, failures: 0 };
     current.count += 1;
     current.usd += row.usd ?? 0;
+    current.effectiveCost += row.effectiveCost ?? row.usd ?? 0;
     current.bytes += row.bytes ?? 0;
     if (!row.ok) current.failures += 1;
     byLabel.set(row.label, current);
   }
 
-  console.log("action                 calls    cost   bandwidth  failed");
-  console.log("---------------------------------------------------------");
-  for (const [label, s] of [...byLabel.entries()].sort((a, b) => b[1].usd - a[1].usd)) {
+  console.log("action                 calls  zones  bal-drop  bandwidth  failed");
+  console.log("----------------------------------------------------------------");
+  for (const [label, s] of [...byLabel.entries()].sort((a, b) => b[1].effectiveCost - a[1].effectiveCost)) {
     console.log(
-      `${label.slice(0, 22).padEnd(22)} ${String(s.count).padStart(5)}  ${usd(s.usd).padStart(6)}  ${mb(s.bytes).padStart(10)}  ${String(s.failures).padStart(6)}`,
+      `${label.slice(0, 22).padEnd(22)} ${String(s.count).padStart(5)}  ${usd(s.usd).padStart(5)}  ${usd(s.effectiveCost).padStart(8)}  ${mb(s.bytes).padStart(9)}  ${String(s.failures).padStart(6)}`,
     );
   }
 
-  const attributed = sum(rows, "usd");
-  console.log("---------------------------------------------------------");
+  const zoneTotal = sum(rows, "usd");
+  const effectiveTotal = rows.reduce((t, r) => t + (r.effectiveCost ?? r.usd ?? 0), 0);
+  console.log("----------------------------------------------------------------");
   console.log(
-    `${"total".padEnd(22)} ${String(rows.length).padStart(5)}  ${usd(attributed).padStart(6)}  ${mb(sum(rows, "bytes")).padStart(10)}`,
+    `${"total".padEnd(22)} ${String(rows.length).padStart(5)}  ${usd(zoneTotal).padStart(5)}  ${usd(effectiveTotal).padStart(8)}  ${mb(sum(rows, "bytes")).padStart(9)}`,
   );
 
   const now = await meter();
-  const spentToday = spentSince(today(rows), now.totals.usd);
-  console.log(
-    `\ntoday ${usd(spentToday)} of the ${usd(CAPS.dailyUsd)} ceiling, ${usd(Math.max(0, CAPS.dailyUsd - spentToday))} left`,
-  );
-  console.log(`cumulative ${usd(now.totals.usd)} and ${mb(now.totals.bytes)} reported by Bright Data across all zones`);
-  const drift = Number((now.totals.usd - attributed).toFixed(4));
-  if (drift > 0.005) {
-    console.log(`unattributed ${usd(drift)} -- lagging usage, or a command that bypassed this wrapper`);
-  }
+  console.log(`\nzones      ${usd(now.totals.usd)} and ${mb(now.totals.bytes)} reported by Bright Data`);
   if (now.balanceUsd != null) {
-    console.log(`balance ${usd(now.balanceUsd)}, reserve floor ${usd(CAPS.minBalanceUsd)}`);
+    console.log(`balance    ${usd(now.balanceUsd)} available${now.pendingUsd ? ` (${usd(now.pendingUsd)} pending)` : ""}, reserve floor ${usd(CAPS.minBalanceUsd)}`);
+    const firstWithBalance = rows.find((r) => r.balanceBefore != null || r.balanceAfter != null);
+    if (firstWithBalance) {
+      const startBal = firstWithBalance.balanceBefore ?? firstWithBalance.balanceAfter;
+      const totalBalDrop = Number(Math.max(0, startBal - now.balanceUsd).toFixed(2));
+      if (totalBalDrop > 0) {
+        console.log(`all-time   ${usd(totalBalDrop)} balance consumed since first tracked action`);
+      }
+    }
   }
 }
 
