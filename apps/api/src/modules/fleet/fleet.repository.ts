@@ -17,6 +17,7 @@ type FleetRow = {
   incident_id: string | null;
   incident_state: string | null;
   heals_today: string;
+  has_template: boolean;
 };
 
 /**
@@ -46,7 +47,11 @@ export class FleetRepository {
         r.null_rate_pct::text as last_run_null_rate_pct,
         inc.id::text as incident_id,
         inc.state as incident_state,
-        coalesce(heals.n, 0)::text as heals_today
+        coalesce(heals.n, 0)::text as heals_today,
+        exists(
+          select 1 from scraper_templates st
+          where st.scraper_id = s.studio_collector_id
+        ) as has_template
       from stores s
       left join lateral (
         select at, rows, status, null_rate_pct from runs
@@ -85,6 +90,7 @@ export class FleetRepository {
             : 0,
           healsToday: Number(row.heals_today),
           openIncidentId: status === "healthy" ? null : row.incident_id,
+          hasTemplate: row.has_template,
         } satisfies FleetScraper,
       ];
     });
