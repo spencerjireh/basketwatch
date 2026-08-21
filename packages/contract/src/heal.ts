@@ -78,7 +78,7 @@ export const healTriggerResponseSchema = z.object({
   incidentId: z.string(),
   prompt: z.string(),
   findings: z.array(checkResultSchema),
-  status: z.enum(["pending_answer", "timeout", "error", "no_changes"]),
+  status: z.enum(["running", "pending_answer", "timeout", "error", "no_changes"]),
   previewResult: z.array(z.unknown()).nullable(),
   diffSummary: z.string().nullable(),
   diff: healDiffSchema.optional(),

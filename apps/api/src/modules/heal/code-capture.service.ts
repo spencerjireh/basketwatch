@@ -26,7 +26,7 @@ export class CodeCaptureService {
     this.logger.log(`${scraperId}: capturing code via heal-and-reject`);
 
     try {
-      const progress = await this.studio.proposeHeal(
+      const progress = await this.studio.proposeHealAndWait(
         scraperId,
         "Inspect current state",
       );

@@ -11,17 +11,33 @@ import {
 
 type TemplateStep = Record<string, unknown>;
 
-/** Pull the code string from a BD template step object. */
+/** Pull all code blocks from a BD template step (main code + parser). */
 function extractCode(step: TemplateStep): string | null {
-  if (typeof step.code === "string") return step.code;
-  if (typeof step.parse === "string") return step.parse;
-  return null;
+  const parts: string[] = [];
+  if (typeof step.code === "string") parts.push(step.code);
+  const parse =
+    typeof step.parse_code === "string"
+      ? step.parse_code
+      : typeof (step.parser as Record<string, unknown>)?.parser === "string"
+        ? (step.parser as Record<string, unknown>).parser as string
+        : typeof step.parse === "string"
+          ? step.parse
+          : null;
+  if (parse) parts.push(`--- parser ---\n${parse}`);
+  return parts.length > 0 ? parts.join("\n\n") : null;
+}
+
+/** BD returns templates as either an array of steps or an object with a .steps array. */
+function extractSteps(raw: TemplateStep[] | Record<string, unknown>): TemplateStep[] {
+  if (Array.isArray(raw)) return raw;
+  if (raw && Array.isArray(raw.steps)) return raw.steps as TemplateStep[];
+  return [];
 }
 
 interface DiffData {
   title: string;
-  template_a: TemplateStep[];
-  template_b: TemplateStep[];
+  template_a: TemplateStep[] | Record<string, unknown>;
+  template_b: TemplateStep[] | Record<string, unknown>;
 }
 
 interface IncidentCtx {
@@ -71,7 +87,7 @@ export function HealDialog({
   const ref = useRef<HTMLDialogElement>(null);
   const [state, setState] = useState<HealState>({ step: "loading" });
   const [prompt, setPrompt] = useState("");
-  const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const pollRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     const dialog = ref.current;
@@ -82,7 +98,7 @@ export function HealDialog({
 
   const stopPolling = useCallback(() => {
     if (pollRef.current) {
-      clearInterval(pollRef.current);
+      clearTimeout(pollRef.current);
       pollRef.current = null;
     }
   }, []);
@@ -152,12 +168,15 @@ export function HealDialog({
   const startPolling = useCallback(
     (startedAt: number) => {
       stopPolling();
-      pollRef.current = setInterval(async () => {
+      const tick = async () => {
         const res = await fetchHealStatus(scraperId);
-        if (!res.ok) return;
+        if (!res.ok) {
+          pollRef.current = setTimeout(tick, 4000);
+          return;
+        }
 
         if (res.data.status === "pending_answer") {
-          stopPolling();
+          pollRef.current = null;
           setState({
             step: "pending",
             prompt: "",
@@ -166,8 +185,8 @@ export function HealDialog({
             startedAt,
             finishedAt: Date.now(),
           });
-        } else if (res.data.status === "error") {
-          stopPolling();
+        } else if (res.data.status === "error" || res.data.status === "idle") {
+          pollRef.current = null;
           setState({ step: "error", message: "Heal failed on Bright Data side." });
         } else {
           setState((prev) => {
@@ -179,8 +198,10 @@ export function HealDialog({
                 (res.data.completedSteps as string[]) ?? prev.completedSteps,
             };
           });
+          pollRef.current = setTimeout(tick, 4000);
         }
-      }, 4000);
+      };
+      pollRef.current = setTimeout(tick, 2000);
     },
     [scraperId, stopPolling],
   );
@@ -200,29 +221,23 @@ export function HealDialog({
       bdStep: null,
       completedSteps: [],
     });
-    startPolling(startedAt);
 
     const result = await triggerHeal(scraperId, prompt || undefined);
-    stopPolling();
 
     if (!result.ok) {
       setState({ step: "error", message: JSON.stringify(result.data) });
       return;
     }
+
     const status = result.data.status as string;
-    if (status === "pending_answer") {
-      setState({
-        step: "pending",
-        prompt: (result.data.prompt as string) ?? prompt,
-        diff: (result.data.diff as DiffData) ?? null,
-        previewResult: (result.data.previewResult as unknown[]) ?? null,
-        startedAt,
-        finishedAt: Date.now(),
-      });
-    } else {
-      setState({ step: "error", message: `Heal returned status: ${status}` });
+    if (status === "error") {
+      setState({ step: "error", message: "Heal trigger failed on Bright Data side." });
+      return;
     }
-  }, [scraperId, prompt, startPolling, stopPolling]);
+
+    // Trigger accepted (status === "running") -- poll for live progress
+    startPolling(startedAt);
+  }, [scraperId, prompt, startPolling]);
 
   const handleCancel = useCallback(async () => {
     stopPolling();
@@ -829,7 +844,8 @@ function TimingBadge({
 
 function DiffView({ diff }: { diff: DiffData }) {
   const [tab, setTab] = useState<"before" | "after">("after");
-  const steps = tab === "before" ? diff.template_a : diff.template_b;
+  const raw = tab === "before" ? diff.template_a : diff.template_b;
+  const steps = extractSteps(raw);
 
   return (
     <div className="mt-3">

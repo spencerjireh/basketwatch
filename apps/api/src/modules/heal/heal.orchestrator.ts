@@ -83,10 +83,27 @@ export class HealOrchestrator {
     const now = Date.now();
     const startMs = new Date(pending.startedAt).getTime();
 
+    // When BD reaches pending_answer, persist the diff so approve/reject can
+    // use it even if a later status poll no longer returns it.
+    if (progress.status === "pending_answer" && progress.diff) {
+      await this.repository
+        .updateAttemptDiff(pending.attemptId, JSON.stringify(progress.diff))
+        .catch((err: unknown) => {
+          this.logger.warn(`Failed to persist diff: ${err instanceof Error ? err.message : String(err)}`);
+        });
+    }
+
+    // If BD says error/done while we still have a pending attempt, close it.
+    if (progress.status === "error" || progress.status === "done") {
+      await this.repository.finishAttempt(pending.attemptId, "failed", null, null);
+      await this.repository.reopenIncident(pending.incidentId);
+    }
+
     const base: HealStatusResponse = {
       scraperId,
       status: progress.status === "pending_answer" ? "pending_answer"
         : progress.status === "error" ? "error"
+        : progress.status === "done" ? "idle"
         : "running",
       attemptId: pending.attemptId,
       incidentId: pending.incidentId,
@@ -143,50 +160,31 @@ export class HealOrchestrator {
       `${scraperId}: heal attempt ${attemptNumber} -- ${prompt.slice(0, 80)}...`,
     );
 
-    let status: HealTriggerResponse["status"] = "error";
-    let previewResult: unknown[] | null = null;
-    let diffSummary: string | null = null;
-    let diff: HealDiff = null;
-
     try {
-      const progress = await this.studio.proposeHeal(scraperId, prompt);
-
-      if (progress.status === "pending_answer") {
-        status = "pending_answer";
-        previewResult = progress.previewResult;
-        diffSummary = progress.diff?.title ?? null;
-        diff = progress.diff as HealDiff ?? null;
-
-        const hasChanges =
-          progress.diff?.template_a !== undefined &&
-          progress.diff?.template_b !== undefined &&
-          JSON.stringify(progress.diff.template_a) !==
-            JSON.stringify(progress.diff.template_b);
-
-        if (!hasChanges && progress.previewResult?.length === 0) {
-          status = "no_changes";
-        }
-
-        if (diff) {
-          await this.repository.updateAttemptDiff(attemptId, JSON.stringify(diff));
-        }
-      } else if (progress.status === "timeout") {
-        status = "timeout";
-      } else {
-        status = "error";
-      }
+      await this.studio.proposeHeal(scraperId, prompt);
     } catch (err) {
       this.logger.error(
-        `${scraperId}: heal failed -- ${err instanceof Error ? err.message : String(err)}`,
+        `${scraperId}: heal trigger failed -- ${err instanceof Error ? err.message : String(err)}`,
       );
-      status = "error";
-    }
-
-    if (status !== "pending_answer") {
       await this.repository.finishAttempt(attemptId, "failed", null, null);
       await this.repository.reopenIncident(incidentId);
+      return {
+        attemptId,
+        scraperId,
+        storeId: scraper.store_id,
+        incidentId,
+        prompt,
+        findings,
+        status: "error" as const,
+        previewResult: null,
+        diffSummary: null,
+        diff: null,
+        durationMs: Date.now() - startedAt,
+      };
     }
 
+    // Trigger succeeded -- BD is processing asynchronously.
+    // Frontend will poll GET /heal/:scraperId/status for progress updates.
     return {
       attemptId,
       scraperId,
@@ -194,10 +192,10 @@ export class HealOrchestrator {
       incidentId,
       prompt,
       findings,
-      status,
-      previewResult,
-      diffSummary,
-      diff,
+      status: "running" as const,
+      previewResult: null,
+      diffSummary: null,
+      diff: null,
       durationMs: Date.now() - startedAt,
     };
   }
@@ -221,10 +219,21 @@ export class HealOrchestrator {
       throw err;
     }
 
+    // Fetch diff from DB first; if missing, grab it from BD before approving
+    let storedDiff = await this.repository.getAttemptDiff(pending.attemptId);
+    if (!storedDiff) {
+      try {
+        const progress = await this.studio.checkProgress(scraperId);
+        if (progress.diff) {
+          storedDiff = JSON.stringify(progress.diff);
+          await this.repository.updateAttemptDiff(pending.attemptId, storedDiff);
+        }
+      } catch { /* best-effort */ }
+    }
+
     await this.repository.finishAttempt(pending.attemptId, "approved", null, null);
     await this.repository.resolveIncident(pending.incidentId);
 
-    const storedDiff = await this.repository.getAttemptDiff(pending.attemptId);
     if (storedDiff) {
       try {
         const parsed = JSON.parse(storedDiff) as { template_b?: unknown };
@@ -232,6 +241,7 @@ export class HealOrchestrator {
           await this.repository.saveTemplate(
             scraperId, parsed.template_b, "heal_approved", pending.attemptId,
           );
+          this.logger.log(`${scraperId}: template_b saved to scraper_templates`);
         }
       } catch { /* diff not parseable, skip template save */ }
     }
