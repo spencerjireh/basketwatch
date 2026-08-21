@@ -88,6 +88,7 @@ export function BehindBoard({
             onOpenIncident={setOpenIncidentId}
             onHeal={setHealTarget}
             onCaptureCode={handleCaptureCode}
+            capturingId={capturingId}
           />
         </Section>
 

@@ -40,7 +40,18 @@ export class HealOrchestrator {
 
     const { prompt, findings } = await this.resolvePrompt(scraperId, {});
     const incident = await this.buildIncidentContext(scraperId);
-    const currentTemplate = (await this.repository.getLatestTemplate(scraperId)) as Record<string, unknown>[] | null;
+    const rawTemplate = await this.repository.getLatestTemplate(scraperId);
+    let currentTemplate: Record<string, unknown>[] | null = null;
+    if (rawTemplate && typeof rawTemplate === "object") {
+      if (Array.isArray(rawTemplate)) {
+        currentTemplate = rawTemplate as Record<string, unknown>[];
+      } else {
+        const obj = rawTemplate as Record<string, unknown>;
+        if (Array.isArray(obj.steps)) {
+          currentTemplate = obj.steps as Record<string, unknown>[];
+        }
+      }
+    }
     return { scraperId, prompt, findings, incident, currentTemplate };
   }
 
