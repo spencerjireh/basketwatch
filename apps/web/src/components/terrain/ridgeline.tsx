@@ -1,0 +1,187 @@
+"use client";
+
+import { Fragment } from "react";
+import { formatBasis, formatMoney } from "@/lib/format";
+import type { TerrainGrid } from "@/lib/terrain/model";
+import { useSelection } from "@/components/terrain/selection";
+
+const LABEL_W = 170;
+const ROW_H = 42;
+const RIDGE_H = 68;
+const PAD_RIGHT = 24;
+const PAD_BOTTOM = 16;
+
+/**
+ * The landscape, flat. One ridge per staple, one x-step per store, height =
+ * times the cheapest. A missing pin breaks the ridge: a gap is drawn as
+ * absence, never as sea level.
+ *
+ * This component is three things at once -- the loading placeholder for the 3D
+ * scene, the permanent hero when WebGL is unavailable, and the shipped hero if
+ * the 3D is cut -- which is why it carries the full hover/click wiring itself.
+ */
+export function Ridgeline({ grid }: { grid: TerrainGrid }) {
+  const { hovered, setHovered, select } = useSelection();
+
+  // Fewer stores get wider steps, so a five-store country still draws a
+  // landscape rather than a sliver.
+  const colW = Math.max(52, Math.min(96, Math.round(560 / Math.max(1, grid.stores.length - 1))));
+  const width = LABEL_W + (grid.stores.length - 1) * colW + PAD_RIGHT;
+  const height = RIDGE_H + 10 + (grid.staples.length - 1) * ROW_H + PAD_BOTTOM;
+  const x = (col: number) => LABEL_W + col * colW;
+  const base = (row: number) => RIDGE_H + 10 + row * ROW_H;
+
+  return (
+    <figure className="m-0">
+      <svg
+        viewBox={`0 0 ${width} ${height}`}
+        className="h-auto w-full"
+        role="img"
+        aria-label={`Price landscape for ${grid.country}: ${grid.staples.length} staples across ${grid.stores.length} stores, drawn as ridges where height is the multiple of the cheapest price.`}
+      >
+        {grid.staples.map((staple, row) => {
+          const cells = grid.cells[row] ?? [];
+          const y0 = base(row);
+
+          // Contiguous runs of priced cells; each run is its own closed area,
+          // so the tear between runs stays visible.
+          const runs: number[][] = [];
+          let run: number[] = [];
+          cells.forEach((cell, col) => {
+            if (cell) {
+              run.push(col);
+            } else if (run.length > 0) {
+              runs.push(run);
+              run = [];
+            }
+          });
+          if (run.length > 0) runs.push(run);
+
+          return (
+            <Fragment key={staple.itemKey}>
+              <line
+                x1={LABEL_W - 8}
+                y1={y0}
+                x2={width - PAD_RIGHT + 12}
+                y2={y0}
+                stroke="var(--color-line)"
+                strokeWidth="1"
+              />
+              <text
+                x="0"
+                y={y0}
+                fontSize="10"
+                fontFamily="var(--font-mono)"
+                fill="var(--color-mute)"
+                letterSpacing="0.08em"
+              >
+                {staple.label.toUpperCase()}
+              </text>
+
+              {runs.map((cols) => {
+                const first = cols[0] as number;
+                const last = cols[cols.length - 1] as number;
+                if (cols.length === 1) return null; // a lone reading is just its dot
+                const top = cols
+                  .map((col) => {
+                    const cell = cells[col];
+                    const y = (y0 - (cell?.height ?? 0) * RIDGE_H).toFixed(2);
+                    return `L ${x(col).toFixed(2)} ${y}`;
+                  })
+                  .join(" ");
+                const d = `M ${x(first).toFixed(2)} ${y0.toFixed(2)} ${top} L ${x(last).toFixed(2)} ${y0.toFixed(2)} Z`;
+                return (
+                  <path
+                    key={`${staple.itemKey}:${first}`}
+                    d={d}
+                    fill="var(--color-clay)"
+                    fillOpacity="0.75"
+                    stroke="var(--color-ink)"
+                    strokeOpacity="0.5"
+                    strokeWidth="1"
+                    strokeLinejoin="round"
+                  />
+                );
+              })}
+
+              {cells.map((cell, col) => {
+                if (!cell) return null;
+                const cy = (y0 - cell.height * RIDGE_H).toFixed(2);
+                const isHovered =
+                  hovered?.itemKey === cell.itemKey && hovered?.storeId === cell.storeId;
+                return (
+                  <Fragment key={cell.storeId}>
+                    {cell.cheapest || cell.flag === "imprecise" || isHovered ? (
+                      <circle
+                        cx={x(col).toFixed(2)}
+                        cy={cy}
+                        r={isHovered ? "3.5" : "2.5"}
+                        fill={
+                          isHovered
+                            ? "var(--color-ink)"
+                            : cell.cheapest
+                              ? "var(--color-live)"
+                              : "var(--color-drift)"
+                        }
+                      />
+                    ) : null}
+                    <circle
+                      cx={x(col).toFixed(2)}
+                      cy={cy}
+                      r="11"
+                      fill="transparent"
+                      className="cursor-pointer"
+                      onMouseEnter={() =>
+                        setHovered({
+                          country: grid.country,
+                          itemKey: cell.itemKey,
+                          storeId: cell.storeId,
+                        })
+                      }
+                      onMouseLeave={() => setHovered(null)}
+                      onClick={() =>
+                        select({
+                          country: grid.country,
+                          itemKey: cell.itemKey,
+                          storeId: cell.storeId,
+                        })
+                      }
+                    />
+                  </Fragment>
+                );
+              })}
+            </Fragment>
+          );
+        })}
+      </svg>
+
+      {/* The same cells for keyboard and screen readers, as honest buttons. */}
+      <ul className="sr-only">
+        {grid.cells.flat().map((cell) =>
+          cell ? (
+            <li key={`${cell.itemKey}:${cell.storeId}`}>
+              <button
+                type="button"
+                onFocus={() =>
+                  setHovered({
+                    country: grid.country,
+                    itemKey: cell.itemKey,
+                    storeId: cell.storeId,
+                  })
+                }
+                onBlur={() => setHovered(null)}
+                onClick={() =>
+                  select({ country: grid.country, itemKey: cell.itemKey, storeId: cell.storeId })
+                }
+              >
+                {cell.storeName}, {cell.label}:{" "}
+                {formatMoney(cell.unitPrice.amount, cell.unitPrice.currency)}{" "}
+                {formatBasis(cell.unitPriceBasis)}, {cell.ratio.toFixed(1)} times the cheapest
+              </button>
+            </li>
+          ) : null,
+        )}
+      </ul>
+    </figure>
+  );
+}
