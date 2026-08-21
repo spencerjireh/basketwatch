@@ -38,7 +38,7 @@ export type HealPreviewPromptResponse = z.infer<typeof healPreviewPromptResponse
 
 export const healStatusResponseSchema = z.object({
   scraperId: z.string(),
-  status: z.enum(["idle", "running", "pending_answer", "error"]),
+  status: z.enum(["idle", "running", "pending_answer", "error", "orphaned"]),
   attemptId: z.string().nullable(),
   incidentId: z.string().nullable(),
   step: z.string().nullable(),

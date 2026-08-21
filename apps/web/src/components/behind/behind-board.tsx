@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type {
   CreditBudget,
   FeedEvent,
@@ -8,7 +8,7 @@ import type {
   Incident,
   Rail,
 } from "@basketwatch/contract";
-import { captureOneCode } from "@/app/behind/actions";
+import { captureCodeStatus, captureOneCode } from "@/app/behind/actions";
 import { QualityWorklist } from "@/components/behind/quality-worklist";
 import { EventFeed } from "@/components/feed/event-feed";
 import { FleetBoard } from "@/components/fleet/fleet-board";
@@ -47,17 +47,32 @@ export function BehindBoard({
   );
   const [healTarget, setHealTarget] = useState<FleetScraper | null>(null);
   const [capturingId, setCapturingId] = useState<string | null>(null);
+  const pollTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    return () => { if (pollTimerRef.current) clearTimeout(pollTimerRef.current); };
+  }, []);
 
   const handleCaptureCode = useCallback(async (scraper: FleetScraper) => {
     if (!scraper.collectorId || capturingId) return;
-    setCapturingId(scraper.collectorId);
-    const result = await captureOneCode(scraper.collectorId);
-    setCapturingId(null);
-    if (result.ok) {
-      window.location.reload();
-    } else {
+    const id = scraper.collectorId;
+    setCapturingId(id);
+    const result = await captureOneCode(id);
+    if (!result.ok) {
+      setCapturingId(null);
       alert(`Capture failed: ${result.data?.error ?? "unknown error"}`);
+      return;
     }
+    const poll = async () => {
+      const { hasTemplate } = await captureCodeStatus(id);
+      if (hasTemplate) {
+        setCapturingId(null);
+        window.location.reload();
+      } else {
+        pollTimerRef.current = setTimeout(poll, 5_000);
+      }
+    };
+    pollTimerRef.current = setTimeout(poll, 5_000);
   }, [capturingId]);
 
   const healthy = fleet.filter((s) => s.status === "healthy").length;
