@@ -1,3 +1,5 @@
+<img src="docs/brand/banner.png" alt="The Basketwatch mark, a price line that breaks where data is missing, next to the wordmark basketwatch." width="800">
+
 # basketwatch
 
 A grocery basket index whose promise is that it shows its own gaps. Prices come
