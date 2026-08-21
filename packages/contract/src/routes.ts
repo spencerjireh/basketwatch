@@ -25,4 +25,7 @@ export const routes = {
   ingest: (scraperId: string) => `/api/ingest/${scraperId}`,
   runScraper: (id: string) => `/api/scrapers/${id}/run`,
   runPuller: (storeId: string) => `/api/pullers/${storeId}/run`,
+  healTrigger: (scraperId: string) => `/api/heal/${scraperId}/trigger`,
+  healApprove: (scraperId: string) => `/api/heal/${scraperId}/approve`,
+  healReject: (scraperId: string) => `/api/heal/${scraperId}/reject`,
 } as const;
