@@ -36,6 +36,17 @@ export async function fetchPreviewPrompt(
   }
 }
 
+export async function fetchHealStatus(
+  scraperId: string,
+): Promise<{ ok: boolean; data: Record<string, unknown> }> {
+  try {
+    const data = (await opsGet(`/api/heal/${scraperId}/status`)) as Record<string, unknown>;
+    return { ok: !("error" in data), data };
+  } catch (err) {
+    return { ok: false, data: { error: String(err) } };
+  }
+}
+
 export async function triggerHeal(
   scraperId: string,
   prompt?: string,

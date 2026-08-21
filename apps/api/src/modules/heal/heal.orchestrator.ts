@@ -9,8 +9,10 @@ import {
   type HealDecisionResponse,
   type HealDiff,
   type HealPreviewPromptResponse,
+  type HealStatusResponse,
   type HealTriggerBody,
   type HealTriggerResponse,
+  type IncidentContext,
   type IncidentEvidence,
 } from "@basketwatch/contract";
 import { HealBudget } from "./heal.budget.js";
@@ -37,7 +39,59 @@ export class HealOrchestrator {
     if (!scraper) throw new NotFoundException(`Scraper ${scraperId} not found.`);
 
     const { prompt, findings } = await this.resolvePrompt(scraperId, {});
-    return { scraperId, prompt, findings };
+    const incident = await this.buildIncidentContext(scraperId);
+    const currentTemplate = (await this.repository.getLatestTemplate(scraperId)) as Record<string, unknown>[] | null;
+    return { scraperId, prompt, findings, incident, currentTemplate };
+  }
+
+  // -----------------------------------------------------------------------
+  // Status (single-poll for live progress)
+  // -----------------------------------------------------------------------
+
+  async getStatus(scraperId: string): Promise<HealStatusResponse> {
+    const scraper = await this.repository.findScraperWithStore(scraperId);
+    if (!scraper) throw new NotFoundException(`Scraper ${scraperId} not found.`);
+
+    const pending = await this.repository.findPendingAttemptWithTiming(scraperId);
+    if (!pending) {
+      return {
+        scraperId,
+        status: "idle",
+        attemptId: null,
+        incidentId: null,
+        step: null,
+        completedSteps: [],
+        startedAt: null,
+        elapsedMs: null,
+        previewResult: null,
+        diffSummary: null,
+      };
+    }
+
+    const progress = await this.studio.checkProgress(scraperId);
+    const now = Date.now();
+    const startMs = new Date(pending.startedAt).getTime();
+
+    const base: HealStatusResponse = {
+      scraperId,
+      status: progress.status === "pending_answer" ? "pending_answer"
+        : progress.status === "error" ? "error"
+        : "running",
+      attemptId: pending.attemptId,
+      incidentId: pending.incidentId,
+      step: progress.step,
+      completedSteps: progress.completedSteps,
+      startedAt: pending.startedAt,
+      elapsedMs: now - startMs,
+      previewResult: progress.previewResult,
+      diffSummary: progress.diff?.title ?? null,
+    };
+
+    if (progress.status === "pending_answer" && progress.diff) {
+      base.diff = progress.diff as HealDiff;
+    }
+
+    return base;
   }
 
   // -----------------------------------------------------------------------
@@ -101,6 +155,10 @@ export class HealOrchestrator {
         if (!hasChanges && progress.previewResult?.length === 0) {
           status = "no_changes";
         }
+
+        if (diff) {
+          await this.repository.updateAttemptDiff(attemptId, JSON.stringify(diff));
+        }
       } else if (progress.status === "timeout") {
         status = "timeout";
       } else {
@@ -155,6 +213,18 @@ export class HealOrchestrator {
     await this.repository.finishAttempt(pending.attemptId, "approved", null, null);
     await this.repository.resolveIncident(pending.incidentId);
 
+    const storedDiff = await this.repository.getAttemptDiff(pending.attemptId);
+    if (storedDiff) {
+      try {
+        const parsed = JSON.parse(storedDiff) as { template_b?: unknown };
+        if (parsed.template_b) {
+          await this.repository.saveTemplate(
+            scraperId, parsed.template_b, "heal_approved", pending.attemptId,
+          );
+        }
+      } catch { /* diff not parseable, skip template save */ }
+    }
+
     this.logger.log(`${scraperId}: heal approved (attempt ${pending.attemptId})`);
     return {
       scraperId,
@@ -163,6 +233,11 @@ export class HealOrchestrator {
     };
   }
 
+  /**
+   * Reject or force-cancel a heal. Best-effort BD reject -- if BD hasn't
+   * reached pending_answer yet the API call may 4xx, but we still mark the
+   * attempt failed and reopen the incident so the UI isn't stuck.
+   */
   async reject(scraperId: string): Promise<HealDecisionResponse> {
     const pending = await this.repository.findPendingAttempt(scraperId);
     if (!pending) {
@@ -172,16 +247,16 @@ export class HealOrchestrator {
     try {
       await this.studio.reject(scraperId);
     } catch (err) {
-      if (err instanceof StudioHealError) {
-        throw new BadRequestException(err.message);
-      }
-      throw err;
+      this.logger.warn(
+        `${scraperId}: BD reject failed (may still be running) -- ` +
+          (err instanceof Error ? err.message : String(err)),
+      );
     }
 
     await this.repository.finishAttempt(pending.attemptId, "rejected", null, null);
     await this.repository.reopenIncident(pending.incidentId);
 
-    this.logger.log(`${scraperId}: heal rejected (attempt ${pending.attemptId})`);
+    this.logger.log(`${scraperId}: heal rejected/cancelled (attempt ${pending.attemptId})`);
     return {
       scraperId,
       attemptId: pending.attemptId,
@@ -235,6 +310,24 @@ export class HealOrchestrator {
     const fields = findingsToFields(findings);
     const prompt = buildHealPrompt(fields);
     return { prompt: prompt || null, findings };
+  }
+
+  private async buildIncidentContext(scraperId: string): Promise<IncidentContext> {
+    const raw = await this.repository.findOpenIncidentFull(scraperId);
+    if (!raw) return null;
+
+    const evidence = raw.evidence as Partial<IncidentEvidence>;
+    return {
+      id: raw.id,
+      kind: raw.kind as IncidentEvidence["kind"],
+      openedAt: raw.openedAt,
+      failedChecks: Array.isArray(evidence.failedChecks) ? evidence.failedChecks : [],
+      fieldNullRates: evidence.fieldNullRates ?? {},
+      baselineNullRates: evidence.baselineNullRates ?? {},
+      sampleBadRows: Array.isArray(evidence.sampleBadRows) ? evidence.sampleBadRows : [],
+      rowCount: evidence.rowCount ?? 0,
+      expectedRowCount: evidence.expectedRowCount ?? 0,
+    };
   }
 
   /**

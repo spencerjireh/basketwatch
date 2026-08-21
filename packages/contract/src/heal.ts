@@ -20,11 +20,15 @@ const incidentContextSchema = z.object({
 }).nullable();
 export type IncidentContext = z.infer<typeof incidentContextSchema>;
 
+/** One step of a scraper template (code + optional parse). */
+const templateStepSchema = z.record(z.string(), z.unknown());
+
 export const healPreviewPromptResponseSchema = z.object({
   scraperId: z.string(),
   prompt: z.string().nullable(),
   findings: z.array(checkResultSchema),
   incident: incidentContextSchema,
+  currentTemplate: z.array(templateStepSchema).nullable(),
 });
 export type HealPreviewPromptResponse = z.infer<typeof healPreviewPromptResponseSchema>;
 
@@ -58,9 +62,6 @@ export const healTriggerBodySchema = z.object({
   url: z.string().url().optional(),
 });
 export type HealTriggerBody = z.infer<typeof healTriggerBodySchema>;
-
-/** One step of a scraper template (code + optional parse). */
-const templateStepSchema = z.record(z.string(), z.unknown());
 
 /** Before/after diff returned by BD's refactor_template/progress. */
 export const healDiffSchema = z.object({

@@ -1,11 +1,12 @@
 import { Module } from "@nestjs/common";
+import { HealModule } from "../heal/heal.module.js";
 import { ValidatorModule } from "../validator/validator.module.js";
 import { FleetController } from "./fleet.controller.js";
 import { FleetRepository } from "./fleet.repository.js";
 import { FleetService } from "./fleet.service.js";
 
 @Module({
-  imports: [ValidatorModule],
+  imports: [ValidatorModule, HealModule],
   controllers: [FleetController],
   providers: [FleetService, FleetRepository],
   exports: [FleetService],

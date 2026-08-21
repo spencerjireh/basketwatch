@@ -339,6 +339,19 @@ export const healAttempts = pgTable("heal_attempts", {
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
+/** Versioned scraper template snapshots. One row per capture event. */
+export const scraperTemplates = pgTable("scraper_templates", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  scraperId: text("scraper_id")
+    .notNull()
+    .references(() => scrapers.id),
+  templateJson: jsonb("template_json").notNull(),
+  /** 'capture' | 'heal_approved' | 'manual' */
+  source: text("source").notNull(),
+  healAttemptId: uuid("heal_attempt_id").references(() => healAttempts.id),
+  capturedAt: timestamp("captured_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
 export const alerts = pgTable("alerts", {
   id: uuid("id").primaryKey().defaultRandom(),
   kind: text("kind").notNull(), // price_drop | breakage | healed | escalation

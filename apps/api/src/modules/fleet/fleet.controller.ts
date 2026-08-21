@@ -26,4 +26,17 @@ export class FleetController {
     const count = await this.service.seedBaselines();
     return { seeded: count };
   }
+
+  /**
+   * POST /api/fleet/capture-code
+   *
+   * Capture scraper template code for all Studio scrapers that don't have
+   * a stored template yet. Uses the heal-and-reject trick: triggers a
+   * minimal heal, reads template_a, rejects. ~$0.01-0.05 per scraper.
+   */
+  @Post("capture-code")
+  @UseGuards(OpsTokenGuard)
+  async captureCode(): Promise<{ captured: number; failed: number; skipped: number }> {
+    return this.service.captureAllCode();
+  }
 }
