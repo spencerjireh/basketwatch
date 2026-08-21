@@ -87,8 +87,8 @@ export function BehindBoard({
           <Section title="Provenance" caption="Where the numbers on the front page come from.">
             <dl className="flex flex-col gap-3 text-[13px]">
               <Fact term={`${contributing} stores`}>
-                Each publishes its own catalogue. Fifteen are read over plain HTTP and cost nothing
-                to check; one needs a browser.
+                Each publishes its own catalogue. Most are read over plain HTTP and cost nothing
+                to check; the rest need a browser.
               </Fact>
               <Fact term={`${rowsLastPull.toLocaleString("en-US")} rows in the last pull`}>
                 Every row carries a decomposed pack size where the title gave one, which is what
