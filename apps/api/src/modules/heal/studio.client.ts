@@ -10,6 +10,7 @@ export interface HealProgressResult {
   id: string;
   status: "pending_answer" | "running" | "done" | "error" | string;
   step: string;
+  completedSteps: string[];
   diff: {
     template_a: unknown;
     template_b: unknown;
@@ -46,11 +47,127 @@ export class StudioClient {
   }
 
   /**
-   * Trigger a heal and poll until the approval gate (pending_answer) or
-   * timeout. Returns the progress snapshot that contains the diff and preview.
+   * Trigger a heal on BD. Returns immediately after the POST succeeds --
+   * does NOT poll. The frontend polls via checkProgress / getStatus instead.
    */
   async proposeHeal(collectorId: string, prompt: string): Promise<HealProgressResult> {
     this.logger.log(`${collectorId}: triggering heal -- ${prompt.slice(0, 80)}...`);
+
+    const triggerRes = await fetch(
+      `${BD_API}/dca/collectors/${collectorId}/refactor_template`,
+      {
+        method: "POST",
+        headers: this.headers(),
+        body: JSON.stringify({ prompt }),
+      },
+    );
+
+    if (!triggerRes.ok) {
+      const text = await triggerRes.text();
+      throw new StudioHealError(
+        `Failed to trigger heal for ${collectorId}: ${triggerRes.status} ${text}`,
+      );
+    }
+
+    // Return initial running state; frontend will poll checkProgress for updates
+    return {
+      id: "",
+      status: "running",
+      step: "planner",
+      completedSteps: [],
+      diff: null,
+      previewResult: null,
+      success: null,
+    };
+  }
+
+  /**
+   * Single-shot progress check. Does NOT loop -- returns immediately.
+   * Used by the status endpoint for live polling from the frontend.
+   */
+  async checkProgress(collectorId: string): Promise<HealProgressResult> {
+    const res = await fetch(
+      `${BD_API}/dca/collectors/${collectorId}/refactor_template/progress`,
+      { headers: this.headers() },
+    );
+
+    if (!res.ok) {
+      const text = await res.text();
+      this.logger.warn(`${collectorId}: progress check ${res.status} -- ${text}`);
+      return {
+        id: "",
+        status: "error",
+        step: "unknown",
+        completedSteps: [],
+        diff: null,
+        previewResult: null,
+        success: false,
+      };
+    }
+
+    return this.parseProgress(await res.json() as Record<string, unknown>);
+  }
+
+  private parseProgress(data: Record<string, unknown>): HealProgressResult {
+    const status = String(data.status ?? "unknown");
+    const step = String(data.step ?? "unknown");
+    const completedSteps = Array.isArray(data.completed_steps)
+      ? (data.completed_steps as string[])
+      : [];
+
+    if (status === "pending_answer" || status === "user_approval") {
+      return {
+        id: String(data.id ?? ""),
+        status: "pending_answer",
+        step,
+        completedSteps,
+        diff: (data.diff as HealProgressResult["diff"]) ?? null,
+        previewResult: Array.isArray(data.preview_result) ? data.preview_result : null,
+        success: data.success === true,
+      };
+    }
+
+    if (status === "done") {
+      return {
+        id: String(data.id ?? ""),
+        status: "done",
+        step,
+        completedSteps,
+        diff: null,
+        previewResult: Array.isArray(data.preview_result) ? data.preview_result : null,
+        success: data.success === true,
+      };
+    }
+
+    if (status === "error" || status === "failed") {
+      return {
+        id: String(data.id ?? ""),
+        status: "error",
+        step,
+        completedSteps,
+        diff: null,
+        previewResult: null,
+        success: false,
+      };
+    }
+
+    return {
+      id: String(data.id ?? ""),
+      status: status as string,
+      step,
+      completedSteps,
+      diff: null,
+      previewResult: null,
+      success: null,
+    };
+  }
+
+  /**
+   * Trigger + poll -- used only by CodeCaptureService where we need the diff
+   * synchronously.
+   */
+  async proposeHealAndWait(collectorId: string, prompt: string): Promise<HealProgressResult> {
+    this.logger.log(`${collectorId}: triggering heal (blocking) -- ${prompt.slice(0, 80)}...`);
 
     const triggerRes = await fetch(
       `${BD_API}/dca/collectors/${collectorId}/refactor_template`,
@@ -92,43 +209,16 @@ export class StudioClient {
       }
 
       const data = (await res.json()) as Record<string, unknown>;
-      const status = String(data.status ?? "unknown");
-      const step = String(data.step ?? "unknown");
+      const result = this.parseProgress(data);
 
-      this.logger.debug(`${collectorId}: step=${step} status=${status}`);
+      this.logger.debug(`${collectorId}: step=${result.step} status=${result.status}`);
 
-      if (status === "pending_answer" || status === "user_approval") {
-        const diff = data.diff as HealProgressResult["diff"] ?? null;
-        return {
-          id: String(data.id ?? ""),
-          status: "pending_answer",
-          step,
-          diff,
-          previewResult: Array.isArray(data.preview_result) ? data.preview_result : null,
-          success: data.success === true,
-        };
-      }
-
-      if (status === "done") {
-        return {
-          id: String(data.id ?? ""),
-          status: "done",
-          step,
-          diff: null,
-          previewResult: Array.isArray(data.preview_result) ? data.preview_result : null,
-          success: data.success === true,
-        };
-      }
-
-      if (status === "error" || status === "failed") {
-        return {
-          id: String(data.id ?? ""),
-          status: "error",
-          step,
-          diff: null,
-          previewResult: null,
-          success: false,
-        };
+      if (
+        result.status === "pending_answer" ||
+        result.status === "done" ||
+        result.status === "error"
+      ) {
+        return result;
       }
     }
 
@@ -137,6 +227,7 @@ export class StudioClient {
       id: "",
       status: "timeout" as string,
       step: "timeout",
+      completedSteps: [],
       diff: null,
       previewResult: null,
       success: false,

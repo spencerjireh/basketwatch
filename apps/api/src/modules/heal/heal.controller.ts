@@ -1,6 +1,8 @@
-import { Body, Controller, Param, Post, UseGuards } from "@nestjs/common";
+import { Body, Controller, Get, Param, Post, UseGuards } from "@nestjs/common";
 import {
   type HealDecisionResponse,
+  type HealPreviewPromptResponse,
+  type HealStatusResponse,
   type HealTriggerBody,
   type HealTriggerResponse,
   healTriggerBodySchema,
@@ -13,6 +15,30 @@ import { HealOrchestrator } from "./heal.orchestrator.js";
 @UseGuards(OpsTokenGuard)
 export class HealController {
   constructor(private readonly orchestrator: HealOrchestrator) {}
+
+  /**
+   * GET /api/heal/:scraperId/preview-prompt
+   *
+   * Returns the auto-generated prompt the trigger would use, without
+   * actually triggering a heal. Lets the dashboard show the prompt in the
+   * textarea so the operator can edit before firing.
+   */
+  @Get(":scraperId/preview-prompt")
+  previewPrompt(@Param("scraperId") scraperId: string): Promise<HealPreviewPromptResponse> {
+    return this.orchestrator.previewPrompt(scraperId);
+  }
+
+  /**
+   * GET /api/heal/:scraperId/status
+   *
+   * Single-shot progress check: returns the current BD pipeline step and
+   * timing for an in-flight heal, or "idle" if nothing is running.
+   * The frontend polls this every 3-5 seconds for live status.
+   */
+  @Get(":scraperId/status")
+  status(@Param("scraperId") scraperId: string): Promise<HealStatusResponse> {
+    return this.orchestrator.getStatus(scraperId);
+  }
 
   /**
    * POST /api/heal/:scraperId/trigger
@@ -41,5 +67,17 @@ export class HealController {
   @Post(":scraperId/reject")
   reject(@Param("scraperId") scraperId: string): Promise<HealDecisionResponse> {
     return this.orchestrator.reject(scraperId);
+  }
+
+  /**
+   * POST /api/heal/:scraperId/recover
+   *
+   * Adopt an orphaned BD heal that has no local attempt record. Creates an
+   * attempt and incident, persists the diff, and transitions to pending_answer
+   * so the UI can approve or reject.
+   */
+  @Post(":scraperId/recover")
+  recover(@Param("scraperId") scraperId: string): Promise<HealStatusResponse> {
+    return this.orchestrator.recover(scraperId);
   }
 }
