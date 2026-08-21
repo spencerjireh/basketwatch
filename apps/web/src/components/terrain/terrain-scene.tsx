@@ -31,13 +31,17 @@ const X_STEP = 2.3; // between stores, across
 const Z_STEP = 1.18; // between staples, into depth
 const FOOT = 0.8; // slab margin past the first and last store
 const H_MAX = 2.0;
-const H_BASE = 0.14;
+const H_BASE = 0.3; // the plinth: deep enough that a gap notch reads as a hole
 const ENTRANCE_SECONDS = 0.9;
 const STAGGER_SECONDS = 0.06;
 
-const PRISM_W = X_STEP * 0.72;
-const PRISM_D = Z_STEP * 0.72;
-const HIP_RISE = 0.12; // how far below the apex the shoulder sits
+// Cells span their full grid step less a hairline crease, so neighbours share
+// walls and the board reads as one carved massif instead of blocks on a table.
+const PRISM_W = X_STEP * 0.97;
+const PRISM_D = Z_STEP * 0.97;
+const CHAMFER = 0.07; // rise of the bevelled lip below each terrace top
+const CHAMFER_INSET = 0.09; // how far the lip pulls the top rim inward
+const CLIFF_SHADE = 0.16; // how much near-vertical faces darken toward DEEP
 const BASE_H = 0.1; // slab thickness
 
 // A few degrees of pointer-driven drift; enough to separate the rows, not
@@ -85,8 +89,8 @@ const peakHeight = (height: number) => H_BASE + height * H_MAX;
 /** Where a ratio sits on the y axis -- the etched reference lines use the same map as the prisms. */
 const ratioY = (ratio: number) => peakHeight(heightFor(ratio));
 
-const slabWidth = (grid: TerrainGrid) => (grid.stores.length - 1) * X_STEP + FOOT * 2 + 2.4;
-const slabDepth = (grid: TerrainGrid) => (grid.staples.length - 1) * Z_STEP + Z_STEP + 2.4;
+const slabWidth = (grid: TerrainGrid) => (grid.stores.length - 1) * X_STEP + FOOT * 2 + 1.4;
+const slabDepth = (grid: TerrainGrid) => (grid.staples.length - 1) * Z_STEP + Z_STEP + 1.4;
 
 const sameRef = (a: CellRef | null, b: CellRef): boolean =>
   a !== null && a.country === b.country && a.itemKey === b.itemKey && a.storeId === b.storeId;
@@ -99,7 +103,7 @@ const sameRef = (a: CellRef | null, b: CellRef): boolean =>
 function buildWorldAnchors(grid: TerrainGrid): WorldAnchor[] {
   const anchors: WorldAnchor[] = [];
   const frontZ = stapleZ(grid, 0) + Z_STEP / 2 + 0.3;
-  const leftX = storeX(grid, 0) - FOOT - 0.55;
+  const leftX = storeX(grid, 0) - FOOT - 1.15;
 
   grid.stores.forEach((store, col) => {
     anchors.push({
@@ -423,15 +427,15 @@ function Rig({
         sumX += storeX(grid, col) * h;
       });
     });
-    const centroidX = weight > 0 ? (sumX / weight) * 0.7 : 0;
+    const centroidX = weight > 0 ? (sumX / weight) * 0.55 : 0;
     // The fov fits the scene vertically; a narrow canvas needs the extra
     // distance or the flanks and their labels fall off the sides.
     const aspect = size.width / Math.max(1, size.height);
     const fit = Math.max(1, 1.2 / aspect);
     base.current.position.set(
       centroidX + w * 0.02,
-      (6.8 + d * 0.5) * fit,
-      (d / 2 + 7.2 + w * 0.28) * fit,
+      (4.9 + d * 0.38) * fit,
+      (d / 2 + 8.7 + w * 0.3) * fit,
     );
     base.current.target.set(centroidX, 0.05, -d * 0.03);
     camera.position.copy(base.current.position);
@@ -569,14 +573,18 @@ function Etchings({ grid }: { grid: TerrainGrid }) {
 }
 
 /**
- * One hipped prism: four walls to a shoulder, four faces to a single apex.
- * Non-indexed so computeVertexNormals gives crisp facets instead of smoothed
- * corners -- these are terraces, not blobs.
+ * One terrace: four walls to a shoulder, a bevelled lip, a flat mesa top.
+ * The corners of the lip are mitred -- adjacent lip quads share a diagonal
+ * edge -- so the ring closes without extra corner geometry. Non-indexed so
+ * computeVertexNormals gives crisp facets instead of smoothed corners.
  */
 function buildPrismGeometry(h: number): THREE.BufferGeometry {
   const wx = PRISM_W / 2;
   const wz = PRISM_D / 2;
-  const s = h - Math.min(HIP_RISE, h * 0.35); // shoulder height; short prisms keep their cap
+  const lip = Math.min(CHAMFER, h * 0.3); // short terraces keep a proportional lip
+  const s = h - lip; // shoulder: top of the walls
+  const ix = wx - CHAMFER_INSET;
+  const iz = wz - CHAMFER_INSET;
 
   const positions: number[] = [];
   const tri = (
@@ -600,12 +608,14 @@ function buildPrismGeometry(h: number): THREE.BufferGeometry {
   quad([wx, 0, wz], [wx, 0, -wz], [wx, s, -wz], [wx, s, wz]); // right
   quad([-wx, 0, -wz], [-wx, 0, wz], [-wx, s, wz], [-wx, s, -wz]); // left
 
-  // The hip cap.
-  const apex: [number, number, number] = [0, h, 0];
-  tri([-wx, s, wz], [wx, s, wz], apex); // front
-  tri([wx, s, wz], [wx, s, -wz], apex); // right
-  tri([wx, s, -wz], [-wx, s, -wz], apex); // back
-  tri([-wx, s, -wz], [-wx, s, wz], apex); // left
+  // The lip: outer shoulder rectangle up and in to the top rim.
+  quad([-wx, s, wz], [wx, s, wz], [ix, h, iz], [-ix, h, iz]); // front
+  quad([wx, s, -wz], [-wx, s, -wz], [-ix, h, -iz], [ix, h, -iz]); // back
+  quad([wx, s, wz], [wx, s, -wz], [ix, h, -iz], [ix, h, iz]); // right
+  quad([-wx, s, -wz], [-wx, s, wz], [-ix, h, iz], [-ix, h, -iz]); // left
+
+  // The mesa top.
+  quad([-ix, h, iz], [ix, h, iz], [ix, h, -iz], [-ix, h, -iz]);
 
   const geometry = new THREE.BufferGeometry();
   geometry.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
@@ -625,11 +635,15 @@ function buildPrismGeometry(h: number): THREE.BufferGeometry {
  */
 function paintPrism(geometry: THREE.BufferGeometry, tint: THREE.Color | null, weight: number): void {
   const position = geometry.getAttribute("position") as THREE.BufferAttribute;
+  const normal = geometry.getAttribute("normal") as THREE.BufferAttribute;
   const color = geometry.getAttribute("color") as THREE.BufferAttribute;
   const scratch = new THREE.Color();
   for (let i = 0; i < position.count; i += 1) {
     const y = position.getY(i);
-    scratch.copy(CLAY).lerp(DEEP, Math.min(1, (y / (H_BASE + H_MAX)) * 2.1));
+    scratch.copy(CLAY).lerp(DEEP, Math.min(1, (y / (H_BASE + H_MAX)) * 1.35));
+    // The cliffs carry the relief: near-vertical faces sit a shade deeper
+    // than the terrace tops, the way raking light reads on real terraces.
+    if (Math.abs(normal.getY(i)) < 0.5) scratch.lerp(DEEP, CLIFF_SHADE);
     if (tint) {
       const grounding = Math.min(1, y / 0.3);
       scratch.lerp(tint, weight * grounding);
