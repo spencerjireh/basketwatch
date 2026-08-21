@@ -48,11 +48,19 @@ on GitHub — everything renders in both.
   [HANDOFF](../lab/spencer-exploration/HANDOFF.md) states what the app must
   absorb) and [edjin-exploration](../lab/edjin-exploration/README.md) (Node;
   browser-based vetting).
-- [Heal agent proposal](heal-agent-proposal.md) — Edjin, Aug 20. Extends the
+- [Heal agent proposal](plans/heal-agent-proposal.md) -- Edjin, Aug 20. Extends the
   heal orchestrator into one agent covering scraper repair *and* data quality,
   grounded in eight false basket pins found in the live data. **Draft, pending
-  team review** — read it before building anything under `modules/heal/` or
+  team review** -- read it before building anything under `modules/heal/` or
   `modules/quality/`, but it is a proposal, not confirmed scope.
+- [Heal integration plan](plans/heal-integration-plan.md) -- Edjin, Aug 21.
+  The phased pipeline plan for wiring post-pull validation, dashboard health
+  section, and LLM triage. Built on Phase 1 test findings.
+- [Heal test findings](../lab/edjin-exploration/heal-test-findings.md) --
+  Phase 1 integration test results: Sukli vs Dierbergs, generic vs LLM-style
+  prompts, triage gap analysis.
+- [Heal prompt experiments](../lab/edjin-exploration/heal-prompt-experiments.md) --
+  original experiment plan for prompt effectiveness testing.
 - Review artifacts (shareable pages):
   - HLD: https://claude.ai/code/artifact/a6c6e40f-22be-4b1d-b8f7-2c3f08578463
   - PRD: https://claude.ai/code/artifact/f7cf34cf-af6e-4efd-8f76-16dd1865ef36
@@ -123,7 +131,7 @@ PR that resolves each one; do not silently close them.
   [credit-monitoring.md](credit-monitoring.md) under "Unified guard
   protocol".
 - [ ] **Heal agent scope and its three questions.** The
-  [proposal](heal-agent-proposal.md) asks: Haiku or Sonnet for the pin
+  [proposal](plans/heal-agent-proposal.md) asks: Haiku or Sonnet for the pin
   validator; reuse `heal_attempts` or add a `quality_decisions` table; and
   whether a wholesale-only store like MexMax gets flagged pin by pin or demoted
   from `index_contributor` outright. Also open is how much of the four-strategy
