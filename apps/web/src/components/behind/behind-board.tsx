@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type {
   CreditBudget,
   FeedEvent,
@@ -8,9 +8,11 @@ import type {
   Incident,
   Rail,
 } from "@basketwatch/contract";
+import { captureCodeStatus, captureOneCode } from "@/app/behind/actions";
 import { QualityWorklist } from "@/components/behind/quality-worklist";
 import { EventFeed } from "@/components/feed/event-feed";
 import { FleetBoard } from "@/components/fleet/fleet-board";
+import { HealDialog } from "@/components/fleet/heal-dialog";
 import { AuditDialog } from "@/components/incident/audit-dialog";
 import { Section } from "@/components/ui/section";
 import { formatMoney } from "@/lib/format";
@@ -43,6 +45,35 @@ export function BehindBoard({
     () => incidents.find((incident) => incident.id === openIncidentId) ?? null,
     [incidents, openIncidentId],
   );
+  const [healTarget, setHealTarget] = useState<FleetScraper | null>(null);
+  const [capturingId, setCapturingId] = useState<string | null>(null);
+  const pollTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    return () => { if (pollTimerRef.current) clearTimeout(pollTimerRef.current); };
+  }, []);
+
+  const handleCaptureCode = useCallback(async (scraper: FleetScraper) => {
+    if (!scraper.collectorId || capturingId) return;
+    const id = scraper.collectorId;
+    setCapturingId(id);
+    const result = await captureOneCode(id);
+    if (!result.ok) {
+      setCapturingId(null);
+      alert(`Capture failed: ${result.data?.error ?? "unknown error"}`);
+      return;
+    }
+    const poll = async () => {
+      const { hasTemplate } = await captureCodeStatus(id);
+      if (hasTemplate) {
+        setCapturingId(null);
+        window.location.reload();
+      } else {
+        pollTimerRef.current = setTimeout(poll, 5_000);
+      }
+    };
+    pollTimerRef.current = setTimeout(poll, 5_000);
+  }, [capturingId]);
 
   const healthy = fleet.filter((s) => s.status === "healthy").length;
   const attention = fleet.length - healthy;
@@ -71,7 +102,13 @@ export function BehindBoard({
           title="Live"
           caption="One row per store, coloured by state. A store is not a scraper: most are pulled over plain HTTP and have no collector."
         >
-          <FleetBoard fleet={fleet} onOpenIncident={setOpenIncidentId} />
+          <FleetBoard
+            fleet={fleet}
+            onOpenIncident={setOpenIncidentId}
+            onHeal={setHealTarget}
+            onCaptureCode={handleCaptureCode}
+            capturingId={capturingId}
+          />
         </Section>
 
         <div className="flex flex-col gap-10">
@@ -149,6 +186,14 @@ export function BehindBoard({
       </div>
 
       <AuditDialog incident={openIncident} onClose={() => setOpenIncidentId(null)} />
+      {healTarget?.collectorId ? (
+        <HealDialog
+          scraperId={healTarget.collectorId}
+          storeName={healTarget.name}
+          open={!!healTarget}
+          onClose={() => setHealTarget(null)}
+        />
+      ) : null}
     </>
   );
 }

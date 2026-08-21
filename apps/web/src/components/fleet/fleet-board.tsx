@@ -12,14 +12,26 @@ import { cn } from "@/lib/utils";
 export function FleetBoard({
   fleet,
   onOpenIncident,
+  onHeal,
+  onCaptureCode,
+  capturingId,
 }: {
   fleet: FleetScraper[];
   onOpenIncident?: (incidentId: string) => void;
+  onHeal?: (scraper: FleetScraper) => void;
+  onCaptureCode?: (scraper: FleetScraper) => void;
+  capturingId?: string | null;
 }) {
   return (
     <ul className="flex flex-col">
       {fleet.map((scraper) => {
         const style = statusStyle(scraper.status);
+        const canHeal =
+          scraper.collectorId &&
+          scraper.status !== "healthy" &&
+          scraper.status !== "healing" &&
+          scraper.status !== "verifying";
+
         return (
           <li key={scraper.storeId} className="border-b border-line py-2.5 last:border-b-0">
             <div className="flex items-center gap-2.5">
@@ -57,15 +69,36 @@ export function FleetBoard({
               ) : null}
             </div>
 
-            {scraper.openIncidentId && onOpenIncident ? (
-              <button
-                type="button"
-                onClick={() => onOpenIncident(scraper.openIncidentId as string)}
-                className="mt-1.5 ml-[18px] font-mono text-[11px] text-mute underline decoration-1 underline-offset-4 transition-colors hover:text-heal"
-              >
-                open audit
-              </button>
-            ) : null}
+            <div className="mt-1.5 flex gap-2 pl-[18px]">
+              {scraper.openIncidentId && onOpenIncident ? (
+                <button
+                  type="button"
+                  onClick={() => onOpenIncident(scraper.openIncidentId as string)}
+                  className="rounded border border-line px-2 py-0.5 font-mono text-[10px] text-mute transition-colors hover:border-heal/40 hover:text-heal"
+                >
+                  open audit
+                </button>
+              ) : null}
+              {canHeal && onHeal ? (
+                <button
+                  type="button"
+                  onClick={() => onHeal(scraper)}
+                  className="rounded border border-heal/40 px-2 py-0.5 font-mono text-[10px] text-heal transition-colors hover:bg-heal/10"
+                >
+                  heal
+                </button>
+              ) : null}
+              {scraper.collectorId && !scraper.hasTemplate && onCaptureCode ? (
+                <button
+                  type="button"
+                  disabled={capturingId === scraper.collectorId}
+                  onClick={() => onCaptureCode(scraper)}
+                  className="rounded border border-line px-2 py-0.5 font-mono text-[10px] text-mute transition-colors hover:border-heal/40 hover:text-heal disabled:opacity-50"
+                >
+                  {capturingId === scraper.collectorId ? "capturing..." : "capture code"}
+                </button>
+              ) : null}
+            </div>
           </li>
         );
       })}
