@@ -8,7 +8,7 @@ import type {
   Incident,
   Rail,
 } from "@basketwatch/contract";
-import { captureCodeStatus, captureOneCode } from "@/app/behind/actions";
+import { captureCodeStatus, captureOneCode, provisionStore, pullStatus, triggerPull } from "@/app/behind/actions";
 import { QualityWorklist } from "@/components/behind/quality-worklist";
 import { useCountry } from "@/components/country/country";
 import { EventFeed } from "@/components/feed/event-feed";
@@ -75,6 +75,83 @@ export function BehindBoard({
     pollTimerRef.current = setTimeout(poll, 5_000);
   }, [capturingId]);
 
+  const [pullingId, setPullingId] = useState<string | null>(null);
+  const [pullProgress, setPullProgress] = useState<{
+    status: string;
+    transport: string | null;
+    elapsedMs: number;
+  } | null>(null);
+  const pullPollRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    return () => { if (pullPollRef.current) clearTimeout(pullPollRef.current); };
+  }, []);
+
+  const handlePull = useCallback(async (scraper: FleetScraper) => {
+    if (pullingId) return;
+    const sid = scraper.storeId;
+    setPullingId(sid);
+    setPullProgress({ status: "collecting", transport: null, elapsedMs: 0 });
+    const result = await triggerPull(sid);
+    if (!result.ok) {
+      setPullingId(null);
+      setPullProgress(null);
+      alert(`Pull failed: ${result.data?.error ?? "unknown error"}`);
+      return;
+    }
+    const poll = async () => {
+      const s = await pullStatus(sid);
+      const status = String(s.status ?? "idle");
+      const transport = typeof s.transport === "string" ? s.transport : null;
+      const elapsedMs = typeof s.elapsedMs === "number" ? s.elapsedMs : 0;
+
+      if (status === "done") {
+        setPullingId(null);
+        setPullProgress(null);
+        const r = s.result as Record<string, unknown> | undefined;
+        const rows = typeof r?.rows === "number" ? r.rows : 0;
+        const changes = typeof r?.changes === "number" ? r.changes : 0;
+        const sec = Math.round(elapsedMs / 1000);
+        alert(`Pulled ${rows.toLocaleString("en-US")} rows (${changes} changes) in ${sec}s`);
+        window.location.reload();
+        return;
+      }
+      if (status === "error") {
+        setPullingId(null);
+        setPullProgress(null);
+        alert(`Pull failed: ${s.error ?? "unknown error"}`);
+        return;
+      }
+      if (status === "idle") {
+        setPullingId(null);
+        setPullProgress(null);
+        return;
+      }
+      setPullProgress({ status, transport, elapsedMs });
+      pullPollRef.current = setTimeout(poll, 3_000);
+    };
+    pullPollRef.current = setTimeout(poll, 2_000);
+  }, [pullingId]);
+
+  const [provisioningId, setProvisioningId] = useState<string | null>(null);
+
+  const handleProvision = useCallback(async (scraper: FleetScraper) => {
+    if (provisioningId) return;
+    setProvisioningId(scraper.storeId);
+    const result = await provisionStore(scraper.storeId);
+    setProvisioningId(null);
+    if (!result.ok) {
+      const err = result.data?.error;
+      const msg = typeof err === "string" ? err : JSON.stringify(err ?? "unknown error");
+      alert(`Provision failed: ${msg}`);
+      return;
+    }
+    const status = result.data?.status as string | undefined;
+    const collectorId = result.data?.collectorId as string | undefined;
+    alert(`${status === "created" ? "Created" : "Already exists"}: ${collectorId ?? "?"}`);
+    window.location.reload();
+  }, [provisioningId]);
+
   // The board and worklist follow the country switcher; the feed, incidents
   // and budget stay fleet-wide -- they are machinery, not country data, and an
   // incident carries no country of its own.
@@ -117,6 +194,11 @@ export function BehindBoard({
             onHeal={setHealTarget}
             onCaptureCode={handleCaptureCode}
             capturingId={capturingId}
+            onPull={handlePull}
+            pullingId={pullingId}
+            pullProgress={pullProgress}
+            onProvision={handleProvision}
+            provisioningId={provisioningId}
           />
         </Section>
 

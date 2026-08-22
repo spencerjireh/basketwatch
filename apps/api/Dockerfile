@@ -35,11 +35,14 @@ FROM node:24-alpine AS runner
 ENV NODE_ENV=production PORT=3001
 WORKDIR /app
 RUN addgroup -S app && adduser -S app -G app
+# Bright Data CLI: the Studio adapter shells out to `brightdata scraper run`.
+RUN npm install -g @brightdata/cli
 COPY --from=build --chown=app:app /prod/api ./
 # The migration SQL, applied by the API itself on boot. `files` in
 # apps/api/package.json carries it into /prod/api; this line is what makes a
 # missing entry there fail the build rather than the deploy.
 COPY --from=build --chown=app:app /repo/apps/api/drizzle ./drizzle
+COPY --from=build --chown=app:app /repo/docs/collector-manifest.json ./collector-manifest.json
 USER app
 EXPOSE 3001
 CMD ["node", "dist/main.js"]

@@ -133,3 +133,44 @@ export async function captureCodeStatus(
     return { hasTemplate: false };
   }
 }
+
+export async function provisionStore(
+  storeId: string,
+): Promise<{ ok: boolean; data: Record<string, unknown> }> {
+  try {
+    const data = (await opsPost(`/api/fleet/${storeId}/provision`)) as Record<string, unknown>;
+    return { ok: !("error" in data), data };
+  } catch (err) {
+    return { ok: false, data: { error: String(err) } };
+  }
+}
+
+export async function provisionAll(): Promise<{ ok: boolean; data: Record<string, unknown> }> {
+  try {
+    const data = (await opsPost("/api/fleet/provision")) as Record<string, unknown>;
+    return { ok: !("error" in data), data };
+  } catch (err) {
+    return { ok: false, data: { error: String(err) } };
+  }
+}
+
+export async function triggerPull(
+  storeId: string,
+): Promise<{ ok: boolean; data: Record<string, unknown> }> {
+  try {
+    const data = (await opsPost(`/api/pullers/${storeId}/run`)) as Record<string, unknown>;
+    return { ok: !("error" in data), data };
+  } catch (err) {
+    return { ok: false, data: { error: String(err) } };
+  }
+}
+
+export async function pullStatus(
+  storeId: string,
+): Promise<Record<string, unknown>> {
+  try {
+    return (await opsGet(`/api/pullers/${storeId}/pull-status`)) as Record<string, unknown>;
+  } catch {
+    return { status: "idle", storeId };
+  }
+}
