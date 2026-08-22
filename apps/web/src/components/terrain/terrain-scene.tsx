@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import type { ThreeEvent } from "@react-three/fiber";
 import * as THREE from "three";
@@ -38,7 +38,7 @@ const Z_STEP = 1.18; // between staples, into depth
 const FOOT = 0.8; // slab margin past the first and last store
 const H_MAX = 2.0;
 const H_BASE = 0.3; // the plinth: deep enough that a gap notch reads as a hole
-const ENTRANCE_SECONDS = 1.4; // one sweep across the whole landscape
+const ENTRANCE_SECONDS = 1.4; // the rise from flat slab to full relief
 
 // The mountain kernel: a C1 bump per priced cell, radii strictly smaller
 // than the grid steps so every neighbour's kernel is exactly zero at any
@@ -63,6 +63,13 @@ const BASE_H = 0.1; // slab thickness
 // enough to read as a control.
 const YAW_MAX = (3 * Math.PI) / 180;
 const PITCH_MAX = (1.5 * Math.PI) / 180;
+
+// The ambient drift at rest: half a degree of yaw on a ~48s breath, under
+// the perception threshold as motion but enough that the scene reads as a
+// place rather than a still. Costs a continuous render loop, which is why
+// it shares the reduced-motion gate with the parallax.
+const IDLE_YAW = (0.5 * Math.PI) / 180;
+const IDLE_RATE = 0.13; // rad/s of the sine phase
 
 const CLAY = new THREE.Color("#e8e0d0");
 const HOVER = new THREE.Color("#2b271f");
@@ -210,6 +217,14 @@ export default function TerrainScene({
   const [reduced, setReduced] = useState(false);
   const [hoverStoreId, setHoverStoreId] = useState<string | null>(null);
 
+  // Whether the rise has finished. The labels and the reference rings are
+  // projected from full-height world anchors, so during the rise they would
+  // hang in the air over flat land; they wait for the settle instead. Relief
+  // reports it -- a callback, not a timer, because under a demand frameloop
+  // wall-clock time can pass without the frames having run.
+  const [settled, setSettled] = useState(false);
+  const handleSettleChange = useCallback((value: boolean) => setSettled(value), []);
+
   useEffect(() => {
     const media = window.matchMedia("(prefers-reduced-motion: reduce)");
     setReduced(media.matches);
@@ -266,12 +281,7 @@ export default function TerrainScene({
         dpr={[1, 1.75]}
         gl={{ alpha: true, antialias: true }}
         frameloop="demand"
-        onCreated={(state) => {
-          // The entrance pen is a clipping plane per ridge; local clipping
-          // is off by default in three.
-          state.gl.localClippingEnabled = true;
-          onReady();
-        }}
+        onCreated={() => onReady()}
         onPointerMissed={() => {
           onHover(null);
           onClear();
@@ -298,7 +308,7 @@ export default function TerrainScene({
         />
         <directionalLight position={[9, 6, -9]} intensity={0.45} color="#f4ecdc" />
         <Slab grid={grid} onHover={onHover} onClear={onClear} />
-        <Etchings grid={grid} />
+        <Etchings grid={grid} visible={settled} />
         <Relief
           grid={grid}
           hovered={hovered}
@@ -307,10 +317,19 @@ export default function TerrainScene({
           onHover={onHover}
           onSelect={onSelect}
           animate={!reduced}
+          onSettleChange={handleSettleChange}
         />
       </Canvas>
 
-      <div className="pointer-events-none absolute inset-0 hidden sm:block" aria-hidden="true">
+      <div
+        className={cn(
+          "pointer-events-none absolute inset-0 hidden sm:block transition-opacity duration-500",
+          // invisible, not just transparent: the store and staple labels are
+          // pointer-events-auto, and they must not catch hovers mid-rise.
+          settled ? "visible opacity-100" : "invisible opacity-0",
+        )}
+        aria-hidden="true"
+      >
         {worldAnchors.map((anchor) => {
           if (anchor.kind === "store") {
             const storeId = anchor.key.slice("store:".length);
@@ -506,19 +525,22 @@ function Rig({
     s.yaw += (targetYaw - s.yaw) * 0.06;
     s.pitch += (targetPitch - s.pitch) * 0.06;
 
+    const idle = Math.sin(state.clock.elapsedTime * IDLE_RATE) * IDLE_YAW;
+
     const b = base.current;
     const v = scratch.current.copy(b.position).sub(b.target);
     const spherical = new THREE.Spherical().setFromVector3(v);
-    spherical.theta += s.yaw;
+    spherical.theta += s.yaw + idle;
     spherical.phi = THREE.MathUtils.clamp(spherical.phi + s.pitch, 0.2, Math.PI / 2 - 0.05);
     camera.position.setFromSpherical(spherical).add(b.target);
     camera.lookAt(b.target);
 
     projectAnchors();
 
-    if (Math.abs(targetYaw - s.yaw) > 0.0004 || Math.abs(targetPitch - s.pitch) > 0.0004) {
-      invalidate();
-    }
+    // The ambient drift never sleeps, so neither does the loop. The old
+    // ease-to-quiet exit is gone with it; reduced motion still gets a
+    // fully idle renderer via the early return above.
+    invalidate();
   });
 
   return null;
@@ -579,7 +601,7 @@ function Slab({
  * legend. The summit label still names the actual maximum; these teach the
  * scale between.
  */
-function Etchings({ grid }: { grid: TerrainGrid }) {
+function Etchings({ grid, visible }: { grid: TerrainGrid; visible: boolean }) {
   const rings = useMemo(() => {
     const w = slabWidth(grid) / 2;
     const d = slabDepth(grid) / 2;
@@ -604,7 +626,10 @@ function Etchings({ grid }: { grid: TerrainGrid }) {
     <group>
       {rings.map((ring) => (
         <lineLoop key={ring.ratio} geometry={ring.geometry} raycast={() => null}>
-          <lineBasicMaterial color={INK} transparent opacity={0.15} />
+          {/* Hidden until the rise settles: a ratio ring floating over flat
+              land would mark nothing. Scaling them down with the relief is
+              worse -- a moving 2x mark is a lie about the scale. */}
+          <lineBasicMaterial color={INK} transparent opacity={visible ? 0.15 : 0} />
         </lineLoop>
       ))}
     </group>
@@ -968,6 +993,7 @@ function Relief({
   onHover,
   onSelect,
   animate,
+  onSettleChange,
 }: {
   grid: TerrainGrid;
   hovered: CellRef | null;
@@ -976,6 +1002,7 @@ function Relief({
   onHover: (ref: CellRef | null) => void;
   onSelect: (ref: CellRef) => void;
   animate: boolean;
+  onSettleChange: (settled: boolean) => void;
 }) {
   const invalidate = useThree((state) => state.invalidate);
 
@@ -984,43 +1011,29 @@ function Relief({
   useEffect(() => () => geometry.dispose(), [geometry]);
   const baseColors = useMemo(() => paintBase(grid, geometry), [grid, geometry]);
 
-  // The pen: a clipping plane keeping everything left of its constant, swept
-  // once across the whole landscape. It stays on the materials after the
-  // entrance, so the sweep bounds live in a ref the frame loop can read
-  // without owning grid as a dependency.
-  const plane = useMemo(() => new THREE.Plane(new THREE.Vector3(-1, 0, 0), 0), []);
-  const planes = useMemo(() => [plane], [plane]);
-  const sweepRef = useRef({ from: 0, to: 0 });
-  sweepRef.current = {
-    from: -slabWidth(grid) / 2 - 0.1,
-    to: slabWidth(grid) / 2 + 0.1,
-  };
+  // The entrance: the whole relief rises out of the slab, prices pushing
+  // the ground up. One scale on the group that already holds everything
+  // that must rise together -- terrain, hit boxes, cairns, ghosts, stakes.
+  const lift = useRef<THREE.Group>(null);
   const progress = useRef(1);
 
-  // The entrance. The deps are grid.country rather than grid on purpose:
-  // the sweep replays when the country flips, not on every repaint of the
-  // same landscape.
+  // The deps are grid.country rather than grid on purpose: the rise
+  // replays when the country flips, not on every repaint of the same
+  // landscape.
   useEffect(() => {
     progress.current = animate ? 0 : 1;
-    plane.constant = animate ? sweepRef.current.from : sweepRef.current.to;
+    // 0.001, never 0: a zero-determinant matrix breaks the normals.
+    lift.current?.scale.setY(animate ? 0.001 : 1);
+    onSettleChange(!animate);
     invalidate();
-  }, [grid.country, animate, plane, invalidate]);
-
-  // A repaint of the same landscape can still widen the board (a store
-  // added mid-session); a finished pen must cover the new right edge.
-  useEffect(() => {
-    if (progress.current >= 1) {
-      plane.constant = sweepRef.current.to;
-      invalidate();
-    }
-  }, [grid, plane, invalidate]);
+  }, [grid.country, animate, onSettleChange, invalidate]);
 
   useFrame((_, delta) => {
     if (progress.current >= 1) return;
     progress.current = Math.min(1, progress.current + delta / ENTRANCE_SECONDS);
     const eased = 1 - Math.pow(1 - progress.current, 3);
-    const { from, to } = sweepRef.current;
-    plane.constant = from + (to - from) * eased;
+    lift.current?.scale.setY(Math.max(0.001, eased));
+    if (progress.current >= 1) onSettleChange(true);
     invalidate();
   });
 
@@ -1115,15 +1128,13 @@ function Relief({
   useEffect(() => () => ghosts.forEach((g) => g.geometry.dispose()), [ghosts]);
 
   return (
-    <group>
+    <group ref={lift}>
       <mesh geometry={geometry} castShadow receiveShadow raycast={() => null}>
         <meshStandardMaterial
           vertexColors
           roughness={0.95}
           metalness={0}
           side={THREE.DoubleSide}
-          clippingPlanes={planes}
-          clipShadows
         />
       </mesh>
 
@@ -1174,7 +1185,7 @@ function Relief({
                   raycast={() => null}
                 >
                   <sphereGeometry args={[0.06, 12, 12]} />
-                  <meshStandardMaterial color={GOLD} roughness={0.5} clippingPlanes={planes} />
+                  <meshStandardMaterial color={GOLD} roughness={0.5} />
                 </mesh>
               ) : null}
             </group>
@@ -1190,7 +1201,6 @@ function Relief({
             opacity={0.3}
             dashSize={0.07}
             gapSize={0.05}
-            clippingPlanes={planes}
           />
         </lineLoop>
       ))}
