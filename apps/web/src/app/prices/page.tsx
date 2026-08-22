@@ -20,8 +20,8 @@ export default function PricesPage() {
           Every product we track
         </h1>
         <p className="mt-2.5 text-[14px] text-mute">
-          The unit price is the number that matters, and it is the one stores put in the smallest
-          type. It is the large one here.
+          Search 28,000 products across every store we read. The unit price is the number that
+          matters, and it is the one stores put in the smallest type. It is the large one here.
         </p>
       </section>
 

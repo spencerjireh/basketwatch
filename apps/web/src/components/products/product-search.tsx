@@ -123,17 +123,31 @@ export function ProductSearch() {
   return (
     <div>
       <div className="flex flex-col gap-3">
-        <label className="block">
-          <span className="sr-only">Search products</span>
-          <input
-            type="search"
-            value={q}
-            onChange={(event) => setQ(event.target.value)}
-            placeholder="Search 28,000 products — try rice, milk, coffee"
-            className="w-full border-b border-line bg-transparent px-0 py-2.5 font-display text-[22px] text-ink placeholder:font-sans placeholder:text-[14px] placeholder:text-mute focus:border-ink focus:outline-none"
-          />
+        {/* The field is the page's one instruction, and a bare underline under
+            a serif headline reads as more headline. So: name it in the label
+            voice, put a glyph on the rule, and make that rule the heaviest
+            line on the page -- every other division here is a hairline. */}
+        <label className="flex flex-col gap-1.5">
+          <span className="caps">Search</span>
+          <span className="flex items-center gap-2.5 border-b-2 border-line text-mute transition-colors focus-within:border-ink focus-within:text-ink">
+            <SearchGlyph />
+            <input
+              type="search"
+              value={q}
+              onChange={(event) => setQ(event.target.value)}
+              // The one control the page exists for. A caret already in it
+              // says "type" more plainly than any copy above it can.
+              autoFocus
+              placeholder="Try rice, milk, or olive oil"
+              className="w-full bg-transparent px-0 py-2.5 font-display text-[22px] text-ink placeholder:font-sans placeholder:text-[14px] placeholder:text-mute focus:outline-none"
+            />
+          </span>
         </label>
 
+        {/* Two groups, and they do different jobs: Priced narrows what is in
+            the list, Sort only reorders it. Pushing Sort to the far edge is
+            what separates them -- until the row wraps, where a lone
+            right-aligned group would read as detached instead. */}
         <div className="flex flex-wrap gap-x-4 gap-y-2">
           <Choice
             label="Priced"
@@ -148,6 +162,7 @@ export function ProductSearch() {
           />
           <Choice
             label="Sort"
+            className="sm:ml-auto"
             value={sort}
             onChange={(value) => setSort(value as ProductSort)}
             options={[
@@ -279,19 +294,44 @@ export function ProductSearch() {
   );
 }
 
+/**
+ * The lens, drawn at the hairline weight the rest of the page rules with
+ * rather than as a filled icon. Decorative: the label beside it already
+ * names the field.
+ */
+function SearchGlyph() {
+  return (
+    <svg
+      viewBox="0 0 16 16"
+      className="h-4 w-4 shrink-0"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      aria-hidden="true"
+      focusable="false"
+    >
+      <circle cx="6.75" cy="6.75" r="4.25" />
+      <line x1="10" y1="10" x2="14" y2="14" />
+    </svg>
+  );
+}
+
 function Choice({
   label,
   value,
   onChange,
   options,
+  className,
 }: {
   label: string;
   value: string;
   onChange: (value: string) => void;
   options: [string, string][];
+  className?: string;
 }) {
   return (
-    <div className="flex items-center gap-2">
+    <div className={cn("flex items-center gap-2", className)}>
       <span className="caps">{label}</span>
       <div className="flex gap-3">
         {options.map(([optionValue, optionLabel]) => (
