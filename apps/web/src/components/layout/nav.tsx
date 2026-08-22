@@ -2,8 +2,9 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { COUNTRY_NAME, countries } from "@basketwatch/contract";
+import { COUNTRY_NAME, type Country, countries } from "@basketwatch/contract";
 import { CountryLink, useCountry } from "@/components/country/country";
+import { Dropdown } from "@/components/ui/dropdown";
 import { cn } from "@/lib/utils";
 
 /**
@@ -24,7 +25,16 @@ const LINKS = [
 
 export function Nav() {
   const pathname = usePathname();
-  const { country, setCountry } = useCountry();
+  const { country, setCountry, scope, setScope } = useCountry();
+
+  // "All stores" is offered only where it means something. The fleet is
+  // machinery and has no country; the basket and the catalogue do, and there
+  // is no sensible all-countries basket to show.
+  const onHealing = pathname.startsWith("/healing");
+  const items = [
+    ...countries.map((c) => ({ value: c, label: COUNTRY_NAME[c] })),
+    ...(onHealing ? [{ value: "all", label: "All stores" }] : []),
+  ];
 
   return (
     <header className="border-b border-line">
@@ -54,24 +64,22 @@ export function Nav() {
           })}
         </nav>
 
-        <div className="ml-auto flex gap-5" role="group" aria-label="Country">
-          {countries.map((c) => (
-            <button
-              key={c}
-              type="button"
-              aria-pressed={c === country}
-              onClick={() => setCountry(c)}
-              className={cn(
-                "caps pb-1 transition-colors",
-                c === country
-                  ? "border-b border-ink text-ink"
-                  : "border-b border-transparent text-mute hover:text-ink",
-              )}
-            >
-              {COUNTRY_NAME[c]}
-            </button>
-          ))}
-        </div>
+        <Dropdown
+          className="ml-auto"
+          label="Country"
+          items={items}
+          value={onHealing && scope === "all" ? "all" : country}
+          onChange={(value) => {
+            if (value === "all") {
+              setScope("all");
+              return;
+            }
+            // Reset the scope as well, or the label reads "Philippines" while
+            // the board is still showing every store.
+            setScope("country");
+            setCountry(value as Country);
+          }}
+        />
       </div>
     </header>
   );
