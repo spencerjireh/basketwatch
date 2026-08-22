@@ -1,6 +1,5 @@
 import { Inject, Injectable } from "@nestjs/common";
 import { sql } from "drizzle-orm";
-import { type CheckResult } from "@basketwatch/contract";
 import { DRIZZLE } from "../../database/database.tokens.js";
 import { type Db } from "../../database/database.module.js";
 

@@ -90,6 +90,12 @@ export const products = pgTable(
   },
   (t) => ({
     pk: primaryKey({ columns: [t.storeId, t.productKey] }),
+    /*
+     * The browse order for /prices with an empty search box: name first, then
+     * the primary key, so the keyset seek and the ORDER BY are one index scan
+     * that stops at the page size instead of a sort over the whole catalogue.
+     */
+    byName: index("idx_products_name_browse").on(t.name, t.storeId, t.productKey),
   }),
 );
 
