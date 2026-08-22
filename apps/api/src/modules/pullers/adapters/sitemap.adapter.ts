@@ -1,5 +1,5 @@
 import { Injectable, Logger } from "@nestjs/common";
-import { Fetcher } from "../fetcher.js";
+import { Fetcher, type FetchOptions } from "../fetcher.js";
 import { type PullResult, type Puller, type PullerConfig, type PulledRow } from "../puller.types.js";
 import { extractProduct } from "./product-page.js";
 import { parseSitemap, rankProductUrls } from "./sitemap.js";
@@ -14,6 +14,9 @@ const MAX_SITEMAP_DEPTH = 2;
  * This is the expensive shape -- Dierbergs' ceiling of 400 pages is 400 HTTP
  * round trips for 400 products, against 250 products per call on Shopify -- so
  * URLs are ranked before any is fetched and the ceiling is a hard stop.
+ *
+ * When `needs_unlocker` is set, all requests route through Bright Data's Web
+ * Unlocker.
  */
 @Injectable()
 export class SitemapAdapter implements Puller {
@@ -25,7 +28,12 @@ export class SitemapAdapter implements Puller {
   async pull(config: PullerConfig): Promise<PullResult> {
     if (!config.endpoint) return { rows: [], pages: 0 };
 
-    const { urls, pages: discoveryPages } = await this.discover(config.endpoint);
+    const fetchOpts: FetchOptions = {
+      useUnlocker: config.needsUnlocker,
+      country: config.country,
+    };
+
+    const { urls, pages: discoveryPages } = await this.discover(config.endpoint, fetchOpts);
     const ranked = rankProductUrls(urls).slice(0, config.maxPages);
     this.logger.log(`${config.storeId}: ${urls.length} urls in the sitemap, ${ranked.length} worth fetching`);
 
@@ -34,7 +42,7 @@ export class SitemapAdapter implements Puller {
 
     for (const url of ranked) {
       if (pages >= config.maxPages) break;
-      const response = await this.fetcher.get(url);
+      const response = await this.fetcher.get(url, fetchOpts);
       pages += 1;
       if (response.status !== 200) continue;
 
@@ -42,8 +50,6 @@ export class SitemapAdapter implements Puller {
       if (!product) continue;
 
       const row = buildRow(config, {
-        // The slug is the identity: it is what survives a price change and a
-        // template rewrite, and it is what basket_map pins against.
         productKey: slugOf(url),
         name: product.name,
         price: product.price,
@@ -57,11 +63,11 @@ export class SitemapAdapter implements Puller {
     return { rows, pages };
   }
 
-  /** Walk the sitemap, following one level of index nesting. */
-  private async discover(endpoint: string): Promise<{ urls: string[]; pages: number }> {
+  private async discover(
+    endpoint: string,
+    fetchOpts: FetchOptions,
+  ): Promise<{ urls: string[]; pages: number }> {
     const site = siteOf(endpoint);
-    // The endpoint column holds a sitemap URL for these stores; fall back to
-    // the conventional location when it holds only the site root.
     const start = endpoint.includes("sitemap") ? endpoint : `${site}/sitemap.xml`;
 
     let queue = [start];
@@ -71,7 +77,7 @@ export class SitemapAdapter implements Puller {
     for (let depth = 0; depth <= MAX_SITEMAP_DEPTH && queue.length > 0; depth += 1) {
       const next: string[] = [];
       for (const target of queue.slice(0, 20)) {
-        const response = await this.fetcher.get(target);
+        const response = await this.fetcher.get(target, fetchOpts);
         pages += 1;
         if (response.status !== 200) continue;
         const parsed = parseSitemap(response.body);

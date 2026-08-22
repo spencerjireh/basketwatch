@@ -1,8 +1,24 @@
-import { Injectable, Logger } from "@nestjs/common";
+import { Injectable, Logger, type OnApplicationBootstrap } from "@nestjs/common";
 import { type CheckResult, type Verdict } from "@basketwatch/contract";
+import { z } from "zod";
+import { BossService } from "../../jobs/boss.provider.js";
+import { QUEUES } from "../../jobs/queues.js";
 import { validateRun } from "./checks.js";
 import { type Baseline } from "./checks.types.js";
 import { ValidatorRepository } from "./validator.repository.js";
+
+/**
+ * Schema for stored products as returned by loadStoreProducts(). Distinct from
+ * the ingest priceRecordSchema because stored rows lack observed_at and have
+ * nullable size fields. A row failing this means a core field (name, price, url)
+ * was lost -- the exact symptom a heal should fix.
+ */
+const storedProductSchema = z.object({
+  product_key: z.string().min(1),
+  name: z.string().min(1),
+  price: z.number().positive(),
+  url: z.string().min(1),
+});
 
 /**
  * The impure edge around the pure checks: loads a baseline, runs the checks,
@@ -12,10 +28,18 @@ import { ValidatorRepository } from "./validator.repository.js";
  * from its stored raw_output against rules that did not exist when it opened.
  */
 @Injectable()
-export class ValidatorService {
+export class ValidatorService implements OnApplicationBootstrap {
   private readonly logger = new Logger(ValidatorService.name);
 
-  constructor(private readonly repository: ValidatorRepository) {}
+  constructor(
+    private readonly repository: ValidatorRepository,
+    private readonly boss: BossService,
+  ) {}
+
+  async onApplicationBootstrap(): Promise<void> {
+    const count = await this.repository.seedAllBaselines();
+    this.logger.log(`seeded baselines for ${count} stores`);
+  }
 
   async validateStoredRun(runId: number, storeId: string): Promise<Verdict> {
     const baseline = await this.repository.loadBaseline(storeId);
@@ -30,7 +54,7 @@ export class ValidatorService {
       return { status: "ok", findings: [] };
     }
 
-    const parse = (_row: unknown) => true;
+    const parse = (row: unknown) => storedProductSchema.safeParse(row).success;
     const verdict = validateRun(products, parse, baseline);
 
     const nullRatePct = this.computeNullRatePct(products);
@@ -42,10 +66,18 @@ export class ValidatorService {
       if (!hasOpen) {
         const evidence = this.buildEvidence(verdict.findings, products, baseline);
         const incidentKind = this.pickIncidentKind(verdict.findings);
-        await this.repository.openIncident(storeId, runId, incidentKind, evidence);
+        const scraperId = await this.repository.getScraperId(storeId);
+        const incidentId = await this.repository.openIncident(
+          storeId, runId, incidentKind, evidence, scraperId,
+        );
         this.logger.log(
           `${storeId}: run ${runId} is ${verdict.status}, incident opened (${incidentKind})`,
         );
+        if (scraperId) {
+          await this.enqueueHeal(scraperId, storeId, incidentId);
+        } else {
+          this.logger.warn(`${storeId}: no scraper_id, cannot auto-heal`);
+        }
       } else {
         this.logger.log(
           `${storeId}: run ${runId} is ${verdict.status}, incident already open`,
@@ -63,6 +95,25 @@ export class ValidatorService {
   /** Seed baselines for all stores from their current product data. */
   async seedAllBaselines(): Promise<number> {
     return this.repository.seedAllBaselines();
+  }
+
+  /** Update a single store's baseline after a successful validation. */
+  async updateBaseline(storeId: string): Promise<void> {
+    await this.repository.computeAndSeedBaseline(storeId);
+  }
+
+  private async enqueueHeal(scraperId: string, storeId: string, incidentId: string): Promise<void> {
+    try {
+      await this.boss.send(QUEUES.heal, { scraperId, storeId, incidentId }, {
+        singletonKey: scraperId,
+        retryLimit: 0,
+      });
+      this.logger.log(`${storeId}: heal job enqueued for scraper ${scraperId}`);
+    } catch (err) {
+      this.logger.error(
+        `${storeId}: failed to enqueue heal -- ${err instanceof Error ? err.message : String(err)}`,
+      );
+    }
   }
 
   private computeNullRatePct(products: Record<string, unknown>[]): number {

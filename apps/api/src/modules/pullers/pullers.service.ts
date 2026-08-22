@@ -6,14 +6,71 @@ import { PullerRegistry } from "./puller.registry.js";
 import { type PullResult, type PullerConfig, type PullerRunOptions } from "./puller.types.js";
 import { PullersRepository, type RunSummary } from "./pullers.repository.js";
 
+export type PullProgress = {
+  storeId: string;
+  status: "collecting" | "processing" | "done" | "error";
+  transport: "studio" | null;
+  startedAt: number;
+  elapsedMs: number;
+  result: PullerRunResponse | null;
+  error: string | null;
+};
+
 @Injectable()
 export class PullersService {
   private readonly logger = new Logger(PullersService.name);
+  private readonly activePulls = new Map<string, PullProgress>();
 
   constructor(
     private readonly registry: PullerRegistry,
     private readonly repository: PullersRepository,
   ) {}
+
+  getPullProgress(storeId: string): PullProgress | null {
+    const p = this.activePulls.get(storeId);
+    if (!p) return null;
+    return { ...p, elapsedMs: Date.now() - p.startedAt };
+  }
+
+  /** Fire-and-forget: starts the pull in the background and returns immediately. */
+  startPullAsync(storeId: string): { status: string; storeId: string } {
+    if (this.activePulls.has(storeId)) {
+      return { status: "already_running", storeId };
+    }
+    this.activePulls.set(storeId, {
+      storeId,
+      status: "collecting",
+      transport: null,
+      startedAt: Date.now(),
+      elapsedMs: 0,
+      result: null,
+      error: null,
+    });
+    this.runStore(storeId, { dryRun: false, trigger: "manual" }).then(
+      (result) => {
+        const p = this.activePulls.get(storeId);
+        if (p) {
+          p.status = "done";
+          p.elapsedMs = Date.now() - p.startedAt;
+          p.result = result;
+        }
+      },
+      (err: unknown) => {
+        const p = this.activePulls.get(storeId);
+        if (p) {
+          p.status = "error";
+          p.elapsedMs = Date.now() - p.startedAt;
+          p.error = err instanceof Error ? err.message : String(err);
+        }
+        this.logger.error(`${storeId}: async pull failed -- ${err instanceof Error ? err.message : String(err)}`);
+      },
+    );
+    return { status: "started", storeId };
+  }
+
+  clearPullProgress(storeId: string): void {
+    this.activePulls.delete(storeId);
+  }
 
   /** Every store with a catalogue to pull, for the fleet fan-out. */
   async pullableStoreIds(): Promise<string[]> {
@@ -26,7 +83,12 @@ export class PullersService {
     const [config] = await this.repository.pullableStores([storeId]);
     if (!config) throw new NotFoundException(`No pullable store with id ${storeId}.`);
 
-    const { result, transport, fallbackReason } = await this.collect(config);
+    const result = await this.collect(config);
+    const p = this.activePulls.get(storeId);
+    if (p) {
+      p.transport = "studio";
+      p.status = "processing";
+    }
     const rows = dedupe(result.rows);
     const previous = await this.repository.latestPrices(config.storeId);
     const changes = diff(previous, rows);
@@ -39,7 +101,7 @@ export class PullersService {
     const summary: RunSummary = {
       storeId: config.storeId,
       method: config.method,
-      transport,
+      transport: "studio",
       source,
       trigger: options.trigger,
       rows: rows.length,
@@ -83,17 +145,6 @@ export class PullersService {
       });
     }
 
-    // A fallback keeps the series unbroken; the incident is what keeps it
-    // honest. The rows already say source='puller', so the substitution is
-    // legible in the data as well as in the incident.
-    if (fallbackReason) {
-      await this.repository.openIncident(config.storeId, runId, "studio_failed", {
-        reason: fallbackReason,
-        covered_by: "puller",
-        rows: rows.length,
-      });
-    }
-
     this.logger.log(
       `${config.storeId}: run ${runId}, ${rows.length} rows, ${summary.changes} changes` +
         (ceilingReached ? " (ceiling reached)" : "") +
@@ -128,39 +179,19 @@ export class PullersService {
   }
 
   /**
-   * Studio where a store needs a browser, HTTP everywhere else.
-   *
-   * Fifteen of the sixteen pullable stores have an HTTP path and cost no
-   * credits. The one that does not falls back to HTTP when Studio cannot
-   * collect, rather than losing the day's data point.
+   * All production pulls go through Bright Data Studio. If a store has no
+   * collector yet, the pull fails with a clear error requiring provisioning.
+   * There is no HTTP fallback -- a Studio failure surfaces as a real failure,
+   * gets diagnosed by the validator, and triggers a heal.
    */
-  private async collect(config: PullerConfig): Promise<{
-    result: PullResult;
-    transport: "http" | "studio";
-    fallbackReason: string | null;
-  }> {
-    if (config.needsBrowser) {
-      try {
-        const studio = this.registry.get("studio");
-        if (!studio) throw new StudioError("no studio adapter registered");
-        return { result: await studio.pull(config), transport: "studio", fallbackReason: null };
-      } catch (error) {
-        const reason = `${error instanceof Error ? error.name : "Error"}: ${
-          error instanceof Error ? error.message : String(error)
-        }`.slice(0, 200);
-        this.logger.warn(`${config.storeId}: studio failed, falling back - ${reason}`);
-        return { result: await this.overHttp(config), transport: "http", fallbackReason: reason };
-      }
+  private async collect(config: PullerConfig): Promise<PullResult> {
+    if (!config.collectorId) {
+      throw new NotFoundException(
+        `${config.storeId} has no Studio collector. Provision one first via POST /api/fleet/${config.storeId}/provision.`,
+      );
     }
-    return { result: await this.overHttp(config), transport: "http", fallbackReason: null };
-  }
-
-  private async overHttp(config: PullerConfig): Promise<PullResult> {
-    // sitemap-bounded is the same shape as sitemap with a lower ceiling, and
-    // the ceiling is already a column.
-    const method = config.method === "sitemap-bounded" ? "sitemap" : config.method;
-    const puller = this.registry.get(method);
-    if (!puller) throw new NotFoundException(`No puller registered for method ${config.method}.`);
-    return puller.pull(config);
+    const studio = this.registry.get("studio");
+    if (!studio) throw new StudioError("no studio adapter registered");
+    return studio.pull(config);
   }
 }

@@ -32,6 +32,9 @@ export class ValidateRunHandler implements OnApplicationBootstrap {
             this.logger.log(
               `${storeId}: run ${runId} validated as ${verdict.status} (${verdict.findings.length} findings)`,
             );
+            if (verdict.status === "ok") {
+              await this.validator.updateBaseline(storeId);
+            }
           } catch (err) {
             this.logger.error(
               `${storeId}: validation failed for run ${runId} -- ${err instanceof Error ? err.message : String(err)}`,

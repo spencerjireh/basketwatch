@@ -15,6 +15,8 @@ export interface PullerConfig {
   currency: string;
   method: string;
   endpoint: string | null;
+  /** HTML product listing URL for Studio (e.g. /collections/all for Shopify). */
+  studioEndpoint: string | null;
   maxPages: number;
   needsBrowser: boolean;
   needsUnlocker: boolean;

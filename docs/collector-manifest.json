@@ -1,0 +1,383 @@
+{
+  "_purpose": "Canonical registry of every pullable store and its Studio collector. This is the single source of truth for reproducing the entire fleet on any environment or Bright Data account. See docs/collector-runbook.md for the step-by-step setup procedure.",
+  "_storeFields": {
+    "storeId": "Primary key in the stores table",
+    "name": "Human-readable store name",
+    "country": "ISO 3166-1 alpha-2 country code",
+    "currency": "ISO 4217 currency code",
+    "method": "Site structure type: shopify, magento-graphql, sitemap, or sitemap-bounded",
+    "endpoint": "JSON API or GraphQL endpoint for HTTP adapters (null for sitemap stores)",
+    "studioEndpoint": "URL the Studio adapter uses at pull time. For listing-page stores: HTML product listing page. For sitemap stores: the sitemap URL used for product URL discovery.",
+    "maxPages": "Hard ceiling on pages/URLs fetched per pull (cost bound)",
+    "needsBrowser": "Whether the site requires a real browser to render (JS-only content)",
+    "needsUnlocker": "Whether requests route through Bright Data Web Unlocker",
+    "indexContributor": "Whether this store's prices feed the basket price index"
+  },
+  "_collectorFields": {
+    "seedUrl": "The URL passed as the first arg to scraper create. For listing-page collectors this is a listing page; for product-page collectors this is a representative product page.",
+    "description": "The concise instruction passed to scraper create. Derived from probeFindings but never a dump of them.",
+    "template": "listing-page or product-page. Documentation only; Studio infers the type.",
+    "probeFindings": "Internal team notes. Structural knowledge from HTTP probing that informed the description. Never sent to Studio."
+  },
+  "_expectedFields": {
+    "required": ["name", "price", "url"],
+    "optional": ["currency", "in_stock", "category", "size"],
+    "note": "These are the fields studio.adapter.ts toRows() consumes. A canary passes if every row contains all required fields."
+  },
+  "stores": [
+    {
+      "storeId": "ph-ever",
+      "name": "Ever Supermarket",
+      "country": "PH",
+      "currency": "PHP",
+      "method": "shopify",
+      "endpoint": "https://ever.ph/products.json",
+      "studioEndpoint": "https://ever.ph/collections/all",
+      "maxPages": 20,
+      "needsBrowser": false,
+      "needsUnlocker": true,
+      "indexContributor": true
+    },
+    {
+      "storeId": "ph-shopgaisano",
+      "name": "Shop Gaisano",
+      "country": "PH",
+      "currency": "PHP",
+      "method": "shopify",
+      "endpoint": "https://shopgaisano.com/products.json",
+      "studioEndpoint": "https://shopgaisano.com/collections/all",
+      "maxPages": 20,
+      "needsBrowser": false,
+      "needsUnlocker": true,
+      "indexContributor": true
+    },
+    {
+      "storeId": "ph-shopsuki",
+      "name": "Shop Suki",
+      "country": "PH",
+      "currency": "PHP",
+      "method": "shopify",
+      "endpoint": "https://shopsuki.ph/products.json",
+      "studioEndpoint": "https://shopsuki.ph/collections/all",
+      "maxPages": 20,
+      "needsBrowser": false,
+      "needsUnlocker": true,
+      "indexContributor": true
+    },
+    {
+      "storeId": "ph-smmarkets",
+      "name": "SM Markets",
+      "country": "PH",
+      "currency": "PHP",
+      "method": "magento-graphql",
+      "endpoint": "https://smmarkets.ph/graphql",
+      "studioEndpoint": "https://smmarkets.ph/groceries.html",
+      "maxPages": 20,
+      "needsBrowser": false,
+      "needsUnlocker": true,
+      "indexContributor": true
+    },
+    {
+      "storeId": "ph-landers",
+      "name": "Landers Superstore",
+      "country": "PH",
+      "currency": "PHP",
+      "method": "sitemap-bounded",
+      "endpoint": null,
+      "studioEndpoint": "https://www.landers.ph/sitemap.xml",
+      "maxPages": 300,
+      "needsBrowser": true,
+      "needsUnlocker": false,
+      "indexContributor": true
+    },
+    {
+      "storeId": "ph-merrymartwholesale",
+      "name": "MerryMart Wholesale",
+      "country": "PH",
+      "currency": "PHP",
+      "method": "sitemap",
+      "endpoint": null,
+      "studioEndpoint": null,
+      "maxPages": 150,
+      "needsBrowser": false,
+      "needsUnlocker": true,
+      "indexContributor": true
+    },
+    {
+      "storeId": "us-amigofoods",
+      "name": "Amigo Foods",
+      "country": "US",
+      "currency": "USD",
+      "method": "shopify",
+      "endpoint": "https://www.amigofoods.com/products.json",
+      "studioEndpoint": "https://www.amigofoods.com/collections/all",
+      "maxPages": 20,
+      "needsBrowser": false,
+      "needsUnlocker": true,
+      "indexContributor": true
+    },
+    {
+      "storeId": "us-cypressindian",
+      "name": "Cypress Indian Grocery",
+      "country": "US",
+      "currency": "USD",
+      "method": "shopify",
+      "endpoint": "https://cypressindiangrocery.com/products.json",
+      "studioEndpoint": "https://cypressindiangrocery.com/collections/all",
+      "maxPages": 20,
+      "needsBrowser": false,
+      "needsUnlocker": true,
+      "indexContributor": true
+    },
+    {
+      "storeId": "us-dierbergs",
+      "name": "Dierbergs",
+      "country": "US",
+      "currency": "USD",
+      "method": "sitemap",
+      "endpoint": null,
+      "studioEndpoint": "https://www.dierbergs.com/sitemap.xml",
+      "maxPages": 400,
+      "needsBrowser": false,
+      "needsUnlocker": true,
+      "indexContributor": false
+    },
+    {
+      "storeId": "us-hmart",
+      "name": "H Mart",
+      "country": "US",
+      "currency": "USD",
+      "method": "sitemap",
+      "endpoint": null,
+      "studioEndpoint": "https://www.hmart.com/sitemap.xml",
+      "maxPages": 300,
+      "needsBrowser": false,
+      "needsUnlocker": true,
+      "indexContributor": false
+    },
+    {
+      "storeId": "us-kesargrocery",
+      "name": "Kesar Grocery",
+      "country": "US",
+      "currency": "USD",
+      "method": "sitemap-bounded",
+      "endpoint": null,
+      "studioEndpoint": "https://www.kesargrocery.com/sitemap.xml",
+      "maxPages": 300,
+      "needsBrowser": false,
+      "needsUnlocker": true,
+      "indexContributor": true
+    },
+    {
+      "storeId": "us-latimex",
+      "name": "Latimex Market",
+      "country": "US",
+      "currency": "USD",
+      "method": "shopify",
+      "endpoint": "https://latimexmarket.com/products.json",
+      "studioEndpoint": "https://latimexmarket.com/collections/all",
+      "maxPages": 20,
+      "needsBrowser": false,
+      "needsUnlocker": true,
+      "indexContributor": true
+    },
+    {
+      "storeId": "us-lilimart",
+      "name": "Lili Mart",
+      "country": "US",
+      "currency": "USD",
+      "method": "shopify",
+      "endpoint": "https://shoplilimart.com/products.json",
+      "studioEndpoint": "https://shoplilimart.com/collections/all",
+      "maxPages": 20,
+      "needsBrowser": false,
+      "needsUnlocker": true,
+      "indexContributor": true
+    },
+    {
+      "storeId": "us-mexgrocer",
+      "name": "MexGrocer",
+      "country": "US",
+      "currency": "USD",
+      "method": "shopify",
+      "endpoint": "https://www.mexgrocer.com/products.json",
+      "studioEndpoint": "https://www.mexgrocer.com/collections/all",
+      "maxPages": 20,
+      "needsBrowser": false,
+      "needsUnlocker": true,
+      "indexContributor": true
+    },
+    {
+      "storeId": "us-mexmax",
+      "name": "MexMax",
+      "country": "US",
+      "currency": "USD",
+      "method": "shopify",
+      "endpoint": "https://mexmax.com/products.json",
+      "studioEndpoint": "https://mexmax.com/collections/all",
+      "maxPages": 20,
+      "needsBrowser": false,
+      "needsUnlocker": true,
+      "indexContributor": true
+    },
+    {
+      "storeId": "us-sukli",
+      "name": "Sukli",
+      "country": "US",
+      "currency": "USD",
+      "method": "shopify",
+      "endpoint": "https://sukli.com/products.json",
+      "studioEndpoint": "https://sukli.com/collections/all",
+      "maxPages": 20,
+      "needsBrowser": false,
+      "needsUnlocker": true,
+      "indexContributor": true
+    }
+  ],
+  "collectors": [
+    {
+      "storeId": "ph-shopgaisano",
+      "name": "basketwatch-ph-shopgaisano",
+      "seedUrl": "https://shopgaisano.com/collections/all?page=1",
+      "description": "This is a Shopify grocery store in the Philippines. Extract every product from this collection listing page. For each product return: name (string), price (number in PHP), currency ('PHP'), url (full product page URL starting with https://shopgaisano.com/products/), size or weight if shown (e.g. '5kg', '500g', '1L'), in_stock (boolean, true unless marked 'Sold out'). Extract only products visible on this page; do not follow links to other pages.",
+      "template": "listing-page",
+      "maxUrls": 20,
+      "probeFindings": "Shopify store. /products.json returns 250 items/page with {title, handle, variants[0].price, tags}. Prices are in PHP with no currency symbol in the JSON. /collections/all renders a paginated product grid. Server-rendered json-ld on individual product pages. 1,406 products in sitemap."
+    },
+    {
+      "storeId": "ph-ever",
+      "name": "basketwatch-ph-ever",
+      "seedUrl": "https://ever.ph/collections/all?page=1",
+      "description": "This is a Shopify grocery store in the Philippines. Extract every product from this collection listing page. For each product return: name (string), price (number in PHP), currency ('PHP'), url (full product page URL starting with https://ever.ph/products/), size or weight if shown (e.g. '5kg', '1L', '500g'), in_stock (boolean, true unless marked 'Sold out'). Extract only products visible on this page; do not follow links to other pages.",
+      "template": "listing-page",
+      "maxUrls": 20,
+      "probeFindings": "Shopify store. /products.json returns 250 items/page with {title, handle, variants[0].price, tags}. Prices are in PHP. Best basket coverage of any PH store: 10/10 core items. Catalogue is only visible through Shopify search/API; sitemap coverage understates it."
+    },
+    {
+      "storeId": "ph-shopsuki",
+      "name": "basketwatch-ph-shopsuki",
+      "seedUrl": "https://shopsuki.ph/collections/all?page=1",
+      "description": "This is a Shopify grocery store in the Philippines. Extract every product from this collection listing page. For each product return: name (string), price (number in PHP), currency ('PHP'), url (full product page URL starting with https://shopsuki.ph/products/), size or weight if shown, in_stock (boolean, true unless marked 'Sold out'). Extract only products visible on this page; do not follow links to other pages.",
+      "template": "listing-page",
+      "maxUrls": 20,
+      "probeFindings": "Shopify store. /products.json returns 250 items/page with {title, handle, variants[0].price, tags}. Prices are in PHP. 16/20 items settled with strong picks. No Shopify search API."
+    },
+    {
+      "storeId": "us-mexgrocer",
+      "name": "basketwatch-us-mexgrocer",
+      "seedUrl": "https://www.mexgrocer.com/collections/all?page=1",
+      "description": "This is a Shopify grocery store in the United States selling Mexican and Latin American foods. Extract every product from this collection listing page. For each product return: name (string), price (number in USD), currency ('USD'), url (full product page URL starting with https://www.mexgrocer.com/products/), size or weight if shown (e.g. '12 oz', '1 lb'), in_stock (boolean, true unless marked 'Sold out'). Extract only products visible on this page; do not follow links to other pages.",
+      "template": "listing-page",
+      "maxUrls": 20,
+      "probeFindings": "Shopify store. /products.json answers through the Web Unlocker but is blocked on plain HTTP. Prices are in USD. 9 items settled, 5/10 core."
+    },
+    {
+      "storeId": "us-cypressindian",
+      "name": "basketwatch-us-cypressindian",
+      "seedUrl": "https://cypressindiangrocery.com/collections/all?page=1",
+      "description": "This is a Shopify grocery store in the United States selling Indian groceries. Extract every product from this collection listing page. For each product return: name (string), price (number in USD), currency ('USD'), url (full product page URL starting with https://cypressindiangrocery.com/products/), size or weight if shown (e.g. '10lb', '5L', '1KG'), in_stock (boolean, true unless marked 'Sold out'). Extract only products visible on this page; do not follow links to other pages.",
+      "template": "listing-page",
+      "maxUrls": 20,
+      "probeFindings": "Shopify store. /products.json returns 250 items/page with {title, handle, variants[0].price, tags}. Prices are in USD. Most realistic US prices in the registry: Royal Basmati 10lb at $3.75/kg."
+    },
+    {
+      "storeId": "us-latimex",
+      "name": "basketwatch-us-latimex",
+      "seedUrl": "https://latimexmarket.com/collections/all?page=1",
+      "description": "This is a Shopify grocery store in the United States selling Latin American foods. Extract every product from this collection listing page. For each product return: name (string), price (number in USD), currency ('USD'), url (full product page URL starting with https://latimexmarket.com/products/), size or weight if shown (e.g. '5 lb', '500g', '1L'), in_stock (boolean, true unless marked 'Sold out'). Extract only products visible on this page; do not follow links to other pages.",
+      "template": "listing-page",
+      "maxUrls": 20,
+      "probeFindings": "Shopify store. /products.json returns 250 items/page. Prices are in USD. 9 items settled. Skews premium (Bomba rice at $19.99/kg)."
+    },
+    {
+      "storeId": "us-mexmax",
+      "name": "basketwatch-us-mexmax",
+      "seedUrl": "https://mexmax.com/collections/all?page=1",
+      "description": "This is a Shopify wholesale grocery store in the United States. Prices shown are wholesale case prices, not per-unit retail. Extract every product from this collection listing page. For each product return: name (string), price (number in USD), currency ('USD'), url (full product page URL starting with https://mexmax.com/products/), size or weight if shown, in_stock (boolean, true unless marked 'Sold out'). Extract only products visible on this page; do not follow links to other pages.",
+      "template": "listing-page",
+      "maxUrls": 20,
+      "probeFindings": "Shopify store. /products.json returns 250 items/page. Prices are in USD but are WHOLESALE case prices (median 7.90x retail). Demoted from index contributor; unit prices suppressed."
+    },
+    {
+      "storeId": "us-amigofoods",
+      "name": "basketwatch-us-amigofoods",
+      "seedUrl": "https://www.amigofoods.com/collections/all?page=1",
+      "description": "This is a Shopify grocery store in the United States selling Latin American foods. Extract every product from this collection listing page. For each product return: name (string), price (number in USD), currency ('USD'), url (full product page URL starting with https://www.amigofoods.com/products/), size or weight if shown (e.g. '12 oz', '2 lb'), in_stock (boolean, true unless marked 'Sold out'). Extract only products visible on this page; do not follow links to other pages.",
+      "template": "listing-page",
+      "maxUrls": 20,
+      "probeFindings": "Shopify store. /products.json returns 250 items/page. Prices are in USD. 6/10 core items: rice, bread, pasta, coffee, sugar, bananas. 2,741-URL sitemap."
+    },
+    {
+      "storeId": "us-lilimart",
+      "name": "basketwatch-us-lilimart",
+      "seedUrl": "https://shoplilimart.com/collections/all?page=1",
+      "description": "This is a Shopify grocery store in the United States selling Filipino groceries. Extract every product from this collection listing page. For each product return: name (string), price (number in USD), currency ('USD'), url (full product page URL starting with https://shoplilimart.com/products/), size or weight if shown (e.g. '500g', '1L'), in_stock (boolean, true unless marked 'Sold out'). Extract only products visible on this page; do not follow links to other pages.",
+      "template": "listing-page",
+      "maxUrls": 20,
+      "probeFindings": "Shopify store. /products.json returns 250 items/page. Prices are in USD. 6/10 core items including the only new US store carrying milk. US Filipino grocer selling the same brands as the PH fleet."
+    },
+    {
+      "storeId": "us-sukli",
+      "name": "basketwatch-us-sukli",
+      "seedUrl": "https://sukli.com/collections/all?page=1",
+      "description": "This is a Shopify grocery store in the United States selling Filipino groceries. Extract every product from this collection listing page. For each product return: name (string), price (number in USD), currency ('USD'), url (full product page URL starting with https://sukli.com/products/), size or weight if shown, in_stock (boolean, true unless marked 'Sold out'). Extract only products visible on this page; do not follow links to other pages.",
+      "template": "listing-page",
+      "maxUrls": 20,
+      "probeFindings": "Shopify store. /products.json returns 250 items/page. Prices are in USD. 3/10 core items (bread, coffee, rice). Thin coverage; included for cross-country comparability."
+    },
+    {
+      "storeId": "ph-smmarkets",
+      "name": "basketwatch-ph-smmarkets",
+      "seedUrl": "https://smmarkets.ph/groceries.html",
+      "description": "This is a Magento grocery store in the Philippines (SM Markets). Extract every product from this category listing page. For each product return: name (string), price (number in PHP), currency ('PHP'), url (full product page URL on smmarkets.ph ending in .html), size or weight if shown (e.g. '500g', '1kg', '80g'), in_stock (boolean). Extract only products visible on this page; do not navigate away or follow pagination links.",
+      "template": "listing-page",
+      "maxUrls": 20,
+      "probeFindings": "Magento store with public GraphQL at /graphql. Returns {name, sku, url_key, price_range.minimum_price.final_price.{value, currency}}. 60,099 products across category tree. Prices are in PHP. Product pages are client-rendered (spa_empty), but GraphQL endpoint is public."
+    },
+    {
+      "storeId": "us-dierbergs",
+      "name": "basketwatch-us-dierbergs",
+      "seedUrl": "https://www.dierbergs.com/item/bakehouse-banana-chocolate-chip-muffins-4ct-37993",
+      "description": "This is a US grocery store product page (Dierbergs). Extract the product details from this page. Return: name (string), price (number in USD), currency ('USD'), url (the page URL), category if shown, size or weight if shown (e.g. '16 oz', '4ct'), in_stock (boolean). Extract from this single page only; do not navigate to other pages.",
+      "template": "product-page",
+      "maxUrls": 400,
+      "probeFindings": "Sitemap-based store with json-ld structured data on product pages. Product type @type: Product with offers.price and offers.priceCurrency. Prices are in USD. Authentic St. Louis regional grocer."
+    },
+    {
+      "storeId": "us-hmart",
+      "name": "basketwatch-us-hmart",
+      "seedUrl": "https://www.hmart.com/pearl-barley-2lb-907g--1/p",
+      "description": "This is a US grocery store product page (H Mart). Extract the product details from this page. Return: name (string), price (number in USD), currency ('USD'), url (the page URL), category if shown, size or weight if shown (e.g. '2lb', '907g', '1kg'), in_stock (boolean). Extract from this single page only; do not navigate to other pages.",
+      "template": "product-page",
+      "maxUrls": 300,
+      "probeFindings": "Sitemap-based store with json-ld on product pages. 1,520 URLs in sitemap. No /products.json (returns 404). Korean-American chain."
+    },
+    {
+      "storeId": "us-kesargrocery",
+      "name": "basketwatch-us-kesargrocery",
+      "seedUrl": "https://www.kesargrocery.com/banana-bunch-5-7-pcs-s3_sku201791/",
+      "description": "This is a US grocery store product page (Kesar Grocery). The page has no structured data; the product name is in the main heading and the price is displayed near it in USD. Extract: name (string), price (number in USD), currency ('USD'), url (the page URL), category if visible, size or weight if shown (e.g. '4LB', '24oz', '1KG'), in_stock (boolean). Extract from this single page only; do not navigate to other pages.",
+      "template": "product-page",
+      "maxUrls": 300,
+      "probeFindings": "Sitemap-based store with NO structured data (no json-ld, no microdata, no OpenGraph product tags). Prices are in raw HTML, extracted via CSS class containing 'price' and regex. 11,987 products in sitemap. Product name is in the h1 heading. Bare-HTML extraction: most likely to break on redesign, strong heal subject."
+    },
+    {
+      "storeId": "ph-merrymartwholesale",
+      "name": "basketwatch-ph-merrymartwholesale",
+      "seedUrl": "https://www.merrymartwholesale.com/products/argentina-beef-loaf-250g-1-case-includes-48-pcs-250g",
+      "description": "This is a Philippine wholesale grocery store product page (MerryMart). Prices shown are wholesale case prices, not per-unit retail. The page has no structured data; the product name is in the heading and the price is in PHP nearby. Extract: name (string), price (number in PHP), currency ('PHP'), url (the page URL), category if visible, size or weight if shown (e.g. '250g', '1kg'), in_stock (boolean). Extract from this single page only; do not navigate to other pages.",
+      "template": "product-page",
+      "maxUrls": 150,
+      "probeFindings": "Server-rendered bare HTML with no structured data. No sitemap; product URLs discovered by crawling categories from the homepage. Wholesale case pricing: median 14.98x retail. Demoted from index contributor; unit prices suppressed."
+    },
+    {
+      "storeId": "ph-landers",
+      "name": "basketwatch-ph-landers",
+      "seedUrl": "https://www.landers.ph/anti-hoarding-and-anti-panic-buying-list/baguio-canola-oil-1-5l-115977-6990",
+      "description": "This is a Philippine grocery store product page (Landers Superstore). The page is fully client-rendered; prices only appear after JavaScript execution. Extract: name (string), price (number in PHP), currency ('PHP'), url (the page URL), category if shown, size or weight if shown (e.g. '1.5L', '1kg', '500g'), in_stock (boolean). Extract from this single page only; do not navigate to other pages.",
+      "template": "product-page",
+      "maxUrls": 300,
+      "probeFindings": "Client-rendered SPA (spa-opaque). 0 rows from HTTP, even through the Web Unlocker -- no price appears in raw HTML at all. No public API found; JS bundles reference private microservices (api.landers.ph, core-ms.landers.ph, Unbxd search). Studio with a real browser is the ONLY access path. 17,032 URLs in sitemap, 10/10 basket categories."
+    }
+  ]
+}

@@ -12,6 +12,7 @@ type StoreRow = {
   currency: string | null;
   method: string | null;
   endpoint: string | null;
+  studio_endpoint: string | null;
   max_pages: number | null;
   coverage: string | null;
   needs_browser: boolean;
@@ -22,7 +23,7 @@ type StoreRow = {
 export type RunSummary = {
   storeId: string;
   method: string;
-  transport: "http" | "studio";
+  transport: "http" | "studio" | "unlocker";
   source: "puller" | "studio";
   trigger: "cron" | "manual";
   rows: number;
@@ -56,8 +57,8 @@ export class PullersRepository {
         : sql``;
 
     const rows = (await this.db.execute(sql`
-      select s.store_id, s.country, s.currency, s.method, s.endpoint, s.max_pages,
-             s.coverage, s.needs_browser, s.needs_unlocker, s.studio_collector_id
+      select s.store_id, s.country, s.currency, s.method, s.endpoint, s.studio_endpoint,
+             s.max_pages, s.coverage, s.needs_browser, s.needs_unlocker, s.studio_collector_id
       from stores s
       where s.method is not null and s.method <> 'none' ${filter}
       order by s.store_id
@@ -73,6 +74,7 @@ export class PullersRepository {
           currency: row.currency ?? DEFAULT_CURRENCY_BY_COUNTRY[country.data],
           method: row.method!,
           endpoint: row.endpoint,
+          studioEndpoint: row.studio_endpoint,
           maxPages: row.max_pages ?? 0,
           needsBrowser: row.needs_browser,
           needsUnlocker: row.needs_unlocker,
