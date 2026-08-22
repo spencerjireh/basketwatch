@@ -64,11 +64,11 @@ outline ships, and the source files stay out of the repository.
 
 ## pasta
 
-- Subject: A nest of spaghetti
+- Subject: Elbow macaroni
 - Source: https://commons.wikimedia.org/wiki/File:Macaroni_and_Similar_Pastes,_illustration_from_The_Encyclopedia_of_Food_by_Artemas_Ward.jpg
 - Author: Artemas Ward
 - Licence: Public domain
-- Note: The Encyclopedia of Food, Artemas Ward, 1923. Pale pasta on a black ground, so this one is inverted, and paper=0.66 then drops that ground -- otherwise the plate is a rectangle rather than a nest. Cropped to figure 50, clear of the neighbouring shapes and the caption.
+- Note: The Encyclopedia of Food, Artemas Ward, 1923. Pale pasta on a black ground, so this one is inverted, and paper=0.66 then drops that ground. Cropped to the elbows on the right of the chart: the nest at its foot reads as worms once a row crops it, and the long rods above read as a second set of price bars.
 
 ## rice
 
