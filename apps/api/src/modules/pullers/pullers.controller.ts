@@ -1,4 +1,5 @@
 import { Controller, Param, Post, Query, UseGuards } from "@nestjs/common";
+import { Throttle } from "@nestjs/throttler";
 import {
   type PullerRunQueuedResponse,
   type PullerRunResponse,
@@ -25,6 +26,12 @@ import { PullersService } from "./pullers.service.js";
  *
  * Every route here is a write, so the guard stays at the class.
  */
+/**
+ * Five a minute. These are the routes that spend Bright Data credits, and they
+ * already require the ops token -- this is the second lock, for the case where
+ * the token leaks or a script goes into a loop.
+ */
+@Throttle({ default: { limit: 5, ttl: 60_000 } })
 @Controller("pullers")
 @UseGuards(OpsTokenGuard)
 export class PullersController {
