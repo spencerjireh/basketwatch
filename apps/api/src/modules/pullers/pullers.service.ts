@@ -1,5 +1,7 @@
 import { Injectable, Logger, NotFoundException } from "@nestjs/common";
 import { type PullerRunResponse } from "@basketwatch/contract";
+import { BossService } from "../../jobs/boss.provider.js";
+import { QUEUES } from "../../jobs/queues.js";
 import { StudioError } from "./adapters/studio.adapter.js";
 import { dedupe, diff, isMassChange } from "./diff.js";
 import { PullerRegistry } from "./puller.registry.js";
@@ -24,6 +26,7 @@ export class PullersService {
   constructor(
     private readonly registry: PullerRegistry,
     private readonly repository: PullersRepository,
+    private readonly boss: BossService,
   ) {}
 
   getPullProgress(storeId: string): PullProgress | null {
@@ -83,7 +86,16 @@ export class PullersService {
     const [config] = await this.repository.pullableStores([storeId]);
     if (!config) throw new NotFoundException(`No pullable store with id ${storeId}.`);
 
-    const result = await this.collect(config);
+    let result: PullResult;
+    try {
+      result = await this.collect(config);
+    } catch (err) {
+      if (err instanceof StudioError) {
+        return this.handleStudioFailure(config, err, options, startedAt);
+      }
+      throw err;
+    }
+
     const p = this.activePulls.get(storeId);
     if (p) {
       p.transport = "studio";
@@ -108,9 +120,9 @@ export class PullersService {
       unitPriced: rows.filter((row) => row.unitPrice !== null).length,
       pages: result.pages,
       ceilingReached,
-      // A suppressed run applied no changes, and its summary must say so.
       changes: suppressed ? 0 : changes.length,
       coverage: null,
+      rawOutput: result.rawOutput,
     };
 
     if (options.dryRun) {
@@ -176,6 +188,100 @@ export class PullersService {
         : { status: "ok", findings: [] },
       durationMs: Date.now() - startedAt,
     };
+  }
+
+  /**
+   * Studio threw: record the failure as a run, open an incident with the raw
+   * output as evidence, and enqueue a heal. Returns a response the caller can
+   * hand back without rethrowing.
+   */
+  private async handleStudioFailure(
+    config: PullerConfig,
+    err: StudioError,
+    options: PullerRunOptions,
+    startedAt: number,
+  ): Promise<PullerRunResponse> {
+    this.logger.warn(`${config.storeId}: studio failed -- ${err.message}`);
+
+    const summary: RunSummary = {
+      storeId: config.storeId,
+      method: config.method,
+      transport: "studio",
+      source: "studio",
+      trigger: options.trigger,
+      rows: 0,
+      unitPriced: 0,
+      pages: 0,
+      ceilingReached: false,
+      changes: 0,
+      coverage: null,
+      rawOutput: err.rawOutput.length > 0 ? err.rawOutput : undefined,
+    };
+
+    const runId = await this.repository.recordEmptyRun(summary);
+
+    const evidence: Record<string, unknown> = {
+      kind: "studio_error",
+      error: err.message,
+      rawSample: err.rawOutput.slice(0, 5),
+      rawFieldNames: this.extractFieldNames(err.rawOutput),
+    };
+
+    const incidentId = await this.repository.openIncident(
+      config.storeId, runId, "studio_error", evidence, config.collectorId,
+    );
+
+    this.logger.log(
+      `${config.storeId}: run ${runId} recorded as failed, incident ${incidentId} opened`,
+    );
+
+    if (config.collectorId) {
+      try {
+        await this.boss.send(QUEUES.heal, {
+          scraperId: config.collectorId,
+          storeId: config.storeId,
+          incidentId,
+        }, { singletonKey: config.collectorId, retryLimit: 0 });
+        this.logger.log(`${config.storeId}: heal job enqueued`);
+      } catch (healErr) {
+        this.logger.error(
+          `${config.storeId}: failed to enqueue heal -- ` +
+            `${healErr instanceof Error ? healErr.message : String(healErr)}`,
+        );
+      }
+    }
+
+    return {
+      storeId: config.storeId,
+      dryRun: false,
+      runId: String(runId),
+      rows: 0,
+      pages: 0,
+      ceilingReached: false,
+      changes: 0,
+      verdict: {
+        status: "broken",
+        findings: [{
+          check: "schema",
+          severity: "hard",
+          detail: `Studio error: ${err.message}`,
+        }],
+      },
+      durationMs: Date.now() - startedAt,
+    };
+  }
+
+  /** Extract the set of field names Studio returned, for diagnostic prompts. */
+  private extractFieldNames(raw: unknown[]): string[] {
+    const names = new Set<string>();
+    for (const item of raw.slice(0, 5)) {
+      if (item && typeof item === "object" && !Array.isArray(item)) {
+        for (const key of Object.keys(item as Record<string, unknown>)) {
+          names.add(key);
+        }
+      }
+    }
+    return [...names].sort();
   }
 
   /**

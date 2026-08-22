@@ -43,10 +43,6 @@ export class ValidatorService implements OnApplicationBootstrap {
 
   async validateStoredRun(runId: number, storeId: string): Promise<Verdict> {
     const baseline = await this.repository.loadBaseline(storeId);
-    if (!baseline) {
-      this.logger.warn(`${storeId}: no baseline found, skipping validation`);
-      return { status: "ok", findings: [] };
-    }
 
     const products = await this.repository.loadStoreProducts(storeId);
     if (products.length === 0) {
@@ -55,6 +51,11 @@ export class ValidatorService implements OnApplicationBootstrap {
     }
 
     const parse = (row: unknown) => storedProductSchema.safeParse(row).success;
+
+    if (!baseline) {
+      return this.handleFirstRun(runId, storeId, products, parse);
+    }
+
     const verdict = validateRun(products, parse, baseline);
 
     const nullRatePct = this.computeNullRatePct(products);
@@ -64,7 +65,8 @@ export class ValidatorService implements OnApplicationBootstrap {
     if (verdict.status === "broken") {
       const hasOpen = await this.repository.hasOpenIncident(storeId);
       if (!hasOpen) {
-        const evidence = this.buildEvidence(verdict.findings, products, baseline);
+        const rawOutput = await this.repository.loadRunRawOutput(runId);
+        const evidence = this.buildEvidence(verdict.findings, products, baseline, rawOutput);
         const incidentKind = this.pickIncidentKind(verdict.findings);
         const scraperId = await this.repository.getScraperId(storeId);
         const incidentId = await this.repository.openIncident(
@@ -134,10 +136,85 @@ export class ValidatorService implements OnApplicationBootstrap {
     return totalChecks === 0 ? 0 : (totalNulls / totalChecks) * 100;
   }
 
+  /**
+   * First run for a store: no baseline exists yet. Validate the schema; if ok,
+   * seed the baseline from this run. If not, open an incident immediately.
+   */
+  private async handleFirstRun(
+    runId: number,
+    storeId: string,
+    products: Record<string, unknown>[],
+    parse: (row: unknown) => boolean,
+  ): Promise<Verdict> {
+    const parseRate = products.filter((p) => parse(p)).length / products.length;
+    const priceRate = products.filter((p) => p.price !== null && p.price !== undefined).length / products.length;
+    const nameRate = products.filter((p) => p.name !== null && p.name !== undefined && p.name !== "").length / products.length;
+
+    const schemaOk = parseRate >= 0.7;
+    const priceOk = priceRate >= 0.5;
+    const nameOk = nameRate >= 0.5;
+
+    if (schemaOk && priceOk && nameOk) {
+      this.logger.log(`${storeId}: first run looks healthy (parse=${(parseRate * 100).toFixed(0)}%, price=${(priceRate * 100).toFixed(0)}%, name=${(nameRate * 100).toFixed(0)}%), seeding baseline`);
+
+      await this.repository.computeAndSeedBaseline(storeId);
+      await this.repository.updateRunFindings(runId, [], 0, "ok");
+      return { status: "ok", findings: [] };
+    }
+
+    const findings: CheckResult[] = [];
+    if (!schemaOk) {
+      findings.push({
+        check: "schema",
+        severity: "hard",
+        detail: `Schema parse rate ${(parseRate * 100).toFixed(0)}% is below 70% threshold on first run`,
+      });
+    }
+    if (!priceOk) {
+      findings.push({
+        check: "nulls",
+        severity: "hard",
+        detail: `Price field present in only ${(priceRate * 100).toFixed(0)}% of rows on first run`,
+      });
+    }
+    if (!nameOk) {
+      findings.push({
+        check: "nulls",
+        severity: "soft",
+        detail: `Name field present in only ${(nameRate * 100).toFixed(0)}% of rows on first run`,
+      });
+    }
+
+    this.logger.warn(`${storeId}: first run failed validation, opening incident`);
+
+    const scraperId = await this.repository.getScraperId(storeId);
+    const rawOutput = await this.repository.loadRunRawOutput(runId);
+    const emptyBaseline: Baseline = { expectedRowCount: 0, fieldNullRates: {}, valueRanges: {} };
+    const evidence = this.buildEvidence(findings, products, emptyBaseline, rawOutput);
+    const incidentKind = this.pickIncidentKind(findings);
+    await this.repository.openIncident(storeId, runId, incidentKind, evidence, scraperId);
+    await this.repository.updateRunFindings(runId, findings, 0, "broken");
+
+    try {
+      if (scraperId) {
+        await this.boss.send(
+          QUEUES.heal,
+          { scraperId, storeId },
+          { singletonKey: scraperId, retryLimit: 0 },
+        );
+      }
+    } catch {
+      this.logger.error(`${storeId}: failed to enqueue heal for first-run incident`);
+    }
+
+    return { status: "broken", findings };
+  }
+
   private buildEvidence(
     findings: CheckResult[],
     products: Record<string, unknown>[],
     baseline: Baseline,
+    rawOutput: unknown[] = [],
   ): Record<string, unknown> {
     const fieldNullRates: Record<string, number> = {};
     const fields = ["name", "url", "price", "currency", "in_stock", "size_value", "size_uom"];
@@ -159,6 +236,7 @@ export class ValidatorService implements OnApplicationBootstrap {
       baselineNullRates: baseline.fieldNullRates,
       rowCount: products.length,
       expectedRowCount: baseline.expectedRowCount,
+      rawSample: rawOutput.slice(0, 5),
     };
   }
 
