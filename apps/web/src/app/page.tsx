@@ -23,11 +23,18 @@ import { apiGet } from "@/lib/api/server";
  * What is server-rendered here is the mid band: the answer a shopper actually
  * came for, the cheapest cart, and then what the basket has done over time.
  */
+/**
+ * A minute of cache. The basket index moves at most once a day, and this is the
+ * page a room full of judges opens at once -- the one place where caching is
+ * worth more than freshness.
+ */
+export const revalidate = 60;
+
 export default async function Page() {
   const [basketIndex, basketItems, rails] = await Promise.all([
-    apiGet(routes.basketIndex, basketIndexResponseSchema),
-    apiGet(routes.basketToday, basketTodayResponseSchema),
-    apiGet(routes.basketRails, basketRailsResponseSchema),
+    apiGet(routes.basketIndex, basketIndexResponseSchema, 60),
+    apiGet(routes.basketToday, basketTodayResponseSchema, 60),
+    apiGet(routes.basketRails, basketRailsResponseSchema, 60),
   ]);
 
   // One band, two columns: the receipt on the left, the history filling the

@@ -21,13 +21,20 @@ export const metadata = {
  * mispin on an item outside the basket is exactly as wrong, it just does not
  * move the headline number.
  */
+/**
+ * Thirty seconds. Provenance and the quality worklist describe how the data is
+ * built, not what the fleet is doing this second -- /healing is the page that
+ * has to be live.
+ */
+export const revalidate = 30;
+
 export default async function BehindPage() {
   // The fleet is still fetched, for the two provenance numbers -- how many
   // stores contribute and how many rows the last pull returned. What the fleet
   // is *doing* moved to /healing.
   const [fleet, rails] = await Promise.all([
-    apiGet(routes.fleet, fleetResponseSchema),
-    apiGet(`${routes.basketRails}?tier=core,stretch`, basketRailsResponseSchema),
+    apiGet(routes.fleet, fleetResponseSchema, 30),
+    apiGet(`${routes.basketRails}?tier=core,stretch`, basketRailsResponseSchema, 30),
   ]);
 
   return (
