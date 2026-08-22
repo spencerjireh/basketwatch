@@ -29,3 +29,20 @@ export const pullerRunResponseSchema = z.object({
   durationMs: z.number().int(),
 });
 export type PullerRunResponse = z.infer<typeof pullerRunResponseSchema>;
+
+/**
+ * The answer to a wet manual run, which is queued rather than executed inline.
+ *
+ * A pull takes minutes and costs credits, so it belongs on the same queue the
+ * schedule uses -- one execution path, two ways to ask for it. The caller gets
+ * a job id, not a result; the run lands in `runs` and on the dashboard.
+ *
+ * `already_queued` is pg-boss refusing a duplicate for a store that is already
+ * pending, which is what stops a manual trigger racing the nightly fan-out.
+ */
+export const pullerRunQueuedResponseSchema = z.object({
+  status: z.enum(["queued", "already_queued"]),
+  storeId: z.string().nullable(),
+  jobId: z.string().nullable(),
+});
+export type PullerRunQueuedResponse = z.infer<typeof pullerRunQueuedResponseSchema>;

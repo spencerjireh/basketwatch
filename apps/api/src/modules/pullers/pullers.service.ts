@@ -9,20 +9,14 @@ import { PullerRegistry } from "./puller.registry.js";
 import { type PullResult, type PullerConfig, type PullerRunOptions } from "./puller.types.js";
 import { PullersRepository, type RunSummary } from "./pullers.repository.js";
 
-export type PullProgress = {
-  storeId: string;
-  status: "collecting" | "processing" | "done" | "error";
-  transport: "studio" | null;
-  startedAt: number;
-  elapsedMs: number;
-  result: PullerRunResponse | null;
-  error: string | null;
-};
-
+/**
+ * Runs a store's catalogue pull. One implementation, whether the ask came from
+ * the schedule or from the ops API -- both arrive as a scrape-run job, so
+ * there is no second code path to keep in step and no way for the two to race.
+ */
 @Injectable()
 export class PullersService {
   private readonly logger = new Logger(PullersService.name);
-  private readonly activePulls = new Map<string, PullProgress>();
 
   constructor(
     private readonly registry: PullerRegistry,
@@ -30,50 +24,9 @@ export class PullersService {
     private readonly boss: BossService,
   ) {}
 
-  getPullProgress(storeId: string): PullProgress | null {
-    const p = this.activePulls.get(storeId);
-    if (!p) return null;
-    return { ...p, elapsedMs: Date.now() - p.startedAt };
-  }
-
-  /** Fire-and-forget: starts the pull in the background and returns immediately. */
-  startPullAsync(storeId: string): { status: string; storeId: string } {
-    if (this.activePulls.has(storeId)) {
-      return { status: "already_running", storeId };
-    }
-    this.activePulls.set(storeId, {
-      storeId,
-      status: "collecting",
-      transport: null,
-      startedAt: Date.now(),
-      elapsedMs: 0,
-      result: null,
-      error: null,
-    });
-    this.runStore(storeId, { dryRun: false, trigger: "manual" }).then(
-      (result) => {
-        const p = this.activePulls.get(storeId);
-        if (p) {
-          p.status = "done";
-          p.elapsedMs = Date.now() - p.startedAt;
-          p.result = result;
-        }
-      },
-      (err: unknown) => {
-        const p = this.activePulls.get(storeId);
-        if (p) {
-          p.status = "error";
-          p.elapsedMs = Date.now() - p.startedAt;
-          p.error = err instanceof Error ? err.message : String(err);
-        }
-        this.logger.error(`${storeId}: async pull failed -- ${err instanceof Error ? err.message : String(err)}`);
-      },
-    );
-    return { status: "started", storeId };
-  }
-
-  clearPullProgress(storeId: string): void {
-    this.activePulls.delete(storeId);
+  /** Whether this store already has a pull waiting or running on the queue. */
+  hasPendingPull(storeId: string): Promise<boolean> {
+    return this.repository.hasPendingPull(storeId);
   }
 
   /** Every store with a catalogue to pull, for the fleet fan-out. */
@@ -97,11 +50,6 @@ export class PullersService {
       throw err;
     }
 
-    const p = this.activePulls.get(storeId);
-    if (p) {
-      p.transport = "studio";
-      p.status = "processing";
-    }
     const rows = dedupe(result.rows);
     const previous = await this.repository.latestPrices(config.storeId);
     const changes = diff(previous, rows);
@@ -159,6 +107,8 @@ export class PullersService {
         reason: "over 90% of an established catalogue changed at once",
       });
     }
+
+    await this.enqueueValidation(runId, config.storeId);
 
     this.logger.log(
       `${config.storeId}: run ${runId}, ${rows.length} rows, ${summary.changes} changes` +
@@ -314,6 +264,24 @@ export class PullersService {
     }
 
     return this.studioFailureResponse(config, err, policy, startedAt, runId);
+  }
+
+  /**
+   * Validation belongs to the run, not to whoever was watching it.
+   *
+   * This used to be enqueued by the dashboard's status endpoint, on the poll
+   * that first saw the pull finish -- so closing the tab at the wrong moment
+   * meant the run was never validated and its anomalies never found.
+   */
+  private async enqueueValidation(runId: number, storeId: string): Promise<void> {
+    try {
+      await this.boss.send(QUEUES.validateRun, { runId: Number(runId), storeId });
+    } catch (err) {
+      this.logger.error(
+        `${storeId}: failed to enqueue validation for run ${runId} -- ` +
+          `${err instanceof Error ? err.message : String(err)}`,
+      );
+    }
   }
 
   /** The same failed-run answer whether or not a heal was queued behind it. */
