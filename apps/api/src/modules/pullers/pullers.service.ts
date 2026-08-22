@@ -1,5 +1,7 @@
 import { Injectable, Logger, NotFoundException } from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
 import { type PullerRunResponse } from "@basketwatch/contract";
+import { type Env } from "../../config/env.schema.js";
 import { BossService } from "../../jobs/boss.provider.js";
 import { QUEUES } from "../../jobs/queues.js";
 import { StudioError } from "./adapters/studio.adapter.js";
@@ -27,6 +29,7 @@ export class PullersService {
     private readonly registry: PullerRegistry,
     private readonly repository: PullersRepository,
     private readonly boss: BossService,
+    private readonly config: ConfigService<Env, true>,
   ) {}
 
   getPullProgress(storeId: string): PullProgress | null {
@@ -235,7 +238,14 @@ export class PullersService {
       `${config.storeId}: run ${runId} recorded as failed, incident ${incidentId} opened`,
     );
 
-    if (config.collectorId) {
+    if (config.collectorId && !this.config.get("HEAL_AUTO_ENABLED", { infer: true })) {
+      // The incident stands; only the Bright Data call is skipped. Nothing is
+      // queued, so arming the flag later does not release a backlog of heals.
+      this.logger.log(
+        `${config.storeId}: auto-heal is disabled (HEAL_AUTO_ENABLED=false); ` +
+          `incident ${incidentId} stands unhealed`,
+      );
+    } else if (config.collectorId) {
       try {
         await this.boss.send(QUEUES.heal, {
           scraperId: config.collectorId,

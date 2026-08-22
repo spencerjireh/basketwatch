@@ -39,6 +39,7 @@
         "OPS_TOKEN",
         "BD_BALANCE_USD",
         "PULL_SCHEDULE_ENABLED",
+        "HEAL_AUTO_ENABLED",
         "PULL_SCHEDULE_CRON"
       ]
     },

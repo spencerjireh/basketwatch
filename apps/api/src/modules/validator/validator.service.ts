@@ -1,6 +1,8 @@
 import { Injectable, Logger, type OnApplicationBootstrap } from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
 import { type CheckResult, type Verdict } from "@basketwatch/contract";
 import { z } from "zod";
+import { type Env } from "../../config/env.schema.js";
 import { BossService } from "../../jobs/boss.provider.js";
 import { QUEUES } from "../../jobs/queues.js";
 import { validateRun } from "./checks.js";
@@ -34,6 +36,7 @@ export class ValidatorService implements OnApplicationBootstrap {
   constructor(
     private readonly repository: ValidatorRepository,
     private readonly boss: BossService,
+    private readonly config: ConfigService<Env, true>,
   ) {}
 
   async onApplicationBootstrap(): Promise<void> {
@@ -105,6 +108,17 @@ export class ValidatorService implements OnApplicationBootstrap {
   }
 
   private async enqueueHeal(scraperId: string, storeId: string, incidentId: string): Promise<void> {
+    // Checked here rather than only in the worker so a disarmed loop leaves no
+    // queued job behind to fire the moment someone arms it again. The incident
+    // is already open either way -- what this skips is the spend.
+    if (!this.config.get("HEAL_AUTO_ENABLED", { infer: true })) {
+      this.logger.log(
+        `${storeId}: auto-heal is disabled (HEAL_AUTO_ENABLED=false); ` +
+          `incident ${incidentId} stands unhealed`,
+      );
+      return;
+    }
+
     try {
       await this.boss.send(QUEUES.heal, { scraperId, storeId, incidentId }, {
         singletonKey: scraperId,
