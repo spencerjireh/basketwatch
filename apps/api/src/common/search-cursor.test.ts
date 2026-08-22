@@ -29,6 +29,33 @@ describe("encodeSearchCursor / decodeSearchCursor", () => {
     expect(decodeSearchCursor(encodeSearchCursor(cursor), "relevance")).toBeNull();
   });
 
+  it("round-trips a browse cursor, whose leading value is a name", () => {
+    const browse: SearchCursor = {
+      o: "browse",
+      v: "Bear Brand Milk 1kg",
+      s: "ph-robinsons",
+      k: "8",
+    };
+    expect(decodeSearchCursor(encodeSearchCursor(browse), "browse")).toEqual(browse);
+  });
+
+  it("refuses a browse cursor handed to a typed search, and the reverse", () => {
+    // This one is load-bearing rather than tidy. The browse ordering leads on
+    // a name; every other ordering casts the leading value to numeric. A
+    // browse cursor that reached the relevance seek would ask Postgres to read
+    // "Bear Brand Milk 1kg" as a number, which is an error, not a wrong page.
+    const browse: SearchCursor = {
+      o: "browse",
+      v: "Bear Brand Milk 1kg",
+      s: "ph-robinsons",
+      k: "8",
+    };
+    expect(decodeSearchCursor(encodeSearchCursor(browse), "relevance")).toBeNull();
+    expect(
+      decodeSearchCursor(encodeSearchCursor({ ...cursor, o: "relevance" }), "browse"),
+    ).toBeNull();
+  });
+
   it.each([
     ["undefined", undefined],
     ["empty", ""],

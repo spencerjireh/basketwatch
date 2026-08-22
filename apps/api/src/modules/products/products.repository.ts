@@ -11,7 +11,11 @@ import {
 import { DRIZZLE } from "../../database/database.tokens.js";
 import { type Db } from "../../database/database.module.js";
 import { toMoney } from "../../database/mappers/money.mapper.js";
-import { decodeSearchCursor, takeSearchPage } from "../../common/search-cursor.js";
+import {
+  decodeSearchCursor,
+  takeSearchPage,
+  type SearchOrder,
+} from "../../common/search-cursor.js";
 
 type HitRow = {
   store_id: string;
@@ -38,8 +42,25 @@ export class ProductsRepository {
   constructor(@Inject(DRIZZLE) private readonly db: Db) {}
 
   async search(query: ProductSearchQuery): Promise<ProductSearchResponse> {
-    const cursor = decodeSearchCursor(query.cursor, query.sort);
+    const term = query.q;
     const byPrice = query.sort === "unit_price";
+
+    /*
+     * No term, no relevance: similarity() against nothing is 0 for every row,
+     * and a constant is not an ordering. Neutralising it rather than removing
+     * it would be the expensive mistake here -- the planner drops a constant
+     * sort key only when EC_MUST_BE_REDUNDANT holds, which requires
+     * ec_sortref == 0, and a top-level ORDER BY clause always has one. Both
+     * leading components would survive, the lateral would run over all 28k
+     * rows and they would all be sorted to return 40. Every page.
+     *
+     * So the browse path drops them and orders by the name index instead.
+     * Asking for a price sort is still honoured with no term; only relevance
+     * has nothing to rank.
+     */
+    const browsing = !byPrice && term === undefined;
+    const order: SearchOrder = browsing ? "browse" : query.sort;
+    const cursor = decodeSearchCursor(query.cursor, order);
 
     /*
      * The sort key, decorated so it contains no NULLs.
@@ -64,17 +85,39 @@ export class ProductsRepository {
     // predicate shape. similarity() is never null, so no rank decoration.
     const leadValue = byPrice
       ? sql`coalesce(lp.unit_price, 0)`
-      : sql`(-similarity(pr.name, ${query.q}))::numeric`;
+      : sql`(-similarity(pr.name, ${term ?? ""}))::numeric`;
 
-    const seek: SQL = cursor
-      ? sql`and (${leadRank}, ${leadValue}, pr.store_id, pr.product_key)
-             > (
-               ${cursor.v === null ? 1 : 0},
-               ${cursor.v ?? 0}::numeric,
-               ${cursor.s}::text,
-               ${cursor.k}::text
-             )`
-      : sql``;
+    const seek: SQL = !cursor
+      ? sql``
+      : browsing
+        ? // name is NOT NULL, so the browse key needs no rank decoration: the
+          // three columns are already a total order and already the index.
+          sql`and (pr.name, pr.store_id, pr.product_key)
+               > (${cursor.v ?? ""}::text, ${cursor.s}::text, ${cursor.k}::text)`
+        : sql`and (${leadRank}, ${leadValue}, pr.store_id, pr.product_key)
+               > (
+                 ${cursor.v === null ? 1 : 0},
+                 ${cursor.v ?? 0}::numeric,
+                 ${cursor.s}::text,
+                 ${cursor.k}::text
+               )`;
+
+    const orderBy = browsing
+      ? sql`order by pr.name asc, pr.store_id asc, pr.product_key asc`
+      : sql`order by ${leadRank} asc, ${leadValue} asc, pr.store_id asc, pr.product_key asc`;
+
+    // pr.name rather than a constant: it is the browse cursor's leading value,
+    // and selecting it here keeps similarity() -- and so pg_trgm, which
+    // migration 0002 lets fail to install -- off the default view of the page.
+    const sortValue = browsing ? sql`pr.name` : sql`${leadValue}::text`;
+
+    /*
+     * Omitted rather than `ilike '%%'`. An empty pattern extracts no trigrams,
+     * so a GIN search on idx_products_name_trgm degrades to scanning the whole
+     * index with a recheck per row, and `null ilike '%%'` would be null rather
+     * than true. No predicate has neither problem.
+     */
+    const nameMatch = term === undefined ? sql`true` : sql`pr.name ilike ${"%" + term + "%"}`;
 
     const rows = (await this.db.execute(sql`
       select
@@ -86,7 +129,7 @@ export class ProductsRepository {
         lp.price::text as price, lp.currency,
         lp.unit_price::text as unit_price, lp.unit_price_basis,
         lp.observed_at,
-        ${leadValue}::text as sort_value
+        ${sortValue} as sort_value
       from products pr
       join stores s on s.store_id = pr.store_id
       /*
@@ -103,20 +146,22 @@ export class ProductsRepository {
         order by o.id desc
         limit 1
       ) lp on true
-      where pr.name ilike ${"%" + query.q + "%"}
+      where ${nameMatch}
         and (${query.country ?? null}::text is null or s.country = ${query.country ?? null})
         and (${query.storeId ?? null}::text is null or pr.store_id = ${query.storeId ?? null})
         and (${query.basis ?? null}::text is null or lp.unit_price_basis = ${query.basis ?? null})
         ${seek}
-      order by ${leadRank} asc, ${leadValue} asc, pr.store_id asc, pr.product_key asc
+      ${orderBy}
       limit ${query.limit + 1}
     `)) as unknown as HitRow[];
 
     const page = takeSearchPage(rows, query.limit, (row) => ({
-      o: query.sort,
+      o: order,
       // Only a null unit price makes a null key, and only under a price sort;
-      // relevance always has a value.
-      v: byPrice && row.unit_price === null ? null : row.sort_value,
+      // relevance and browse always have a value. The fallback is not defensive
+      // noise: a null v on a non-nullable key would seek from the wrong end and
+      // end the page chain in silence.
+      v: byPrice && row.unit_price === null ? null : (row.sort_value ?? ""),
       s: row.store_id,
       k: row.product_key,
     }));

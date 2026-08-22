@@ -43,6 +43,10 @@ export type ProductHit = z.infer<typeof productHitSchema>;
 /**
  * GET /api/products/search?q=rice&country=US
  *
+ * `q` is optional, and leaving it out is the browse case: the whole catalogue,
+ * alphabetically by name, every store mixed together. A search box that shows
+ * nothing until you guess a product name hides 28,378 rows behind that guess.
+ *
  * `sort` defaults to relevance rather than price, and that is not a hedge.
  * A US search for "rice" matches 261 per-kilo products, 5 per-item ones and 4
  * per-litre ones; sorting that union by bare unit price fills the first page
@@ -58,11 +62,21 @@ export type ProductHit = z.infer<typeof productHitSchema>;
  */
 export const productSearchQuerySchema = pageQuerySchema.extend({
   /*
-   * Two characters minimum. A single character matches 27,312 of 28,378 rows
-   * and no index can help; the trigram index only starts earning its keep at
-   * three.
+   * Absent means the whole catalogue. One character is the only input refused,
+   * and allowing none does not make that floor arbitrary -- absent is the
+   * cheaper of the two, not the dearer. `%r%` matches 27,312 of 28,378 rows,
+   * the trigram index cannot serve a leading wildcard, and every one of those
+   * rows then has to be ranked by similarity. Absent skips both: no predicate,
+   * and no sort key beyond the name index. The trigram index only starts
+   * earning its keep at three characters.
+   *
+   * A blank string is read as absent rather than refused, so a stray `?q=` on
+   * the URL browses instead of returning a 400.
    */
-  q: z.string().trim().min(2).max(100),
+  q: z.preprocess(
+    (value) => (typeof value === "string" && value.trim() === "" ? undefined : value),
+    z.string().trim().min(2).max(100).optional(),
+  ),
   country: countrySchema.optional(),
   storeId: z.string().optional(),
   basis: unitPriceBasisSchema.optional(),

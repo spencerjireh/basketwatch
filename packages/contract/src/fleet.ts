@@ -22,6 +22,8 @@ export const fleetScraperSchema = z.object({
   healsToday: z.number().int(),
   /** set while the store is not healthy, so the board can link to the audit */
   openIncidentId: z.string().nullable(),
+  /** true when scraper_templates has at least one snapshot for this collector */
+  hasTemplate: z.boolean(),
 });
 export type FleetScraper = z.infer<typeof fleetScraperSchema>;
 

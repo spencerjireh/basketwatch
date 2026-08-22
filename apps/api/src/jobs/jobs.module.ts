@@ -1,7 +1,9 @@
 import { Global, Module } from "@nestjs/common";
 import { PullersModule } from "../modules/pullers/pullers.module.js";
+import { ValidatorModule } from "../modules/validator/validator.module.js";
 import { BossService } from "./boss.provider.js";
 import { FleetPullHandler } from "./handlers/fleet-pull.handler.js";
+import { ValidateRunHandler } from "./handlers/validate-run.handler.js";
 
 /**
  * Queue infrastructure, plus the handlers that are not owned by a single
@@ -9,11 +11,12 @@ import { FleetPullHandler } from "./handlers/fleet-pull.handler.js";
  *
  * The fleet-pull handler lives here rather than in modules/pullers because it
  * is about scheduling and fan-out; the work it fans out to is the pullers'.
+ * The validate-run handler likewise: scheduling and wiring, not business logic.
  */
 @Global()
 @Module({
-  imports: [PullersModule],
-  providers: [BossService, FleetPullHandler],
+  imports: [PullersModule, ValidatorModule],
+  providers: [BossService, FleetPullHandler, ValidateRunHandler],
   exports: [BossService],
 })
 export class JobsModule {}

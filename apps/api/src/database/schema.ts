@@ -90,6 +90,12 @@ export const products = pgTable(
   },
   (t) => ({
     pk: primaryKey({ columns: [t.storeId, t.productKey] }),
+    /*
+     * The browse order for /prices with an empty search box: name first, then
+     * the primary key, so the keyset seek and the ORDER BY are one index scan
+     * that stops at the page size instead of a sort over the whole catalogue.
+     */
+    byName: index("idx_products_name_browse").on(t.name, t.storeId, t.productKey),
   }),
 );
 
@@ -126,6 +132,10 @@ export const runs = pgTable(
     coverage: text("coverage"),
     creditsUsd: numeric("credits_usd", { precision: 10, scale: 4 }),
     rawOutput: jsonb("raw_output"),
+    /** spider-sense verdict + findings from the validate-run handler */
+    findings: jsonb("findings"),
+    /** computed from the run's products; drives the fleet board's null column */
+    nullRatePct: numeric("null_rate_pct", { precision: 5, scale: 2 }),
   },
   (t) => ({
     storeAt: index("idx_runs_store").on(t.storeId, t.at),
@@ -292,9 +302,9 @@ export const basketMap = pgTable(
 );
 
 export const baselines = pgTable("baselines", {
-  scraperId: text("scraper_id")
+  storeId: text("store_id")
     .primaryKey()
-    .references(() => scrapers.id),
+    .references(() => stores.storeId),
   fieldNullRates: jsonb("field_null_rates").notNull(),
   expectedRowCount: integer("expected_row_count").notNull(),
   valueRanges: jsonb("value_ranges").notNull(), // per-field p5/p95
@@ -333,6 +343,19 @@ export const healAttempts = pgTable("heal_attempts", {
   verdict: text("verdict"), // approved | rejected | failed
   creditsSpent: numeric("credits_spent", { precision: 10, scale: 4 }),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+/** Versioned scraper template snapshots. One row per capture event. */
+export const scraperTemplates = pgTable("scraper_templates", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  scraperId: text("scraper_id")
+    .notNull()
+    .references(() => scrapers.id),
+  templateJson: jsonb("template_json").notNull(),
+  /** 'capture' | 'heal_approved' | 'manual' */
+  source: text("source").notNull(),
+  healAttemptId: uuid("heal_attempt_id").references(() => healAttempts.id),
+  capturedAt: timestamp("captured_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
 export const alerts = pgTable("alerts", {

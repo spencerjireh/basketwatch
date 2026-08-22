@@ -2,6 +2,8 @@ import { Controller, Param, Post, Query, UseGuards } from "@nestjs/common";
 import { type PullerRunResponse, pullerRunQuerySchema } from "@basketwatch/contract";
 import { OpsTokenGuard } from "../../common/guards/ops-token.guard.js";
 import { ZodValidationPipe } from "../../common/pipes/zod-validation.pipe.js";
+import { BossService } from "../../jobs/boss.provider.js";
+import { QUEUES } from "../../jobs/queues.js";
 import { PullersService } from "./pullers.service.js";
 
 /**
@@ -14,13 +16,26 @@ import { PullersService } from "./pullers.service.js";
 @Controller("pullers")
 @UseGuards(OpsTokenGuard)
 export class PullersController {
-  constructor(private readonly service: PullersService) {}
+  constructor(
+    private readonly service: PullersService,
+    private readonly boss: BossService,
+  ) {}
 
   @Post(":storeId/run")
-  run(
+  async run(
     @Param("storeId") storeId: string,
     @Query(new ZodValidationPipe(pullerRunQuerySchema)) query: { dryRun: boolean },
   ): Promise<PullerRunResponse> {
-    return this.service.runStore(storeId, { dryRun: query.dryRun, trigger: "manual" });
+    const result = await this.service.runStore(storeId, {
+      dryRun: query.dryRun,
+      trigger: "manual",
+    });
+    if (result.runId && !query.dryRun) {
+      await this.boss.send(QUEUES.validateRun, {
+        runId: Number(result.runId),
+        storeId,
+      });
+    }
+    return result;
   }
 }

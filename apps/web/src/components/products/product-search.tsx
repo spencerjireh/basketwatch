@@ -22,10 +22,15 @@ const BASIS_LABEL: Record<UnitPriceBasis, string> = {
   per_item: "each",
 };
 
-type Status = "idle" | "loading" | "ready" | "error";
+type Status = "loading" | "ready" | "error";
 
 /**
  * Search over the whole catalogue.
+ *
+ * An empty box is not an empty page. With no term the API returns the catalogue
+ * itself, alphabetically, every store mixed together, and typing narrows it. A
+ * single character is the one input that goes nowhere: it matches almost every
+ * row, no index can serve it, and the API refuses it.
  *
  * Sorted by relevance by default, which is not a hedge. Unit price is only
  * comparable inside one basis: a US search for "rice" matches 261 per-kilo
@@ -42,53 +47,61 @@ export function ProductSearch() {
 
   const [hits, setHits] = useState<ProductHit[]>([]);
   const [cursor, setCursor] = useState<string | null>(null);
-  const [status, setStatus] = useState<Status>("idle");
+  const [status, setStatus] = useState<Status>("loading");
   const [message, setMessage] = useState<string | null>(null);
+  /** the term the rendered hits actually came from, which lags what is typed */
+  const [applied, setApplied] = useState("");
 
-  const query = useMemo(
-    () => ({ q: q.trim(), country, basis, sort }),
-    [q, country, basis, sort],
-  );
+  const query = useMemo(() => ({ q: q.trim(), country, basis, sort }), [q, country, basis, sort]);
 
   // Every request carries the token of the query that started it. A slow reply
   // to an older keystroke would otherwise overwrite a newer one's results.
   const token = useRef(0);
+  // A second click before the first page lands would append it twice.
+  const paging = useRef(false);
 
   useEffect(() => {
-    if (query.q.length < 2) {
-      setHits([]);
-      setCursor(null);
-      setStatus("idle");
-      return;
-    }
+    // One character is held rather than searched: the API refuses it, and
+    // blanking the list mid-word to say so is worse than leaving it standing.
+    if (query.q.length === 1) return;
 
     const mine = ++token.current;
     setStatus("loading");
-    const timer = setTimeout(() => {
-      void (async () => {
-        try {
-          const page = await apiGetClient(
-            `${routes.productSearch}?${params(query)}`,
-            productSearchResponseSchema,
-          );
-          if (token.current !== mine) return;
-          setHits(page.items);
-          setCursor(page.nextCursor);
-          setStatus("ready");
-          setMessage(null);
-        } catch (error) {
-          if (token.current !== mine) return;
-          setStatus("error");
-          setMessage(error instanceof Error ? error.message : "The search did not answer.");
-        }
-      })();
-    }, 220);
+    // The cursor belongs to the results on screen, which this request is about
+    // to replace. Paging with it now would seek into a sequence that no longer
+    // exists, so the button goes away until the new page names its own cursor.
+    setCursor(null);
+    // Nothing to debounce when the box is empty -- that is a mount, not typing.
+    const timer = setTimeout(
+      () => {
+        void (async () => {
+          try {
+            const page = await apiGetClient(
+              `${routes.productSearch}?${params(query)}`,
+              productSearchResponseSchema,
+            );
+            if (token.current !== mine) return;
+            setHits(page.items);
+            setCursor(page.nextCursor);
+            setApplied(query.q);
+            setStatus("ready");
+            setMessage(null);
+          } catch (error) {
+            if (token.current !== mine) return;
+            setStatus("error");
+            setMessage(error instanceof Error ? error.message : "The search did not answer.");
+          }
+        })();
+      },
+      query.q ? 220 : 0,
+    );
 
     return () => clearTimeout(timer);
   }, [query]);
 
   async function loadMore() {
-    if (!cursor) return;
+    if (!cursor || paging.current) return;
+    paging.current = true;
     const mine = token.current;
     try {
       const page = await apiGetClient(
@@ -99,8 +112,11 @@ export function ProductSearch() {
       setHits((previous) => [...previous, ...page.items]);
       setCursor(page.nextCursor);
     } catch (error) {
+      if (token.current !== mine) return;
       setStatus("error");
       setMessage(error instanceof Error ? error.message : "The next page did not load.");
+    } finally {
+      paging.current = false;
     }
   }
 
@@ -135,7 +151,9 @@ export function ProductSearch() {
             value={sort}
             onChange={(value) => setSort(value as ProductSort)}
             options={[
-              ["relevance", "Best match"],
+              // With nothing typed there is no match to be best, and the API
+              // orders the catalogue by name instead. Say what it does.
+              ["relevance", query.q ? "Best match" : "A to Z"],
               ["unit_price", "Cheapest per unit"],
             ]}
           />
@@ -149,43 +167,54 @@ export function ProductSearch() {
         </p>
       ) : null}
 
+      {q.trim().length === 1 ? (
+        <p className="mt-3 font-mono text-[10.5px] text-drift">
+          One letter matches almost everything and nothing can index it. Type another.
+        </p>
+      ) : null}
+
+      {/*
+       * With nothing typed the list below is the whole catalogue, alphabetically,
+       * which is a fine place to end up and a poor place to start. The ten
+       * staples are the shortcut in for anyone who does not already know what
+       * they are looking for, and they are the same ten the front page prices.
+       * They go the moment a term is typed -- keyed off what is in the box, not
+       * off what the rendered hits came from, so they leave on the keystroke
+       * rather than on the reply.
+       */}
+      {q.trim() === "" ? (
+        <div className="rule mt-8 pt-6">
+          <p className="text-[13px] text-mute">Start from a staple, or scroll the catalogue.</p>
+          <ul className="mt-6 grid grid-cols-2 gap-x-4 gap-y-5 sm:grid-cols-5">
+            {PLATE_KEYS.map((key) => (
+              <li key={key}>
+                <button
+                  type="button"
+                  onClick={() => setQ(PLATE_SEARCH[key].query)}
+                  className="group flex w-full flex-col items-center gap-1.5"
+                >
+                  <span className="relative block aspect-square w-full max-w-[132px] opacity-[0.34] transition-opacity duration-300 group-hover:opacity-[0.68] group-focus-visible:opacity-[0.68]">
+                    <StaplePlate itemKey={key} />
+                  </span>
+                  <span className="font-mono text-[10.5px] uppercase tracking-[0.08em] text-mute transition-colors group-hover:text-ink group-focus-visible:text-ink">
+                    {PLATE_SEARCH[key].label}
+                  </span>
+                </button>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
+
       <div className="mt-5">
-        {status === "idle" ? (
-          /*
-           * The empty state is the one screen every visitor sees, and "type
-           * something" is not a use for it. The ten staples are the way into
-           * 28,000 rows for anyone who does not already know what they are
-           * looking for, and they are the same ten the front page prices.
-           */
-          <div className="py-6">
-            <p className="text-[13px] text-mute">
-              Every price here came off a store&apos;s own catalogue. Start from a staple, or
-              search for anything else.
-            </p>
-            <ul className="mt-6 grid grid-cols-2 gap-x-4 gap-y-5 sm:grid-cols-5">
-              {PLATE_KEYS.map((key) => (
-                <li key={key}>
-                  <button
-                    type="button"
-                    onClick={() => setQ(PLATE_SEARCH[key].query)}
-                    className="group flex w-full flex-col items-center gap-1.5"
-                  >
-                    <span className="relative block aspect-square w-full max-w-[132px] opacity-[0.34] transition-opacity duration-300 group-hover:opacity-[0.68] group-focus-visible:opacity-[0.68]">
-                      <StaplePlate itemKey={key} />
-                    </span>
-                    <span className="font-mono text-[10.5px] uppercase tracking-[0.08em] text-mute transition-colors group-hover:text-ink group-focus-visible:text-ink">
-                      {PLATE_SEARCH[key].label}
-                    </span>
-                  </button>
-                </li>
-              ))}
-            </ul>
-          </div>
-        ) : null}
         {status === "error" ? <Empty tone="broken">{message}</Empty> : null}
-        {status !== "idle" && status !== "error" && hits.length === 0 ? (
+        {status !== "error" && hits.length === 0 ? (
           <Empty>
-            {status === "loading" ? "Searching…" : `Nothing matches “${query.q}” with these filters.`}
+            {status === "loading"
+              ? "Reading the catalogue…"
+              : applied
+                ? `Nothing matches “${applied}” with these filters.`
+                : "Nothing in the catalogue matches these filters."}
           </Empty>
         ) : null}
 
@@ -223,6 +252,10 @@ export function ProductSearch() {
               ))}
             </ul>
 
+            <p className="mt-4 font-mono text-[10.5px] text-drift">
+              Every price here came off a store&apos;s own catalogue.
+            </p>
+
             {cursor ? (
               <button
                 type="button"
@@ -233,7 +266,10 @@ export function ProductSearch() {
               </button>
             ) : (
               <p className="mt-4 font-mono text-[10.5px] text-mute">
-                {hits.length} match{hits.length === 1 ? "" : "es"} — that is all of them.
+                {applied
+                  ? `${hits.length} match${hits.length === 1 ? "" : "es"}`
+                  : `${hits.length} product${hits.length === 1 ? "" : "s"}`}{" "}
+                — that is all of them.
               </p>
             )}
           </>
@@ -291,7 +327,10 @@ function params(
   query: { q: string; country: Country; basis: string; sort: ProductSort },
   cursor?: string,
 ): string {
-  const search = new URLSearchParams({ q: query.q, sort: query.sort, limit: "40" });
+  // Omitted rather than sent empty: absent is the browse case, and `q=` would
+  // be a term of length zero.
+  const search = new URLSearchParams({ sort: query.sort, limit: "40" });
+  if (query.q) search.set("q", query.q);
   search.set("country", query.country);
   if (query.basis) search.set("basis", query.basis);
   if (cursor) search.set("cursor", cursor);
