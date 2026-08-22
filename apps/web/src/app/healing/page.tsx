@@ -24,6 +24,15 @@ export const metadata = {
  * Nothing here can start a heal. Heals fire from the auto-heal loop or from
  * the ops API; the page shows them happening.
  */
+/**
+ * Deliberately uncached, and said out loud rather than left to the default.
+ *
+ * This is the page that answers "what is happening right now". A fleet board a
+ * minute out of date during a live heal is the exact failure worth avoiding,
+ * and it would read as a bug in the pipeline rather than in the cache.
+ */
+export const dynamic = "force-dynamic";
+
 export default async function HealingPage() {
   const [fleet, feed, incidents, budget] = await Promise.all([
     apiGet(routes.fleet, fleetResponseSchema),
