@@ -9,6 +9,7 @@ type Selection = {
   selected: CellRef | null;
   setHovered: (ref: CellRef | null) => void;
   select: (ref: CellRef) => void;
+  clear: () => void;
 };
 
 const SelectionContext = createContext<Selection | null>(null);
@@ -23,8 +24,9 @@ const sameRef = (a: CellRef | null, b: CellRef | null) =>
 
 /**
  * The wire between the terrain and the text. Hover lights up a cell in the
- * readout; click scrolls the page to that staple's section and holds a brief
- * highlight on it, then lets go.
+ * readout; click pins the cell -- the readout and the highlight persist until
+ * another cell is picked or empty ground is clicked -- and scrolls the page
+ * to that staple's section.
  *
  * Two guards keep the wire from shorting. Hover updates for the cell already
  * hovered are dropped before they become state, so a stream of pointermove
@@ -37,7 +39,6 @@ const sameRef = (a: CellRef | null, b: CellRef | null) =>
 export function SelectionProvider({ children }: { children: ReactNode }) {
   const [hovered, setHoveredState] = useState<CellRef | null>(null);
   const [selected, setSelected] = useState<CellRef | null>(null);
-  const clearTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const scrolling = useRef(false);
   const scrollTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -49,8 +50,6 @@ export function SelectionProvider({ children }: { children: ReactNode }) {
   const select = useCallback((ref: CellRef) => {
     setSelected(ref);
     setHoveredState(null);
-    if (clearTimer.current) clearTimeout(clearTimer.current);
-    clearTimer.current = setTimeout(() => setSelected(null), 2000);
 
     const target = document.getElementById(`staple-${ref.itemKey}`);
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -68,9 +67,11 @@ export function SelectionProvider({ children }: { children: ReactNode }) {
     target?.scrollIntoView({ behavior: reduced ? "auto" : "smooth", block: "start" });
   }, []);
 
+  const clear = useCallback(() => setSelected(null), []);
+
   const value = useMemo(
-    () => ({ hovered, selected, setHovered, select }),
-    [hovered, selected, setHovered, select],
+    () => ({ hovered, selected, setHovered, select, clear }),
+    [hovered, selected, setHovered, select, clear],
   );
 
   return <SelectionContext.Provider value={value}>{children}</SelectionContext.Provider>;

@@ -1,4 +1,4 @@
-import { type PullerRunResponse } from "@basketwatch/contract";
+import { type Country, type PullerRunResponse } from "@basketwatch/contract";
 import { type Size, type UnitPrice } from "./size.js";
 
 /**
@@ -11,7 +11,7 @@ import { type Size, type UnitPrice } from "./size.js";
  */
 export interface PullerConfig {
   storeId: string;
-  country: "US" | "PH";
+  country: Country;
   currency: string;
   method: string;
   endpoint: string | null;

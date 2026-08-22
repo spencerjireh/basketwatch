@@ -52,9 +52,6 @@ export default async function BehindPage() {
           incidents={incidents.items}
           budget={budget}
           rails={rails}
-          // Summed from the fleet rather than written down, so it cannot drift
-          // away from what the stores actually returned.
-          rowsLastPull={fleet.reduce((total, scraper) => total + scraper.lastRunRows, 0)}
         />
       </div>
     </main>

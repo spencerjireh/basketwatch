@@ -28,7 +28,7 @@ const TerrainScene = dynamic(() => import("./terrain-scene"), {
  * shifts the page.
  */
 export function TerrainHero({ grid }: { grid: TerrainGrid | null }) {
-  const { hovered, setHovered, select } = useSelection();
+  const { hovered, selected, setHovered, select, clear } = useSelection();
   const [webgl, setWebgl] = useState<boolean | null>(null);
   const [sceneLive, setSceneLive] = useState(false);
 
@@ -51,7 +51,10 @@ export function TerrainHero({ grid }: { grid: TerrainGrid | null }) {
   }
 
   const showScene = webgl === true;
-  const cell = hovered ? findCell(grid, hovered) : null;
+  // A live hover outranks the pin; the pin keeps the readout when the pointer
+  // leaves, which is what makes a click feel like it held something.
+  const shown = hovered ?? selected;
+  const cell = shown ? findCell(grid, shown) : null;
 
   return (
     <div>
@@ -68,8 +71,10 @@ export function TerrainHero({ grid }: { grid: TerrainGrid | null }) {
             <TerrainScene
               grid={grid}
               hovered={hovered}
+              selected={selected}
               onHover={setHovered}
               onSelect={select}
+              onClear={clear}
               onReady={() => setSceneLive(true)}
             />
           </div>

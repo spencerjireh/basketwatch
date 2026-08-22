@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { Archivo, Newsreader, Sometype_Mono } from "next/font/google";
+import { Suspense } from "react";
+import { CountryProvider, CountryUrlSync } from "@/components/country/country";
 import { Nav } from "@/components/layout/nav";
 import "./globals.css";
 
@@ -56,8 +58,15 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" className={`${newsreader.variable} ${archivo.variable} ${sometype.variable}`}>
       <body>
-        <Nav />
-        {children}
+        <CountryProvider>
+          {/* The only useSearchParams caller, suspended alone so the static
+              routes keep their prerendered shells. */}
+          <Suspense fallback={null}>
+            <CountryUrlSync />
+          </Suspense>
+          <Nav />
+          {children}
+        </CountryProvider>
       </body>
     </html>
   );

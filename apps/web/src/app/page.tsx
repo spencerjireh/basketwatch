@@ -1,15 +1,13 @@
-import Link from "next/link";
 import {
   basketIndexResponseSchema,
   basketRailsResponseSchema,
   basketTodayResponseSchema,
-  countries,
   routes,
-  type Country,
 } from "@basketwatch/contract";
 import { BasketExplorer } from "@/components/basket/basket-explorer";
-import { BasketTable } from "@/components/basket/basket-table";
+import { CheapestCart } from "@/components/basket/cheapest-cart";
 import { IndexStrip } from "@/components/basket/index-strip";
+import { CountryLink } from "@/components/country/country";
 import { Section } from "@/components/ui/section";
 import { apiGet } from "@/lib/api/server";
 
@@ -38,21 +36,7 @@ export default async function Page() {
         title="The cheapest cart"
         caption="The winning store for each staple, and what the whole basket costs if you buy every line at its winner."
       >
-        <div className="grid grid-cols-1 gap-x-16 gap-y-10 sm:grid-cols-2">
-          {countries.map((country) => {
-            const items = basketItems.filter((item) => item.country === country);
-            if (items.length === 0) return null;
-            const series = basketIndex.find((s) => s.country === country);
-            return (
-              <BasketTable
-                key={country}
-                country={country as Country}
-                items={items}
-                point={series?.points.at(-1)}
-              />
-            );
-          })}
-        </div>
+        <CheapestCart items={basketItems} index={basketIndex} />
       </Section>
 
       <Section
@@ -75,7 +59,7 @@ export default async function Page() {
         </h1>
         <p className="mt-3 text-[14px] text-mute">
           Priced off the shelf in {totalStores} stores across two countries, at the same quantities
-          on both sides. Not a survey, and not an average — the cheapest unit price we can actually
+          in each. Not a survey, and not an average — the cheapest unit price we can actually
           see.
         </p>
       </section>
@@ -94,12 +78,12 @@ export default async function Page() {
           When a scraper breaks, the basket stops rather than carrying yesterday&apos;s number
           forward, and the pins we do not trust are excluded and named.
         </p>
-        <Link
+        <CountryLink
           href="/behind"
           className="mt-4 inline-block text-[13px] underline decoration-1 underline-offset-4 transition-colors hover:text-heal"
         >
           Behind the data →
-        </Link>
+        </CountryLink>
       </Section>
     </main>
   );

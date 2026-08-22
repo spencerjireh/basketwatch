@@ -54,6 +54,16 @@ export const DEFAULT_CURRENCY_BY_COUNTRY: Record<Country, CurrencyCode> = {
 };
 
 /**
+ * Display names live here for the same reason the currency map does: both a
+ * table caption and a nav switcher need the same answer, and a local ternary
+ * would silently mislabel a third country.
+ */
+export const COUNTRY_NAME: Record<Country, string> = {
+  US: "United States",
+  PH: "Philippines",
+};
+
+/**
  * Cursor pagination, present from the first commit.
  *
  * Nothing needs it at 19 stores. It is here because pagination cannot be added

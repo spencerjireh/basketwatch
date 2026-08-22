@@ -1,4 +1,4 @@
-import type { Country, Money, Rail } from "@basketwatch/contract";
+import { DEFAULT_CURRENCY_BY_COUNTRY, type Country, type Money, type Rail } from "@basketwatch/contract";
 
 /**
  * The terrain model: one grid per country, rows are staples, columns are
@@ -135,7 +135,7 @@ export function buildTerrainGrid(rails: Rail[], country: Country): TerrainGrid |
 
   return {
     country,
-    currency: countryRails[0]?.currency ?? "USD",
+    currency: countryRails[0]?.currency ?? DEFAULT_CURRENCY_BY_COUNTRY[country],
     staples,
     stores,
     cells,
