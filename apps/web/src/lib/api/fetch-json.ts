@@ -17,16 +17,25 @@ export class ApiError extends Error {
  * One fetch path for both environments, parsing every response through its
  * contract schema.
  *
- * cache: "no-store" is set explicitly rather than relying on a framework
- * default. This is live operational data, and a caching default that shifts
- * between minor releases would show a stale fleet board during a demo.
+ * No-store is the default rather than a framework's, because most of what this
+ * fetches is live operational data and a caching default that shifts between
+ * minor releases would show a stale fleet board during a demo.
+ *
+ * A caller that knows better can pass `next: { revalidate }`. The two are
+ * spelled as a branch rather than a spread because Next rejects a request
+ * carrying both `cache` and `next.revalidate`, and a silently-merged object is
+ * a confusing way to find that out.
  */
 export async function fetchJson<T>(
   url: string,
   schema: ZodType<T>,
-  init?: RequestInit,
+  init?: RequestInit & { next?: { revalidate: number } },
 ): Promise<T> {
-  const response = await fetch(url, { cache: "no-store", ...init });
+  const { next, cache, ...rest } = init ?? {};
+  const response = await fetch(url, {
+    ...rest,
+    ...(next ? { next } : { cache: cache ?? "no-store" }),
+  });
 
   if (!response.ok) {
     const body: unknown = await response.json().catch(() => null);
