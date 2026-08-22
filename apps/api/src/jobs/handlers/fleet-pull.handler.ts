@@ -5,7 +5,7 @@ import { PullersService } from "../../modules/pullers/pullers.service.js";
 import { BossService } from "../boss.provider.js";
 import { QUEUES } from "../queues.js";
 
-type ScrapeRunJob = { storeId: string };
+type ScrapeRunJob = { storeId: string; trigger?: "cron" | "manual" };
 
 /** Spread the fan-out so sixteen stores are not all fetched in the same second. */
 const JITTER_SECONDS = 90;
@@ -39,16 +39,14 @@ export class FleetPullHandler implements OnApplicationBootstrap {
       QUEUES.scrapeRun,
       async (jobs) => {
         for (const job of jobs) {
-          const result = await this.pullers.runStore(job.data.storeId, {
+          // The ops API enqueues onto this same queue, so the job says which
+          // it was and the run row records it honestly.
+          await this.pullers.runStore(job.data.storeId, {
             dryRun: false,
-            trigger: "cron",
+            trigger: job.data.trigger ?? "cron",
           });
-          if (result.runId) {
-            await this.boss.send(QUEUES.validateRun, {
-              runId: Number(result.runId),
-              storeId: job.data.storeId,
-            });
-          }
+          // Validation is enqueued by runStore itself now -- it is part of
+          // finishing a run, not something the caller has to remember.
         }
       },
       // One store at a time, and never the same store twice at once: a pull
