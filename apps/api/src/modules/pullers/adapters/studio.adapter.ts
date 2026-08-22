@@ -12,15 +12,41 @@ import { parseSitemap, rankProductUrls } from "./sitemap.js";
 
 const run = promisify(execFile);
 
-/** Raised so the caller can diagnose the failure and trigger a heal. */
-export class StudioError extends Error {
-  /** The raw JSON Studio returned before normalization failed, if any. */
-  readonly rawOutput: unknown[];
+/**
+ * Why a Studio pull failed, which decides whether healing it is even coherent.
+ *
+ * The distinction earns its keep in credits. A heal rewrites the extraction
+ * template, so it can only fix a scraper whose template is wrong -- and until
+ * now every failure looked identical, so a store that merely ran slowly was
+ * sent to Bright Data for repair alongside one whose selectors had genuinely
+ * moved.
+ *
+ * - `broken`       Studio ran and returned rows, but none survived parsing.
+ *                  The fields moved. This is the only kind worth healing.
+ * - `timeout`      the CLI was killed at the hard deadline. Says nothing about
+ *                  the template; the store is probably just large.
+ * - `empty`        Studio ran and returned nothing at all. Could be a dead
+ *                  collector or a genuinely empty catalogue -- either way a
+ *                  template rewrite is a guess.
+ * - `no_urls`      discovery produced nothing to submit. The sitemap fetch is
+ *                  our code, not Studio's, so no template change can fix it.
+ * - `unprovisioned` no collector exists yet. A provisioning gap, not a break.
+ */
+export type StudioFailureKind = "broken" | "timeout" | "empty" | "no_urls" | "unprovisioned";
 
-  constructor(message: string, rawOutput: unknown[] = []) {
+/** Raised so the caller can diagnose the failure and decide about a heal. */
+export class StudioError extends Error {
+  constructor(
+    message: string,
+    /** Positional and required: adding a throw site should force this choice. */
+    readonly kind: StudioFailureKind,
+    /** The raw JSON Studio returned before normalization failed, if any. */
+    readonly rawOutput: unknown[] = [],
+    /** Exit code, signal and stderr tail -- kept for the incident evidence. */
+    readonly detail: Record<string, unknown> = {},
+  ) {
     super(message);
     this.name = "StudioError";
-    this.rawOutput = rawOutput;
   }
 }
 
@@ -52,18 +78,22 @@ export class StudioAdapter implements Puller {
 
   async pull(config: PullerConfig): Promise<PullResult> {
     if (!config.collectorId) {
-      throw new StudioError("no verified collector for this store");
+      throw new StudioError("no verified collector for this store", "unprovisioned");
     }
 
     const urls = await this.seedUrls(config);
-    if (urls.length === 0) throw new StudioError("no URLs to submit");
+    if (urls.length === 0) throw new StudioError("no URLs to submit", "no_urls");
 
     const raw = await this.runCollector(config.collectorId, urls);
     const rows = this.toRows(config, raw);
     if (rows.length === 0) {
+      // raw.length > 0 means Studio itself worked and the fields moved under
+      // us, which is the one failure a template rewrite can actually repair.
       throw new StudioError(
         `collector returned no usable rows for ${urls.length} URLs`,
+        raw.length > 0 ? "broken" : "empty",
         raw.slice(0, 10),
+        { urlsSubmitted: urls.length, rawRows: raw.length },
       );
     }
     return { rows, pages: urls.length, rawOutput: raw.slice(0, 20) };
@@ -158,11 +188,27 @@ export class StudioAdapter implements Puller {
       if (Array.isArray(parsed)) return parsed as StudioRow[];
       const wrapped = parsed as { data?: unknown; results?: unknown };
       const rows = wrapped.data ?? wrapped.results;
-      return Array.isArray(rows) ? (rows as StudioRow[]) : [];
+      if (Array.isArray(rows)) return rows as StudioRow[];
+      // Returning [] here would have been reported as "empty" -- Studio sent
+      // something we could not read, which is a broken shape, not no data.
+      throw new StudioError("collector returned an unrecognised JSON envelope", "broken", [parsed]);
     } catch (error) {
+      if (error instanceof StudioError) throw error;
       const detail = error instanceof Error ? error.message : String(error);
-      this.logger.warn(`studio run failed for ${collectorId}: ${detail}`);
-      throw new StudioError(detail.slice(0, 200));
+      // execFile kills the child at `timeout` with SIGTERM and sets killed.
+      // That is the only signal separating "ran out of time" from "broke",
+      // and it was being discarded with the rest of the error object.
+      const e = error as { killed?: boolean; signal?: string; code?: string; stderr?: string };
+      const timedOut = e.killed === true || e.signal === "SIGTERM";
+      this.logger.warn(
+        `studio run failed for ${collectorId} (${timedOut ? "timeout" : "error"}): ${detail}`,
+      );
+      throw new StudioError(detail.slice(0, 200), timedOut ? "timeout" : "broken", [], {
+        code: e.code ?? null,
+        signal: e.signal ?? null,
+        killed: e.killed ?? false,
+        stderrTail: (e.stderr ?? "").slice(-500),
+      });
     } finally {
       await rm(dir, { recursive: true, force: true });
     }
