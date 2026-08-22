@@ -1,5 +1,6 @@
 {
   "name": "basketwatch",
+  "license": "MIT",
   "private": true,
   "packageManager": "pnpm@11.10.0",
   "engines": {
