@@ -67,12 +67,14 @@ on GitHub — everything renders in both.
 
 ## Standing status
 
-- **App rebuilt Aug 20.** `scrape-verse/` was replaced by `basketwatch/` on
-  pnpm + Turborepo, NestJS + Next.js. Only the Drizzle schema and migration
-  0000 were carried across, because they describe the live database. The clone
-  store was deleted in the rebuild and is scheduled to be rebuilt **last**,
-  after the read path, ingest and the heal loop — team decision Aug 20, which
-  closes C7. It remains the required demo centrepiece.
+This section is the single status home: update it as things land. AGENTS.md
+keeps only a short snapshot and points here.
+
+- **The app is `basketwatch`** (pnpm + Turborepo, NestJS + Next.js), rebuilt
+  Aug 20 from `scrape-verse/`; only the Drizzle schema and migration 0000
+  carried across. The clone store — still the required demo centrepiece — is
+  rebuilt **last**, after ingest and the heal loop (team decision Aug 20,
+  closes C7).
 - **Data is in prod.** 19 stores, 28,378 products, 28,376 price observations,
   340 basket pins, 21 items. Real history is two days, Aug 19-20, holding 30
   actual price moves. Nothing writes to it on a schedule yet.
@@ -83,6 +85,15 @@ on GitHub — everything renders in both.
 - **The puller engine landed Aug 21**, ported from `catalogue.py`. Its schedule
   ships **disarmed**: nothing pulls until the team arms
   `PULL_SCHEDULE_ENABLED`. On-demand runs work now, dry or wet.
+- **Heal phases 1-2 landed Aug 22** (PRs #20, #21, #24): `modules/heal/` holds
+  the orchestrator, code capture, Studio client, and manual endpoints
+  (`/api/heal/:scraperId/*` — preview-prompt, status, trigger, approve,
+  reject, recover). Nothing triggers a heal automatically yet. The notifier
+  module (email + telegram channels) exists with no callers. Migrations now
+  run 0000-0005.
+- **Ingest is the open seam.** `POST /api/ingest/:scraperId` checks the
+  webhook secret and validates rows against the fleet output contract, then
+  drops them — DB persistence is not wired.
 - **Deploy runs the whole app.** `postgres`, `api` and `web`; the `app` profile
   that gated the last two is gone. `web`'s Coolify port is 3000, not 80, and
   the API applies pending migrations on boot.
@@ -125,7 +136,8 @@ PR that resolves each one; do not silently close them.
   itself refuses the site without KYC — it is unavailable to us at any
   price. Proposed: demote to `reject`.
 - [ ] **Guard unification.** `bd.mjs` reads caps from `.env`; `studio.py`'s
-  `Guard` and `bd_tier1.py`'s `Budget` hardcode `cap_usd=5.0`. Changing a
+  `Guard` and `bd_tier1.py`'s `Budget` take `cap_usd` as a plain argument
+  with no env fallback (callers default it to 5.0). Changing a
   cap in `.env` only changes one side today. Proposed: Python guards fall
   back to the env vars when no explicit argument is given. Details in
   [credit-monitoring.md](credit-monitoring.md) under "Unified guard
@@ -136,11 +148,13 @@ PR that resolves each one; do not silently close them.
   whether a wholesale-only store like MexMax gets flagged pin by pin or demoted
   from `index_contributor` outright. Also open is how much of the four-strategy
   design to build this week — the URL slug check alone catches all three MexMax
-  failures in ten lines and needs no LLM.
+  failures in ten lines and needs no LLM. Phases 1-2 of the
+  [integration plan](plans/heal-integration-plan.md) are in `modules/heal/` as
+  of Aug 22; the three questions above remain unanswered.
 - [ ] **`priceRecordSchema` update.** The fleet output contract still
   requires `unit` (rejects 15% of the catalogue), has no size/unit-price
   fields, no `source`, and no `size_change` incident kind. All specified in
   [HANDOFF.md](../lab/spencer-exploration/HANDOFF.md) with a tested reference
-  implementation. Touches `packages/contract` and
-  `apps/web/src/fixtures/dashboard.ts` together per the coupling rule. Needs
+  implementation. Touches `packages/contract` and every consumer of the
+  schema in both apps together, per the coupling rule. Needs
   agreement on whether to land before or after scraper creation.

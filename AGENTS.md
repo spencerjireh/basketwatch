@@ -10,12 +10,16 @@ Data Scraper Studio. This repo is the private lab notebook AND the
 codebase — docs, experiments, and product code live together. A scrubbed
 public repo may be split out for submission near the deadline.
 
-Read these before doing product work, in order:
+Read the doc that matches the work, not all of them:
 
-1. `docs/hackathon-brief.md` — rules, judging criteria, experiment findings
-2. `docs/prd.md` — confirmed scope, cut order, definition of done
-3. `docs/architecture.md` — HLD; diagrams in `docs/diagrams/`
-4. `docs/api-contract.md` — v2 endpoint and response shapes (zod, in `packages/contract`)
+- Scoping a feature or judging demo value: `docs/hackathon-brief.md`
+  (rules, judging criteria), then `docs/prd.md` (scope, cut order).
+- Adding or wiring an API module: `docs/architecture.md` (HLD; diagrams
+  in `docs/diagrams/`).
+- Touching `packages/contract` or endpoint shapes: `docs/api-contract.md`.
+- Anything that spends Bright Data credits: `docs/credit-monitoring.md`
+  (also a hard rule below).
+- Status and open team decisions: `docs/index.md`.
 
 ## Layout
 
@@ -28,8 +32,7 @@ is no app subdirectory; `apps/` and `packages/` sit beside the compose files.
   spider-sense validator in `modules/validator/checks.ts` stays pure and IO-free.
 - `apps/web` — dashboard (Next.js App Router + Tailwind + Recharts, no component
   library). A pure client of the API: it never touches Postgres, and a lint rule
-  enforces that too. Currently on `src/fixtures/dashboard.ts`, typed by the
-  contract so the swap to fetch calls changes no types.
+  enforces that too.
 - `packages/contract` — zod schemas and types. The only thing the two apps
   share, and the reason the boundary above holds.
 - `packages/tsconfig`, `packages/eslint-config` — shared configs.
@@ -49,9 +52,9 @@ is no app subdirectory; `apps/` and `packages/` sit beside the compose files.
 Findings graduate from `lab/` into `docs/` and, when they change the contract,
 into a PR against the workspace.
 
-Not built yet, each with its home already in the tree: the per-module
-`*.repository.ts` query layer, `modules/pullers/`, `modules/heal/`,
-`modules/notifier/`.
+Not built yet: DB persistence for `modules/ingest` (the webhook validates and
+drops), `modules/quality/` (a proposal, not confirmed scope — see
+`docs/plans/heal-agent-proposal.md`), and the clone store.
 
 ## Commands
 
@@ -133,8 +136,8 @@ Bright Data CLI (`brightdata`, v0.3.4+) drives Scraper Studio:
   from stored `raw_output`.
 - The API contract lives in `packages/contract/src/`, as zod
   schemas with types derived from them, and is documented in
-  `docs/api-contract.md`. The dashboard's fixtures are typed by those schemas —
-  change the schema and the fixture together, or neither.
+  `docs/api-contract.md`. Both apps are typed by those schemas —
+  change a schema and every consumer of it together, or neither.
 - Money is `{ amount, currency }`, never a preformatted string and never two
   sibling fields. Timestamps are ISO 8601 UTC strings. `country` appears on
   every store-, product- and basket-shaped payload.
@@ -144,59 +147,25 @@ Bright Data CLI (`brightdata`, v0.3.4+) drives Scraper Studio:
   needs, so both break dependency injection silently.
 - No emojis in code, docs, or output.
 
-## Current state (update as things land)
+## Current state
 
-- **Rebuilt Aug 20.** `scrape-verse/` was replaced by `basketwatch/` on pnpm +
-  Turborepo, NestJS + Next.js. The old app was a scaffold nothing connected: the
-  database client was never imported, the job producer never called, no
-  controller touched Postgres. Only the Drizzle schema and migration 0000 were
-  carried over, because they describe the live database.
-- The clone store was deleted with the old app and will be rebuilt from scratch
-  once there is a demoable product to break.
-- The API contract was rewritten as zod schemas. Endpoints are unchanged in
-  spirit and now sit under a global `/api` prefix with no exclusions; the
-  dashboard rewrites `/api/*` straight through, so the Bright Data webhook URL
-  did not change. Feed and incidents are cursor-paginated from day one.
-- Both compose files live at the repo root, and the DB role and database are
-  `basketwatch`; re-create your local volume
-  (`docker compose -f docker-compose.dev.yml down -v`) or auth will fail.
-- `catalogue.db` migrated into Postgres Aug 20. The data plane is the catalogue
-  shape - `stores`, `products` keyed `(store_id, product_key)`, `runs`,
-  `price_observations`, `items`, `basket_map`, and the `latest_price` view -
-  alongside the control plane (`scrapers`, `baselines`, `heal_attempts`,
-  `alerts`). Migration 0000 was rewritten rather than layered, so reset your dev
-  volume. `lab/spencer-exploration/to_postgres.py` is the one-time loader;
-  `catalogue.db` stays in git, frozen as documentation. The Python pullers still
-  write SQLite - nothing writes Postgres yet.
-- Coolify deploy scaffolded Aug 20 on `basketwatch.spencerjireh.com`: the
-  root prod compose ships a public Postgres for the team to dump scraped data
-  into. The `app` profile that gated `api` and `web` is gone as of the read
-  path — all three services build and run. The Coolify resource itself is
-  created by hand — see `docs/deploy.md`.
-- **The read path landed Aug 20.** `/api/basket/index`, `/api/basket/today`,
-  `/api/fleet`, `/api/feed`, `/api/incidents`, `/api/incidents/:id` and
-  `/api/budget` all answer from Postgres, and the dashboard renders from them —
-  `apps/web/src/fixtures/` is deleted. The index is an as-of query, because
-  change-only history means a day's price is the last observation at or before
-  that day; a day missing any core item totals `null` rather than a partial sum.
-- Migration 0001 landed with it: `attempt`, `started_at`, `finished_at` and
-  `canary` on `heal_attempts`. Two items from its original scope were
-  deliberately left out — per-store crawl config is already on `stores`
-  (`method`, `endpoint`, `max_pages`, `coverage`, `needs_browser`,
-  `needs_unlocker`), and normalising `runs.status` rewrites live rows for
-  cosmetic gain while `runStatusFromDb` already reads both vocabularies.
-- **The puller engine landed Aug 21**, ported from
-  `lab/spencer-exploration/catalogue.py`: four adapters (shopify, magento-graphql,
-  sitemap, studio) over the sixteen pullable stores, reading crawl config from
-  the `stores` table rather than from `fleet.lock.json`. `POST
-  /api/pullers/:storeId/run` runs one store on demand, `?dryRun=true` writes
-  nothing.
-- **The pull schedule ships disarmed.** `PULL_SCHEDULE_ENABLED` defaults to
-  false and any schedule left by an earlier deploy is removed on boot. A
-  scheduled run does not pass through `lab/scripts/bd.mjs`, so the schedule is
-  its only bound — arming it is a team decision, not a deploy default.
-- Not yet: DB wiring for ingest, the heal orchestrator, the notifier. Each has
-  a named home in the tree. `nullRatePct` on the fleet board reports 0 until
-  the validator runs against a stored run, and the `brightdata` CLI is not in
-  the API image, so a Studio pull falls back to HTTP and opens a
-  `studio_failed` incident.
+Snapshot, accurate as of Aug 22. Fuller status, spend, and the open team
+decisions live in [docs/index.md](./docs/index.md) — update that file as
+things land, and this list only when a line here becomes false.
+
+- Every dashboard route answers from Postgres; there are no fixtures.
+  Migrations run 0000-0005.
+- The puller engine covers the sixteen pullable stores (four adapters, crawl
+  config from the `stores` table): `POST /api/pullers/:storeId/run`, and
+  `?dryRun=true` writes nothing. The pull schedule ships disarmed
+  (`PULL_SCHEDULE_ENABLED` defaults false); a scheduled run bypasses the
+  guarded wrapper, so arming it is a team decision, never a deploy default.
+- The heal loop is manual: `/api/heal/:scraperId/*` (preview-prompt, status,
+  trigger, approve, reject, recover) exists, and nothing calls it
+  automatically. The notifier module (email, telegram) likewise has no
+  callers yet.
+- `POST /api/ingest/:scraperId` checks the webhook secret and validates rows
+  against the contract, then drops them — DB persistence is the next wiring
+  job.
+- The `brightdata` CLI is not in the API image, so a Studio pull falls back
+  to HTTP and opens a `studio_failed` incident.
