@@ -1,4 +1,5 @@
 import { Body, Controller, Get, Param, Post, UseGuards } from "@nestjs/common";
+import { Throttle } from "@nestjs/throttler";
 import {
   type HealDecisionResponse,
   type HealPreviewPromptResponse,
@@ -21,6 +22,12 @@ import { HealOrchestrator } from "./heal.orchestrator.js";
  * spends money is guarded one by one, so adding a route without a guard is a
  * visible omission rather than an inherited default.
  */
+/**
+ * Five a minute. These are the routes that spend Bright Data credits, and they
+ * already require the ops token -- this is the second lock, for the case where
+ * the token leaks or a script goes into a loop.
+ */
+@Throttle({ default: { limit: 5, ttl: 60_000 } })
 @Controller("heal")
 export class HealController {
   constructor(private readonly orchestrator: HealOrchestrator) {}
