@@ -13,34 +13,19 @@ export function FleetBoard({
   fleet,
   onOpenIncident,
   onHeal,
-  onCaptureCode,
-  capturingId,
-  onPull,
-  pullingId,
-  pullProgress,
-  onProvision,
-  provisioningId,
 }: {
   fleet: FleetScraper[];
   onOpenIncident?: (incidentId: string) => void;
   onHeal?: (scraper: FleetScraper) => void;
-  onCaptureCode?: (scraper: FleetScraper) => void;
-  capturingId?: string | null;
-  onPull?: (scraper: FleetScraper) => void;
-  pullingId?: string | null;
-  pullProgress?: { status: string; transport: string | null; elapsedMs: number } | null;
-  onProvision?: (scraper: FleetScraper) => void;
-  provisioningId?: string | null;
 }) {
   return (
     <ul className="flex flex-col">
       {fleet.map((scraper) => {
         const style = statusStyle(scraper.status);
-        const canHeal =
-          scraper.collectorId &&
-          scraper.status !== "healthy" &&
-          scraper.status !== "healing" &&
-          scraper.status !== "verifying";
+        // Any store with a collector can be inspected, healthy ones included.
+        // The old rule also hid `healing` and `verifying`, which are precisely
+        // the states where there is something live to watch.
+        const canInspect = !!scraper.collectorId;
 
         return (
           <li key={scraper.storeId} className="border-b border-line py-2.5 last:border-b-0">
@@ -89,54 +74,14 @@ export function FleetBoard({
                   open audit
                 </button>
               ) : null}
-              {canHeal && onHeal ? (
+              {canInspect && onHeal ? (
                 <button
                   type="button"
                   onClick={() => onHeal(scraper)}
                   className="rounded border border-heal/40 px-2 py-0.5 font-mono text-[10px] text-heal transition-colors hover:bg-heal/10"
                 >
-                  heal
+                  heal detail
                 </button>
-              ) : null}
-              {scraper.collectorId && !scraper.hasTemplate && onCaptureCode ? (
-                <button
-                  type="button"
-                  disabled={capturingId === scraper.collectorId}
-                  onClick={() => onCaptureCode(scraper)}
-                  className="rounded border border-line px-2 py-0.5 font-mono text-[10px] text-mute transition-colors hover:border-heal/40 hover:text-heal disabled:opacity-50"
-                >
-                  {capturingId === scraper.collectorId ? "capturing..." : "capture code"}
-                </button>
-              ) : null}
-              {!scraper.collectorId && onProvision ? (
-                <button
-                  type="button"
-                  disabled={provisioningId === scraper.storeId}
-                  onClick={() => onProvision(scraper)}
-                  className="rounded border border-live/40 px-2 py-0.5 font-mono text-[10px] text-live transition-colors hover:bg-live/10 disabled:opacity-50"
-                >
-                  {provisioningId === scraper.storeId ? "provisioning..." : "provision"}
-                </button>
-              ) : null}
-              {scraper.isPullable && onPull ? (
-                pullingId === scraper.storeId && pullProgress ? (
-                  <span className="font-mono text-[10px] text-mute">
-                    {pullProgress.status === "collecting"
-                      ? `fetching${pullProgress.transport ? ` via ${pullProgress.transport}` : ""}...`
-                      : "processing..."}
-                    {" "}
-                    <span className="tabular-nums">{Math.round(pullProgress.elapsedMs / 1000)}s</span>
-                  </span>
-                ) : (
-                  <button
-                    type="button"
-                    disabled={!!pullingId}
-                    onClick={() => onPull(scraper)}
-                    className="rounded border border-line px-2 py-0.5 font-mono text-[10px] text-mute transition-colors hover:border-ink/40 hover:text-ink disabled:opacity-50"
-                  >
-                    pull now
-                  </button>
-                )
               ) : null}
             </div>
           </li>
