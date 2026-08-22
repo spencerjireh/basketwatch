@@ -24,8 +24,10 @@
 # Lab notebooks: 761 MB on disk, plus a tracked 16.6 MB catalogue.db.
 lab
 
-# Docs and tooling that no image needs.
+# Docs and tooling that no image needs -- except the collector manifest,
+# which the API reads at runtime for provisioning.
 docs
+!docs/collector-manifest.json
 .claude
 .playwright-mcp
 .pytest_cache
