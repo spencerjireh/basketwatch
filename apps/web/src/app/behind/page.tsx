@@ -1,12 +1,10 @@
 import {
   basketRailsResponseSchema,
-  creditBudgetSchema,
-  feedResponseSchema,
   fleetResponseSchema,
-  incidentsResponseSchema,
   routes,
 } from "@basketwatch/contract";
 import { BehindBoard } from "@/components/behind/behind-board";
+import { CountryLink } from "@/components/country/country";
 import { apiGet } from "@/lib/api/server";
 
 export const metadata = {
@@ -24,11 +22,11 @@ export const metadata = {
  * move the headline number.
  */
 export default async function BehindPage() {
-  const [fleet, feed, incidents, budget, rails] = await Promise.all([
+  // The fleet is still fetched, for the two provenance numbers -- how many
+  // stores contribute and how many rows the last pull returned. What the fleet
+  // is *doing* moved to /healing.
+  const [fleet, rails] = await Promise.all([
     apiGet(routes.fleet, fleetResponseSchema),
-    apiGet(routes.feed, feedResponseSchema),
-    apiGet(routes.incidents, incidentsResponseSchema),
-    apiGet(routes.budget, creditBudgetSchema),
     apiGet(`${routes.basketRails}?tier=core,stretch`, basketRailsResponseSchema),
   ]);
 
@@ -39,20 +37,18 @@ export default async function BehindPage() {
           Behind the data
         </h1>
         <p className="mt-2.5 text-[14px] text-mute">
-          Prices come off nineteen store catalogues, and catalogues break. This is what the fleet
-          is doing, what has gone wrong, and which pins we are not confident in — including the
-          ones still feeding the front page.
+          Prices come off nineteen store catalogues. This is where each number comes from, how it
+          is stored, and which pins we are not confident in — including the ones still feeding the
+          front page. What the fleet is doing when a catalogue breaks is on{" "}
+          <CountryLink href="/healing" className="underline decoration-1 underline-offset-4">
+            Self-healing
+          </CountryLink>
+          .
         </p>
       </section>
 
       <div className="mt-8">
-        <BehindBoard
-          fleet={fleet}
-          feed={feed.items}
-          incidents={incidents.items}
-          budget={budget}
-          rails={rails}
-        />
+        <BehindBoard fleet={fleet} rails={rails} />
       </div>
     </main>
   );

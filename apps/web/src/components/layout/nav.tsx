@@ -21,6 +21,7 @@ const LINKS = [
   { href: "/", label: "Basket" },
   { href: "/prices", label: "Prices" },
   { href: "/behind", label: "Behind the data" },
+  { href: "/healing", label: "Self-healing" },
 ] as const;
 
 export function Nav() {
