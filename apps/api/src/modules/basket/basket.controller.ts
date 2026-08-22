@@ -1,6 +1,7 @@
 import { Controller, Get, Query } from "@nestjs/common";
 import {
   type BasketIndexResponse,
+  type BasketQuery,
   type BasketRailsResponse,
   type BasketTodayResponse,
   type RailsQuery,
@@ -19,13 +20,13 @@ export class BasketController {
 
   /** GET /api/basket/index?country=US -- omit country to get every series. */
   @Get("index")
-  index(@Query(queryPipe) query: { country?: "US" | "PH" }): Promise<BasketIndexResponse> {
+  index(@Query(queryPipe) query: BasketQuery): Promise<BasketIndexResponse> {
     return this.service.index(query.country);
   }
 
   /** GET /api/basket/today?country=US */
   @Get("today")
-  today(@Query(queryPipe) query: { country?: "US" | "PH" }): Promise<BasketTodayResponse> {
+  today(@Query(queryPipe) query: BasketQuery): Promise<BasketTodayResponse> {
     return this.service.today(query.country);
   }
 

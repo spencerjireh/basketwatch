@@ -1,9 +1,9 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import type { BasketSeries } from "@basketwatch/contract";
+import { useMemo } from "react";
+import { COUNTRY_NAME, type BasketSeries } from "@basketwatch/contract";
+import { useCountry } from "@/components/country/country";
 import { formatDay, formatMoney } from "@/lib/format";
-import { cn } from "@/lib/utils";
 
 const W = 640;
 const H = 150;
@@ -23,12 +23,18 @@ const PAD_B = 30;
  * incident that caused it, and the line resumes where the heal closed the gap.
  */
 export function IndexStrip({ series }: { series: BasketSeries[] }) {
-  const [activeCountry, setActiveCountry] = useState(series[0]?.country ?? "US");
-  const active = series.find((s) => s.country === activeCountry) ?? series[0];
+  const { country } = useCountry();
+  const active = series.find((s) => s.country === country);
 
   const gaps = useMemo(() => findGaps(active), [active]);
 
-  if (!active) return null;
+  if (!active) {
+    return (
+      <p className="font-mono text-[10.5px] text-mute">
+        No index readings for {COUNTRY_NAME[country]} yet.
+      </p>
+    );
+  }
 
   const points = active.points;
   const totals = points.map((p) => p.total).filter((t): t is number => t !== null);
@@ -44,28 +50,6 @@ export function IndexStrip({ series }: { series: BasketSeries[] }) {
 
   return (
     <div className="flex h-full flex-col">
-      {series.length > 1 ? (
-        <div className="mb-3 flex gap-5" role="tablist" aria-label="Country">
-          {series.map((s) => (
-            <button
-              key={s.country}
-              type="button"
-              role="tab"
-              aria-selected={s.country === activeCountry}
-              onClick={() => setActiveCountry(s.country)}
-              className={cn(
-                "caps pb-1 transition-colors",
-                s.country === activeCountry
-                  ? "border-b border-ink text-ink"
-                  : "border-b border-transparent hover:text-ink",
-              )}
-            >
-              {s.country} · {s.currency}
-            </button>
-          ))}
-        </div>
-      ) : null}
-
       <svg viewBox={`0 0 ${W} ${H}`} className="h-auto w-full" role="img" aria-label="Basket total by day">
         <defs>
           {/* The scar. Hatching rather than a fill, so a gap reads as absence

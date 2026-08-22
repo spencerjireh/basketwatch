@@ -1,4 +1,7 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="512" height="512">
+  <!-- The Basketwatch mark: a price line with a deliberate gap (the index
+       shows its own missing days) ending in the green live dot. Same geometry
+       as apps/web/src/app/icon.svg. -->
   <rect width="32" height="32" rx="6" fill="#faf7f2"/>
   <path d="M3 21.5 L8.5 16 L12 19.5 L16.5 13 L19.5 16.5" fill="none" stroke="#1f1c18" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"/>
   <path d="M23.5 16.5 L28 12" fill="none" stroke="#1f1c18" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"/>

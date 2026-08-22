@@ -10,6 +10,7 @@ import {
   type UnitPriceBasis,
 } from "@basketwatch/contract";
 import { apiGetClient } from "@/lib/api/browser";
+import { useCountry } from "@/components/country/country";
 import { formatMoney } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
@@ -33,7 +34,7 @@ type Status = "idle" | "loading" | "ready" | "error";
  */
 export function ProductSearch() {
   const [q, setQ] = useState("");
-  const [country, setCountry] = useState<Country | "">("");
+  const { country } = useCountry();
   const [basis, setBasis] = useState<UnitPriceBasis | "">("");
   const [sort, setSort] = useState<ProductSort>("relevance");
 
@@ -116,16 +117,6 @@ export function ProductSearch() {
         </label>
 
         <div className="flex flex-wrap gap-x-4 gap-y-2">
-          <Choice
-            label="Country"
-            value={country}
-            onChange={(value) => setCountry(value as Country | "")}
-            options={[
-              ["", "Both"],
-              ["US", "US"],
-              ["PH", "PH"],
-            ]}
-          />
           <Choice
             label="Priced"
             value={basis}
@@ -266,11 +257,11 @@ function Empty({ children, tone }: { children: React.ReactNode; tone?: "broken" 
 }
 
 function params(
-  query: { q: string; country: string; basis: string; sort: ProductSort },
+  query: { q: string; country: Country; basis: string; sort: ProductSort },
   cursor?: string,
 ): string {
   const search = new URLSearchParams({ q: query.q, sort: query.sort, limit: "40" });
-  if (query.country) search.set("country", query.country);
+  search.set("country", query.country);
   if (query.basis) search.set("basis", query.basis);
   if (cursor) search.set("cursor", cursor);
   return search.toString();

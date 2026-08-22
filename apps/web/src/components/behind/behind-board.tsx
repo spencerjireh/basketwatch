@@ -10,6 +10,7 @@ import type {
 } from "@basketwatch/contract";
 import { captureCodeStatus, captureOneCode } from "@/app/behind/actions";
 import { QualityWorklist } from "@/components/behind/quality-worklist";
+import { useCountry } from "@/components/country/country";
 import { EventFeed } from "@/components/feed/event-feed";
 import { FleetBoard } from "@/components/fleet/fleet-board";
 import { HealDialog } from "@/components/fleet/heal-dialog";
@@ -26,20 +27,19 @@ import { formatMoney } from "@/lib/format";
  * from a server component above, so first paint is server-rendered.
  */
 export function BehindBoard({
-  fleet,
+  fleet: wholeFleet,
   feed,
   incidents,
   budget,
-  rails,
-  rowsLastPull,
+  rails: allRails,
 }: {
   fleet: FleetScraper[];
   feed: FeedEvent[];
   incidents: Incident[];
   budget: CreditBudget;
   rails: Rail[];
-  rowsLastPull: number;
 }) {
+  const { country } = useCountry();
   const [openIncidentId, setOpenIncidentId] = useState<string | null>(null);
   const openIncident = useMemo(
     () => incidents.find((incident) => incident.id === openIncidentId) ?? null,
@@ -75,9 +75,18 @@ export function BehindBoard({
     pollTimerRef.current = setTimeout(poll, 5_000);
   }, [capturingId]);
 
+  // The board and worklist follow the country switcher; the feed, incidents
+  // and budget stay fleet-wide -- they are machinery, not country data, and an
+  // incident carries no country of its own.
+  const fleet = wholeFleet.filter((s) => s.country === country);
+  const rails = allRails.filter((rail) => rail.country === country);
+
   const healthy = fleet.filter((s) => s.status === "healthy").length;
   const attention = fleet.length - healthy;
   const contributing = fleet.length;
+  // Summed from the filtered fleet rather than written down, so it cannot
+  // drift away from what the stores on the board actually returned.
+  const rowsLastPull = fleet.reduce((total, scraper) => total + scraper.lastRunRows, 0);
 
   return (
     <>
@@ -115,8 +124,8 @@ export function BehindBoard({
           <Section title="Provenance" caption="Where the numbers on the front page come from.">
             <dl className="flex flex-col gap-3 text-[13px]">
               <Fact term={`${contributing} stores`}>
-                Each publishes its own catalogue. Fifteen are read over plain HTTP and cost nothing
-                to check; one needs a browser.
+                Each publishes its own catalogue. Most are read over plain HTTP and cost nothing
+                to check; the rest need a browser.
               </Fact>
               <Fact term={`${rowsLastPull.toLocaleString("en-US")} rows in the last pull`}>
                 Every row carries a decomposed pack size where the title gave one, which is what

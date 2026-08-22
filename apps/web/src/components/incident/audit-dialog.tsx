@@ -28,8 +28,10 @@ export function AuditDialog({
     if (!incident && dialog.open) dialog.close();
   }, [incident]);
 
+  // An incident carries no country, so there is no honest currency to print
+  // until an attempt has actually spent something.
   const totalSpent = incident?.attempts.reduce((sum, a) => sum + a.creditsSpent.amount, 0) ?? 0;
-  const currency = incident?.attempts[0]?.creditsSpent.currency ?? "USD";
+  const currency = incident?.attempts[0]?.creditsSpent.currency ?? null;
 
   return (
     <dialog
@@ -138,7 +140,7 @@ export function AuditDialog({
 
           <div className="flex justify-between text-[13px] font-bold">
             <span>Total credits</span>
-            <span>{formatMoney(totalSpent, currency)}</span>
+            <span>{currency ? formatMoney(totalSpent, currency) : "--"}</span>
           </div>
 
           <p className="caps mt-4 text-center">Every repair, itemised</p>
