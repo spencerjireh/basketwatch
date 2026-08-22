@@ -69,16 +69,22 @@ const HOVER = new THREE.Color("#2b271f");
 const INK = "#1f1c18";
 const LINE = "#e6e1d6";
 
-// The relief palette, muted to sit on the paper page. Green stops meaning
-// "cheapest" in the scene -- the gold cairn carries that now -- so the
-// valleys are free to be valleys.
+// The relief palette carries the reading: green valley floors are cheap
+// ground, the land dries to clay and rock as prices climb, and past the 4x
+// ring the caps are rust -- a desaturated earth cousin of the broken red,
+// so the expensive outlier reads as the alarming thing without a legend.
+// The gold cairn still marks the cheapest shelf itself.
 const PAPER = new THREE.Color("#faf7f2");
-const VALLEY = new THREE.Color("#8a9b6e");
-const SCRUB = new THREE.Color("#b6a97e");
-const ROCK_LOW = new THREE.Color("#a08a6a");
-const ROCK_HIGH = new THREE.Color("#6e5c46");
-const SNOW = new THREE.Color("#f3f1e9");
+const VALLEY = new THREE.Color("#6f8f60");
+const SCRUB = new THREE.Color("#b4a67a");
+const ROCK_LOW = new THREE.Color("#a38662");
+const ROCK_HIGH = new THREE.Color("#7d5a42");
+const SNOW = new THREE.Color("#b56b50"); // the >4x cap; keeps the snowline plumbing, loses the snow
 const GOLD = "#d4a72c";
+
+// How hard depth pushes the far rows toward paper. This is the only fog we
+// have -- see paintBase for why real fog is off the table.
+const HAZE = 0.4;
 
 type SceneProps = {
   grid: TerrainGrid;
@@ -236,6 +242,8 @@ export default function TerrainScene({
 
   const hoverCell = hovered ? findCell(grid, hovered) : null;
 
+  const shadowExtent = Math.max(slabWidth(grid), slabDepth(grid)) / 2 + 2;
+
   // The tooltip follows the pointer imperatively: content changes only when
   // the hovered cell does, position on every move without a render.
   const placeTooltip = (event: React.PointerEvent) => {
@@ -270,20 +278,25 @@ export default function TerrainScene({
         }}
       >
         <Rig grid={grid} anchors={worldAnchors} labelEls={labelEls} parallax={!reduced} />
-        <hemisphereLight args={["#fffdf6", "#d8cdb4", 0.7]} />
+        <hemisphereLight args={["#fffdf6", "#d8cdb4", 0.55]} />
+        {/* A low warm sun so the ridges catch rim light, and a cold faint
+            fill from behind so the shadowed faces keep their shape. The
+            shadow box is sized from the slab: a fixed box clips the flank
+            shadows once the grid grows past ten stores. */}
         <directionalLight
-          position={[-11, 5.5, 4]}
-          intensity={1.6}
-          color="#fff3e0"
+          position={[-13, 4.2, 5]}
+          intensity={1.7}
+          color="#ffe9c2"
           castShadow
           shadow-mapSize={[1024, 1024]}
           shadow-normalBias={0.05}
-          shadow-camera-left={-11}
-          shadow-camera-right={11}
-          shadow-camera-top={11}
-          shadow-camera-bottom={-11}
+          shadow-camera-left={-shadowExtent}
+          shadow-camera-right={shadowExtent}
+          shadow-camera-top={shadowExtent}
+          shadow-camera-bottom={-shadowExtent}
           shadow-camera-far={40}
         />
+        <directionalLight position={[9, 6, -9]} intensity={0.45} color="#f4ecdc" />
         <Slab grid={grid} onHover={onHover} onClear={onClear} />
         <Etchings grid={grid} />
         <Relief
@@ -806,11 +819,12 @@ function buildFieldGeometry(grid: TerrainGrid, peaks: (Peak | null)[][]): THREE.
 
 /**
  * The base coat, painted once per grid and cached: elevation bands anchored
- * to the data scale (green fully out at ratioY(2), snow from ratioY(4)),
- * steeper faces rockier, snow sliding off cliffs, a whisper of albedo
- * grain, and haze baked toward paper by depth -- scene.fog is impossible on
- * a transparent canvas, and camera-distance haze would mean repainting
- * every parallax frame for an invisible difference.
+ * to the data scale (green fully out at ratioY(2), the rust cap from
+ * ratioY(4)), steeper faces rockier, the rust dust thinning on cliffs, a
+ * whisper of albedo grain, and haze baked toward paper by depth --
+ * scene.fog is impossible on a transparent canvas, and camera-distance
+ * haze would mean repainting every parallax frame for an invisible
+ * difference.
  */
 function paintBase(grid: TerrainGrid, geometry: THREE.BufferGeometry): Float32Array {
   const position = geometry.getAttribute("position") as THREE.BufferAttribute;
@@ -829,7 +843,7 @@ function paintBase(grid: TerrainGrid, geometry: THREE.BufferGeometry): Float32Ar
 
     // Moisture decides where the green grows, so no two mountains wear the
     // same ring; the vegetation ceiling wanders but never crosses the 2x
-    // mark, and the snow line wanders without moving its median off 4x --
+    // mark, and the rust line wanders without moving its median off 4x --
     // the bands stay a legend even while they stop being stripes.
     const moisture = valueNoise(x + 61.7, z + 23.1, 1.7);
     const snowEdge = valueNoise(x - 300.5, z + 811.9, 0.9);
@@ -847,10 +861,12 @@ function paintBase(grid: TerrainGrid, geometry: THREE.BufferGeometry): Float32Ar
     c.lerp(ROCK_LOW, rock * (1 - 0.7 * veg));
     c.lerp(ROCK_HIGH, smoothstep01((y - y2) / (y4 - y2)) * 0.8);
     c.lerp(ROCK_HIGH, 0.35 * slope);
-    const snowline = y4 + (snowEdge - 0.5) * 0.24;
-    c.lerp(SNOW, smoothstep01((y - snowline) / 0.22) * (1 - 0.7 * slope));
     c.multiplyScalar(1 + (hash2(i, 12345) - 0.5) * 0.08);
-    c.lerp(PAPER, 0.26 * smoothstep01((zFront - z) / (zFront - zBack)));
+    c.lerp(PAPER, HAZE * smoothstep01((zFront - z) / (zFront - zBack)));
+    // The rust cap goes on after the haze: the worst outlier is often in the
+    // back row, and an alarm that fades with distance is no alarm.
+    const rustline = y4 + (snowEdge - 0.5) * 0.24;
+    c.lerp(SNOW, smoothstep01((y - rustline) / 0.22) * (1 - 0.7 * slope));
     colors[i * 3] = c.r;
     colors[i * 3 + 1] = c.g;
     colors[i * 3 + 2] = c.b;
