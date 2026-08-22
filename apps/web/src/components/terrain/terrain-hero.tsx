@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import type { ReactNode } from "react";
 import dynamic from "next/dynamic";
 import { formatBasis, formatMoney } from "@/lib/format";
-import { findCell } from "@/lib/terrain/model";
+import { GAP_READING, findCell, findGap } from "@/lib/terrain/model";
 import type { TerrainGrid } from "@/lib/terrain/model";
 import { Ridgeline } from "@/components/terrain/ridgeline";
 import { useSelection } from "@/components/terrain/selection";
@@ -32,6 +32,40 @@ function parseWeatherOverride(raw: string | null): number | null {
   if (raw === "overcast") return 1;
   const n = Number.parseFloat(raw);
   return Number.isFinite(n) ? clamp01(n) : null;
+}
+
+/*
+ * The two view glyphs. Each one is a small drawing of the thing it switches
+ * to -- a ridge profile and a stack of rows -- rather than a symbol standing
+ * for it, which is what lets them work with no words beside them. Hairlines in
+ * currentColor, so the button's own ink/mute state carries them.
+ */
+const GLYPH = {
+  width: 15,
+  height: 12,
+  viewBox: "0 0 16 13",
+  fill: "none",
+  stroke: "currentColor",
+  strokeWidth: 1.25,
+  strokeLinecap: "round",
+  strokeLinejoin: "round",
+  "aria-hidden": true,
+} as const;
+
+function ReliefGlyph() {
+  return (
+    <svg {...GLYPH}>
+      <path d="M1 10.5 L4.5 4 L7 7.5 L10.5 2 L15 10.5" />
+    </svg>
+  );
+}
+
+function FlatGlyph() {
+  return (
+    <svg {...GLYPH}>
+      <path d="M1 3 H15 M1 6.5 H9.5 M1 10 H13" />
+    </svg>
+  );
 }
 
 /**
@@ -101,6 +135,9 @@ export function TerrainHero({
   // leaves, which is what makes a click feel like it held something.
   const shown = hovered ?? selected;
   const cell = grid && shown ? findCell(grid, shown) : null;
+  // A crossing with no price is still a thing the reader pointed at, and the
+  // readout owes them an answer rather than the axis blurb it shows at rest.
+  const gap = grid && shown && !cell ? findGap(grid, shown) : null;
 
   // The fallback layout: the figure needs its width stated, since as a
   // shrink-to-fit flex item it would collapse around the svg's minimum.
@@ -204,6 +241,18 @@ export function TerrainHero({
                 {cell.cheapest ? "the cheapest shelf" : `${cell.ratio.toFixed(1)}x the cheapest`}
               </span>
             </>
+          ) : gap ? (
+            /* Same three fields a priced cell fills, with the third one saying
+               there is nothing to put there. No reason given: the grid drops a
+               pin before it becomes a cell and never learns why, and the
+               staple's section below names every excluded pin in full. */
+            <>
+              <span className="font-medium">{gap.storeName}</span>
+              <span className="text-mute"> · </span>
+              {gap.label}
+              <span className="text-mute"> · </span>
+              <span className="text-mute">{GAP_READING}</span>
+            </>
           ) : (
             /* The axes are named here because nothing else names them any
                more: the store labels are down until one is pointed at, and a
@@ -219,27 +268,31 @@ export function TerrainHero({
         </p>
 
         {canChoose ? (
-          /* Same control the country switcher uses in the nav, because it is
-             the same kind of thing: a mode, not a filter. */
+          /* Two glyphs rather than two words, and no chrome until it is reached
+             for. The words made a second paper chip in a corner that already
+             has one, and the readout beside it is the thing worth reading.
+             Both modes stay drawn, though, and the pair never fades: this is
+             the only route to the flat view, and a control nobody finds is a
+             control that is not there. */
           <div
             role="group"
             aria-label="Landscape view"
-            className="pointer-events-auto flex shrink-0 gap-4 border border-line bg-paper/85 px-2.5 py-1.5 backdrop-blur-[2px]"
+            className="pointer-events-auto flex shrink-0 items-center gap-1 border border-transparent px-1.5 py-1 transition-colors hover:border-line hover:bg-paper/85 hover:backdrop-blur-[2px] focus-within:border-line focus-within:bg-paper/85 focus-within:backdrop-blur-[2px]"
           >
             {(["relief", "flat"] as const).map((option) => (
               <button
                 key={option}
                 type="button"
                 aria-pressed={mode === option}
+                aria-label={option === "relief" ? "Relief" : "Flat"}
+                title={option === "relief" ? "Relief" : "Flat"}
                 onClick={() => setMode(option)}
                 className={cn(
-                  "caps transition-colors",
-                  mode === option
-                    ? "border-b border-ink text-ink"
-                    : "border-b border-transparent text-mute hover:text-ink",
+                  "p-1 transition-colors",
+                  mode === option ? "text-ink" : "text-mute hover:text-ink",
                 )}
               >
-                {option === "relief" ? "Relief" : "Flat"}
+                {option === "relief" ? <ReliefGlyph /> : <FlatGlyph />}
               </button>
             ))}
           </div>

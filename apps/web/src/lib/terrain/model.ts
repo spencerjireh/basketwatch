@@ -189,3 +189,32 @@ export function findCell(grid: TerrainGrid, ref: CellRef): TerrainCell | null {
   if (row < 0 || col < 0) return null;
   return grid.cells[row]?.[col] ?? null;
 }
+
+/**
+ * The other half of `findCell`: a store and a staple that are both on this
+ * landscape, with nothing standing where they cross.
+ *
+ * A gap is pointable now, so it has to be sayable. What it does not carry is a
+ * reason -- the grid drops a pin before it becomes a cell and never learns
+ * whether it was missing, suspect, or unpriced, and inventing a cause here
+ * would be the one thing this page cannot afford. The staple's own section
+ * below names every excluded pin in full; this only has to say there is
+ * nothing here to compare.
+ */
+export function findGap(
+  grid: TerrainGrid,
+  ref: CellRef,
+): { storeName: string; label: string } | null {
+  if (ref.country !== grid.country) return null;
+  const row = grid.staples.findIndex((staple) => staple.itemKey === ref.itemKey);
+  const col = grid.stores.findIndex((store) => store.storeId === ref.storeId);
+  if (row < 0 || col < 0) return null;
+  if (grid.cells[row]?.[col]) return null;
+  const staple = grid.staples[row];
+  const store = grid.stores[col];
+  if (!staple || !store) return null;
+  return { storeName: store.storeName, label: staple.label };
+}
+
+/** What a gap says, everywhere it is said. */
+export const GAP_READING = "no comparable price";
