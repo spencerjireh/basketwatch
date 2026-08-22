@@ -1144,6 +1144,11 @@ function Relief({
       const row = grid.staples.findIndex((staple) => staple.itemKey === ref.itemKey);
       const col = grid.stores.findIndex((store) => store.storeId === ref.storeId);
       if (row < 0 || col < 0) return;
+      // Nothing is marked on a gap. A stain is how the land says "this price,
+      // here", and over an empty crossing there is no price to point at -- the
+      // sag is already the mark. The store's column still sweeps below, so the
+      // reader keeps the one thing a gap can still tell them: whose shelf it is.
+      if (!grid.cells[row]?.[col]) return;
       stains.push({
         x: storeX(grid, col),
         z: stapleZ(grid, row),
@@ -1186,20 +1191,45 @@ function Relief({
     invalidate();
   }, [geometry, baseColors, grid, hovered, selected, scanStoreId, invalidate]);
 
-  // The hit surface: an invisible oversized box per cell -- the raycaster
-  // does not care about visibility -- so a summit is still an easy target.
-  // Fusion is two-dimensional now, so the box clears the tallest apex in
-  // the whole 3x3 neighbourhood, whose slopes can overtop the footprint.
-  const hitHeight = (row: number, col: number): number => {
-    let apex = 0;
-    for (let r = row - 1; r <= row + 1; r += 1) {
-      for (let cc = col - 1; cc <= col + 1; cc += 1) {
-        const peak = peaks[r]?.[cc];
-        if (peak && peak.apex > apex) apex = peak.apex;
-      }
-    }
-    return apex + 0.15;
-  };
+  // The hit surface: an invisible box per cell -- the raycaster does not care
+  // about visibility -- so a summit is still an easy target.
+  //
+  // Its height is the highest the land actually reaches inside this cell's own
+  // footprint, read off `heightAt`, the same function the visible lattice is
+  // built from. Which is to say the box is the silhouette of what this cell
+  // owns, and neither of the two obvious cheaper answers is.
+  //
+  // The tallest apex in the 3x3 neighbourhood, which this used to be, hands a
+  // cheap cell standing next to a big peak an invisible wall as tall as the
+  // peak. From this camera, blocking the row behind takes about 1.0 of box, so
+  // that wall ate whole rows the reader could plainly see.
+  //
+  // The cell's own apex fails the other way. The kernels only put the land at
+  // the apex exactly at the cell centre; away from it the ground climbs toward
+  // a tall neighbour, so a flat top at own-apex sinks under the visible massif
+  // and pointing at real land hits nothing at all.
+  const hitHeights = useMemo(() => {
+    const nx = 7;
+    const nz = 5;
+    return grid.staples.map((_, row) =>
+      grid.stores.map((__, col) => {
+        const cx = storeX(grid, col);
+        const cz = stapleZ(grid, row);
+        let top = 0;
+        for (let i = 0; i < nx; i += 1) {
+          const x = cx + (i / (nx - 1) - 0.5) * X_STEP;
+          for (let j = 0; j < nz; j += 1) {
+            const z = cz + (j / (nz - 1) - 0.5) * (Z_STEP + 0.15);
+            const h = heightAt(grid, peaks, x, z);
+            if (h > top) top = h;
+          }
+        }
+        // Clear of the surface, so a ray grazing the slope cannot slide along
+        // the box's top face and miss the cell it is pointing straight at.
+        return top + 0.08;
+      }),
+    );
+  }, [grid, peaks]);
 
   return (
     <group ref={lift}>
@@ -1211,7 +1241,9 @@ function Relief({
         (grid.cells[row] ?? []).map((cell, col) => {
           const store = grid.stores[col];
           if (!store) return null;
-          if (!cell) return null;
+          // No `cell` guard: an empty crossing is pointable too. The land sags
+          // where nobody priced, and a reader who can see the sag should be
+          // able to ask what it is rather than watch the readout go blank.
           const x = storeX(grid, col);
           const z = stapleZ(grid, row);
           const cellRef: CellRef = {
@@ -1219,7 +1251,7 @@ function Relief({
             itemKey: staple.itemKey,
             storeId: store.storeId,
           };
-          const hit = hitHeight(row, col);
+          const hit = hitHeights[row]?.[col] ?? 0.4;
           return (
             <group key={`${staple.itemKey}:${store.storeId}`}>
               <mesh
@@ -1246,7 +1278,7 @@ function Relief({
               >
                 <boxGeometry args={[X_STEP, hit, Z_STEP + 0.15]} />
               </mesh>
-              {cell.cheapest ? (
+              {cell?.cheapest ? (
                 // The summit flag for the cheapest shelf: a gold cairn --
                 // the one colour the landscape itself never wears.
                 <mesh position={[x, peakHeight(cell.height) + 0.11, z]} raycast={() => null}>

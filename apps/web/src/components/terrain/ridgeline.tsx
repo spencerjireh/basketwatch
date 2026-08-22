@@ -2,6 +2,7 @@
 
 import { Fragment } from "react";
 import { formatBasis, formatMoney } from "@/lib/format";
+import { GAP_READING } from "@/lib/terrain/model";
 import type { TerrainGrid } from "@/lib/terrain/model";
 import { useSelection } from "@/components/terrain/selection";
 
@@ -151,7 +152,33 @@ export function Ridgeline({ grid, weather = 0 }: { grid: TerrainGrid; weather?: 
               })}
 
               {cells.map((cell, col) => {
-                if (!cell) return null;
+                if (!cell) {
+                  // A gap is pointable, and still drawn as absence. The target
+                  // sits on the row's own rule, which is where the eye already
+                  // goes to find a missing point -- the break in the line. It
+                  // cannot steal a priced dot: two of these would have to be
+                  // within 22px, and a column is never narrower than 52.
+                  const store = grid.stores[col];
+                  if (!store) return null;
+                  const ref = {
+                    country: grid.country,
+                    itemKey: staple.itemKey,
+                    storeId: store.storeId,
+                  };
+                  return (
+                    <circle
+                      key={`gap:${store.storeId}`}
+                      cx={x(col).toFixed(2)}
+                      cy={y0.toFixed(2)}
+                      r="11"
+                      fill="transparent"
+                      className="cursor-pointer"
+                      onMouseEnter={() => setHovered(ref)}
+                      onMouseLeave={() => setHovered(null)}
+                      onClick={() => select(ref)}
+                    />
+                  );
+                }
                 const cy = (y0 - cell.height * RIDGE_H).toFixed(2);
                 const isHovered =
                   hovered?.itemKey === cell.itemKey && hovered?.storeId === cell.storeId;
@@ -201,31 +228,42 @@ export function Ridgeline({ grid, weather = 0 }: { grid: TerrainGrid; weather?: 
         })}
       </svg>
 
-      {/* The same cells for keyboard and screen readers, as honest buttons. */}
+      {/* The same cells for keyboard and screen readers, as honest buttons.
+          Walked by row and column rather than over a flattened list, because
+          the gaps belong here too and a null carries no store or staple of its
+          own -- the grid it sits in is the only thing that can name it. */}
       <ul className="sr-only">
-        {grid.cells.flat().map((cell) =>
-          cell ? (
-            <li key={`${cell.itemKey}:${cell.storeId}`}>
-              <button
-                type="button"
-                onFocus={() =>
-                  setHovered({
-                    country: grid.country,
-                    itemKey: cell.itemKey,
-                    storeId: cell.storeId,
-                  })
-                }
-                onBlur={() => setHovered(null)}
-                onClick={() =>
-                  select({ country: grid.country, itemKey: cell.itemKey, storeId: cell.storeId })
-                }
-              >
-                {cell.storeName}, {cell.label}:{" "}
-                {formatMoney(cell.unitPrice.amount, cell.unitPrice.currency)}{" "}
-                {formatBasis(cell.unitPriceBasis)}, {cell.ratio.toFixed(1)} times the cheapest
-              </button>
-            </li>
-          ) : null,
+        {grid.staples.map((staple, row) =>
+          grid.stores.map((store, col) => {
+            const cell = grid.cells[row]?.[col];
+            const ref = {
+              country: grid.country,
+              itemKey: staple.itemKey,
+              storeId: store.storeId,
+            };
+            return (
+              <li key={`${staple.itemKey}:${store.storeId}`}>
+                <button
+                  type="button"
+                  onFocus={() => setHovered(ref)}
+                  onBlur={() => setHovered(null)}
+                  onClick={() => select(ref)}
+                >
+                  {cell ? (
+                    <>
+                      {cell.storeName}, {cell.label}:{" "}
+                      {formatMoney(cell.unitPrice.amount, cell.unitPrice.currency)}{" "}
+                      {formatBasis(cell.unitPriceBasis)}, {cell.ratio.toFixed(1)} times the cheapest
+                    </>
+                  ) : (
+                    <>
+                      {store.storeName}, {staple.label}: {GAP_READING}
+                    </>
+                  )}
+                </button>
+              </li>
+            );
+          }),
         )}
       </ul>
     </figure>
