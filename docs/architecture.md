@@ -337,11 +337,12 @@ to container port 5432; so on the compose network the database is
 `postgres:55432`, not `postgres:5432`. Both are explained in
 [deploy.md](deploy.md).
 
-Staging note (Aug 20): only `postgres` currently deploys. `api`, `web`, and
-`clone-store` are defined in the prod compose but gated behind the `app`
-profile, so they are neither built nor started — an in-progress app build
-cannot break the database deploy. Removing a service's `profiles:` line turns
-it on.
+All three services -- `postgres`, `api`, `web` -- now build and start on every
+deploy. The `app` profile that once gated `api` and `web` behind the database
+is gone, so an app build that fails takes the deploy with it; that is the
+trade for having the stack come up in one step. `clone-store` is not a compose
+service at all and never was one here: it is the break-and-heal demo site in
+the PRD, still pending a rebuild, which is how the diagram below marks it.
 
 ```mermaid
 flowchart TB
