@@ -3,6 +3,7 @@ import { type PullerRunResponse } from "@basketwatch/contract";
 import { BossService } from "../../jobs/boss.provider.js";
 import { QUEUES } from "../../jobs/queues.js";
 import { StudioError } from "./adapters/studio.adapter.js";
+import { STUDIO_FAILURE } from "./studio-failure.js";
 import { dedupe, diff, isMassChange } from "./diff.js";
 import { PullerRegistry } from "./puller.registry.js";
 import { type PullResult, type PullerConfig, type PullerRunOptions } from "./puller.types.js";
@@ -149,7 +150,9 @@ export class PullersService {
       ? await this.repository.recordEmptyRun({ ...summary, rows: rows.length })
       : await this.repository.recordRun(summary, rows, changes);
 
-    if (suppressed) {
+    // Same dedupe rule as the failure path: the run is always recorded, a
+    // second open incident for the same store is not.
+    if (suppressed && !(await this.repository.hasOpenIncident(config.storeId))) {
       await this.repository.openIncident(config.storeId, runId, "mass_change_suppressed", {
         rows: rows.length,
         changes: changes.length,
@@ -201,7 +204,29 @@ export class PullersService {
     options: PullerRunOptions,
     startedAt: number,
   ): Promise<PullerRunResponse> {
-    this.logger.warn(`${config.storeId}: studio failed -- ${err.message}`);
+    const policy = STUDIO_FAILURE[err.kind];
+    this.logger.warn(`${config.storeId}: studio failed (${err.kind}) -- ${err.message}`);
+
+    // A dry run promises to write nothing, and the happy path already keeps
+    // that promise. The failure path did not: it recorded a run, opened an
+    // incident and queued a heal, so the safe way to test a broken store was
+    // the one that spent money.
+    if (options.dryRun) {
+      return {
+        storeId: config.storeId,
+        dryRun: true,
+        runId: null,
+        rows: 0,
+        pages: 0,
+        ceilingReached: false,
+        changes: 0,
+        verdict: {
+          status: "broken",
+          findings: [{ check: policy.check, severity: "hard", detail: err.message }],
+        },
+        durationMs: Date.now() - startedAt,
+      };
+    }
 
     const summary: RunSummary = {
       storeId: config.storeId,
@@ -220,20 +245,57 @@ export class PullersService {
 
     const runId = await this.repository.recordEmptyRun(summary);
 
+    // The first eight keys are what incidentEvidenceSchema requires. Writing a
+    // different shape meant safeParse failed and the salvage path replaced the
+    // whole thing with zeroes -- so every Studio incident rendered as "0 of ~0
+    // rows" with no failed check and no sample.
+    //
+    // The rest are stripped by the parse but stay in the jsonb, which is where
+    // `summarise` looks for `reason` and where the heal orchestrator reads
+    // `error` and `rawSample` to compose its prompt.
     const evidence: Record<string, unknown> = {
-      kind: "studio_error",
+      kind: policy.incidentKind,
+      failedChecks: [{ check: policy.check, severity: "hard", detail: err.message }],
+      sampleBadRows: err.rawOutput.slice(0, 5),
+      sampleGoodRows: [],
+      fieldNullRates: {},
+      baselineNullRates: {},
+      rowCount: 0,
+      expectedRowCount: 0,
+      reason: policy.reason(err.message),
       error: err.message,
       rawSample: err.rawOutput.slice(0, 5),
       rawFieldNames: this.extractFieldNames(err.rawOutput),
+      studioDetail: err.detail,
     };
 
+    // The run row is the invariant and is always written; a second incident for
+    // a store that already has one open is just noise, and the validator has
+    // always worked this way.
+    if (await this.repository.hasOpenIncident(config.storeId)) {
+      this.logger.log(
+        `${config.storeId}: run ${runId} recorded as failed, incident already open`,
+      );
+      return this.studioFailureResponse(config, err, policy, startedAt, runId);
+    }
+
     const incidentId = await this.repository.openIncident(
-      config.storeId, runId, "studio_error", evidence, config.collectorId,
+      config.storeId, runId, policy.incidentKind, evidence, config.collectorId,
     );
 
     this.logger.log(
       `${config.storeId}: run ${runId} recorded as failed, incident ${incidentId} opened`,
     );
+
+    if (!policy.autoHeal) {
+      // Healing rewrites the extraction template. Nothing else on this list is
+      // a template problem, so a heal here would spend a credit to change the
+      // one thing that was not wrong.
+      this.logger.log(
+        `${config.storeId}: ${err.kind} is not repairable by a template rewrite; no heal queued`,
+      );
+      return this.studioFailureResponse(config, err, policy, startedAt, runId);
+    }
 
     if (config.collectorId) {
       try {
@@ -251,6 +313,17 @@ export class PullersService {
       }
     }
 
+    return this.studioFailureResponse(config, err, policy, startedAt, runId);
+  }
+
+  /** The same failed-run answer whether or not a heal was queued behind it. */
+  private studioFailureResponse(
+    config: PullerConfig,
+    err: StudioError,
+    policy: (typeof STUDIO_FAILURE)[StudioError["kind"]],
+    startedAt: number,
+    runId: number,
+  ): PullerRunResponse {
     return {
       storeId: config.storeId,
       dryRun: false,
@@ -261,11 +334,7 @@ export class PullersService {
       changes: 0,
       verdict: {
         status: "broken",
-        findings: [{
-          check: "schema",
-          severity: "hard",
-          detail: `Studio error: ${err.message}`,
-        }],
+        findings: [{ check: policy.check, severity: "hard", detail: err.message }],
       },
       durationMs: Date.now() - startedAt,
     };
@@ -292,12 +361,18 @@ export class PullersService {
    */
   private async collect(config: PullerConfig): Promise<PullResult> {
     if (!config.collectorId) {
-      throw new NotFoundException(
+      // A StudioError, not a NotFoundException: this escapes runStore's catch
+      // otherwise, and once pulls run on the queue that means a job that
+      // retries an unprovisionable store instead of recording why it failed.
+      throw new StudioError(
         `${config.storeId} has no Studio collector. Provision one first via POST /api/fleet/${config.storeId}/provision.`,
+        "unprovisioned",
       );
     }
     const studio = this.registry.get("studio");
-    if (!studio) throw new StudioError("no studio adapter registered");
+    // A server misconfiguration, not a store fault -- it should 500 rather
+    // than open an incident against a store that did nothing wrong.
+    if (!studio) throw new Error("no studio adapter registered");
     return studio.pull(config);
   }
 }

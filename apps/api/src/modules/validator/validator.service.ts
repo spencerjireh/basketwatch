@@ -185,6 +185,14 @@ export class ValidatorService implements OnApplicationBootstrap {
       });
     }
 
+    // The findings are recorded on the run either way; the incident is what
+    // gets deduped, exactly as on the main validation path above.
+    if (await this.repository.hasOpenIncident(storeId)) {
+      this.logger.warn(`${storeId}: first run failed validation, incident already open`);
+      await this.repository.updateRunFindings(runId, findings, 0, "broken");
+      return { status: "broken", findings };
+    }
+
     this.logger.warn(`${storeId}: first run failed validation, opening incident`);
 
     const scraperId = await this.repository.getScraperId(storeId);
