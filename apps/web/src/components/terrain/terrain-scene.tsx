@@ -375,10 +375,12 @@ export default function TerrainScene({
           }
           if (anchor.kind === "summit") {
             return (
+              /* The one number pinned to the land itself gets a survey-tag
+                 chip, so the worst ratio reads as a measurement, not decor. */
               <span
                 key={anchor.key}
                 ref={registerLabel(anchor.key)}
-                className="pointer-events-none absolute -translate-x-1/2 -translate-y-full font-mono text-[10px] text-mute"
+                className="pointer-events-none absolute -translate-x-1/2 -translate-y-[calc(100%+6px)] border border-line bg-paper/85 px-1.5 py-0.5 font-mono text-[10px] text-ink backdrop-blur-[2px]"
                 style={{ left: "-9999px", top: "0px" }}
               >
                 {anchor.label}
@@ -489,13 +491,17 @@ function Rig({
     // The fov fits the scene vertically; a narrow canvas needs the extra
     // distance or the flanks and their labels fall off the sides.
     const aspect = size.width / Math.max(1, size.height);
-    const fit = Math.max(1, 1.2 / aspect);
+    const fit = Math.max(1, 1.05 / aspect);
+    // The full-bleed frame shares its top-left with the headline, so the
+    // massif is shifted right and aimed above the ground line -- which
+    // drops it low in the frame and leaves the type its clear air.
+    const shiftX = -w * 0.08;
     base.current.position.set(
-      centroidX + w * 0.02,
-      (7.2 + d * 0.52) * fit,
-      (d / 2 + 8.6 + w * 0.26) * fit,
+      centroidX + w * 0.02 + shiftX,
+      (8.0 + d * 0.56) * fit,
+      (d / 2 + 11.8 + w * 0.34) * fit,
     );
-    base.current.target.set(centroidX, 0, -d * 0.1);
+    base.current.target.set(centroidX + shiftX, 0.55, -d * 0.1);
     camera.position.copy(base.current.position);
     camera.lookAt(base.current.target);
     camera.updateProjectionMatrix();

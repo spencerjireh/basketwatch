@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import type { ReactNode } from "react";
 import dynamic from "next/dynamic";
 import { formatBasis, formatMoney } from "@/lib/format";
 import { findCell } from "@/lib/terrain/model";
@@ -22,12 +23,19 @@ const TerrainScene = dynamic(() => import("./terrain-scene"), {
 });
 
 /**
- * The hero and its readout. The landscape is navigation, not decoration:
- * hovering reads a cell out in words underneath, clicking jumps to the
- * staple's section. The readout line has a fixed height so hovering never
- * shifts the page.
+ * The hero: the landscape full-bleed with the headline set on it, the way a
+ * map plate carries its title. The landscape is navigation, not decoration:
+ * hovering reads a cell out in words along the bottom edge, clicking jumps
+ * to the staple's section. The readout has a fixed height so hovering never
+ * shifts anything.
  */
-export function TerrainHero({ grid }: { grid: TerrainGrid | null }) {
+export function TerrainHero({
+  grid,
+  overlay,
+}: {
+  grid: TerrainGrid | null;
+  overlay?: ReactNode;
+}) {
   const { hovered, selected, setHovered, select, clear } = useSelection();
   const [webgl, setWebgl] = useState<boolean | null>(null);
   const [sceneLive, setSceneLive] = useState(false);
@@ -42,79 +50,96 @@ export function TerrainHero({ grid }: { grid: TerrainGrid | null }) {
     setWebgl(Boolean(probe.getContext("webgl2") ?? probe.getContext("webgl")));
   }, []);
 
-  if (!grid) {
-    return (
-      <p className="py-10 font-mono text-[12px] text-mute">
-        Not enough comparable prices to draw a landscape here yet.
-      </p>
-    );
-  }
-
   const showScene = webgl === true;
   // A live hover outranks the pin; the pin keeps the readout when the pointer
   // leaves, which is what makes a click feel like it held something.
   const shown = hovered ?? selected;
-  const cell = shown ? findCell(grid, shown) : null;
+  const cell = grid && shown ? findCell(grid, shown) : null;
 
   return (
-    <div>
-      <div className="relative h-[56vh] min-h-[440px] w-full">
-        {showScene ? (
-          /* The scene fades over the ridgeline once its first frame is up,
-             so the hand-off reads as intentional rather than as a pop. */
-          <div
-            className={cn(
-              "absolute inset-0 transition-opacity duration-500",
-              sceneLive ? "opacity-100" : "opacity-0",
-            )}
-          >
-            <TerrainScene
-              grid={grid}
-              hovered={hovered}
-              selected={selected}
-              onHover={setHovered}
-              onSelect={select}
-              onClear={clear}
-              onReady={() => setSceneLive(true)}
-            />
-          </div>
-        ) : null}
+    /* The warm-to-paper wash behind the transparent canvas is the sky: the
+       far rows haze toward paper in the vertex colors and land on the same
+       tone here, so the massif dissolves into air instead of ending. */
+    <div className="relative h-full w-full bg-[linear-gradient(to_bottom,#f3eee1,var(--color-paper)_62%)]">
+      {grid && showScene ? (
+        /* The scene fades over the ridgeline once its first frame is up,
+           so the hand-off reads as intentional rather than as a pop. */
+        <div
+          className={cn(
+            "absolute inset-0 transition-opacity duration-500",
+            sceneLive ? "opacity-100" : "opacity-0",
+          )}
+        >
+          <TerrainScene
+            grid={grid}
+            hovered={hovered}
+            selected={selected}
+            onHover={setHovered}
+            onSelect={select}
+            onClear={clear}
+            onReady={() => setSceneLive(true)}
+          />
+        </div>
+      ) : null}
+      {grid ? (
         <div
           className={cn(
             showScene && sceneLive
               ? "sr-only"
-              : "flex h-full w-full items-center justify-center [&_svg]:max-h-full",
+              : /* The fallback shares the frame with the headline, so it sits
+                   below it rather than centered behind it. The figure needs
+                   its width stated: as a shrink-to-fit flex item it would
+                   collapse around the svg's minimum. */
+                "flex h-full w-full items-end justify-center px-5 pb-16 pt-32 [&_figure]:w-full [&_figure]:max-w-[980px] [&_svg]:max-h-[52svh]",
           )}
         >
           <Ridgeline grid={grid} />
         </div>
+      ) : (
+        <p className="absolute bottom-16 left-5 font-mono text-[12px] text-mute sm:left-8">
+          Not enough comparable prices to draw a landscape here yet.
+        </p>
+      )}
+
+      {/* The headline rides on the scene. pointer-events-none end to end:
+          nothing in it is a control, and the terrain hover must pass through. */}
+      <div className="pointer-events-none absolute left-0 top-0 z-10 max-w-[640px] px-5 pt-8 sm:px-8 sm:pt-12">
+        {overlay}
       </div>
 
-      <p aria-live="polite" className="mt-7 min-h-[22px] text-[12.5px]">
-        {cell ? (
-          <>
-            <span className="font-medium">{cell.storeName}</span>
-            <span className="text-mute"> · </span>
-            {cell.label}
-            <span className="text-mute"> · </span>
-            <span className="font-mono text-[12px]">
-              {formatMoney(cell.unitPrice.amount, cell.unitPrice.currency)}
-            </span>{" "}
-            <span className="font-mono text-[10.5px] text-mute">
-              {formatBasis(cell.unitPriceBasis)}
+      {/* The readout, pinned to the scene's bottom edge as a paper chip.
+          Anchored by its bottom so a wrapped line grows upward into the
+          scene instead of shifting anything. */}
+      <div
+        aria-live="polite"
+        className="pointer-events-none absolute inset-x-0 bottom-0 z-10 flex min-h-[46px] items-end px-5 pb-4 sm:px-8"
+      >
+        <p className="border border-line bg-paper/85 px-2.5 py-1.5 text-[12.5px] backdrop-blur-[2px]">
+          {cell ? (
+            <>
+              <span className="font-medium">{cell.storeName}</span>
+              <span className="text-mute"> · </span>
+              {cell.label}
+              <span className="text-mute"> · </span>
+              <span className="font-mono text-[12px]">
+                {formatMoney(cell.unitPrice.amount, cell.unitPrice.currency)}
+              </span>{" "}
+              <span className="font-mono text-[10.5px] text-mute">
+                {formatBasis(cell.unitPriceBasis)}
+              </span>
+              <span className="text-mute"> · </span>
+              <span className={cell.cheapest ? "text-live" : "text-mute"}>
+                {cell.cheapest ? "the cheapest shelf" : `${cell.ratio.toFixed(1)}x the cheapest`}
+              </span>
+            </>
+          ) : (
+            <span className="text-mute">
+              Height is how many times the cheapest store prices that staple. Hover to read a
+              price; click to open the staple below.
             </span>
-            <span className="text-mute"> · </span>
-            <span className={cell.cheapest ? "text-live" : "text-mute"}>
-              {cell.cheapest ? "the cheapest shelf" : `${cell.ratio.toFixed(1)}x the cheapest`}
-            </span>
-          </>
-        ) : (
-          <span className="text-mute">
-            Height is how many times the cheapest store prices that staple. Hover to read a
-            price; click to open the staple below.
-          </span>
-        )}
-      </p>
+          )}
+        </p>
+      </div>
     </div>
   );
 }

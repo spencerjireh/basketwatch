@@ -15,36 +15,50 @@ import { StapleSection } from "@/components/basket/staple-section";
  * never compared -- so the landscape and the staple sections below it always
  * show the same world as the nav switcher.
  *
- * `midBand` is server-rendered content (the cheapest cart, the time strip)
- * sandwiched between the landscape and the staple detail: the answer sits
- * above, the justification below, and a terrain click scrolls past the
- * answer to land on the evidence.
+ * `hero` and `midBand` are server-rendered content threaded through the
+ * client boundary: the headline lives on the full-bleed landscape, and the
+ * cheapest cart and time strip sit sandwiched between the landscape and the
+ * staple detail -- the answer above, the justification below, and a terrain
+ * click scrolls past the answer to land on the evidence.
  */
-export function BasketExplorer({ rails, midBand }: { rails: Rail[]; midBand?: ReactNode }) {
+export function BasketExplorer({
+  rails,
+  hero,
+  midBand,
+}: {
+  rails: Rail[];
+  hero?: ReactNode;
+  midBand?: ReactNode;
+}) {
   const { country } = useCountry();
   const grid = useMemo(() => buildTerrainGrid(rails, country), [rails, country]);
   const shown = rails.filter((rail) => rail.country === country);
 
   return (
     <SelectionProvider>
-      <div className="mt-4">
-        <TerrainHero grid={grid} />
+      {/* The first screenful is the landscape's alone: full bleed, sized in
+          svh because the flex-wrap nav above has no fixed height. Everything
+          after it returns to the reading column. */}
+      <div className="relative h-[64svh] min-h-[440px] max-h-[960px] w-full sm:h-[80svh] sm:min-h-[520px]">
+        <TerrainHero grid={grid} overlay={hero} />
       </div>
 
-      {midBand}
+      <div className="mx-auto w-full max-w-[1240px] px-5">
+        {midBand}
 
-      <section className="rule mt-14 pt-4">
-        <h2 className="font-display text-[20px] leading-snug">Staple by staple</h2>
-        <p className="mt-1 max-w-[64ch] text-[12.5px] text-mute">
-          Every usable price, ranked. Bar length is how many times the cheapest store&apos;s
-          price; the pins we do not trust are named underneath instead of drawn.
-        </p>
-        <ul className="mt-4 grid grid-cols-1 gap-x-16 sm:grid-cols-2">
-          {shown.map((rail) => (
-            <StapleSection key={`${rail.country}:${rail.itemKey}`} rail={rail} />
-          ))}
-        </ul>
-      </section>
+        <section className="rule mt-14 pt-4">
+          <h2 className="font-display text-[20px] leading-snug">Staple by staple</h2>
+          <p className="mt-1 max-w-[64ch] text-[12.5px] text-mute">
+            Every usable price, ranked. Bar length is how many times the cheapest store&apos;s
+            price; the pins we do not trust are named underneath instead of drawn.
+          </p>
+          <ul className="mt-4 grid grid-cols-1 gap-x-16 sm:grid-cols-2">
+            {shown.map((rail) => (
+              <StapleSection key={`${rail.country}:${rail.itemKey}`} rail={rail} />
+            ))}
+          </ul>
+        </section>
+      </div>
     </SelectionProvider>
   );
 }
