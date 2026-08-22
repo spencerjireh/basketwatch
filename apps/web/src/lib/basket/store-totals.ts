@@ -48,12 +48,29 @@ export type IgnoredStore = {
   storeId: string;
   storeName: string;
   reason: "not counted by the index" | "no comparable price";
+  /**
+   * The same figure the ranked stores carry, measured the same way, for a store
+   * the index does not count. It buys nothing on the bar chart -- this store has
+   * no bar -- but the landscape draws its column anyway, and a column placed by
+   * name in a row of columns placed by price is a landscape that lies about its
+   * own slope. Null where there was nothing comparable to measure.
+   */
+  meanRatio: number | null;
 };
 
 export type StoreRanking = {
   country: Country;
   currency: string;
-  /** staples carrying an index quantity: the denominator every coverage count reads against */
+  /**
+   * The staples this ranking could actually price: carrying an index quantity,
+   * and with at least one contributing store holding a usable price on them.
+   *
+   * The second half of that is not pedantry. A staple every store fails --
+   * one dead scraper, one pin nobody has resolved -- is coverable by nobody, so
+   * counting it here would leave `complete` false for every store at once: no
+   * spread sentence in the headline, and ten stores each reading "prices nine
+   * of ten" over a basket they priced identically.
+   */
   priceable: number;
   /** cheapest first */
   ranked: StoreTotal[];
@@ -77,14 +94,21 @@ export function rankStores(rails: Rail[], country: Country): StoreRanking {
 
   const priceableRails = countryRails.filter((rail) => rail.indexQuantity !== null);
   const totals = new Map<string, { total: number; ratio: number; covered: number }>();
+  // The same running ratio for the stores the index does not count, kept apart
+  // so it can never reach a bar, a total, or the headline's spread. It exists
+  // to place their columns on the landscape, and for nothing else.
+  const outside = new Map<string, { ratio: number; covered: number }>();
   const nonContributor = new Set<string>();
+  let priceable = 0;
 
   for (const rail of priceableRails) {
     const quantity = rail.indexQuantity as number;
+    const outsiders: Rail["pins"] = [];
     const countable = rail.pins.filter((pin) => {
       if (pin.flag === "suspect" || pin.unitPrice === null) return false;
       if (!pin.indexContributor) {
         nonContributor.add(pin.storeId);
+        outsiders.push(pin);
         return false;
       }
       return true;
@@ -96,6 +120,19 @@ export function rankStores(rails: Rail[], country: Country): StoreRanking {
     // measuring against nothing the reader can see here.
     const cheapest = Math.min(...countable.map((pin) => pin.unitPrice?.amount ?? Infinity));
     if (!Number.isFinite(cheapest) || cheapest <= 0) continue;
+
+    // Counted here rather than off `priceableRails`, because the rails that
+    // fall out above are the ones no store could have covered.
+    priceable += 1;
+
+    for (const pin of outsiders) {
+      const amount = pin.unitPrice?.amount;
+      if (amount === undefined) continue;
+      const entry = outside.get(pin.storeId) ?? { ratio: 0, covered: 0 };
+      entry.ratio += amount / cheapest;
+      entry.covered += 1;
+      outside.set(pin.storeId, entry);
+    }
 
     for (const pin of countable) {
       const amount = pin.unitPrice?.amount;
@@ -111,17 +148,18 @@ export function rankStores(rails: Rail[], country: Country): StoreRanking {
     }
   }
 
-  const priceable = priceableRails.length;
   const ranked: StoreTotal[] = [];
   const ignored: IgnoredStore[] = [];
 
   for (const [storeId, storeName] of seen) {
     const entry = totals.get(storeId);
     if (!entry || entry.covered === 0) {
+      const shadow = outside.get(storeId);
       ignored.push({
         storeId,
         storeName,
         reason: nonContributor.has(storeId) ? "not counted by the index" : "no comparable price",
+        meanRatio: shadow && shadow.covered > 0 ? shadow.ratio / shadow.covered : null,
       });
       continue;
     }
@@ -144,15 +182,29 @@ export function rankStores(rails: Rail[], country: Country): StoreRanking {
 }
 
 /**
- * Column order for the landscape: ranked stores cheapest to dearest, then the
- * ones the index ignores. Left to right on the terrain is then the same order
- * as the bars, which is what lets the hero name two stores and the chart agree.
+ * Column order for the landscape: every store by its multiple of the cheapest
+ * shelf, cheapest to dearest, with the ones carrying no such figure at the end.
+ *
+ * Ranked and ignored are interleaved rather than concatenated. The landscape
+ * draws a column for every store it can, including the ones the index refuses
+ * to count, and appending those by name put half the US terrain in alphabetical
+ * order under a hero that says it rises left to right.
+ *
+ * The comparator is the one `rankStores` sorted `ranked` with, so the ranked
+ * stores keep their relative order: the bars below are a subsequence of the
+ * columns above, which is what lets the hero name two stores and the chart
+ * agree. What this does not promise is that the leftmost column is the lowest
+ * ridge -- see `lib/terrain/model.ts`, which measures height against every
+ * shelf on the row and not only the counted ones.
  */
 export function storeOrder(ranking: StoreRanking): string[] {
-  return [
-    ...ranking.ranked.map((store) => store.storeId),
-    ...ranking.ignored.map((store) => store.storeId),
-  ];
+  return [...ranking.ranked, ...ranking.ignored]
+    .sort(
+      (a, b) =>
+        (a.meanRatio ?? Infinity) - (b.meanRatio ?? Infinity) ||
+        a.storeName.localeCompare(b.storeName),
+    )
+    .map((store) => store.storeId);
 }
 
 /**

@@ -112,11 +112,19 @@ export function buildTerrainGrid(rails: Rail[], country: Country): TerrainGrid |
     );
   }
 
-  // Column order: cheapest basket on the left, so the landscape rises left to
-  // right. The order is not computed here -- it is the basket ranking, the same
-  // one the bars under the hero are drawn from and the same one the headline
-  // names two stores out of. One place decides which store is cheapest, or the
-  // page contradicts itself in three fonts.
+  // Column order: cheapest basket on the left. The order is not computed here
+  // -- it is the basket ranking, the same one the bars under the hero are drawn
+  // from and the same one the headline names two stores out of. One place
+  // decides which store is cheapest, or the page contradicts itself in three
+  // fonts.
+  //
+  // Left to right is the basket getting dearer, which is not the same as the
+  // ridges getting taller. A cell's height is measured against the cheapest
+  // shelf on its row -- every shelf, including the stores the index does not
+  // count -- because that is the pin the green dot is on, and the cheapest
+  // shelf has to be the floor of the row it is the cheapest in. The ranking
+  // measures against the counted shelves only. So a row can dip under a
+  // dearer store, and the landscape still slopes the way the bars say.
   const ranking = rankStores(rails, country);
   const rank = new Map(storeOrder(ranking).map((storeId, index) => [storeId, index]));
   const stores = [...storeNames.entries()]
