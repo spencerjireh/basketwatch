@@ -1,4 +1,10 @@
-import { DEFAULT_CURRENCY_BY_COUNTRY, type Country, type Money, type Rail } from "@basketwatch/contract";
+import {
+  DEFAULT_CURRENCY_BY_COUNTRY,
+  type Country,
+  type Money,
+  type Rail,
+} from "@basketwatch/contract";
+import { rankStores, storeOrder } from "@/lib/basket/store-totals";
 
 /**
  * The terrain model: one grid per country, rows are staples, columns are
@@ -97,32 +103,29 @@ export function buildTerrainGrid(rails: Rail[], country: Country): TerrainGrid |
     for (const pin of pins.values()) storeNames.set(pin.storeId, pin.storeName);
   }
 
-  // Column order: cheapest terrain on the left. Stores sort by their mean
-  // ratio across the staples they price, so the landscape rises left to right
-  // and the ordering is deterministic between server and client.
-  const ratioSums = new Map<string, { sum: number; count: number }>();
   const minByRail = new Map<Rail, number>();
   for (const { rail, pins } of usable) {
     if (pins.size === 0) continue;
-    const min = Math.min(...[...pins.values()].map((pin) => pin.unitPrice?.amount ?? Infinity));
-    minByRail.set(rail, min);
-    for (const pin of pins.values()) {
-      const amount = pin.unitPrice?.amount;
-      if (amount === undefined || min <= 0) continue;
-      const entry = ratioSums.get(pin.storeId) ?? { sum: 0, count: 0 };
-      entry.sum += amount / min;
-      entry.count += 1;
-      ratioSums.set(pin.storeId, entry);
-    }
+    minByRail.set(
+      rail,
+      Math.min(...[...pins.values()].map((pin) => pin.unitPrice?.amount ?? Infinity)),
+    );
   }
 
+  // Column order: cheapest basket on the left, so the landscape rises left to
+  // right. The order is not computed here -- it is the basket ranking, the same
+  // one the bars under the hero are drawn from and the same one the headline
+  // names two stores out of. One place decides which store is cheapest, or the
+  // page contradicts itself in three fonts.
+  const ranking = rankStores(rails, country);
+  const rank = new Map(storeOrder(ranking).map((storeId, index) => [storeId, index]));
   const stores = [...storeNames.entries()]
-    .map(([storeId, storeName]) => {
-      const entry = ratioSums.get(storeId);
-      return { storeId, storeName, mean: entry ? entry.sum / entry.count : Infinity };
-    })
-    .sort((a, b) => a.mean - b.mean || a.storeName.localeCompare(b.storeName))
-    .map(({ storeId, storeName }) => ({ storeId, storeName }));
+    .map(([storeId, storeName]) => ({ storeId, storeName }))
+    .sort(
+      (a, b) =>
+        (rank.get(a.storeId) ?? Infinity) - (rank.get(b.storeId) ?? Infinity) ||
+        a.storeName.localeCompare(b.storeName),
+    );
 
   let maxRatio = 1;
   const staples: TerrainGrid["staples"] = [];
