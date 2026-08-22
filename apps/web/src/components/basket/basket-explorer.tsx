@@ -3,7 +3,7 @@
 import { useMemo } from "react";
 import type { ReactNode } from "react";
 import type { Rail } from "@basketwatch/contract";
-import { buildTerrainGrid } from "@/lib/terrain/model";
+import { buildTerrainGrid, weatherFor } from "@/lib/terrain/model";
 import { useCountry } from "@/components/country/country";
 import { SelectionProvider } from "@/components/terrain/selection";
 import { TerrainHero } from "@/components/terrain/terrain-hero";
@@ -32,6 +32,7 @@ export function BasketExplorer({
 }) {
   const { country } = useCountry();
   const grid = useMemo(() => buildTerrainGrid(rails, country), [rails, country]);
+  const weather = useMemo(() => weatherFor(rails, country), [rails, country]);
   const shown = rails.filter((rail) => rail.country === country);
 
   return (
@@ -40,7 +41,7 @@ export function BasketExplorer({
           svh because the flex-wrap nav above has no fixed height. Everything
           after it returns to the reading column. */}
       <div className="relative h-[64svh] min-h-[440px] max-h-[960px] w-full sm:h-[80svh] sm:min-h-[520px]">
-        <TerrainHero grid={grid} overlay={hero} />
+        <TerrainHero grid={grid} weather={weather} overlay={hero} />
       </div>
 
       <div className="mx-auto w-full max-w-[1240px] px-5">

@@ -46,6 +46,34 @@ export function heightFor(ratio: number): number {
 }
 
 /**
+ * Raw unhealthy fraction at which the weather saturates to full overcast.
+ * Some gaps are structural (a pin observed by nobody yet still counts), so
+ * the gain keeps a healthy basket's floor faint while a genuinely broken
+ * fleet pins the sky.
+ */
+export const WEATHER_GAIN = 0.35;
+
+/**
+ * The weather over the landscape, 0 clear to 1 overcast: the fraction of
+ * pins the terrain had to leave out -- suspect, or carrying no unit price.
+ * Computed from the rails rather than the grid because the grid drops those
+ * pins before it exists.
+ */
+export function weatherFor(rails: Rail[], country: Country): number {
+  let total = 0;
+  let unhealthy = 0;
+  for (const rail of rails) {
+    if (rail.country !== country) continue;
+    for (const pin of rail.pins) {
+      total += 1;
+      if (pin.flag === "suspect" || pin.unitPrice === null) unhealthy += 1;
+    }
+  }
+  if (total === 0) return 0;
+  return Math.min(1, unhealthy / total / WEATHER_GAIN);
+}
+
+/**
  * A pin becomes a cell only if it would be drawn on the staple strip too:
  * not suspect, and carrying a unit price. Same filter, same truth -- the
  * terrain can never show a pin the quality worklist excluded.

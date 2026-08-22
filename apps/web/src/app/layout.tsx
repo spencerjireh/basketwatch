@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Archivo, Newsreader, Sometype_Mono } from "next/font/google";
 import { Suspense } from "react";
 import { CountryProvider, CountryUrlSync } from "@/components/country/country";
+import { Grain } from "@/components/layout/grain";
 import { Nav } from "@/components/layout/nav";
 import "./globals.css";
 
@@ -66,6 +67,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           </Suspense>
           <Nav />
           {children}
+          <Grain />
         </CountryProvider>
       </body>
     </html>
