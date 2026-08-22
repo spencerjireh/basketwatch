@@ -107,7 +107,6 @@ type SceneProps = {
   onSelect: (ref: CellRef) => void;
   onClear: () => void;
   onReady: () => void;
-  onSettled?: (settled: boolean) => void;
 };
 
 type WorldAnchor = {
@@ -221,7 +220,6 @@ export default function TerrainScene({
   onSelect,
   onClear,
   onReady,
-  onSettled,
 }: SceneProps) {
   const [reduced, setReduced] = useState(false);
   const [hoverStoreId, setHoverStoreId] = useState<string | null>(null);
@@ -232,14 +230,7 @@ export default function TerrainScene({
   // reports it -- a callback, not a timer, because under a demand frameloop
   // wall-clock time can pass without the frames having run.
   const [settled, setSettled] = useState(false);
-  const handleSettleChange = useCallback(
-    (value: boolean) => {
-      setSettled(value);
-      // The hero listens too: the etched ridgeline holds until the rise lands.
-      onSettled?.(value);
-    },
-    [onSettled],
-  );
+  const handleSettleChange = useCallback((value: boolean) => setSettled(value), []);
 
   useEffect(() => {
     const media = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -1052,52 +1043,6 @@ function applyStains(
   colorAttr.needsUpdate = true;
 }
 
-/**
- * The scan at a lit column: a hairline along the store's rule on the slab,
- * and a survey stake standing above every summit the section cuts -- the
- * camera sits nearly in the section's own plane, so the stakes are what
- * read as "this store, across every staple", not a wall seen edge-on. At a
- * cell centre the terrain equals the apex exactly (kernel radii sit under
- * one grid step and the ripple is zeroed there), so peakHeight is the
- * surface height -- no heightAt call needed.
- */
-function ScanLine({ grid, col }: { grid: TerrainGrid; col: number }) {
-  const line = useMemo(() => {
-    const backZ = stapleZ(grid, grid.staples.length - 1) - Z_STEP / 2 - 0.35;
-    const frontZ = stapleZ(grid, 0) + Z_STEP / 2 + 0.35;
-    const geometry = new THREE.BufferGeometry();
-    geometry.setAttribute(
-      "position",
-      new THREE.Float32BufferAttribute([0, 0.004, backZ, 0, 0.004, frontZ], 3),
-    );
-    return geometry;
-  }, [grid]);
-  useEffect(() => () => line.dispose(), [line]);
-
-  return (
-    <group position={[storeX(grid, col), 0, 0]}>
-      <lineSegments geometry={line} raycast={() => null}>
-        <lineBasicMaterial color={INK} transparent opacity={0.6} />
-      </lineSegments>
-      {grid.cells.map((rowCells, row) => {
-        const cell = rowCells[col];
-        if (!cell) return null;
-        const h = peakHeight(cell.height);
-        return (
-          <mesh
-            key={grid.staples[row]?.itemKey ?? row}
-            position={[0, h + 0.26, stapleZ(grid, row)]}
-            raycast={() => null}
-          >
-            <boxGeometry args={[0.035, 0.4, 0.035]} />
-            <meshBasicMaterial color={INK} />
-          </mesh>
-        );
-      })}
-    </group>
-  );
-}
-
 function Relief({
   grid,
   weather,
@@ -1166,6 +1111,9 @@ function Relief({
     };
     if (hovered) cellStain(hovered, 0.5);
     if (selected) cellStain(selected, 0.32);
+    // The whole store, front to back, as the shadow of a cloud crossing it.
+    // This is the only mark a lit column gets: stakes standing over each
+    // summit read louder than the summits, which are the subject.
     if (scanStoreId) {
       const col = grid.stores.findIndex((store) => store.storeId === scanStoreId);
       if (col >= 0) stains.push({ x: storeX(grid, col), z: 0, weight: 0.18, column: true });
@@ -1173,10 +1121,6 @@ function Relief({
     applyStains(geometry, baseColors, stains);
     invalidate();
   }, [geometry, baseColors, grid, hovered, selected, scanStoreId, invalidate]);
-
-  const scanCol = scanStoreId
-    ? grid.stores.findIndex((store) => store.storeId === scanStoreId)
-    : -1;
 
   // The hit surface: an invisible oversized box per cell -- the raycaster
   // does not care about visibility -- so a summit is still an easy target.
@@ -1322,8 +1266,6 @@ function Relief({
           />
         </lineLoop>
       ))}
-
-      {scanCol >= 0 ? <ScanLine grid={grid} col={scanCol} /> : null}
     </group>
   );
 }
