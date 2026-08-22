@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import type { ReactNode } from "react";
 import dynamic from "next/dynamic";
 import { formatBasis, formatMoney } from "@/lib/format";
@@ -14,9 +14,9 @@ import { cn } from "@/lib/utils";
 /*
  * The 3D scene is client-only and lazy: it never renders on the server, and
  * three.js never enters the initial route bundle. The ridgeline below draws
- * the same grid, so it stands in until the scene is live, stands permanently
- * when WebGL is unavailable, and stays mounted (visually hidden) for keyboard
- * and screen-reader access either way.
+ * the same grid, and is drawn only where the scene cannot be: when WebGL is
+ * unavailable it is the hero. Everywhere else it stays mounted but visually
+ * hidden, carrying the landscape for keyboard and screen-reader access.
  */
 const TerrainScene = dynamic(() => import("./terrain-scene"), {
   ssr: false,
@@ -44,7 +44,8 @@ function parseWeatherOverride(raw: string | null): number | null {
  * Stacking, bottom to top: the sky gradient on the container, the staple
  * etching watermark (z-0), the headline (z-[1]), the scene (z-[2]) -- so the
  * far summits graze the headline's descenders and drift over the etching --
- * the ridgeline during its reveal (z-[3]), and the readout chip (z-20).
+ * and the readout chip (z-20). Nothing stands in for the scene while it
+ * loads: the sky and the headline are the whole hero until it fades up.
  */
 export function TerrainHero({
   grid,
@@ -61,15 +62,6 @@ export function TerrainHero({
   const [sceneLive, setSceneLive] = useState(false);
   const [weatherOverride, setWeatherOverride] = useState<number | null>(null);
 
-  // The engraved reveal: the etched ridgeline rides above the rising relief
-  // and fades once the rise settles, so the massif reads as the plate coming
-  // to life. `settled` tracks the scene's report; `ridgeGone` flips after the
-  // fade so the SVG can retire to sr-only, today's accessibility posture.
-  const [settled, setSettled] = useState(false);
-  const [ridgeGone, setRidgeGone] = useState(false);
-  const handleSettled = useCallback((value: boolean) => setSettled(value), []);
-  const fadeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     setWeatherOverride(parseWeatherOverride(params.get("weather")));
@@ -82,17 +74,6 @@ export function TerrainHero({
     setWebgl(Boolean(probe.getContext("webgl2") ?? probe.getContext("webgl")));
   }, []);
 
-  useEffect(() => {
-    if (settled) {
-      fadeTimer.current = setTimeout(() => setRidgeGone(true), 700);
-    } else {
-      setRidgeGone(false);
-    }
-    return () => {
-      if (fadeTimer.current) clearTimeout(fadeTimer.current);
-    };
-  }, [settled]);
-
   const showScene = webgl === true;
   const w = weatherOverride ?? clamp01(weather);
   // A live hover outranks the pin; the pin keeps the readout when the pointer
@@ -100,9 +81,8 @@ export function TerrainHero({
   const shown = hovered ?? selected;
   const cell = grid && shown ? findCell(grid, shown) : null;
 
-  // The fallback layout classes, shared by the permanent fallback and the
-  // reveal: the figure needs its width stated, since as a shrink-to-fit flex
-  // item it would collapse around the svg's minimum.
+  // The fallback layout: the figure needs its width stated, since as a
+  // shrink-to-fit flex item it would collapse around the svg's minimum.
   const ridgeLayout =
     "flex h-full w-full items-end justify-center px-5 pb-16 pt-32 [&_figure]:w-full [&_figure]:max-w-[980px] [&_svg]:max-h-[52svh]";
 
@@ -139,8 +119,8 @@ export function TerrainHero({
       </div>
 
       {grid && showScene ? (
-        /* The scene fades over the ridgeline once its first frame is up,
-           so the hand-off reads as intentional rather than as a pop. */
+        /* The scene fades up out of the sky once its first frame is ready,
+           so it arrives rather than pops. */
         <div
           className={cn(
             "absolute inset-0 z-[2] transition-opacity duration-500",
@@ -156,28 +136,17 @@ export function TerrainHero({
             onSelect={select}
             onClear={clear}
             onReady={() => setSceneLive(true)}
-            onSettled={handleSettled}
           />
         </div>
       ) : null}
       {grid ? (
-        <div
-          className={cn(
-            showScene && sceneLive
-              ? ridgeGone
-                ? "sr-only"
-                : /* The reveal: the etching holds above the rising relief and
-                     fades as it settles. pointer-events-none is load-bearing --
-                     the ridgeline's own hover targets must not fight the
-                     canvas hitboxes mid-rise. */
-                  cn(
-                    ridgeLayout,
-                    "pointer-events-none z-[3] transition-opacity duration-700",
-                    settled ? "opacity-0" : "opacity-100",
-                  )
-              : ridgeLayout,
-          )}
-        >
+        /* Drawn only where the scene cannot be. `webgl` is null for the tick
+           before the probe answers, and a chart that appears for that tick and
+           then leaves reads as a placeholder that failed to clear -- so the
+           layout is spent on a settled `false`, and nothing else. Mounted
+           either way: the sr-only cell buttons inside are the landscape's
+           keyboard and screen-reader surface. */
+        <div className={webgl === false ? ridgeLayout : "sr-only"}>
           <Ridgeline grid={grid} weather={w} />
         </div>
       ) : (

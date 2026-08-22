@@ -58,6 +58,13 @@
     outline: 2px solid var(--color-ink);
     outline-offset: 2px;
   }
+
+  /* Preflight sets `cursor: default` on buttons, which reads as "not a
+     control" on a page whose controls are mostly bare type with no chrome to
+     give them away. Stated once here so no button can miss it. */
+  button:not(:disabled) {
+    cursor: pointer;
+  }
 }
 
 @layer utilities {
