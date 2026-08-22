@@ -12,11 +12,15 @@ import { parseSitemap, rankProductUrls } from "./sitemap.js";
 
 const run = promisify(execFile);
 
-/** Raised so the caller can fall back to HTTP and record why. */
+/** Raised so the caller can diagnose the failure and trigger a heal. */
 export class StudioError extends Error {
-  constructor(message: string) {
+  /** The raw JSON Studio returned before normalization failed, if any. */
+  readonly rawOutput: unknown[];
+
+  constructor(message: string, rawOutput: unknown[] = []) {
     super(message);
     this.name = "StudioError";
+    this.rawOutput = rawOutput;
   }
 }
 
@@ -27,12 +31,7 @@ const HARD_DEADLINE_MS = POLL_ATTEMPTS * 10_000 + 120_000;
 type StudioRow = Record<string, unknown>;
 
 /**
- * Collection through Scraper Studio -- the primary transport for all stores.
- *
- * Every store in the fleet has a Studio collector and a `studio_endpoint`
- * pointing at its HTML product listing pages (e.g. /collections/all for
- * Shopify). The service layer tries Studio first and falls back to
- * HTTP/Unlocker on failure, recording a `studio_failed` incident.
+ * Collection through Scraper Studio -- the only production transport.
  *
  * The CLI is subprocessed rather than reimplemented, following the same
  * decision the Python transport documents: `scraper run --input-file` does
@@ -62,9 +61,12 @@ export class StudioAdapter implements Puller {
     const raw = await this.runCollector(config.collectorId, urls);
     const rows = this.toRows(config, raw);
     if (rows.length === 0) {
-      throw new StudioError(`collector returned no usable rows for ${urls.length} URLs`);
+      throw new StudioError(
+        `collector returned no usable rows for ${urls.length} URLs`,
+        raw.slice(0, 10),
+      );
     }
-    return { rows, pages: urls.length };
+    return { rows, pages: urls.length, rawOutput: raw.slice(0, 20) };
   }
 
   /**

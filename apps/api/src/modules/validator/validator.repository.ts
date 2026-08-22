@@ -95,6 +95,19 @@ export class ValidatorRepository {
     `);
   }
 
+  async loadRunRawOutput(runId: number): Promise<unknown[]> {
+    const rows = (await this.db.execute(sql`
+      select raw_output::text from runs where id = ${runId}
+    `)) as unknown as { raw_output: string | null }[];
+    if (!rows[0]?.raw_output) return [];
+    try {
+      const parsed = JSON.parse(rows[0].raw_output);
+      return Array.isArray(parsed) ? parsed : [];
+    } catch {
+      return [];
+    }
+  }
+
   async getScraperId(storeId: string): Promise<string | null> {
     const rows = (await this.db.execute(sql`
       select studio_collector_id from stores where store_id = ${storeId}

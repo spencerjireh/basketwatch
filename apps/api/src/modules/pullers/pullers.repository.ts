@@ -32,6 +32,7 @@ export type RunSummary = {
   ceilingReached: boolean;
   changes: number;
   coverage: string | null;
+  rawOutput?: unknown[];
 };
 
 /** The only file in this module allowed to touch the Drizzle schema. */
@@ -116,13 +117,15 @@ export class PullersRepository {
     changes: PriceChange[],
   ): Promise<number> {
     return this.db.transaction(async (tx) => {
+      const rawJson = summary.rawOutput ? JSON.stringify(summary.rawOutput) : null;
       const [run] = (await tx.execute(sql`
         insert into runs (store_id, at, method, transport, source, trigger, status,
-                          rows, unit_priced, pages, ceiling_reached, changes, coverage)
+                          rows, unit_priced, pages, ceiling_reached, changes, coverage, raw_output)
         values (${summary.storeId}, now(), ${summary.method}, ${summary.transport},
                 ${summary.source}, ${summary.trigger}, 'ok', ${summary.rows},
                 ${summary.unitPriced}, ${summary.pages}, ${summary.ceilingReached},
-                ${summary.changes}, ${summary.coverage})
+                ${summary.changes}, ${summary.coverage},
+                ${rawJson ? sql`${rawJson}::jsonb` : sql`null`})
         returning id
       `)) as unknown as { id: string }[];
       const runId = Number(run!.id);
@@ -182,13 +185,15 @@ export class PullersRepository {
 
   /** A run with no rows to apply still needs its summary row. */
   async recordEmptyRun(summary: RunSummary): Promise<number> {
+    const rawJson = summary.rawOutput ? JSON.stringify(summary.rawOutput) : null;
     const [run] = (await this.db.execute(sql`
       insert into runs (store_id, at, method, transport, source, trigger, status,
-                        rows, unit_priced, pages, ceiling_reached, changes, coverage)
+                        rows, unit_priced, pages, ceiling_reached, changes, coverage, raw_output)
       values (${summary.storeId}, now(), ${summary.method}, ${summary.transport},
               ${summary.source}, ${summary.trigger}, ${summary.rows === 0 ? "error" : "anomalous"},
               ${summary.rows}, ${summary.unitPriced}, ${summary.pages},
-              ${summary.ceilingReached}, ${summary.changes}, ${summary.coverage})
+              ${summary.ceilingReached}, ${summary.changes}, ${summary.coverage},
+              ${rawJson ? sql`${rawJson}::jsonb` : sql`null`})
       returning id
     `)) as unknown as { id: string }[];
     return Number(run!.id);
@@ -199,11 +204,14 @@ export class PullersRepository {
     runId: number,
     kind: string,
     evidence: Record<string, unknown>,
-  ): Promise<void> {
-    await this.db.execute(sql`
-      insert into incidents (store_id, run_id, kind, evidence, state)
-      values (${storeId}, ${runId}, ${kind}, ${JSON.stringify(evidence)}::jsonb, 'open')
-    `);
+    scraperId?: string | null,
+  ): Promise<string> {
+    const rows = (await this.db.execute(sql`
+      insert into incidents (store_id, scraper_id, run_id, kind, evidence, state)
+      values (${storeId}, ${scraperId ?? null}, ${runId}, ${kind}, ${JSON.stringify(evidence)}::jsonb, 'open')
+      returning id::text
+    `)) as unknown as { id: string }[];
+    return rows[0]!.id;
   }
 }
 

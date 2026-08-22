@@ -17,7 +17,7 @@ import {
 } from "@basketwatch/contract";
 import { HealBudget } from "./heal.budget.js";
 import { HealRepository } from "./heal.repository.js";
-import { buildHealPrompt, findingsToFields } from "./prompt.js";
+import { buildHealPrompt, diagnoseRawOutput, findingsToFields } from "./prompt.js";
 import { StudioClient, StudioHealError } from "./studio.client.js";
 
 @Injectable()
@@ -388,20 +388,44 @@ export class HealOrchestrator {
       return { prompt: null, findings: [] };
     }
 
-    const evidence = incident.evidence as Partial<IncidentEvidence>;
+    const evidence = incident.evidence as Partial<IncidentEvidence> & {
+      rawSample?: unknown[];
+      error?: string;
+    };
     const findings: CheckResult[] = Array.isArray(evidence.failedChecks)
       ? evidence.failedChecks
       : [];
 
-    if (findings.length === 0) {
+    const checkFields = findingsToFields(findings);
+
+    const rawSample = Array.isArray(evidence.rawSample) ? evidence.rawSample : [];
+    const rawFields = diagnoseRawOutput(rawSample);
+
+    const seen = new Set(checkFields.map((f) => f.name));
+    const merged = [...checkFields];
+    for (const rf of rawFields) {
+      if (!seen.has(rf.name)) {
+        merged.push(rf);
+        seen.add(rf.name);
+      }
+    }
+
+    if (merged.length === 0 && evidence.error) {
+      merged.push({
+        name: "scraper output",
+        symptom: evidence.error.slice(0, 150),
+        selectorHint: "Inspect the extraction logic and fix",
+      });
+    }
+
+    if (merged.length === 0) {
       return {
         prompt: `The scraper has an open ${incident.kind} incident. Inspect and fix.`,
         findings: [],
       };
     }
 
-    const fields = findingsToFields(findings);
-    const prompt = buildHealPrompt(fields);
+    const prompt = buildHealPrompt(merged);
     return { prompt: prompt || null, findings };
   }
 

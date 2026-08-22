@@ -50,6 +50,8 @@ export interface PulledRow {
 export interface PullResult {
   rows: PulledRow[];
   pages: number;
+  /** Raw Studio output before normalization, for diagnostic replay. */
+  rawOutput?: unknown[];
 }
 
 export interface PullerRunOptions {
