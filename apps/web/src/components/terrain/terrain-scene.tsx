@@ -93,14 +93,21 @@ const GOLD = "#d4a72c";
 // have -- see paintBase for why real fog is off the table.
 const HAZE = 0.4;
 
+// Scratch for the weather desaturation pass; module scope so painting 48k
+// vertices allocates nothing.
+const OVERCAST = new THREE.Color();
+
 type SceneProps = {
   grid: TerrainGrid;
+  /* 0 clear .. 1 overcast; the basket's own gaps, not a mood dial. */
+  weather: number;
   hovered: CellRef | null;
   selected: CellRef | null;
   onHover: (ref: CellRef | null) => void;
   onSelect: (ref: CellRef) => void;
   onClear: () => void;
   onReady: () => void;
+  onSettled?: (settled: boolean) => void;
 };
 
 type WorldAnchor = {
@@ -207,12 +214,14 @@ function buildWorldAnchors(grid: TerrainGrid): WorldAnchor[] {
 
 export default function TerrainScene({
   grid,
+  weather,
   hovered,
   selected,
   onHover,
   onSelect,
   onClear,
   onReady,
+  onSettled,
 }: SceneProps) {
   const [reduced, setReduced] = useState(false);
   const [hoverStoreId, setHoverStoreId] = useState<string | null>(null);
@@ -223,7 +232,14 @@ export default function TerrainScene({
   // reports it -- a callback, not a timer, because under a demand frameloop
   // wall-clock time can pass without the frames having run.
   const [settled, setSettled] = useState(false);
-  const handleSettleChange = useCallback((value: boolean) => setSettled(value), []);
+  const handleSettleChange = useCallback(
+    (value: boolean) => {
+      setSettled(value);
+      // The hero listens too: the etched ridgeline holds until the rise lands.
+      onSettled?.(value);
+    },
+    [onSettled],
+  );
 
   useEffect(() => {
     const media = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -292,10 +308,12 @@ export default function TerrainScene({
         {/* A low warm sun so the ridges catch rim light, and a cold faint
             fill from behind so the shadowed faces keep their shape. The
             shadow box is sized from the slab: a fixed box clips the flank
-            shadows once the grid grows past ten stores. */}
+            shadows once the grid grows past ten stores. Weather flattens
+            the light: the sun dims and the cold fill gains, the way an
+            overcast day trades contrast for shadowless grey. */}
         <directionalLight
           position={[-13, 4.2, 5]}
-          intensity={1.7}
+          intensity={1.7 - 0.55 * weather}
           color="#ffe9c2"
           castShadow
           shadow-mapSize={[1024, 1024]}
@@ -306,11 +324,17 @@ export default function TerrainScene({
           shadow-camera-bottom={-shadowExtent}
           shadow-camera-far={40}
         />
-        <directionalLight position={[9, 6, -9]} intensity={0.45} color="#f4ecdc" />
+        <directionalLight
+          position={[9, 6, -9]}
+          intensity={0.45 + 0.1 * weather}
+          color="#f4ecdc"
+        />
         <Slab grid={grid} onHover={onHover} onClear={onClear} />
         <Etchings grid={grid} visible={settled} />
+        <Motes grid={grid} weather={weather} animate={!reduced} />
         <Relief
           grid={grid}
+          weather={weather}
           hovered={hovered}
           selected={selected}
           scanStoreId={hovered?.storeId ?? hoverStoreId}
@@ -642,6 +666,78 @@ function Etchings({ grid, visible }: { grid: TerrainGrid; visible: boolean }) {
   );
 }
 
+const MOTE_COUNT = 48;
+
+/**
+ * Dust in the valley air: a few dozen points drifting on slow sines, most of
+ * them low where the green is. They live outside the lift group -- air does
+ * not rise with the land -- and their drift rides the Rig's ever-running
+ * frame loop rather than forcing frames of its own: under reduced motion
+ * both loops idle and the dust simply hangs still. Overcast weather thins
+ * them out; motes are the fair-weather state.
+ */
+function Motes({
+  grid,
+  weather,
+  animate,
+}: {
+  grid: TerrainGrid;
+  weather: number;
+  animate: boolean;
+}) {
+  const motes = useMemo(() => {
+    const w = slabWidth(grid) / 2 - RIM;
+    const d = slabDepth(grid) / 2 - RIM;
+    const base = new Float32Array(MOTE_COUNT * 3);
+    const amp = new Float32Array(MOTE_COUNT * 3);
+    const rate = new Float32Array(MOTE_COUNT);
+    const phase = new Float32Array(MOTE_COUNT);
+    for (let i = 0; i < MOTE_COUNT; i += 1) {
+      base[i * 3] = (hash2(i, 101) * 2 - 1) * w;
+      // biased low: most dust hangs in the valley air, a few drift high
+      base[i * 3 + 1] = 0.35 + 1.55 * Math.pow(hash2(i, 211), 1.6);
+      base[i * 3 + 2] = (hash2(i, 307) * 2 - 1) * d;
+      amp[i * 3] = 0.15 + 0.15 * hash2(i, 401);
+      amp[i * 3 + 1] = 0.06 + 0.08 * hash2(i, 503);
+      amp[i * 3 + 2] = 0.15 + 0.15 * hash2(i, 601);
+      rate[i] = 0.05 + 0.07 * hash2(i, 701);
+      phase[i] = hash2(i, 809) * Math.PI * 2;
+    }
+    const geometry = new THREE.BufferGeometry();
+    geometry.setAttribute("position", new THREE.BufferAttribute(base.slice(), 3));
+    return { geometry, base, amp, rate, phase };
+  }, [grid]);
+  useEffect(() => () => motes.geometry.dispose(), [motes]);
+
+  useFrame((state) => {
+    if (!animate) return;
+    const t = state.clock.elapsedTime;
+    const attr = motes.geometry.getAttribute("position") as THREE.BufferAttribute;
+    const arr = attr.array as Float32Array;
+    for (let i = 0; i < MOTE_COUNT; i += 1) {
+      const s = Math.sin(t * motes.rate[i]! + motes.phase[i]!);
+      const c = Math.cos(t * motes.rate[i]! * 0.8 + motes.phase[i]!);
+      arr[i * 3] = motes.base[i * 3]! + motes.amp[i * 3]! * s;
+      arr[i * 3 + 1] = motes.base[i * 3 + 1]! + motes.amp[i * 3 + 1]! * c;
+      arr[i * 3 + 2] = motes.base[i * 3 + 2]! + motes.amp[i * 3 + 2]! * c;
+    }
+    attr.needsUpdate = true;
+  });
+
+  return (
+    <points geometry={motes.geometry} raycast={() => null}>
+      <pointsMaterial
+        size={0.05}
+        sizeAttenuation
+        color="#c4b394"
+        transparent
+        opacity={0.35 * (1 - 0.75 * weather)}
+        depthWrite={false}
+      />
+    </points>
+  );
+}
+
 /** clamp-then-hermite; the one easing everything terrain-shaped here uses */
 function smoothstep01(t: number): number {
   const x = Math.min(1, Math.max(0, t));
@@ -855,9 +951,15 @@ function buildFieldGeometry(grid: TerrainGrid, peaks: (Peak | null)[][]): THREE.
  * whisper of albedo grain, and haze baked toward paper by depth --
  * scene.fog is impossible on a transparent canvas, and camera-distance
  * haze would mean repainting every parallax frame for an invisible
- * difference.
+ * difference. Weather washes the whole coat toward grey paper -- the
+ * basket's own gaps thickening the air -- but stays under the rust cap,
+ * for the same reason the depth haze does.
  */
-function paintBase(grid: TerrainGrid, geometry: THREE.BufferGeometry): Float32Array {
+function paintBase(
+  grid: TerrainGrid,
+  geometry: THREE.BufferGeometry,
+  weather: number,
+): Float32Array {
   const position = geometry.getAttribute("position") as THREE.BufferAttribute;
   const normal = geometry.getAttribute("normal") as THREE.BufferAttribute;
   const colors = new Float32Array(position.count * 3);
@@ -894,6 +996,11 @@ function paintBase(grid: TerrainGrid, geometry: THREE.BufferGeometry): Float32Ar
     c.lerp(ROCK_HIGH, 0.35 * slope);
     c.multiplyScalar(1 + (hash2(i, 12345) - 0.5) * 0.08);
     c.lerp(PAPER, HAZE * smoothstep01((zFront - z) / (zFront - zBack)));
+    if (weather > 0) {
+      const grey = 0.2126 * c.r + 0.7152 * c.g + 0.0722 * c.b;
+      c.lerp(OVERCAST.setRGB(grey, grey, grey), 0.35 * weather);
+      c.lerp(PAPER, 0.18 * weather);
+    }
     // The rust cap goes on after the haze: the worst outlier is often in the
     // back row, and an alarm that fades with distance is no alarm.
     const rustline = y4 + (snowEdge - 0.5) * 0.24;
@@ -993,6 +1100,7 @@ function ScanLine({ grid, col }: { grid: TerrainGrid; col: number }) {
 
 function Relief({
   grid,
+  weather,
   hovered,
   selected,
   scanStoreId,
@@ -1002,6 +1110,7 @@ function Relief({
   onSettleChange,
 }: {
   grid: TerrainGrid;
+  weather: number;
   hovered: CellRef | null;
   selected: CellRef | null;
   scanStoreId: string | null;
@@ -1015,7 +1124,10 @@ function Relief({
   const peaks = useMemo(() => buildPeaks(grid), [grid]);
   const geometry = useMemo(() => buildFieldGeometry(grid, peaks), [grid, peaks]);
   useEffect(() => () => geometry.dispose(), [geometry]);
-  const baseColors = useMemo(() => paintBase(grid, geometry), [grid, geometry]);
+  const baseColors = useMemo(
+    () => paintBase(grid, geometry, weather),
+    [grid, geometry, weather],
+  );
 
   // The entrance: the whole relief rises out of the slab, prices pushing
   // the ground up. One scale on the group that already holds everything

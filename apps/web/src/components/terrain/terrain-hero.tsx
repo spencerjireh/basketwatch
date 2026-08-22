@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import type { ReactNode } from "react";
 import dynamic from "next/dynamic";
 import { formatBasis, formatMoney } from "@/lib/format";
@@ -8,6 +8,7 @@ import { findCell } from "@/lib/terrain/model";
 import type { TerrainGrid } from "@/lib/terrain/model";
 import { Ridgeline } from "@/components/terrain/ridgeline";
 import { useSelection } from "@/components/terrain/selection";
+import { StapleWatermark } from "@/components/terrain/staple-etchings";
 import { cn } from "@/lib/utils";
 
 /*
@@ -22,27 +23,58 @@ const TerrainScene = dynamic(() => import("./terrain-scene"), {
   loading: () => null,
 });
 
+const clamp01 = (value: number) => Math.min(1, Math.max(0, value));
+
+/** ?weather=clear|overcast|0..1 -- the demo hook beside ?flat=1. */
+function parseWeatherOverride(raw: string | null): number | null {
+  if (raw === null) return null;
+  if (raw === "clear") return 0;
+  if (raw === "overcast") return 1;
+  const n = Number.parseFloat(raw);
+  return Number.isFinite(n) ? clamp01(n) : null;
+}
+
 /**
  * The hero: the landscape full-bleed with the headline set on it, the way a
  * map plate carries its title. The landscape is navigation, not decoration:
  * hovering reads a cell out in words along the bottom edge, clicking jumps
  * to the staple's section. The readout has a fixed height so hovering never
  * shifts anything.
+ *
+ * Stacking, bottom to top: the sky gradient on the container, the staple
+ * etching watermark (z-0), the headline (z-[1]), the scene (z-[2]) -- so the
+ * far summits graze the headline's descenders and drift over the etching --
+ * the ridgeline during its reveal (z-[3]), and the readout chip (z-20).
  */
 export function TerrainHero({
   grid,
+  weather,
   overlay,
 }: {
   grid: TerrainGrid | null;
+  /* 0 clear .. 1 overcast, from the rails' own gaps */
+  weather: number;
   overlay?: ReactNode;
 }) {
   const { hovered, selected, setHovered, select, clear } = useSelection();
   const [webgl, setWebgl] = useState<boolean | null>(null);
   const [sceneLive, setSceneLive] = useState(false);
+  const [weatherOverride, setWeatherOverride] = useState<number | null>(null);
+
+  // The engraved reveal: the etched ridgeline rides above the rising relief
+  // and fades once the rise settles, so the massif reads as the plate coming
+  // to life. `settled` tracks the scene's report; `ridgeGone` flips after the
+  // fade so the SVG can retire to sr-only, today's accessibility posture.
+  const [settled, setSettled] = useState(false);
+  const [ridgeGone, setRidgeGone] = useState(false);
+  const handleSettled = useCallback((value: boolean) => setSettled(value), []);
+  const fadeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    setWeatherOverride(parseWeatherOverride(params.get("weather")));
     // ?flat=1 is the honest test hook for the fallback path.
-    if (new URLSearchParams(window.location.search).get("flat") === "1") {
+    if (params.get("flat") === "1") {
       setWebgl(false);
       return;
     }
@@ -50,34 +82,77 @@ export function TerrainHero({
     setWebgl(Boolean(probe.getContext("webgl2") ?? probe.getContext("webgl")));
   }, []);
 
+  useEffect(() => {
+    if (settled) {
+      fadeTimer.current = setTimeout(() => setRidgeGone(true), 700);
+    } else {
+      setRidgeGone(false);
+    }
+    return () => {
+      if (fadeTimer.current) clearTimeout(fadeTimer.current);
+    };
+  }, [settled]);
+
   const showScene = webgl === true;
+  const w = weatherOverride ?? clamp01(weather);
   // A live hover outranks the pin; the pin keeps the readout when the pointer
   // leaves, which is what makes a click feel like it held something.
   const shown = hovered ?? selected;
   const cell = grid && shown ? findCell(grid, shown) : null;
 
+  // The fallback layout classes, shared by the permanent fallback and the
+  // reveal: the figure needs its width stated, since as a shrink-to-fit flex
+  // item it would collapse around the svg's minimum.
+  const ridgeLayout =
+    "flex h-full w-full items-end justify-center px-5 pb-16 pt-32 [&_figure]:w-full [&_figure]:max-w-[980px] [&_svg]:max-h-[52svh]";
+
   return (
     /* The warm-to-paper wash behind the transparent canvas is the sky: the
        far rows haze toward paper in the vertex colors and land on the same
-       tone here, so the massif dissolves into air instead of ending. */
-    <div className="relative h-full w-full bg-[linear-gradient(to_bottom,#f3eee1,var(--color-paper)_62%)]">
+       tone here, so the massif dissolves into air instead of ending. Clear
+       weather warms the top of the sky; overcast drifts it grey. */
+    <div
+      className="relative h-full w-full"
+      style={{
+        backgroundImage: `linear-gradient(to bottom, color-mix(in oklab, #f6ecd9 ${Math.round(
+          100 - 55 * w,
+        )}%, #e7e4dd), var(--color-paper) 62%)`,
+      }}
+    >
+      {/* The staple etchings, faint as a plate's marginalia. Behind even the
+          headline: the massif and the title both ride over them. */}
+      {grid ? (
+        <div className="pointer-events-none absolute right-8 top-10 z-0 hidden w-[240px] text-ink opacity-[0.07] lg:block">
+          <StapleWatermark staples={grid.staples} activeKey={shown?.itemKey ?? null} />
+        </div>
+      ) : null}
+
+      {/* The headline rides under the scene: far summits clip its descenders
+          the way a range crosses a map title. pointer-events-none end to end:
+          nothing in it is a control, and the terrain hover must pass through. */}
+      <div className="pointer-events-none absolute left-0 top-0 z-[1] max-w-[640px] px-5 pt-8 sm:px-8 sm:pt-12">
+        {overlay}
+      </div>
+
       {grid && showScene ? (
         /* The scene fades over the ridgeline once its first frame is up,
            so the hand-off reads as intentional rather than as a pop. */
         <div
           className={cn(
-            "absolute inset-0 transition-opacity duration-500",
+            "absolute inset-0 z-[2] transition-opacity duration-500",
             sceneLive ? "opacity-100" : "opacity-0",
           )}
         >
           <TerrainScene
             grid={grid}
+            weather={w}
             hovered={hovered}
             selected={selected}
             onHover={setHovered}
             onSelect={select}
             onClear={clear}
             onReady={() => setSceneLive(true)}
+            onSettled={handleSettled}
           />
         </div>
       ) : null}
@@ -85,15 +160,21 @@ export function TerrainHero({
         <div
           className={cn(
             showScene && sceneLive
-              ? "sr-only"
-              : /* The fallback shares the frame with the headline, so it sits
-                   below it rather than centered behind it. The figure needs
-                   its width stated: as a shrink-to-fit flex item it would
-                   collapse around the svg's minimum. */
-                "flex h-full w-full items-end justify-center px-5 pb-16 pt-32 [&_figure]:w-full [&_figure]:max-w-[980px] [&_svg]:max-h-[52svh]",
+              ? ridgeGone
+                ? "sr-only"
+                : /* The reveal: the etching holds above the rising relief and
+                     fades as it settles. pointer-events-none is load-bearing --
+                     the ridgeline's own hover targets must not fight the
+                     canvas hitboxes mid-rise. */
+                  cn(
+                    ridgeLayout,
+                    "pointer-events-none z-[3] transition-opacity duration-700",
+                    settled ? "opacity-0" : "opacity-100",
+                  )
+              : ridgeLayout,
           )}
         >
-          <Ridgeline grid={grid} />
+          <Ridgeline grid={grid} weather={w} />
         </div>
       ) : (
         <p className="absolute bottom-16 left-5 font-mono text-[12px] text-mute sm:left-8">
@@ -101,18 +182,12 @@ export function TerrainHero({
         </p>
       )}
 
-      {/* The headline rides on the scene. pointer-events-none end to end:
-          nothing in it is a control, and the terrain hover must pass through. */}
-      <div className="pointer-events-none absolute left-0 top-0 z-10 max-w-[640px] px-5 pt-8 sm:px-8 sm:pt-12">
-        {overlay}
-      </div>
-
       {/* The readout, pinned to the scene's bottom edge as a paper chip.
           Anchored by its bottom so a wrapped line grows upward into the
           scene instead of shifting anything. */}
       <div
         aria-live="polite"
-        className="pointer-events-none absolute inset-x-0 bottom-0 z-10 flex min-h-[46px] items-end px-5 pb-4 sm:px-8"
+        className="pointer-events-none absolute inset-x-0 bottom-0 z-20 flex min-h-[46px] items-end px-5 pb-4 sm:px-8"
       >
         <p className="border border-line bg-paper/85 px-2.5 py-1.5 text-[12.5px] backdrop-blur-[2px]">
           {cell ? (

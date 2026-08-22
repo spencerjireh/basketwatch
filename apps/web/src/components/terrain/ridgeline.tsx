@@ -20,8 +20,13 @@ const PAD_BOTTOM = 16;
  * scene, the permanent hero when WebGL is unavailable, and the shipped hero if
  * the 3D is cut -- which is why it carries the full hover/click wiring itself.
  */
-export function Ridgeline({ grid }: { grid: TerrainGrid }) {
+export function Ridgeline({ grid, weather = 0 }: { grid: TerrainGrid; weather?: number }) {
   const { hovered, setHovered, select } = useSelection();
+
+  // Weather parity with the 3D relief: overcast thins the clay wash. The
+  // dots and labels stay full ink -- the data does not fade, the light does.
+  const ridgeFill = 0.75 * (1 - 0.3 * weather);
+  const ridgeStroke = 0.5 * (1 - 0.25 * weather);
 
   // Fewer stores get wider steps, so a five-store country still draws a
   // landscape rather than a sliver.
@@ -95,9 +100,9 @@ export function Ridgeline({ grid }: { grid: TerrainGrid }) {
                     key={`${staple.itemKey}:${first}`}
                     d={d}
                     fill="var(--color-clay)"
-                    fillOpacity="0.75"
+                    fillOpacity={ridgeFill.toFixed(3)}
                     stroke="var(--color-ink)"
-                    strokeOpacity="0.5"
+                    strokeOpacity={ridgeStroke.toFixed(3)}
                     strokeWidth="1"
                     strokeLinejoin="round"
                   />
