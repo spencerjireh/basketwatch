@@ -53,9 +53,16 @@ export function BasketExplorer({
             Every usable price, ranked. Bar length is how many times the cheapest store&apos;s
             price; the pins we do not trust are named underneath instead of drawn.
           </p>
-          <ul className="mt-4 grid grid-cols-1 gap-x-16 sm:grid-cols-2">
-            {shown.map((rail) => (
-              <StapleSection key={`${rail.country}:${rail.itemKey}`} rail={rail} />
+          {/* One staple to a row, full width. Two columns fitted more on a
+              screen but left the plates nowhere to go, and the walk down ten
+              rows is the evidence the landscape above is claiming. */}
+          <ul className="mt-4 flex flex-col">
+            {shown.map((rail, index) => (
+              <StapleSection
+                key={`${rail.country}:${rail.itemKey}`}
+                rail={rail}
+                index={index}
+              />
             ))}
           </ul>
         </section>

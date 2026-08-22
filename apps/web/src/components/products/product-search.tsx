@@ -10,6 +10,8 @@ import {
   type UnitPriceBasis,
 } from "@basketwatch/contract";
 import { apiGetClient } from "@/lib/api/browser";
+import { PLATE_KEYS, PLATE_SEARCH } from "@/lib/plates";
+import { StaplePlate } from "@/components/plates/staple-plate";
 import { useCountry } from "@/components/country/country";
 import { formatMoney } from "@/lib/format";
 import { cn } from "@/lib/utils";
@@ -149,7 +151,36 @@ export function ProductSearch() {
 
       <div className="mt-5">
         {status === "idle" ? (
-          <Empty>Type at least two characters. Every price here came off a store&apos;s own catalogue.</Empty>
+          /*
+           * The empty state is the one screen every visitor sees, and "type
+           * something" is not a use for it. The ten staples are the way into
+           * 28,000 rows for anyone who does not already know what they are
+           * looking for, and they are the same ten the front page prices.
+           */
+          <div className="py-6">
+            <p className="text-[13px] text-mute">
+              Every price here came off a store&apos;s own catalogue. Start from a staple, or
+              search for anything else.
+            </p>
+            <ul className="mt-6 grid grid-cols-2 gap-x-4 gap-y-5 sm:grid-cols-5">
+              {PLATE_KEYS.map((key) => (
+                <li key={key}>
+                  <button
+                    type="button"
+                    onClick={() => setQ(PLATE_SEARCH[key].query)}
+                    className="group flex w-full flex-col items-center gap-1.5"
+                  >
+                    <span className="relative block aspect-square w-full max-w-[132px] opacity-[0.34] transition-opacity duration-300 group-hover:opacity-[0.68] group-focus-visible:opacity-[0.68]">
+                      <StaplePlate itemKey={key} />
+                    </span>
+                    <span className="font-mono text-[10.5px] uppercase tracking-[0.08em] text-mute transition-colors group-hover:text-ink group-focus-visible:text-ink">
+                      {PLATE_SEARCH[key].label}
+                    </span>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
         ) : null}
         {status === "error" ? <Empty tone="broken">{message}</Empty> : null}
         {status !== "idle" && status !== "error" && hits.length === 0 ? (
