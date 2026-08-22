@@ -24,9 +24,5 @@ export function CheapestCart({
     return <p className="text-[13px] text-mute">No priced basket for this country yet.</p>;
   }
 
-  return (
-    <div className="max-w-[560px]">
-      <BasketTable country={country} items={shown} point={series?.points.at(-1)} />
-    </div>
-  );
+  return <BasketTable country={country} items={shown} point={series?.points.at(-1)} />;
 }

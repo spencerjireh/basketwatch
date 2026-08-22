@@ -44,10 +44,11 @@ export default async function Page() {
     </>
   );
 
+  // One band, two columns: the receipt on the left, the history filling the
+  // paper the old stacked layout left dead on the right.
   const midBand = (
-    <>
+    <div className="mt-14 grid grid-cols-1 gap-x-16 gap-y-14 lg:grid-cols-[minmax(0,420px)_minmax(0,1fr)]">
       <Section
-        className="mt-14"
         title="The cheapest cart"
         caption="The winning store for each staple, and what the whole basket costs if you buy every line at its winner."
       >
@@ -55,15 +56,12 @@ export default async function Page() {
       </Section>
 
       <Section
-        className="mt-14"
         title="The basket over time"
         caption="A gap is a day we could not price every staple, drawn as a gap rather than guessed across."
       >
-        <div className="max-w-[860px]">
-          <IndexStrip series={basketIndex} />
-        </div>
+        <IndexStrip series={basketIndex} />
       </Section>
-    </>
+    </div>
   );
 
   return (
