@@ -10,6 +10,16 @@ const ROW_H = 42;
 const RIDGE_H = 68;
 const PAD_RIGHT = 24;
 const PAD_BOTTOM = 16;
+/**
+ * Headroom for the store axis. The names are set at an angle, so the band has
+ * to clear the rise of the longest one rather than its cap height: about 16
+ * characters of 10px mono, laid over at 35 degrees.
+ */
+const AXIS_H = 70;
+const AXIS_TILT = -35;
+
+/** Long chains do not fit a 52px column, and the full name is on the title. */
+const shortStore = (name: string) => (name.length > 17 ? `${name.slice(0, 16)}\u2026` : name);
 
 /**
  * The landscape, flat. One ridge per staple, one x-step per store, height =
@@ -21,7 +31,7 @@ const PAD_BOTTOM = 16;
  * the 3D is cut -- which is why it carries the full hover/click wiring itself.
  */
 export function Ridgeline({ grid, weather = 0 }: { grid: TerrainGrid; weather?: number }) {
-  const { hovered, setHovered, select } = useSelection();
+  const { hovered, hoveredStore, setHovered, setHoveredStore, select } = useSelection();
 
   // Weather parity with the 3D relief: overcast thins the clay wash. The
   // dots and labels stay full ink -- the data does not fade, the light does.
@@ -32,9 +42,9 @@ export function Ridgeline({ grid, weather = 0 }: { grid: TerrainGrid; weather?: 
   // landscape rather than a sliver.
   const colW = Math.max(52, Math.min(96, Math.round(560 / Math.max(1, grid.stores.length - 1))));
   const width = LABEL_W + (grid.stores.length - 1) * colW + PAD_RIGHT;
-  const height = RIDGE_H + 10 + (grid.staples.length - 1) * ROW_H + PAD_BOTTOM;
+  const height = AXIS_H + RIDGE_H + 10 + (grid.staples.length - 1) * ROW_H + PAD_BOTTOM;
   const x = (col: number) => LABEL_W + col * colW;
-  const base = (row: number) => RIDGE_H + 10 + row * ROW_H;
+  const base = (row: number) => AXIS_H + RIDGE_H + 10 + row * ROW_H;
 
   return (
     <figure className="m-0">
@@ -44,6 +54,31 @@ export function Ridgeline({ grid, weather = 0 }: { grid: TerrainGrid; weather?: 
         role="img"
         aria-label={`Price landscape for ${grid.country}: ${grid.staples.length} staples across ${grid.stores.length} stores, drawn as ridges where height is the multiple of the cheapest price.`}
       >
+        {/* The store axis. The relief names one store and only under the
+            pointer; here every name is standing, because this is the view a
+            reader picks when they want the labels. */}
+        {grid.stores.map((store, col) => {
+          const lit = hoveredStore === store.storeId || hovered?.storeId === store.storeId;
+          return (
+            <text
+              key={store.storeId}
+              x={x(col)}
+              y={AXIS_H - 8}
+              transform={`rotate(${AXIS_TILT} ${x(col)} ${AXIS_H - 8})`}
+              textAnchor="end"
+              fontSize="10"
+              fontFamily="var(--font-mono)"
+              fill={lit ? "var(--color-ink)" : "var(--color-mute)"}
+              className="cursor-default"
+              onMouseEnter={() => setHoveredStore(store.storeId)}
+              onMouseLeave={() => setHoveredStore(null)}
+            >
+              <title>{store.storeName}</title>
+              {shortStore(store.storeName)}
+            </text>
+          );
+        })}
+
         {grid.staples.map((staple, row) => {
           const cells = grid.cells[row] ?? [];
           const y0 = base(row);

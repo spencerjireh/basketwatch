@@ -48,6 +48,27 @@ export function formatMoney(amount: number, currency: string): string {
   return formatter.format(amount);
 }
 
+const NUMBER_WORDS = [
+  "no",
+  "one",
+  "two",
+  "three",
+  "four",
+  "five",
+  "six",
+  "seven",
+  "eight",
+  "nine",
+  "ten",
+  "eleven",
+  "twelve",
+];
+
+/** Small counts read as words in a sentence; past twelve, digits are kinder. */
+export function spellNumber(value: number): string {
+  return NUMBER_WORDS[value] ?? String(value);
+}
+
 export function formatPct(value: number): string {
   if (value === 0) return "0.0%";
   return `${value > 0 ? "+" : ""}${value.toFixed(1)}%`;

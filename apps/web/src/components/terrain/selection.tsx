@@ -7,7 +7,14 @@ import type { CellRef } from "@/lib/terrain/model";
 type Selection = {
   hovered: CellRef | null;
   selected: CellRef | null;
+  /**
+   * A whole store, lit front to back. Shared rather than local to the scene
+   * because two surfaces point at the same column now: the landscape's own
+   * axis labels and the store-total bars underneath it.
+   */
+  hoveredStore: string | null;
   setHovered: (ref: CellRef | null) => void;
+  setHoveredStore: (storeId: string | null) => void;
   select: (ref: CellRef) => void;
   clear: () => void;
 };
@@ -38,6 +45,7 @@ const sameRef = (a: CellRef | null, b: CellRef | null) =>
  */
 export function SelectionProvider({ children }: { children: ReactNode }) {
   const [hovered, setHoveredState] = useState<CellRef | null>(null);
+  const [hoveredStore, setHoveredStoreState] = useState<string | null>(null);
   const [selected, setSelected] = useState<CellRef | null>(null);
   const scrolling = useRef(false);
   const scrollTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -47,9 +55,18 @@ export function SelectionProvider({ children }: { children: ReactNode }) {
     setHoveredState((previous) => (sameRef(previous, ref) ? previous : ref));
   }, []);
 
+  // Same guard as the cell hover, and for the same reason: a click-scroll
+  // sweeps the pointer across the bars on the way down, and each store it
+  // crosses would repaint the relief mid-glide.
+  const setHoveredStore = useCallback((storeId: string | null) => {
+    if (scrolling.current) return;
+    setHoveredStoreState((previous) => (previous === storeId ? previous : storeId));
+  }, []);
+
   const select = useCallback((ref: CellRef) => {
     setSelected(ref);
     setHoveredState(null);
+    setHoveredStoreState(null);
 
     const target = document.getElementById(`staple-${ref.itemKey}`);
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -70,8 +87,8 @@ export function SelectionProvider({ children }: { children: ReactNode }) {
   const clear = useCallback(() => setSelected(null), []);
 
   const value = useMemo(
-    () => ({ hovered, selected, setHovered, select, clear }),
-    [hovered, selected, setHovered, select, clear],
+    () => ({ hovered, selected, hoveredStore, setHovered, setHoveredStore, select, clear }),
+    [hovered, selected, hoveredStore, setHovered, setHoveredStore, select, clear],
   );
 
   return <SelectionContext.Provider value={value}>{children}</SelectionContext.Provider>;
