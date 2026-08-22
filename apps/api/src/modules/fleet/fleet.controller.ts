@@ -2,10 +2,14 @@ import { Controller, Get, Param, Post, UseGuards } from "@nestjs/common";
 import { type FleetResponse } from "@basketwatch/contract";
 import { OpsTokenGuard } from "../../common/guards/ops-token.guard.js";
 import { FleetService } from "./fleet.service.js";
+import { ProvisionService, type ProvisionResult } from "./provision.service.js";
 
 @Controller("fleet")
 export class FleetController {
-  constructor(private readonly service: FleetService) {}
+  constructor(
+    private readonly service: FleetService,
+    private readonly provision: ProvisionService,
+  ) {}
 
   /** GET /api/fleet */
   @Get()
@@ -63,5 +67,38 @@ export class FleetController {
   ): Promise<{ hasTemplate: boolean; scraperId: string }> {
     const hasTemplate = await this.service.hasTemplate(scraperId);
     return { hasTemplate, scraperId };
+  }
+
+  /**
+   * POST /api/fleet/provision
+   *
+   * Create Studio collectors for all stores that don't have one yet.
+   * Reads descriptions from collector-manifest.json and shells out to
+   * `brightdata scraper create`. Idempotent: stores with an existing
+   * collector are skipped.
+   */
+  @Post("provision")
+  @UseGuards(OpsTokenGuard)
+  provisionAll(): Promise<ProvisionResult[]> {
+    return this.provision.provisionAll();
+  }
+
+  /**
+   * POST /api/fleet/:storeId/provision
+   *
+   * Create a Studio collector for a single store. Returns immediately if
+   * the store already has a collector.
+   */
+  @Post(":storeId/provision")
+  @UseGuards(OpsTokenGuard)
+  provisionOne(@Param("storeId") storeId: string): Promise<ProvisionResult> {
+    return this.provision.provisionStore(storeId);
+  }
+
+  /** GET /api/fleet/unprovisioned */
+  @Get("unprovisioned")
+  @UseGuards(OpsTokenGuard)
+  unprovisioned(): Promise<string[]> {
+    return this.provision.unprovisionedStores();
   }
 }

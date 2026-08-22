@@ -18,6 +18,7 @@ type FleetRow = {
   incident_state: string | null;
   heals_today: string;
   has_template: boolean;
+  is_pullable: boolean;
 };
 
 /**
@@ -51,7 +52,8 @@ export class FleetRepository {
         exists(
           select 1 from scraper_templates st
           where st.scraper_id = s.studio_collector_id
-        ) as has_template
+        ) as has_template,
+        (s.method is not null and s.method <> 'none') as is_pullable
       from stores s
       left join lateral (
         select at, rows, status, null_rate_pct from runs
@@ -91,9 +93,37 @@ export class FleetRepository {
           healsToday: Number(row.heals_today),
           openIncidentId: status === "healthy" ? null : row.incident_id,
           hasTemplate: row.has_template,
+          isPullable: row.is_pullable,
         } satisfies FleetScraper,
       ];
     });
+  }
+
+  async getCollectorId(storeId: string): Promise<string | null> {
+    const rows = (await this.db.execute(sql`
+      select studio_collector_id from stores where store_id = ${storeId}
+    `)) as unknown as { studio_collector_id: string | null }[];
+    return rows[0]?.studio_collector_id ?? null;
+  }
+
+  async setCollectorId(storeId: string, collectorId: string): Promise<void> {
+    await this.db.execute(sql`
+      update stores set studio_collector_id = ${collectorId} where store_id = ${storeId}
+    `);
+  }
+
+  async setStudioEndpoint(storeId: string, endpoint: string): Promise<void> {
+    await this.db.execute(sql`
+      update stores set studio_endpoint = ${endpoint} where store_id = ${storeId}
+    `);
+  }
+
+  async upsertScraper(collectorId: string, name: string, targetSite: string): Promise<void> {
+    await this.db.execute(sql`
+      insert into scrapers (id, name, target_site, output_schema, status)
+      values (${collectorId}, ${name}, ${targetSite}, '[]'::jsonb, 'healthy')
+      on conflict (id) do update set name = excluded.name, target_site = excluded.target_site
+    `);
   }
 }
 
