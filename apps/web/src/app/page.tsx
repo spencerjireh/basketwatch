@@ -29,6 +29,21 @@ export default async function Page() {
 
   const totalStores = new Set(rails.flatMap((r) => r.pins.map((p) => p.storeId))).size;
 
+  // Server-rendered, but set on the landscape itself: the client boundary
+  // threads it through as the hero overlay.
+  const hero = (
+    <>
+      <h1 className="font-display text-[38px] leading-[1.05] tracking-[-0.015em] sm:text-[60px]">
+        What ten staples cost today.
+      </h1>
+      <p className="mt-4 max-w-[44ch] text-[14px] text-mute">
+        Priced off the shelf in {totalStores} stores across two countries, at the same
+        quantities in each. Not a survey, and not an average — the cheapest unit price we can
+        actually see.
+      </p>
+    </>
+  );
+
   const midBand = (
     <>
       <Section
@@ -52,39 +67,28 @@ export default async function Page() {
   );
 
   return (
-    <main className="mx-auto min-h-screen w-full max-w-[1240px] px-5 pb-24 pt-10">
-      <section className="max-w-[62ch]">
-        <h1 className="font-display text-[34px] leading-[1.12] tracking-[-0.01em]">
-          What ten staples cost today.
-        </h1>
-        <p className="mt-3 text-[14px] text-mute">
-          Priced off the shelf in {totalStores} stores across two countries, at the same quantities
-          in each. Not a survey, and not an average — the cheapest unit price we can actually
-          see.
-        </p>
-      </section>
+    <main className="min-h-screen w-full pb-24">
+      <BasketExplorer rails={rails} hero={hero} midBand={midBand} />
 
-      <div className="mt-10">
-        <BasketExplorer rails={rails} midBand={midBand} />
-      </div>
-
-      <Section
-        className="mt-14"
-        title="How we know"
-        caption="Every number here came off a shelf, and we keep the receipts."
-      >
-        <p className="max-w-[52ch] text-[13px] text-mute">
-          Prices are read from each store&apos;s own catalogue, not from a panel or a survey.
-          When a scraper breaks, the basket stops rather than carrying yesterday&apos;s number
-          forward, and the pins we do not trust are excluded and named.
-        </p>
-        <CountryLink
-          href="/behind"
-          className="mt-4 inline-block text-[13px] underline decoration-1 underline-offset-4 transition-colors hover:text-heal"
+      <div className="mx-auto w-full max-w-[1240px] px-5">
+        <Section
+          className="mt-14"
+          title="How we know"
+          caption="Every number here came off a shelf, and we keep the receipts."
         >
-          Behind the data →
-        </CountryLink>
-      </Section>
+          <p className="max-w-[52ch] text-[13px] text-mute">
+            Prices are read from each store&apos;s own catalogue, not from a panel or a survey.
+            When a scraper breaks, the basket stops rather than carrying yesterday&apos;s number
+            forward, and the pins we do not trust are excluded and named.
+          </p>
+          <CountryLink
+            href="/behind"
+            className="mt-4 inline-block text-[13px] underline decoration-1 underline-offset-4 transition-colors hover:text-heal"
+          >
+            Behind the data →
+          </CountryLink>
+        </Section>
+      </div>
     </main>
   );
 }
