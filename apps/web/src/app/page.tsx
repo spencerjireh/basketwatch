@@ -17,8 +17,11 @@ import { apiGet } from "@/lib/api/server";
  * The one theatrical thing on the page is the price landscape: stores across,
  * staples into depth, height = times the cheapest. It is navigation, not
  * decoration -- hover reads a point out in words, click lands on the staple
- * section at the bottom. Between the two sits the answer a shopper actually
- * came for: the cheapest cart, then what the basket has done over time.
+ * section at the bottom. Its headline and its flat twin belong to the client
+ * boundary, because both answer to the country switcher.
+ *
+ * What is server-rendered here is the mid band: the answer a shopper actually
+ * came for, the cheapest cart, and then what the basket has done over time.
  */
 export default async function Page() {
   const [basketIndex, basketItems, rails] = await Promise.all([
@@ -26,23 +29,6 @@ export default async function Page() {
     apiGet(routes.basketToday, basketTodayResponseSchema),
     apiGet(routes.basketRails, basketRailsResponseSchema),
   ]);
-
-  const totalStores = new Set(rails.flatMap((r) => r.pins.map((p) => p.storeId))).size;
-
-  // Server-rendered, but set on the landscape itself: the client boundary
-  // threads it through as the hero overlay.
-  const hero = (
-    <>
-      <h1 className="font-display text-[38px] leading-[1.05] tracking-[-0.015em] sm:text-[60px]">
-        What ten staples cost today.
-      </h1>
-      <p className="mt-4 max-w-[44ch] text-[14px] text-mute">
-        Priced off the shelf in {totalStores} stores across two countries, at the same
-        quantities in each. Not a survey, and not an average — the cheapest unit price we can
-        actually see.
-      </p>
-    </>
-  );
 
   // One band, two columns: the receipt on the left, the history filling the
   // paper the old stacked layout left dead on the right.
@@ -66,7 +52,7 @@ export default async function Page() {
 
   return (
     <main className="min-h-screen w-full pb-24">
-      <BasketExplorer rails={rails} hero={hero} midBand={midBand} />
+      <BasketExplorer rails={rails} midBand={midBand} />
 
       <div className="mx-auto w-full max-w-[1240px] px-5">
         <Section
@@ -75,9 +61,9 @@ export default async function Page() {
           caption="Every number here came off a shelf, and we keep the receipts."
         >
           <p className="max-w-[52ch] text-[13px] text-mute">
-            Prices are read from each store&apos;s own catalogue, not from a panel or a survey.
-            When a scraper breaks, the basket stops rather than carrying yesterday&apos;s number
-            forward, and the pins we do not trust are excluded and named.
+            Prices are read from each store&apos;s own catalogue, not from a panel or a survey. When
+            a scraper breaks, the basket stops rather than carrying yesterday&apos;s number forward,
+            and the pins we do not trust are excluded and named.
           </p>
           <CountryLink
             href="/behind"

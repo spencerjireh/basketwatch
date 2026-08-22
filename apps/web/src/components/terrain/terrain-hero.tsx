@@ -14,8 +14,8 @@ import { cn } from "@/lib/utils";
 /*
  * The 3D scene is client-only and lazy: it never renders on the server, and
  * three.js never enters the initial route bundle. The ridgeline below draws
- * the same grid, and is drawn only where the scene cannot be: when WebGL is
- * unavailable it is the hero. Everywhere else it stays mounted but visually
+ * the same grid, and is laid out whenever the reader asks for it or the scene
+ * cannot be drawn at all. The rest of the time it stays mounted but visually
  * hidden, carrying the landscape for keyboard and screen-reader access.
  */
 const TerrainScene = dynamic(() => import("./terrain-scene"), {
@@ -41,6 +41,12 @@ function parseWeatherOverride(raw: string | null): number | null {
  * to the staple's section. The readout has a fixed height so hovering never
  * shifts anything.
  *
+ * Two views of the one grid, and the reader picks. The relief is the default
+ * everywhere, including phones; the flat ridgeline is a click away in the
+ * bottom bar. It was always drawn -- it is what WebGL-less browsers get -- and
+ * hiding a working chart behind a capability probe served nobody who simply
+ * found the relief hard to read.
+ *
  * Stacking, bottom to top: the sky gradient on the container, the staple
  * etching watermark (z-0), the headline (z-[1]), the scene (z-[2]) -- so the
  * far summits graze the headline's descenders and drift over the etching --
@@ -57,8 +63,10 @@ export function TerrainHero({
   weather: number;
   overlay?: ReactNode;
 }) {
-  const { hovered, selected, setHovered, select, clear } = useSelection();
+  const { hovered, selected, hoveredStore, setHovered, setHoveredStore, select, clear } =
+    useSelection();
   const [webgl, setWebgl] = useState<boolean | null>(null);
+  const [mode, setMode] = useState<"relief" | "flat">("relief");
   const [sceneLive, setSceneLive] = useState(false);
   const [weatherOverride, setWeatherOverride] = useState<number | null>(null);
 
@@ -74,7 +82,11 @@ export function TerrainHero({
     setWebgl(Boolean(probe.getContext("webgl2") ?? probe.getContext("webgl")));
   }, []);
 
-  const showScene = webgl === true;
+  // Without WebGL there is no choice to offer, so the control is not drawn and
+  // the flat view is simply the hero.
+  const canChoose = webgl === true;
+  const flat = webgl === false || mode === "flat";
+  const showScene = webgl === true && mode === "relief";
   const w = weatherOverride ?? clamp01(weather);
   // A live hover outranks the pin; the pin keeps the readout when the pointer
   // leaves, which is what makes a click feel like it held something.
@@ -132,7 +144,9 @@ export function TerrainHero({
             weather={w}
             hovered={hovered}
             selected={selected}
+            hoveredStore={hoveredStore}
             onHover={setHovered}
+            onHoverStore={setHoveredStore}
             onSelect={select}
             onClear={clear}
             onReady={() => setSceneLive(true)}
@@ -140,13 +154,14 @@ export function TerrainHero({
         </div>
       ) : null}
       {grid ? (
-        /* Drawn only where the scene cannot be. `webgl` is null for the tick
-           before the probe answers, and a chart that appears for that tick and
-           then leaves reads as a placeholder that failed to clear -- so the
-           layout is spent on a settled `false`, and nothing else. Mounted
-           either way: the sr-only cell buttons inside are the landscape's
-           keyboard and screen-reader surface. */
-        <div className={webgl === false ? ridgeLayout : "sr-only"}>
+        /* Laid out when the reader asked for it, and when the scene cannot be
+           drawn at all. `webgl` is null for the tick before the probe answers,
+           and a chart that appears for that tick and then leaves reads as a
+           placeholder that failed to clear -- so the layout is spent on a
+           settled answer, never on the pending one. Mounted either way: the
+           sr-only cell buttons inside are the landscape's keyboard and screen
+           reader surface. */
+        <div className={flat ? ridgeLayout : "sr-only"}>
           <Ridgeline grid={grid} weather={w} />
         </div>
       ) : (
@@ -158,11 +173,11 @@ export function TerrainHero({
       {/* The readout, pinned to the scene's bottom edge as a paper chip.
           Anchored by its bottom so a wrapped line grows upward into the
           scene instead of shifting anything. */}
-      <div
-        aria-live="polite"
-        className="pointer-events-none absolute inset-x-0 bottom-0 z-20 flex min-h-[46px] items-end px-5 pb-4 sm:px-8"
-      >
-        <p className="border border-line bg-paper/85 px-2.5 py-1.5 text-[12.5px] backdrop-blur-[2px]">
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 z-20 flex min-h-[46px] items-end justify-between gap-4 px-5 pb-4 sm:px-8">
+        <p
+          aria-live="polite"
+          className="border border-line bg-paper/85 px-2.5 py-1.5 text-[12.5px] backdrop-blur-[2px]"
+        >
           {cell ? (
             <>
               <span className="font-medium">{cell.storeName}</span>
@@ -181,12 +196,45 @@ export function TerrainHero({
               </span>
             </>
           ) : (
+            /* The axes are named here because nothing else names them any
+               more: the store labels are down until one is pointed at, and a
+               reader who never reaches for the landscape should still know
+               what its floor is measuring. Worded to hold for both views --
+               the staples run into depth in the relief and down the page in
+               the flat one, but either way there is one to a row. */
             <span className="text-mute">
-              Height is how many times the cheapest store prices that staple. Hover to read a
-              price; click to open the staple below.
+              Stores across, one staple to a row; height is how many times the cheapest store prices
+              that staple. Hover to read a price; click to open the staple below.
             </span>
           )}
         </p>
+
+        {canChoose ? (
+          /* Same control the country switcher uses in the nav, because it is
+             the same kind of thing: a mode, not a filter. */
+          <div
+            role="group"
+            aria-label="Landscape view"
+            className="pointer-events-auto flex shrink-0 gap-4 border border-line bg-paper/85 px-2.5 py-1.5 backdrop-blur-[2px]"
+          >
+            {(["relief", "flat"] as const).map((option) => (
+              <button
+                key={option}
+                type="button"
+                aria-pressed={mode === option}
+                onClick={() => setMode(option)}
+                className={cn(
+                  "caps transition-colors",
+                  mode === option
+                    ? "border-b border-ink text-ink"
+                    : "border-b border-transparent text-mute hover:text-ink",
+                )}
+              >
+                {option === "relief" ? "Relief" : "Flat"}
+              </button>
+            ))}
+          </div>
+        ) : null}
       </div>
     </div>
   );

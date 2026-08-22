@@ -54,9 +54,8 @@ const NOISE_AMP = 0.05; // surface ripple; suppressed at apexes and clearings
 const NOISE_SCALE = 0.55; // ripple lattice pitch, world units
 const SAG_FLOOR = 0.33; // how far the land sags where no peak's own shape reaches
 const SUPPORT_R = 2.0; // massif support radius, in grid steps
-const STAIN_R = X_STEP * 0.55; // radius of a hover/pin stain
-const GHOST_W = (X_STEP - KERNEL_RX) * 2 * 0.95; // fits the flat clearing
-const GHOST_D = (Z_STEP - KERNEL_RZ) * 2 * 0.95;
+const STAIN_R = X_STEP * 0.55; // radius of a hover/pin stain, and of a column scan
+const ROW_STAIN_R = Z_STEP * 0.55; // a row scan is narrower: staples sit closer than stores
 const BASE_H = 0.1; // slab thickness
 
 // A few degrees of pointer-driven drift; enough to separate the rows, not
@@ -103,7 +102,10 @@ type SceneProps = {
   weather: number;
   hovered: CellRef | null;
   selected: CellRef | null;
+  /** the store lit front to back, from wherever on the page it was pointed at */
+  hoveredStore: string | null;
   onHover: (ref: CellRef | null) => void;
+  onHoverStore: (storeId: string | null) => void;
   onSelect: (ref: CellRef) => void;
   onClear: () => void;
   onReady: () => void;
@@ -125,8 +127,7 @@ function shortLabel(label: string): string {
 
 const storeX = (grid: TerrainGrid, col: number) => (col - (grid.stores.length - 1) / 2) * X_STEP;
 /** Row 0 sits at the front, so the list order and the depth order agree. */
-const stapleZ = (grid: TerrainGrid, row: number) =>
-  ((grid.staples.length - 1) / 2 - row) * Z_STEP;
+const stapleZ = (grid: TerrainGrid, row: number) => ((grid.staples.length - 1) / 2 - row) * Z_STEP;
 
 const peakHeight = (height: number) => H_BASE + height * H_MAX;
 /** Where a ratio sits on the y axis -- the etched reference lines use the same map as the prisms. */
@@ -216,13 +217,14 @@ export default function TerrainScene({
   weather,
   hovered,
   selected,
+  hoveredStore,
   onHover,
+  onHoverStore,
   onSelect,
   onClear,
   onReady,
 }: SceneProps) {
   const [reduced, setReduced] = useState(false);
-  const [hoverStoreId, setHoverStoreId] = useState<string | null>(null);
 
   // Whether the rise has finished. The labels and the reference rings are
   // projected from full-height world anchors, so during the rise they would
@@ -281,7 +283,12 @@ export default function TerrainScene({
   };
 
   return (
-    <div ref={container} className="absolute inset-0" onPointerMove={placeTooltip}>
+    <div
+      ref={container}
+      className="absolute inset-0"
+      onPointerMove={placeTooltip}
+      onPointerLeave={() => onHoverStore(null)}
+    >
       <Canvas
         camera={{ fov: 30 }}
         shadows={{ enabled: true, type: THREE.PCFShadowMap }}
@@ -315,11 +322,7 @@ export default function TerrainScene({
           shadow-camera-bottom={-shadowExtent}
           shadow-camera-far={40}
         />
-        <directionalLight
-          position={[9, 6, -9]}
-          intensity={0.45 + 0.1 * weather}
-          color="#f4ecdc"
-        />
+        <directionalLight position={[9, 6, -9]} intensity={0.45 + 0.1 * weather} color="#f4ecdc" />
         <Slab grid={grid} onHover={onHover} onClear={onClear} />
         <Etchings grid={grid} visible={settled} />
         <Motes grid={grid} weather={weather} animate={!reduced} />
@@ -328,7 +331,7 @@ export default function TerrainScene({
           weather={weather}
           hovered={hovered}
           selected={selected}
-          scanStoreId={hovered?.storeId ?? hoverStoreId}
+          scanStoreId={hovered?.storeId ?? hoveredStore}
           onHover={onHover}
           onSelect={onSelect}
           animate={!reduced}
@@ -348,17 +351,34 @@ export default function TerrainScene({
         {worldAnchors.map((anchor) => {
           if (anchor.kind === "store") {
             const storeId = anchor.key.slice("store:".length);
+            const lit = hovered?.storeId === storeId || hoveredStore === storeId;
             return (
+              /*
+               * The store axis names one column and only while it is pointed
+               * at -- from a prism up here, or from its bar in the ranking
+               * below. At rest the hero is land and nothing else, which is the
+               * whole reason the axis was quieted; a row of names standing
+               * over it is a legend printed on a picture.
+               *
+               * Every label stays mounted and projected either way, so the one
+               * that lights is already in position. Inert, though: an
+               * invisible label with pointer events is a box that swallows the
+               * hover meant for the prism underneath it.
+               */
               <span
                 key={anchor.key}
                 ref={registerLabel(anchor.key)}
-                onMouseEnter={() => setHoverStoreId(storeId)}
-                onMouseLeave={() => setHoverStoreId(null)}
                 className={cn(
-                  "pointer-events-auto absolute -translate-x-1/2 -translate-y-1/2 cursor-default whitespace-nowrap font-mono text-[11px] transition-colors",
-                  hovered?.storeId === storeId || hoverStoreId === storeId
-                    ? "text-ink"
-                    : "text-ink/60",
+                  // Lifted clear of its anchor rather than centred on it: on a
+                  // shallow grid the front edge projects low enough that a
+                  // centred label sits behind the readout chip.
+                  //
+                  // On paper, in the same survey tag the summit wears. Bare
+                  // type here has to be read off the slab, the haze and a
+                  // shadow at once, and it loses: the chip is what makes one
+                  // name legible the instant it appears.
+                  "pointer-events-none absolute -translate-x-1/2 -translate-y-[calc(100%+10px)] whitespace-nowrap border border-line bg-paper/85 px-1.5 py-0.5 font-mono text-[11px] text-ink backdrop-blur-[2px] transition-opacity duration-200",
+                  lit ? "opacity-100" : "opacity-0",
                 )}
                 style={{ left: "-9999px", top: "0px" }}
               >
@@ -379,8 +399,19 @@ export default function TerrainScene({
                   if (ref) onSelect(ref);
                 }}
                 className={cn(
-                  "pointer-events-auto absolute -translate-x-full -translate-y-1/2 cursor-pointer whitespace-nowrap pr-1 font-mono text-[11px] transition-colors hover:text-ink",
-                  hovered?.itemKey === itemKey ? "text-ink" : "text-ink/60",
+                  // Not the store name's paper tag: these sit out over bare
+                  // paper, where a paper chip is invisible. The rule the nav
+                  // already uses for "this is the live one" works here, and it
+                  // is drawn transparent at rest so lighting a row cannot shift
+                  // the column of names by a pixel.
+                  //
+                  // ink/60 to ink was too small a step to find at 11px beside a
+                  // moving landscape; the weight and the rule together are not.
+                  "pointer-events-auto absolute -translate-x-full -translate-y-1/2 cursor-pointer whitespace-nowrap border-b border-transparent pb-0.5 pr-1 font-mono text-[11px] transition-colors duration-200",
+                  "hover:border-b-ink hover:text-ink",
+                  hovered?.itemKey === itemKey
+                    ? "border-b-ink font-medium text-ink"
+                    : "text-ink/50",
                 )}
                 style={{ left: "-9999px", top: "0px" }}
               >
@@ -503,20 +534,30 @@ function Rig({
       });
     });
     const centroidX = weight > 0 ? (sumX / weight) * 0.55 : 0;
-    // The fov fits the scene vertically; a narrow canvas needs the extra
-    // distance or the flanks and their labels fall off the sides.
+    // The fov fits the scene vertically, so the horizontal room a canvas has is
+    // its aspect. A narrow one needs extra distance or the flanks and their
+    // labels fall off the sides -- and so, less obviously, does a laptop-shaped
+    // one: at 4:3 the slab ran past both edges and took the first and last
+    // store's name with it. The middle term pulls back for those, capped so it
+    // can never overtake the portrait case beside it.
     const aspect = size.width / Math.max(1, size.height);
-    const fit = Math.max(1, 1.05 / aspect);
+    const fit = Math.max(1, 1.05 / aspect, Math.min(1.35, 1.9 / aspect));
     // The full-bleed frame shares its top-left with the headline, so the
-    // massif is shifted right and aimed above the ground line -- which
+    // massif is shifted right and aimed well above the ground line -- which
     // drops it low in the frame and leaves the type its clear air.
+    //
+    // The aim sits higher than it used to. The headline states the finding now
+    // rather than labelling the picture, and a summit through a claim's
+    // x-height costs more than the crossing is worth: the range should graze
+    // the descenders and pass under the baseline, the way a range crosses a
+    // map title without swallowing it.
     const shiftX = -w * 0.08;
     base.current.position.set(
       centroidX + w * 0.02 + shiftX,
-      (8.0 + d * 0.56) * fit,
+      (8.2 + d * 0.56) * fit,
       (d / 2 + 11.8 + w * 0.34) * fit,
     );
-    base.current.target.set(centroidX + shiftX, 0.55, -d * 0.1);
+    base.current.target.set(centroidX + shiftX, 0.8, -d * 0.1);
     camera.position.copy(base.current.position);
     camera.lookAt(base.current.target);
     camera.updateProjectionMatrix();
@@ -633,10 +674,7 @@ function Etchings({ grid, visible }: { grid: TerrainGrid; visible: boolean }) {
         const geometry = new THREE.BufferGeometry();
         geometry.setAttribute(
           "position",
-          new THREE.Float32BufferAttribute(
-            [-w, y, -d, w, y, -d, w, y, d, -w, y, d],
-            3,
-          ),
+          new THREE.Float32BufferAttribute([-w, y, -d, w, y, -d, w, y, d, -w, y, d], 3),
         );
         return { ratio, geometry };
       });
@@ -782,9 +820,7 @@ function buildPeaks(grid: TerrainGrid): (Peak | null)[][] {
       const angle = (hash2(row * 31 + 7, col * 17 + 3) - 0.5) * (Math.PI / 6);
       const a = 1 + (hash2(row * 13 + 1, col * 29 + 11) - 0.5) * 0.2;
       const sharp =
-        1.6 +
-        (1.0 * (apex - H_BASE)) / H_MAX +
-        (hash2(row * 41 + 5, col * 23 + 19) - 0.5) * 0.5;
+        1.6 + (1.0 * (apex - H_BASE)) / H_MAX + (hash2(row * 41 + 5, col * 23 + 19) - 0.5) * 0.5;
       return {
         cx: storeX(grid, col),
         cz: stapleZ(grid, row),
@@ -875,12 +911,9 @@ function heightAt(grid: TerrainGrid, peaks: (Peak | null)[][], x: number, z: num
 
   // The ripple carries a ridged octave -- gullies on the working slopes --
   // and stays silent at summits and at the feet.
-  const gully =
-    (1 - Math.abs(2 * valueNoise(x + 137.7, z - 91.3, NOISE_SCALE * 0.6) - 1)) * 0.035;
+  const gully = (1 - Math.abs(2 * valueNoise(x + 137.7, z - 91.3, NOISE_SCALE * 0.6) - 1)) * 0.035;
   const ripple =
-    ((valueNoise(x, z) - 0.5) * 2 * NOISE_AMP + gully) *
-    smoothstep01(base / 0.3) *
-    (1 - env);
+    ((valueNoise(x, z) - 0.5) * 2 * NOISE_AMP + gully) * smoothstep01(base / 0.3) * (1 - env);
   const w = slabWidth(grid) / 2 - RIM;
   const d = slabDepth(grid) / 2 - RIM;
   const feather =
@@ -926,10 +959,7 @@ function buildFieldGeometry(grid: TerrainGrid, peaks: (Peak | null)[][]): THREE.
 
   const geometry = new THREE.BufferGeometry();
   geometry.setAttribute("position", new THREE.BufferAttribute(positions, 3));
-  geometry.setAttribute(
-    "color",
-    new THREE.BufferAttribute(new Float32Array(positions.length), 3),
-  );
+  geometry.setAttribute("color", new THREE.BufferAttribute(new Float32Array(positions.length), 3));
   geometry.setIndex(index);
   geometry.computeVertexNormals();
   return geometry;
@@ -1003,7 +1033,14 @@ function paintBase(
   return colors;
 }
 
-type Stain = { x: number; z: number; weight: number; column: boolean };
+type Stain = {
+  x: number;
+  z: number;
+  weight: number;
+  /** `cell` is a round blot; `column` runs front to back, `row` left to right */
+  axis: "cell" | "column" | "row";
+  radius: number;
+};
 
 /**
  * Attention as cloud shadow: restore the cached base coat, then darken
@@ -1027,10 +1064,13 @@ function applyStains(
       const z = position.getZ(i);
       let w = 0;
       for (const stain of stains) {
-        const dist = stain.column
-          ? Math.abs(x - stain.x)
-          : Math.hypot(x - stain.x, z - stain.z);
-        const k = stain.weight * smoothstep01(1 - dist / STAIN_R);
+        const dist =
+          stain.axis === "column"
+            ? Math.abs(x - stain.x)
+            : stain.axis === "row"
+              ? Math.abs(z - stain.z)
+              : Math.hypot(x - stain.x, z - stain.z);
+        const k = stain.weight * smoothstep01(1 - dist / stain.radius);
         if (k > w) w = k;
       }
       if (w > 0.003) {
@@ -1069,14 +1109,11 @@ function Relief({
   const peaks = useMemo(() => buildPeaks(grid), [grid]);
   const geometry = useMemo(() => buildFieldGeometry(grid, peaks), [grid, peaks]);
   useEffect(() => () => geometry.dispose(), [geometry]);
-  const baseColors = useMemo(
-    () => paintBase(grid, geometry, weather),
-    [grid, geometry, weather],
-  );
+  const baseColors = useMemo(() => paintBase(grid, geometry, weather), [grid, geometry, weather]);
 
   // The entrance: the whole relief rises out of the slab, prices pushing
   // the ground up. One scale on the group that already holds everything
-  // that must rise together -- terrain, hit boxes, cairns, ghosts, stakes.
+  // that must rise together -- terrain, hit boxes and cairns.
   const lift = useRef<THREE.Group>(null);
   const progress = useRef(1);
 
@@ -1102,21 +1139,48 @@ function Relief({
 
   useEffect(() => {
     const stains: Stain[] = [];
-    const cellStain = (ref: CellRef, weight: number): void => {
+    const cellStain = (ref: CellRef, weight: number, band = 0): void => {
       if (ref.country !== grid.country) return;
       const row = grid.staples.findIndex((staple) => staple.itemKey === ref.itemKey);
       const col = grid.stores.findIndex((store) => store.storeId === ref.storeId);
       if (row < 0 || col < 0) return;
-      stains.push({ x: storeX(grid, col), z: stapleZ(grid, row), weight, column: false });
+      stains.push({
+        x: storeX(grid, col),
+        z: stapleZ(grid, row),
+        weight,
+        axis: "cell",
+        radius: STAIN_R,
+      });
+      // The staple's whole row, left to right. A hovered store already gets its
+      // column scanned; without this the other axis went unanswered, and a
+      // reader could see which store a price came from but not which row of the
+      // landscape they were reading along.
+      if (band > 0) {
+        stains.push({
+          x: 0,
+          z: stapleZ(grid, row),
+          weight: band,
+          axis: "row",
+          radius: ROW_STAIN_R,
+        });
+      }
     };
-    if (hovered) cellStain(hovered, 0.5);
+    if (hovered) cellStain(hovered, 0.5, 0.22);
     if (selected) cellStain(selected, 0.32);
     // The whole store, front to back, as the shadow of a cloud crossing it.
     // This is the only mark a lit column gets: stakes standing over each
     // summit read louder than the summits, which are the subject.
     if (scanStoreId) {
       const col = grid.stores.findIndex((store) => store.storeId === scanStoreId);
-      if (col >= 0) stains.push({ x: storeX(grid, col), z: 0, weight: 0.18, column: true });
+      if (col >= 0) {
+        stains.push({
+          x: storeX(grid, col),
+          z: 0,
+          weight: 0.18,
+          axis: "column",
+          radius: STAIN_R,
+        });
+      }
     }
     applyStains(geometry, baseColors, stains);
     invalidate();
@@ -1137,67 +1201,10 @@ function Relief({
     return apex + 0.15;
   };
 
-  // One dashed plot per gap, draped over the terrain surface -- the land
-  // may bridge a missing price with a low pass, but the plot nobody priced
-  // stays marked on it.
-  const ghosts = useMemo(() => {
-    const wx = GHOST_W / 2;
-    const wz = GHOST_D / 2;
-    const corners: [number, number][] = [
-      [-wx, -wz],
-      [wx, -wz],
-      [wx, wz],
-      [-wx, wz],
-    ];
-    const SAMPLES = 4; // per edge; enough to follow the pass's curvature
-    const list: { key: string; geometry: THREE.BufferGeometry }[] = [];
-    grid.staples.forEach((staple, row) => {
-      (grid.cells[row] ?? []).forEach((cell, col) => {
-        const store = grid.stores[col];
-        if (!store || cell) return;
-        const cx = storeX(grid, col);
-        const cz = stapleZ(grid, row);
-        const positions: number[] = [];
-        const distances: number[] = [];
-        let dist = 0;
-        let prevX = 0;
-        let prevZ = 0;
-        for (let e = 0; e < 4; e += 1) {
-          const [ax, az] = corners[e]!;
-          const [bx, bz] = corners[(e + 1) % 4]!;
-          for (let t = 0; t < SAMPLES; t += 1) {
-            const px = cx + ax + ((bx - ax) * t) / SAMPLES;
-            const pz = cz + az + ((bz - az) * t) / SAMPLES;
-            const py = heightAt(grid, peaks, px, pz) + 0.025;
-            if (positions.length > 0) dist += Math.hypot(px - prevX, pz - prevZ);
-            positions.push(px, py, pz);
-            distances.push(dist);
-            prevX = px;
-            prevZ = pz;
-          }
-        }
-        const geometry = new THREE.BufferGeometry();
-        geometry.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
-        geometry.setAttribute(
-          "lineDistance",
-          new THREE.Float32BufferAttribute(distances, 1),
-        );
-        list.push({ key: `${staple.itemKey}:${store.storeId}`, geometry });
-      });
-    });
-    return list;
-  }, [grid, peaks]);
-  useEffect(() => () => ghosts.forEach((g) => g.geometry.dispose()), [ghosts]);
-
   return (
     <group ref={lift}>
       <mesh geometry={geometry} castShadow receiveShadow raycast={() => null}>
-        <meshStandardMaterial
-          vertexColors
-          roughness={0.95}
-          metalness={0}
-          side={THREE.DoubleSide}
-        />
+        <meshStandardMaterial vertexColors roughness={0.95} metalness={0} side={THREE.DoubleSide} />
       </mesh>
 
       {grid.staples.map((staple, row) =>
@@ -1242,10 +1249,7 @@ function Relief({
               {cell.cheapest ? (
                 // The summit flag for the cheapest shelf: a gold cairn --
                 // the one colour the landscape itself never wears.
-                <mesh
-                  position={[x, peakHeight(cell.height) + 0.11, z]}
-                  raycast={() => null}
-                >
+                <mesh position={[x, peakHeight(cell.height) + 0.11, z]} raycast={() => null}>
                   <sphereGeometry args={[0.06, 12, 12]} />
                   <meshStandardMaterial color={GOLD} roughness={0.5} />
                 </mesh>
@@ -1254,18 +1258,6 @@ function Relief({
           );
         }),
       )}
-
-      {ghosts.map((g) => (
-        <lineLoop key={`ghost:${g.key}`} geometry={g.geometry} raycast={() => null}>
-          <lineDashedMaterial
-            color={INK}
-            transparent
-            opacity={0.3}
-            dashSize={0.07}
-            gapSize={0.05}
-          />
-        </lineLoop>
-      ))}
     </group>
   );
 }
