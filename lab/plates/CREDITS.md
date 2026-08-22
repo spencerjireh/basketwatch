@@ -16,11 +16,11 @@ outline ships, and the source files stay out of the repository.
 
 ## bread
 
-- Subject: Loaves of bread
-- Source: https://commons.wikimedia.org/wiki/File:Bread,_illustration_from_The_Encyclopedia_of_Food_by_Artemas_Ward.jpg
-- Author: Artemas Ward
+- Subject: A wheat plant in ear
+- Source: https://commons.wikimedia.org/wiki/File:Triticum_aestivum_-_Köhler–s_Medizinal-Pflanzen-274.jpg
+- Author: Walther Otto Müller
 - Licence: Public domain
-- Note: The Encyclopedia of Food, Artemas Ward, 1923. paper=0.66 drops the plate's flat grey ground, which is darker than real paper and would otherwise trace as one solid block.
+- Note: Köhler's Medizinal-Pflanzen, 1887. Wheat rather than a loaf: every usable illustration of bread itself is a composed plate on a printed ground, which traces as a rectangular block instead of an object.
 
 ## chicken
 
@@ -68,7 +68,7 @@ outline ships, and the source files stay out of the repository.
 - Source: https://commons.wikimedia.org/wiki/File:Macaroni_and_Similar_Pastes,_illustration_from_The_Encyclopedia_of_Food_by_Artemas_Ward.jpg
 - Author: Artemas Ward
 - Licence: Public domain
-- Note: The Encyclopedia of Food, Artemas Ward, 1923. The specimen chart is pale pasta on a black ground, so this one is inverted; cropped to figure 50, the nest, and above the caption.
+- Note: The Encyclopedia of Food, Artemas Ward, 1923. Pale pasta on a black ground, so this one is inverted, and paper=0.66 then drops that ground -- otherwise the plate is a rectangle rather than a nest. Cropped to figure 50, clear of the neighbouring shapes and the caption.
 
 ## rice
 
