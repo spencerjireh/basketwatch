@@ -53,7 +53,18 @@ export function summarise(kind: IncidentKind, evidence: IncidentEvidence, raw: u
     case "freshness":
       return "Expected delivery did not arrive";
     case "studio_failed":
+    case "studio_error":
       return "Scraper Studio did not return usable rows";
+    case "studio_broken":
+      return "Scraper Studio returned rows, but none matched the output contract";
+    case "studio_timeout":
+      return "Scraper Studio did not finish inside the deadline";
+    case "studio_empty":
+      return "Scraper Studio ran and returned nothing at all";
+    case "sitemap_error":
+      return "No URLs to submit: catalogue discovery came back empty";
+    case "provisioning_error":
+      return "No Studio collector exists for this store yet";
     case "mass_change_suppressed":
       return `Nearly every price moved at once (${evidence.rowCount} rows); the run was recorded but not applied`;
     case "error":

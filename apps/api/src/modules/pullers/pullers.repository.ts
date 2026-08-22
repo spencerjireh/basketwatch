@@ -199,6 +199,20 @@ export class PullersRepository {
     return Number(run!.id);
   }
 
+  /**
+   * Store-scoped and kind-agnostic, matching the validator's rule exactly: one
+   * open incident per store suppresses the next. A repeatedly failing store
+   * would otherwise stack a fresh incident, and a fresh heal, on every run.
+   */
+  async hasOpenIncident(storeId: string): Promise<boolean> {
+    const rows = (await this.db.execute(sql`
+      select 1 from incidents
+      where store_id = ${storeId} and state in ('open', 'healing')
+      limit 1
+    `)) as unknown as unknown[];
+    return rows.length > 0;
+  }
+
   async openIncident(
     storeId: string,
     runId: number,
