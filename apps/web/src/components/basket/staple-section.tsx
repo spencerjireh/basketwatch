@@ -5,6 +5,7 @@ import { formatBasis, formatMoney } from "@/lib/format";
 import { spread } from "@/lib/scale";
 import { cn } from "@/lib/utils";
 import { useSelection } from "@/components/terrain/selection";
+import { StaplePlate } from "@/components/plates/staple-plate";
 
 /**
  * One staple, as a section the terrain can land on. The header states the
@@ -16,8 +17,23 @@ import { useSelection } from "@/components/terrain/selection";
  * Excluded pins are listed underneath as sentences rather than drawn: a
  * seventy-seven-times outlier on the axis would smear the real comparison,
  * and the exclusion is worth reading anyway.
+ *
+ * The staple's plate sits oversized in the margin, cropped by the row's own
+ * edge and alternating sides down the list. It is the one place on this page
+ * where the art is allowed to be loud, and it earns it by doing a job: the
+ * plate lifts when the row is hovered or landed on from the landscape, which
+ * is what makes a click from the massif feel like it arrived somewhere.
  */
-export function StapleSection({ rail }: { rail: Rail }) {
+/**
+ * The plate's own vignette is cropped away by `cover`, so the fade is redrawn
+ * here. The centre sits off toward the outer edge but not on it: the row is a
+ * column on the page, not the page, so a plate that stayed solid to the edge
+ * would end on a hard vertical cut a hundred pixels in from the window.
+ */
+const edgeFade = (right: boolean) =>
+  `radial-gradient(42% 58% at ${right ? "68%" : "32%"} 50%, #000 12%, transparent 100%)`;
+
+export function StapleSection({ rail, index }: { rail: Rail; index: number }) {
   const { hovered, selected, setHovered } = useSelection();
 
   const drawn = rail.pins
@@ -35,14 +51,40 @@ export function StapleSection({ rail }: { rail: Rail }) {
   const landed = selected?.itemKey === rail.itemKey && selected.country === rail.country;
   const winner = drawn[0];
 
+  // Row-level attention, derived from the per-pin hover the bars already use.
+  // The plate answers to the whole row; the bars keep answering to one pin.
+  const attended =
+    landed || (hovered?.itemKey === rail.itemKey && hovered.country === rail.country);
+  const plateRight = index % 2 === 0;
+
   return (
     <li
       id={`staple-${rail.itemKey}`}
       className={cn(
-        "scroll-mt-24 border-b border-line px-2 py-5 transition-colors duration-700",
+        "relative overflow-hidden scroll-mt-24 border-b border-line px-2 py-5 transition-colors duration-700",
         landed ? "bg-wash" : "bg-transparent",
       )}
     >
+      {/* Behind everything, and clipped by the row. Cropping the plate to the
+          row is the whole placement, but it also crops away the edge fade the
+          file carries -- so the fade is redrawn here, radial from the outer
+          edge, which holds the art solid where it runs off the page and lets
+          it go before it reaches a price. */}
+      <div
+        aria-hidden="true"
+        className={cn(
+          "pointer-events-none absolute -top-[22%] hidden h-[144%] w-[42%] transition-opacity duration-700 sm:block",
+          plateRight ? "-right-[7%]" : "-left-[7%]",
+          attended ? "opacity-[0.45]" : "opacity-[0.18]",
+        )}
+        style={{ maskImage: edgeFade(plateRight), WebkitMaskImage: edgeFade(plateRight) }}
+      >
+        <StaplePlate itemKey={rail.itemKey} fit="cover" />
+      </div>
+
+      {/* Everything readable rides above the plate and keeps clear of the
+          solid half of it, so a bar never has to be read through a leaf. */}
+      <div className={cn("relative", plateRight ? "sm:pr-[26%]" : "sm:pl-[26%]")}>
       <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
         <h3 className="font-display text-[17px]">{rail.label}</h3>
         <p className="font-mono text-[10.5px] text-mute">
@@ -179,6 +221,7 @@ export function StapleSection({ rail }: { rail: Rail }) {
           too few pins to judge an outlier here
         </p>
       ) : null}
+      </div>
     </li>
   );
 }

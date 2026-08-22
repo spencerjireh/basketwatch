@@ -8,7 +8,7 @@ import { findCell } from "@/lib/terrain/model";
 import type { TerrainGrid } from "@/lib/terrain/model";
 import { Ridgeline } from "@/components/terrain/ridgeline";
 import { useSelection } from "@/components/terrain/selection";
-import { StapleWatermark } from "@/components/terrain/staple-etchings";
+import { PlateWatermark } from "@/components/plates/staple-plate";
 import { cn } from "@/lib/utils";
 
 /*
@@ -119,11 +119,15 @@ export function TerrainHero({
         )}%, #e7e4dd), var(--color-paper) 62%)`,
       }}
     >
-      {/* The staple etchings, faint as a plate's marginalia. Behind even the
-          headline: the massif and the title both ride over them. */}
+      {/* The staple plate, faint as a watermark in the paper. Behind even the
+          headline: the massif and the title both ride over it. Scaled past the
+          frame and clipped by its own wrapper rather than by the hero, so the
+          canvas and the ridgeline keep the layout they were built with. */}
       {grid ? (
-        <div className="pointer-events-none absolute right-8 top-10 z-0 hidden w-[240px] text-ink opacity-[0.07] lg:block">
-          <StapleWatermark staples={grid.staples} activeKey={shown?.itemKey ?? null} />
+        <div className="pointer-events-none absolute inset-0 z-0 hidden overflow-hidden lg:block">
+          <div className="absolute -right-[14%] -top-[30%] h-[150%] w-[62%] opacity-[0.08]">
+            <PlateWatermark staples={grid.staples} activeKey={shown?.itemKey ?? null} />
+          </div>
         </div>
       ) : null}
 

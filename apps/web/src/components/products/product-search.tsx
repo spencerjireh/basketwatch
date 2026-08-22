@@ -10,6 +10,8 @@ import {
   type UnitPriceBasis,
 } from "@basketwatch/contract";
 import { apiGetClient } from "@/lib/api/browser";
+import { PLATE_KEYS, PLATE_SEARCH } from "@/lib/plates";
+import { StaplePlate } from "@/components/plates/staple-plate";
 import { useCountry } from "@/components/country/country";
 import { formatMoney } from "@/lib/format";
 import { cn } from "@/lib/utils";
@@ -169,6 +171,39 @@ export function ProductSearch() {
         <p className="mt-3 font-mono text-[10.5px] text-drift">
           One letter matches almost everything and nothing can index it. Type another.
         </p>
+      ) : null}
+
+      {/*
+       * With nothing typed the list below is the whole catalogue, alphabetically,
+       * which is a fine place to end up and a poor place to start. The ten
+       * staples are the shortcut in for anyone who does not already know what
+       * they are looking for, and they are the same ten the front page prices.
+       * They go the moment a term is typed -- keyed off what is in the box, not
+       * off what the rendered hits came from, so they leave on the keystroke
+       * rather than on the reply.
+       */}
+      {q.trim() === "" ? (
+        <div className="rule mt-8 pt-6">
+          <p className="text-[13px] text-mute">Start from a staple, or scroll the catalogue.</p>
+          <ul className="mt-6 grid grid-cols-2 gap-x-4 gap-y-5 sm:grid-cols-5">
+            {PLATE_KEYS.map((key) => (
+              <li key={key}>
+                <button
+                  type="button"
+                  onClick={() => setQ(PLATE_SEARCH[key].query)}
+                  className="group flex w-full flex-col items-center gap-1.5"
+                >
+                  <span className="relative block aspect-square w-full max-w-[132px] opacity-[0.34] transition-opacity duration-300 group-hover:opacity-[0.68] group-focus-visible:opacity-[0.68]">
+                    <StaplePlate itemKey={key} />
+                  </span>
+                  <span className="font-mono text-[10.5px] uppercase tracking-[0.08em] text-mute transition-colors group-hover:text-ink group-focus-visible:text-ink">
+                    {PLATE_SEARCH[key].label}
+                  </span>
+                </button>
+              </li>
+            ))}
+          </ul>
+        </div>
       ) : null}
 
       <div className="mt-5">
