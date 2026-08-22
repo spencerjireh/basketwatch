@@ -64,11 +64,11 @@ outline ships, and the source files stay out of the repository.
 
 ## pasta
 
-- Subject: Elbow macaroni
-- Source: https://commons.wikimedia.org/wiki/File:Macaroni_and_Similar_Pastes,_illustration_from_The_Encyclopedia_of_Food_by_Artemas_Ward.jpg
-- Author: Artemas Ward
-- Licence: Public domain
-- Note: The Encyclopedia of Food, Artemas Ward, 1923. Pale pasta on a black ground, so this one is inverted, and paper=0.66 then drops that ground. Cropped to the elbows on the right of the chart: the nest at its foot reads as worms once a row crops it, and the long rods above read as a second set of price bars.
+- Subject: Farfalle
+- Source: https://commons.wikimedia.org/wiki/File:Farfalle.png
+- Author: Popo le Chien
+- Licence: CC0
+- Note: Farfalle rather than spaghetti, and a photograph rather than a plate. The period pasta charts are all composed on a printed ground, and every region of them that survives being cropped to a row is either a strip too thin to keep its proportions or a set of horizontal rods that reads as a second row of price bars. A bowtie holds its shape at any crop.
 
 ## rice
 

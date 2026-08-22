@@ -22,19 +22,10 @@
     "note": "Köhler's Medizinal-Pflanzen, 1887. Wheat rather than a loaf: every usable illustration of bread itself is a composed plate on a printed ground, which traces as a rectangular block instead of an object."
   },
   "pasta": {
-    "subject": "Elbow macaroni",
-    "commons": "File:Macaroni and Similar Pastes, illustration from The Encyclopedia of Food by Artemas Ward.jpg",
-    "crop": [
-      0.757,
-      0.48,
-      0.92,
-      0.83
-    ],
-    "invert": true,
-    "min_area": 0.0008,
-    "tolerance": 1.2,
-    "note": "The Encyclopedia of Food, Artemas Ward, 1923. Pale pasta on a black ground, so this one is inverted, and paper=0.66 then drops that ground. Cropped to the elbows on the right of the chart: the nest at its foot reads as worms once a row crops it, and the long rods above read as a second set of price bars.",
-    "paper": 0.66
+    "subject": "Farfalle",
+    "commons": "File:Farfalle.png",
+    "pad": 0.16,
+    "note": "Farfalle rather than spaghetti, and a photograph rather than a plate. The period pasta charts are all composed on a printed ground, and every region of them that survives being cropped to a row is either a strip too thin to keep its proportions or a set of horizontal rods that reads as a second row of price bars. A bowtie holds its shape at any crop."
   },
   "milk": {
     "subject": "A dairy cow",
