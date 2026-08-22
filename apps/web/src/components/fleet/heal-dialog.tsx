@@ -174,7 +174,6 @@ export function HealDialog({
     })();
 
     return stopPolling;
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, scraperId]);
 
   const startPolling = useCallback(
