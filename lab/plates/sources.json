@@ -1,0 +1,77 @@
+{
+  "rice": {
+    "subject": "A rice plant in ear",
+    "commons": "File:Oryza sativa - Köhler–s Medizinal-Pflanzen-232.jpg",
+    "crop": [0.38, 0.0, 0.9, 0.87],
+    "note": "Köhler's Medizinal-Pflanzen, 1887. Cropped to the tuft and its panicle; the dissection figures in the margins trace as litter."
+  },
+  "bread": {
+    "subject": "Loaves of bread",
+    "commons": "File:Bread, illustration from The Encyclopedia of Food by Artemas Ward.jpg",
+    "crop": [0.02, 0.12, 0.99, 0.87],
+    "paper": 0.66,
+    "min_area": 0.0012,
+    "note": "The Encyclopedia of Food, Artemas Ward, 1923. paper=0.66 drops the plate's flat grey ground, which is darker than real paper and would otherwise trace as one solid block."
+  },
+  "pasta": {
+    "subject": "A nest of spaghetti",
+    "commons": "File:Macaroni and Similar Pastes, illustration from The Encyclopedia of Food by Artemas Ward.jpg",
+    "crop": [0.34, 0.735, 0.83, 0.892],
+    "invert": true,
+    "min_area": 0.0008,
+    "tolerance": 1.2,
+    "note": "The Encyclopedia of Food, Artemas Ward, 1923. The specimen chart is pale pasta on a black ground, so this one is inverted; cropped to figure 50, the nest, and above the caption."
+  },
+  "milk": {
+    "subject": "A dairy cow",
+    "commons": "File:Typical cows, Holstein, Jersey, Ayrshire, Short-horn, 1904.jpg",
+    "crop": [0.1, 0.55, 0.455, 0.755],
+    "paper": 0.42,
+    "min_area": 0.0015,
+    "tolerance": 1.5,
+    "note": "Cropped to the near cow. paper=0.42 is what separates her from the meadow: the grass hatching sits above it, her markings below."
+  },
+  "eggs": {
+    "subject": "A hen's egg",
+    "commons": "File:Chicken egg.png",
+    "pad": 0.42,
+    "note": "The one modern photograph in the set: no period plate of a hen's egg traces into anything legible. Padded out hard because the staple rows crop a plate to the row, and an egg that filled its frame would be cropped to a featureless middle."
+  },
+  "sugar": {
+    "subject": "Sugarcane in flower",
+    "commons": "File:Saccharum officinarum Blanco1.18-cropped.jpg",
+    "min_area": 0.0008,
+    "note": "Flora de Filipinas, Francisco Manuel Blanco, 1880-83."
+  },
+  "chicken": {
+    "subject": "A cockerel",
+    "commons": "File:Gallus gallus domesticus - Zwarte Poolsche Haan 1869.jpg",
+    "crop": [0.02, 0.12, 0.7, 0.97],
+    "paper": 0.55,
+    "quantiles": [0.6, 0.3],
+    "min_area": 0.0012,
+    "tolerance": 1.5,
+    "pad": 0.4,
+    "note": "A near-black bird on pale ground, so the two inner thresholds land inside the same ink and this plate comes out as a two-tone silhouette; trace.py handles that rather than it being forced here. Padded out for the same reason as the egg -- the middle of a silhouette is a blob."
+  },
+  "cooking_oil": {
+    "subject": "A coconut palm and a split coconut",
+    "commons": "File:Cocos nucifera Blanco2.363-cropped.jpg",
+    "crop": [0.0, 0.0, 0.79, 1.0],
+    "min_area": 0.0015,
+    "tolerance": 1.6,
+    "note": "Flora de Filipinas, Francisco Manuel Blanco, 1880-83. Coconut is the Philippine cooking oil; cropped past the habit sketch in the margin."
+  },
+  "coffee": {
+    "subject": "A coffee branch in cherry",
+    "commons": "File:Coffea arabica Blanco1.53-cropped.jpg",
+    "crop": [0.0, 0.0, 0.84, 1.0],
+    "tolerance": 1.6,
+    "note": "Flora de Filipinas, Francisco Manuel Blanco, 1880-83. Cropped past the dissection details in the margin."
+  },
+  "bananas": {
+    "subject": "A banana plant with its hand of fruit",
+    "commons": "File:Musa paradisiaca Blanco1.88-cropped.jpg",
+    "note": "Flora de Filipinas, Francisco Manuel Blanco, 1880-83."
+  }
+}
