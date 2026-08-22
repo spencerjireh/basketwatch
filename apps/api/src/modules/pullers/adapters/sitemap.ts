@@ -82,7 +82,7 @@ export function productScore(url: string): number {
   if (RE_ASSET_SLUG.test(slug)) return -100;
 
   let score = 0;
-  if (/\/(p|product|products|item|shop)\//.test(path)) score += 3;
+  if (/\/(p|product|products|item|shop)(\/|$)/.test(path)) score += 5;
   if (RE_UNIT.test(slug)) score += 2;
   if (slug.split("-").length >= 3) score += 1;
   if (/\d/.test(slug)) score += 1;

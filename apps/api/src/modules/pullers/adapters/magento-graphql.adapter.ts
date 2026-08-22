@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import { Fetcher } from "../fetcher.js";
+import { Fetcher, type FetchOptions } from "../fetcher.js";
 import { type PullResult, type Puller, type PullerConfig, type PulledRow } from "../puller.types.js";
 import { buildRow, siteOf } from "./row.js";
 
@@ -38,17 +38,20 @@ export class MagentoGraphqlAdapter implements Puller {
     const site = siteOf(config.endpoint);
     const rows: PulledRow[] = [];
     let pages = 0;
+    const fetchOpts: FetchOptions = {
+      useUnlocker: config.needsUnlocker,
+      country: config.country,
+    };
 
     const tree = await this.query<{ categories?: { items?: Category[] } }>(
       config.endpoint,
       CATEGORIES_QUERY,
+      fetchOpts,
     );
     pages += 1;
 
     const categories = (tree?.categories?.items ?? [])
       .filter((c) => (c.product_count ?? 0) > 0 && c.name !== "Default Category")
-      // Biggest categories first: with a page ceiling, the budget should go
-      // where the catalogue actually is.
       .sort((a, b) => (b.product_count ?? 0) - (a.product_count ?? 0));
 
     for (const category of categories) {
@@ -59,6 +62,7 @@ export class MagentoGraphqlAdapter implements Puller {
         const data = await this.query<{ products?: { items?: Product[] } }>(
           config.endpoint,
           PRODUCTS_QUERY(category.uid, page),
+          fetchOpts,
         );
         pages += 1;
 
@@ -85,8 +89,15 @@ export class MagentoGraphqlAdapter implements Puller {
     return { rows, pages };
   }
 
-  private async query<T>(endpoint: string, query: string): Promise<T | null> {
-    const response = await this.fetcher.get(`${endpoint}?query=${encodeURIComponent(query)}`);
+  private async query<T>(
+    endpoint: string,
+    query: string,
+    fetchOpts: FetchOptions,
+  ): Promise<T | null> {
+    const response = await this.fetcher.get(
+      `${endpoint}?query=${encodeURIComponent(query)}`,
+      fetchOpts,
+    );
     if (response.status !== 200) return null;
     try {
       return (JSON.parse(response.body) as { data?: T }).data ?? null;

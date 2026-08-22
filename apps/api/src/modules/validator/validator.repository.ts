@@ -95,15 +95,23 @@ export class ValidatorRepository {
     `);
   }
 
+  async getScraperId(storeId: string): Promise<string | null> {
+    const rows = (await this.db.execute(sql`
+      select studio_collector_id from stores where store_id = ${storeId}
+    `)) as unknown as { studio_collector_id: string | null }[];
+    return rows[0]?.studio_collector_id ?? null;
+  }
+
   async openIncident(
     storeId: string,
     runId: number,
     kind: string,
     evidence: Record<string, unknown>,
+    scraperId?: string | null,
   ): Promise<string> {
     const rows = (await this.db.execute(sql`
-      insert into incidents (store_id, run_id, kind, evidence, state)
-      values (${storeId}, ${runId}, ${kind}, ${JSON.stringify(evidence)}::jsonb, 'open')
+      insert into incidents (store_id, scraper_id, run_id, kind, evidence, state)
+      values (${storeId}, ${scraperId ?? null}, ${runId}, ${kind}, ${JSON.stringify(evidence)}::jsonb, 'open')
       returning id::text
     `)) as unknown as { id: string }[];
     return rows[0]!.id;

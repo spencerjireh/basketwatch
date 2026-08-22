@@ -10,6 +10,12 @@ export const API_MAX_BODY = 32_000_000;
 
 const DEFAULT_TIMEOUT_MS = 30_000;
 
+/** Bright Data Web Unlocker gets a longer leash -- the proxy adds latency. */
+const UNLOCKER_TIMEOUT_MS = 90_000;
+
+const UNLOCKER_API = "https://api.brightdata.com/request";
+const UNLOCKER_ZONE = "cli_unlocker";
+
 /** A browser-shaped UA: several of these stores refuse an obvious bot. */
 const HEADERS = {
   "user-agent":
@@ -24,18 +30,44 @@ export type FetchResult = {
   truncated: boolean;
 };
 
+export type FetchOptions = {
+  /** Route through Bright Data Web Unlocker instead of direct fetch. */
+  useUnlocker?: boolean;
+  /** Two-letter country code for BD geo-targeting (e.g. "US", "PH"). */
+  country?: string;
+  maxBody?: number;
+};
+
 /**
- * Plain HTTP for the fifteen stores that need no browser.
+ * HTTP client for the puller adapters.
  *
- * This costs no Bright Data credits, which is the reason the fleet is mostly
- * bulk endpoints: eleven stores publish their whole catalogue 250 products at a
- * time for the price of the bandwidth.
+ * When `useUnlocker` is set, requests are routed through Bright Data's Web
+ * Unlocker API (`POST https://api.brightdata.com/request`), ensuring all data
+ * flows through BD infrastructure. The Unlocker does not execute JavaScript --
+ * browser-required stores continue using Studio.
+ *
+ * Ported from the Python `UnlockerFetcher` in `lab/spencer-exploration/basket.py`.
  */
 @Injectable()
 export class Fetcher {
   private readonly logger = new Logger(Fetcher.name);
+  private readonly apiKey = process.env.BRIGHTDATA_API_KEY ?? "";
 
-  async get(url: string, maxBody = API_MAX_BODY): Promise<FetchResult> {
+  async get(url: string, opts?: FetchOptions): Promise<FetchResult>;
+  /** @deprecated use the opts overload */
+  async get(url: string, maxBody?: number): Promise<FetchResult>;
+  async get(url: string, optsOrMax?: FetchOptions | number): Promise<FetchResult> {
+    const opts: FetchOptions =
+      typeof optsOrMax === "number" ? { maxBody: optsOrMax } : (optsOrMax ?? {});
+    const maxBody = opts.maxBody ?? API_MAX_BODY;
+
+    if (opts.useUnlocker) {
+      return this.getViaUnlocker(url, opts.country ?? "US", maxBody);
+    }
+    return this.getDirect(url, maxBody);
+  }
+
+  private async getDirect(url: string, maxBody: number): Promise<FetchResult> {
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), DEFAULT_TIMEOUT_MS);
     try {
@@ -43,10 +75,53 @@ export class Fetcher {
       const body = await readCapped(response, maxBody);
       return { status: response.status, ...body };
     } catch (error) {
-      // A single unreachable page must not end the store's run: the run row
-      // records how many pages were fetched, so a partial pull is legible.
       this.logger.warn(`fetch failed for ${url}: ${message(error)}`);
       return { status: 0, body: "", truncated: false };
+    } finally {
+      clearTimeout(timer);
+    }
+  }
+
+  private async getViaUnlocker(
+    url: string,
+    country: string,
+    maxBody: number,
+  ): Promise<FetchResult> {
+    if (!this.apiKey) {
+      this.logger.warn("BRIGHTDATA_API_KEY not set, falling back to direct fetch");
+      return this.getDirect(url, maxBody);
+    }
+
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), UNLOCKER_TIMEOUT_MS);
+    try {
+      const response = await fetch(UNLOCKER_API, {
+        method: "POST",
+        headers: {
+          authorization: `Bearer ${this.apiKey}`,
+          "content-type": "application/json",
+        },
+        body: JSON.stringify({
+          zone: UNLOCKER_ZONE,
+          url,
+          format: "raw",
+          country: country.toLowerCase(),
+        }),
+        signal: controller.signal,
+      });
+
+      if (!response.ok) {
+        this.logger.warn(
+          `unlocker returned ${response.status} for ${url}, falling back to direct`,
+        );
+        return this.getDirect(url, maxBody);
+      }
+
+      const body = await readCapped(response, maxBody);
+      return { status: response.status, ...body };
+    } catch (error) {
+      this.logger.warn(`unlocker failed for ${url}: ${message(error)}, falling back to direct`);
+      return this.getDirect(url, maxBody);
     } finally {
       clearTimeout(timer);
     }

@@ -19,6 +19,9 @@ Read the doc that matches the work, not all of them:
 - Touching `packages/contract` or endpoint shapes: `docs/api-contract.md`.
 - Anything that spends Bright Data credits: `docs/credit-monitoring.md`
   (also a hard rule below).
+- Provisioning Studio collectors: `docs/collector-manifest.json` (canonical
+  definitions for all 16 stores) and `docs/collector-runbook.md` (step-by-step
+  procedure).
 - Status and open team decisions: `docs/index.md`.
 
 ## Layout
@@ -52,9 +55,8 @@ is no app subdirectory; `apps/` and `packages/` sit beside the compose files.
 Findings graduate from `lab/` into `docs/` and, when they change the contract,
 into a PR against the workspace.
 
-Not built yet: DB persistence for `modules/ingest` (the webhook validates and
-drops), `modules/quality/` (a proposal, not confirmed scope — see
-`docs/plans/heal-agent-proposal.md`), and the clone store.
+Not built yet: the clone store (demo prop for staged break-and-heal),
+the notifier module.
 
 ## Commands
 
@@ -154,18 +156,33 @@ decisions live in [docs/index.md](./docs/index.md) — update that file as
 things land, and this list only when a line here becomes false.
 
 - Every dashboard route answers from Postgres; there are no fixtures.
-  Migrations run 0000-0005.
+  Migrations run 0000-0008.
 - The puller engine covers the sixteen pullable stores (four adapters, crawl
   config from the `stores` table): `POST /api/pullers/:storeId/run`, and
   `?dryRun=true` writes nothing. The pull schedule ships disarmed
   (`PULL_SCHEDULE_ENABLED` defaults false); a scheduled run bypasses the
   guarded wrapper, so arming it is a team decision, never a deploy default.
-- The heal loop is manual: `/api/heal/:scraperId/*` (preview-prompt, status,
-  trigger, approve, reject, recover) exists, and nothing calls it
-  automatically. The notifier module (email, telegram) likewise has no
-  callers yet.
-- `POST /api/ingest/:scraperId` checks the webhook secret and validates rows
-  against the contract, then drops them — DB persistence is the next wiring
-  job.
-- The `brightdata` CLI is not in the API image, so a Studio pull falls back
-  to HTTP and opens a `studio_failed` incident.
+- **Studio-only production pipeline (decided Aug 22).** In production, every
+  store is collected through a Bright Data Studio scraper -- there is no HTTP
+  fallback. If a store has no collector, the pull fails with a clear error
+  requiring provisioning. If Studio fails on a provisioned store, the failure
+  is real: it gets recorded, validated, diagnosed, and triggers a heal through
+  Studio's self-healing API. This is the core narrative of the hackathon --
+  Bright Data's self-healing scrapers as the single data path, not one of
+  many. HTTP adapters (shopify, magento-graphql, sitemap) remain in the
+  codebase as probing and diagnostic tools that inform collector descriptions;
+  the Studio adapter itself uses sitemap discovery internally for product-page
+  collectors. Collector definitions (seed URLs, descriptions, probe findings)
+  live in `docs/collector-manifest.json`; the setup procedure is in
+  `docs/collector-runbook.md`.
+- **Self-healing diagnostic loop (landed Aug 22).** The validator seeds
+  baselines on boot, validates every run (schema, null rates, row count, price
+  drift), opens incidents with evidence, and enqueues a heal job. The
+  `HealAutoHandler` consumes heal jobs and proposes fixes via the BD
+  `refactor_template` API without auto-approval -- the dashboard shows the
+  diff for human review. Baselines update automatically after healthy runs.
+- **Provisioning from the dashboard (landed Aug 22).** `POST
+  /api/fleet/:storeId/provision` and `POST /api/fleet/provision` create Studio
+  collectors from `collector-manifest.json` definitions. The Bright Data CLI
+  is installed in the API Docker image for this purpose.
+- Not yet: the notifier, the clone store (demo prop for staged break-and-heal).

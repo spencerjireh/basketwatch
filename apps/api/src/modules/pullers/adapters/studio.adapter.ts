@@ -4,9 +4,11 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { promisify } from "node:util";
 import { Injectable, Logger } from "@nestjs/common";
+import { Fetcher, type FetchOptions } from "../fetcher.js";
 import { type PullResult, type Puller, type PullerConfig, type PulledRow } from "../puller.types.js";
 import { parseSize } from "../size.js";
-import { NO_SIZE, buildRow } from "./row.js";
+import { NO_SIZE, buildRow, siteOf } from "./row.js";
+import { parseSitemap, rankProductUrls } from "./sitemap.js";
 
 const run = promisify(execFile);
 
@@ -25,35 +27,36 @@ const HARD_DEADLINE_MS = POLL_ATTEMPTS * 10_000 + 120_000;
 type StudioRow = Record<string, unknown>;
 
 /**
- * Collection through Scraper Studio, for the stores that need a browser.
+ * Collection through Scraper Studio -- the primary transport for all stores.
  *
- * One store in the locked fleet needs this: ph-landers, which has no HTTP path
- * at all. It is also the only store in the fleet whose pulls cost Bright Data
- * credits, which is why every other store is routed over free HTTP.
+ * Every store in the fleet has a Studio collector and a `studio_endpoint`
+ * pointing at its HTML product listing pages (e.g. /collections/all for
+ * Shopify). The service layer tries Studio first and falls back to
+ * HTTP/Unlocker on failure, recording a `studio_failed` incident.
  *
  * The CLI is subprocessed rather than reimplemented, following the same
  * decision the Python transport documents: `scraper run --input-file` does
  * trigger -> collection_id -> poll /dca/dataset with a three-way pending
  * sentinel and a realtime-page-limit fallback, and that is a lot of
  * undocumented semantics to reproduce for no gain.
- *
- * Consequence worth stating plainly: the `brightdata` CLI is not in the API
- * image today, so in the deploy this adapter throws StudioError, the run falls
- * back to the HTTP puller, and a `studio_failed` incident records the
- * substitution. That is the same path that produced the one incident already in
- * the database -- degraded, visible, and free.
  */
+/** Max depth for nested sitemap indices during URL discovery. */
+const MAX_SITEMAP_DEPTH = 2;
+
 @Injectable()
 export class StudioAdapter implements Puller {
   readonly method = "studio";
   private readonly logger = new Logger(StudioAdapter.name);
+  private readonly apiKey = process.env.BRIGHTDATA_API_KEY ?? "";
+
+  constructor(private readonly fetcher: Fetcher) {}
 
   async pull(config: PullerConfig): Promise<PullResult> {
     if (!config.collectorId) {
       throw new StudioError("no verified collector for this store");
     }
 
-    const urls = seedUrls(config);
+    const urls = await this.seedUrls(config);
     if (urls.length === 0) throw new StudioError("no URLs to submit");
 
     const raw = await this.runCollector(config.collectorId, urls);
@@ -64,6 +67,65 @@ export class StudioAdapter implements Puller {
     return { rows, pages: urls.length };
   }
 
+  /**
+   * Build the bounded URL list Studio is handed.
+   *
+   * Two strategies depending on store method:
+   * - Listing-page stores (shopify, magento): paginate the studioEndpoint
+   * - Sitemap stores: discover product URLs from the sitemap and feed them
+   *   one-per-URL to the product-page collector
+   */
+  private async seedUrls(config: PullerConfig): Promise<string[]> {
+    const isSitemap = config.method === "sitemap" || config.method === "sitemap-bounded";
+
+    if (isSitemap) {
+      return this.discoverProductUrls(config);
+    }
+
+    const ep = config.studioEndpoint ?? config.endpoint;
+    if (!ep) return [];
+    const base = ep.split("?")[0]!;
+    return Array.from({ length: Math.max(0, config.maxPages) }, (_, i) => `${base}?page=${i + 1}`);
+  }
+
+  /**
+   * Discover product URLs from a store's sitemap. Uses the same sitemap
+   * parsing and product-URL ranking as the SitemapAdapter, but only returns
+   * URLs -- Studio's product-page collector handles the extraction.
+   */
+  private async discoverProductUrls(config: PullerConfig): Promise<string[]> {
+    const endpoint = config.studioEndpoint ?? config.endpoint;
+    const site = siteOf(endpoint ?? `https://${config.storeId.replace(/^[a-z]+-/, "")}.com`);
+    const start = endpoint?.includes("sitemap") ? endpoint : `${site}/sitemap.xml`;
+
+    const fetchOpts: FetchOptions = {
+      useUnlocker: config.needsUnlocker,
+      country: config.country,
+    };
+
+    let queue = [start];
+    const allUrls: string[] = [];
+
+    for (let depth = 0; depth <= MAX_SITEMAP_DEPTH && queue.length > 0; depth += 1) {
+      const next: string[] = [];
+      for (const target of queue.slice(0, 20)) {
+        const response = await this.fetcher.get(target, fetchOpts);
+        if (response.status !== 200) continue;
+        const parsed = parseSitemap(response.body);
+        allUrls.push(...parsed.pages);
+        next.push(...parsed.sitemaps);
+      }
+      queue = next;
+    }
+
+    const ranked = rankProductUrls(allUrls).slice(0, config.maxPages);
+    this.logger.log(
+      `${config.storeId}: sitemap yielded ${allUrls.length} URLs, ` +
+        `${ranked.length} product URLs after ranking (cap ${config.maxPages})`,
+    );
+    return ranked;
+  }
+
   private async runCollector(collectorId: string, urls: string[]): Promise<StudioRow[]> {
     // The URL list goes in a file, not on the command line: a 300-URL batch
     // exceeds the argv limit, and the CLI interleaves poll progress on stderr
@@ -72,18 +134,20 @@ export class StudioAdapter implements Puller {
     const urlsFile = path.join(dir, "urls.txt");
     try {
       await writeFile(urlsFile, `${urls.join("\n")}\n`, "utf8");
+      const args = [
+        ...(this.apiKey ? ["-k", this.apiKey] : []),
+        "scraper",
+        "run",
+        collectorId,
+        "--input-file",
+        urlsFile,
+        "--timeout",
+        String(POLL_ATTEMPTS),
+        "--json",
+      ];
       const { stdout } = await run(
         "brightdata",
-        [
-          "scraper",
-          "run",
-          collectorId,
-          "--input-file",
-          urlsFile,
-          "--timeout",
-          String(POLL_ATTEMPTS),
-          "--json",
-        ],
+        args,
         // 64MB: a 300-URL batch is far larger than the default buffer, and an
         // overflow reads as a failed run rather than as a truncated one.
         { timeout: HARD_DEADLINE_MS, maxBuffer: 64 * 1024 * 1024, encoding: "utf8" },
@@ -103,44 +167,36 @@ export class StudioAdapter implements Puller {
   }
 
   private toRows(config: PullerConfig, raw: StudioRow[]): PulledRow[] {
+    const flat = flattenRows(raw);
     const rows: PulledRow[] = [];
-    for (const item of raw) {
-      const url = firstString(item.url, item.page_url, item.input_url);
+    for (const item of flat) {
+      const url = firstString(
+        item.url,
+        item.page_url,
+        item.product_url,
+        item.product_page_url,
+        item.input_url,
+        (item.input as Record<string, unknown>)?.url,
+      );
       const price = coercePrice(item.price);
       if (!url || price === null) continue;
 
-      const name = firstString(item.name, item.title);
+      const name = firstString(item.name, item.title, item.product_name);
       const row = buildRow(config, {
-        // Derived here, never taken from Studio. If a collector invented a key
-        // from a SKU while the puller used the URL slug, the first fallback run
-        // would report the whole catalogue as new and overwrite the price
-        // history -- the one thing in this project that cannot be re-collected.
         productKey: keyFromUrl(url),
         name,
         price,
-        currency: firstString(item.currency),
+        currency: normaliseCurrency(firstString(item.currency)),
         url,
         inStock: item.in_stock !== false,
         category: firstString(item.category),
-        rawSize: reconcileSize(firstString(item.size), name),
+        rawSize: reconcileSize(firstString(item.size, item.size_or_weight), name),
         source: "studio",
       });
       if (row?.name) rows.push(row);
     }
     return rows;
   }
-}
-
-/**
- * The bounded URL list Studio is handed.
- *
- * Bounding happens before the subprocess is spawned, because that is where the
- * money is. Nothing downstream can widen it.
- */
-function seedUrls(config: PullerConfig): string[] {
-  if (!config.endpoint) return [];
-  const base = config.endpoint.split("?")[0]!;
-  return Array.from({ length: Math.max(0, config.maxPages) }, (_, i) => `${base}?page=${i + 1}`);
 }
 
 /**
@@ -162,9 +218,13 @@ function reconcileSize(collectorSize: string | null, name: string | null): strin
 
 const RE_PRICE = /[-+]?\d[\d,\s]*(?:\.\d+)?/;
 
-/** Studio prices arrive as whatever the page showed: "PHP 389.50", "$4.49", "1,234.00". */
+/** Studio prices arrive as whatever the page showed: "PHP 389.50", "$4.49", "1,234.00", or {value: 6.99, currency: "USD"}. */
 export function coercePrice(value: unknown): number | null {
   if (typeof value === "number") return value > 0 ? value : null;
+  if (value && typeof value === "object" && !Array.isArray(value)) {
+    const obj = value as Record<string, unknown>;
+    return coercePrice(obj.value ?? obj.amount ?? obj.price);
+  }
   if (typeof value !== "string") return null;
   const match = RE_PRICE.exec(value);
   if (!match) return null;
@@ -180,9 +240,40 @@ export function keyFromUrl(url: string): string {
   }
 }
 
+/**
+ * Listing-page collectors sometimes nest products inside a wrapper:
+ * `[{products: [...], input: {...}}]`. Flatten so toRows sees individual items.
+ */
+function flattenRows(raw: StudioRow[]): StudioRow[] {
+  const out: StudioRow[] = [];
+  for (const item of raw) {
+    const nested = item.products ?? item.items ?? item.results;
+    if (Array.isArray(nested) && nested.length > 0) {
+      for (const child of nested) {
+        if (child && typeof child === "object") out.push(child as StudioRow);
+      }
+    } else {
+      out.push(item);
+    }
+  }
+  return out;
+}
+
 function firstString(...values: unknown[]): string | null {
   for (const value of values) {
     if (typeof value === "string" && value.trim()) return value.trim();
   }
   return null;
+}
+
+const CURRENCY_SYMBOLS: Record<string, string> = {
+  $: "USD",
+  "\u20B1": "PHP",
+  "\u20AC": "EUR",
+  "\u00A3": "GBP",
+};
+
+function normaliseCurrency(raw: string | null): string | null {
+  if (!raw) return null;
+  return CURRENCY_SYMBOLS[raw] ?? raw;
 }

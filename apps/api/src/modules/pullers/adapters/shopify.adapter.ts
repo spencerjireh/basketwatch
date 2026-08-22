@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import { Fetcher } from "../fetcher.js";
+import { Fetcher, type FetchOptions } from "../fetcher.js";
 import { type PullResult, type Puller, type PullerConfig, type PulledRow } from "../puller.types.js";
 import { buildRow, siteOf } from "./row.js";
 
@@ -17,9 +17,9 @@ type ShopifyProduct = {
 /**
  * Shopify publishes its whole catalogue at /products.json, 250 per page.
  *
- * Ten of the sixteen pullable stores are Shopify, and this endpoint is public
- * and free -- which is why the fleet leans on it. No Bright Data credits are
- * involved.
+ * Ten of the sixteen pullable stores are Shopify. When `needs_unlocker` is set
+ * on the store, requests route through Bright Data's Web Unlocker so all data
+ * flows through BD infrastructure.
  */
 @Injectable()
 export class ShopifyAdapter implements Puller {
@@ -32,12 +32,19 @@ export class ShopifyAdapter implements Puller {
     const site = siteOf(config.endpoint);
     const rows: PulledRow[] = [];
     let pages = 0;
+    const fetchOpts: FetchOptions = {
+      useUnlocker: config.needsUnlocker,
+      country: config.country,
+    };
 
     // The ceiling is checked before each fetch, so a runaway crawl is
     // impossible by construction -- the failure mode that once produced 4,470
     // unintended rows.
     for (let page = 1; page <= config.maxPages; page += 1) {
-      const response = await this.fetcher.get(`${config.endpoint}?limit=${PAGE_SIZE}&page=${page}`);
+      const response = await this.fetcher.get(
+        `${config.endpoint}?limit=${PAGE_SIZE}&page=${page}`,
+        fetchOpts,
+      );
       pages += 1;
       if (response.status !== 200) break;
 
