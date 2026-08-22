@@ -59,9 +59,13 @@ export class FleetController {
     return { status: "started", scraperId };
   }
 
-  /** GET /api/fleet/capture-status/:scraperId */
+  /**
+   * GET /api/fleet/capture-status/:scraperId
+   *
+   * Open, like the other reads: it answers "has this scraper's template been
+   * captured yet", which costs nothing and reveals nothing.
+   */
   @Get("capture-status/:scraperId")
-  @UseGuards(OpsTokenGuard)
   async captureStatus(
     @Param("scraperId") scraperId: string,
   ): Promise<{ hasTemplate: boolean; scraperId: string }> {
