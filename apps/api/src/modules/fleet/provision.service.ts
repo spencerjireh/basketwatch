@@ -87,10 +87,11 @@ export class ProvisionService {
       }
       this.logger.log(`${storeId}: provisioned collector ${collectorId}`);
       return { storeId, collectorId, status: "created" };
-    } catch (err) {
-      const message = err instanceof Error ? err.message : String(err);
+    } catch (err: unknown) {
+      const stderr = (err as { stderr?: string }).stderr ?? "";
+      const message = stderr || (err instanceof Error ? err.message : String(err));
       this.logger.error(`${storeId}: provision failed -- ${message}`);
-      return { storeId, collectorId: null, status: "failed", error: message.slice(0, 300) };
+      return { storeId, collectorId: null, status: "failed", error: message.slice(0, 500) };
     }
   }
 
@@ -127,11 +128,27 @@ export class ProvisionService {
       "900",
     ];
 
-    const { stdout } = await run("brightdata", args, {
-      timeout: CLI_TIMEOUT_MS,
-      maxBuffer: 8 * 1024 * 1024,
-      encoding: "utf8",
-    });
+    this.logger.log(`creating collector for ${entry.storeId}: brightdata ${args.slice(0, 3).join(" ")} ...`);
+
+    let stdout: string;
+    let stderr: string;
+    try {
+      const result = await run("brightdata", args, {
+        timeout: CLI_TIMEOUT_MS,
+        maxBuffer: 8 * 1024 * 1024,
+        encoding: "utf8",
+      });
+      stdout = result.stdout;
+      stderr = result.stderr;
+    } catch (err: unknown) {
+      const e = err as { stdout?: string; stderr?: string; code?: string };
+      const detail = e.stderr || e.stdout || (err instanceof Error ? err.message : String(err));
+      throw new Error(`CLI failed (${e.code ?? "unknown"}): ${detail.slice(0, 400)}`);
+    }
+
+    if (stderr) {
+      this.logger.warn(`CLI stderr: ${stderr.slice(0, 200)}`);
+    }
 
     const parsed = JSON.parse(stdout) as { collector_id?: string; status?: string };
     if (!parsed.collector_id) {
