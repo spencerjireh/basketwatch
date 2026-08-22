@@ -25,6 +25,10 @@ export const routes = {
   ingest: (scraperId: string) => `/api/ingest/${scraperId}`,
   runScraper: (id: string) => `/api/scrapers/${id}/run`,
   runPuller: (storeId: string) => `/api/pullers/${storeId}/run`,
+  /** Reads. Open: the dashboard renders these on a page with no login. */
+  healPreviewPrompt: (scraperId: string) => `/api/heal/${scraperId}/preview-prompt`,
+  healStatus: (scraperId: string) => `/api/heal/${scraperId}/status`,
+  /** Writes. Ops token only -- every one of these spends Bright Data credits. */
   healTrigger: (scraperId: string) => `/api/heal/${scraperId}/trigger`,
   healApprove: (scraperId: string) => `/api/heal/${scraperId}/approve`,
   healReject: (scraperId: string) => `/api/heal/${scraperId}/reject`,
