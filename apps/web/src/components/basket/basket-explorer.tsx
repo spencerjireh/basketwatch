@@ -46,7 +46,11 @@ export function BasketExplorer({ rails, midBand }: { rails: Rail[]; midBand?: Re
         <Section
           className="mt-12"
           title="What the basket costs, store by store"
-          caption="Bar length is how many times the cheapest shelf that store charges, averaged over the staples it prices — the landscape's own scale. The total beside it is what those staples cost there, and it only compares like for like where the coverage says all ten."
+          /* The coverage count is printed on every row and the number is the
+             country's, not a constant -- so this points at that column rather
+             than restating it, which would put two counts on one screen and
+             wait for a null index quantity to make them disagree. */
+          caption="Bar length is how many times the cheapest shelf that store charges, averaged over the staples it prices — the landscape's own scale. The total beside it is what those staples cost there, and it only compares like for like on the rows whose coverage says every staple."
         >
           <StoreTotals rails={rails} />
         </Section>
