@@ -87,6 +87,15 @@ export function TerrainHero({
   const canChoose = webgl === true;
   const flat = webgl === false || mode === "flat";
   const showScene = webgl === true && mode === "relief";
+
+  // Picking Flat unmounts the scene, so the next Relief is a fresh mount with
+  // no first frame drawn yet. Without this the wrapper is still at full
+  // opacity from last time and the canvas appears mid-draw -- the fade below
+  // would run once, on the first visit, and never again.
+  useEffect(() => {
+    if (!showScene) setSceneLive(false);
+  }, [showScene]);
+
   const w = weatherOverride ?? clamp01(weather);
   // A live hover outranks the pin; the pin keeps the readout when the pointer
   // leaves, which is what makes a click feel like it held something.

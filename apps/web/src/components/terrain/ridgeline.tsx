@@ -16,7 +16,13 @@ const PAD_BOTTOM = 16;
  * characters of 10px mono, laid over at 35 degrees.
  */
 const AXIS_H = 70;
-const AXIS_TILT = -35;
+/**
+ * Positive, because SVG's y runs down. With `textAnchor="end"` the glyphs lie
+ * to the left of the anchor, so a positive angle carries them up-and-left into
+ * the band above; the negative angle of a d3 bottom axis would send the same
+ * run down-and-left, through the first row of ridges.
+ */
+const AXIS_TILT = 35;
 
 /** Long chains do not fit a 52px column, and the full name is on the title. */
 const shortStore = (name: string) => (name.length > 17 ? `${name.slice(0, 16)}\u2026` : name);
