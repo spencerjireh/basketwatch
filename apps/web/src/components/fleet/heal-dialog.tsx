@@ -3,13 +3,47 @@
 import { diffLines } from "diff";
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
-  approveHeal,
-  fetchHealStatus,
-  fetchPreviewPrompt,
-  recoverHeal,
-  rejectHeal,
-  triggerHeal,
-} from "@/app/behind/actions";
+  type HealPreviewPromptResponse,
+  type HealStatusResponse,
+  healPreviewPromptResponseSchema,
+  healStatusResponseSchema,
+  routes,
+} from "@basketwatch/contract";
+import { apiGetClient } from "@/lib/api/browser";
+
+/**
+ * A window, not a control panel.
+ *
+ * Heals fire from the auto-heal loop or from the ops API; nothing in here can
+ * start, approve or reject one. What it does is show the whole story while it
+ * happens -- the evidence that opened the incident, the prompt the healer is
+ * sending, the diff Bright Data proposes, and the canary that judges it.
+ *
+ * The two reads go straight from the browser through the /api rewrite. They
+ * are public, so there is no token to hold and no server action to route
+ * through, and the contract schemas mean the response arrives typed rather
+ * than as a bag of unknowns.
+ */
+async function readStatus(scraperId: string): Promise<HealStatusResponse | null> {
+  try {
+    return await apiGetClient(routes.healStatus(scraperId), healStatusResponseSchema);
+  } catch {
+    return null;
+  }
+}
+
+async function readPreviewPrompt(
+  scraperId: string,
+): Promise<HealPreviewPromptResponse | null> {
+  try {
+    return await apiGetClient(
+      routes.healPreviewPrompt(scraperId),
+      healPreviewPromptResponseSchema,
+    );
+  } catch {
+    return null;
+  }
+}
 
 type TemplateStep = Record<string, unknown>;
 
@@ -72,8 +106,6 @@ type HealState =
       finishedAt: number;
     }
   | { step: "orphaned"; diff: DiffData | null; previewResult: unknown[] | null }
-  | { step: "deciding" }
-  | { step: "done"; verdict: string; startedAt: number; finishedAt: number }
   | { step: "error"; message: string };
 
 export function HealDialog({
@@ -89,7 +121,6 @@ export function HealDialog({
 }) {
   const ref = useRef<HTMLDialogElement>(null);
   const [state, setState] = useState<HealState>({ step: "loading" });
-  const [prompt, setPrompt] = useState("");
   const pollRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
@@ -112,34 +143,28 @@ export function HealDialog({
       return;
     }
     setState({ step: "loading" });
-    setPrompt("");
 
     (async () => {
-      const statusRes = await fetchHealStatus(scraperId);
-      if (statusRes.ok && statusRes.data.status === "orphaned") {
+      const status = await readStatus(scraperId);
+
+      if (status?.status === "orphaned") {
         setState({
           step: "orphaned",
-          diff: (statusRes.data.diff as DiffData) ?? null,
-          previewResult: (statusRes.data.previewResult as unknown[]) ?? null,
+          diff: (status.diff as DiffData | null) ?? null,
+          previewResult: status.previewResult,
         });
         return;
       }
 
-      if (
-        statusRes.ok &&
-        statusRes.data.status !== "idle" &&
-        statusRes.data.attemptId
-      ) {
-        const startedAt = statusRes.data.startedAt
-          ? new Date(statusRes.data.startedAt as string).getTime()
-          : Date.now();
+      if (status && status.status !== "idle" && status.attemptId) {
+        const startedAt = status.startedAt ? new Date(status.startedAt).getTime() : Date.now();
 
-        if (statusRes.data.status === "pending_answer" && statusRes.data.diff) {
+        if (status.status === "pending_answer" && status.diff) {
           setState({
             step: "pending",
             prompt: "",
-            diff: statusRes.data.diff as DiffData,
-            previewResult: (statusRes.data.previewResult as unknown[]) ?? null,
+            diff: status.diff as DiffData,
+            previewResult: status.previewResult,
             startedAt,
             finishedAt: Date.now(),
           });
@@ -149,28 +174,20 @@ export function HealDialog({
         setState({
           step: "triggering",
           startedAt,
-          bdStep: (statusRes.data.step as string) ?? null,
-          completedSteps: (statusRes.data.completedSteps as string[]) ?? [],
+          bdStep: status.step,
+          completedSteps: status.completedSteps,
         });
         startPolling(startedAt);
         return;
       }
 
-      const promptRes = await fetchPreviewPrompt(scraperId);
-      const auto =
-        promptRes.ok && typeof promptRes.data.prompt === "string"
-          ? promptRes.data.prompt
-          : null;
-      const incident =
-        promptRes.ok && promptRes.data.incident
-          ? (promptRes.data.incident as IncidentCtx)
-          : null;
-      const tpl =
-        promptRes.ok && Array.isArray(promptRes.data.currentTemplate)
-          ? (promptRes.data.currentTemplate as TemplateStep[])
-          : null;
-      setState({ step: "idle", defaultPrompt: auto, incident, currentTemplate: tpl });
-      if (auto) setPrompt(auto);
+      const preview = await readPreviewPrompt(scraperId);
+      setState({
+        step: "idle",
+        defaultPrompt: preview?.prompt ?? null,
+        incident: (preview?.incident as IncidentCtx | null) ?? null,
+        currentTemplate: preview?.currentTemplate ?? null,
+      });
     })();
 
     return stopPolling;
@@ -180,23 +197,23 @@ export function HealDialog({
     (startedAt: number) => {
       stopPolling();
       const tick = async () => {
-        const res = await fetchHealStatus(scraperId);
-        if (!res.ok) {
+        const status = await readStatus(scraperId);
+        if (!status) {
           pollRef.current = setTimeout(tick, 4000);
           return;
         }
 
-        if (res.data.status === "pending_answer") {
+        if (status.status === "pending_answer") {
           pollRef.current = null;
           setState({
             step: "pending",
             prompt: "",
-            diff: (res.data.diff as DiffData) ?? null,
-            previewResult: (res.data.previewResult as unknown[]) ?? null,
+            diff: (status.diff as DiffData | null) ?? null,
+            previewResult: status.previewResult,
             startedAt,
             finishedAt: Date.now(),
           });
-        } else if (res.data.status === "error" || res.data.status === "idle") {
+        } else if (status.status === "error" || status.status === "idle") {
           pollRef.current = null;
           setState({ step: "error", message: "Heal failed on Bright Data side." });
         } else {
@@ -204,9 +221,8 @@ export function HealDialog({
             if (prev.step !== "triggering") return prev;
             return {
               ...prev,
-              bdStep: (res.data.step as string) ?? prev.bdStep,
-              completedSteps:
-                (res.data.completedSteps as string[]) ?? prev.completedSteps,
+              bdStep: status.step ?? prev.bdStep,
+              completedSteps: status.completedSteps,
             };
           });
           pollRef.current = setTimeout(tick, 4000);
@@ -220,125 +236,8 @@ export function HealDialog({
   const handleClose = useCallback(() => {
     stopPolling();
     setState({ step: "loading" });
-    setPrompt("");
     onClose();
   }, [onClose, stopPolling]);
-
-  const handleTrigger = useCallback(async () => {
-    const startedAt = Date.now();
-    setState({
-      step: "triggering",
-      startedAt,
-      bdStep: null,
-      completedSteps: [],
-    });
-
-    const result = await triggerHeal(scraperId, prompt || undefined);
-
-    if (!result.ok) {
-      setState({ step: "error", message: JSON.stringify(result.data) });
-      return;
-    }
-
-    const status = result.data.status as string;
-    if (status === "error") {
-      setState({ step: "error", message: "Heal trigger failed on Bright Data side." });
-      return;
-    }
-
-    // Trigger accepted (status === "running") -- poll for live progress
-    startPolling(startedAt);
-  }, [scraperId, prompt, startPolling]);
-
-  const handleCancel = useCallback(async () => {
-    stopPolling();
-    setState({ step: "deciding" });
-    const result = await rejectHeal(scraperId);
-    if (result.ok) {
-      setState({
-        step: "done",
-        verdict: "cancelled",
-        startedAt: Date.now(),
-        finishedAt: Date.now(),
-      });
-    } else {
-      setState({ step: "error", message: JSON.stringify(result.data) });
-    }
-  }, [scraperId, stopPolling]);
-
-  const handleApprove = useCallback(async () => {
-    const startedAt =
-      state.step === "pending" ? state.startedAt : Date.now();
-    setState({ step: "deciding" });
-    const result = await approveHeal(scraperId);
-    if (result.ok) {
-      setState({
-        step: "done",
-        verdict: "approved",
-        startedAt,
-        finishedAt: Date.now(),
-      });
-    } else {
-      setState({ step: "error", message: JSON.stringify(result.data) });
-    }
-  }, [scraperId, state]);
-
-  const handleReject = useCallback(async () => {
-    const startedAt =
-      state.step === "pending" ? state.startedAt : Date.now();
-    setState({ step: "deciding" });
-    const result = await rejectHeal(scraperId);
-    if (result.ok) {
-      setState({
-        step: "done",
-        verdict: "rejected",
-        startedAt,
-        finishedAt: Date.now(),
-      });
-    } else {
-      setState({ step: "error", message: JSON.stringify(result.data) });
-    }
-  }, [scraperId, state]);
-
-  const handleRecover = useCallback(async () => {
-    setState({ step: "deciding" });
-    const result = await recoverHeal(scraperId);
-    if (result.ok && result.data.status === "pending_answer") {
-      setState({
-        step: "pending",
-        prompt: "",
-        diff: (result.data.diff as DiffData) ?? null,
-        previewResult: (result.data.previewResult as unknown[]) ?? null,
-        startedAt: Date.now(),
-        finishedAt: Date.now(),
-      });
-    } else {
-      setState({ step: "error", message: JSON.stringify(result.data) });
-    }
-  }, [scraperId]);
-
-  const handleRejectOrphaned = useCallback(async () => {
-    setState({ step: "deciding" });
-    try {
-      // Recover first to create an attempt record, then reject it
-      const recoverResult = await recoverHeal(scraperId);
-      if (recoverResult.ok) {
-        const rejectResult = await rejectHeal(scraperId);
-        if (rejectResult.ok) {
-          setState({
-            step: "done",
-            verdict: "rejected",
-            startedAt: Date.now(),
-            finishedAt: Date.now(),
-          });
-          return;
-        }
-      }
-      setState({ step: "error", message: "Failed to reject orphaned heal." });
-    } catch (err) {
-      setState({ step: "error", message: String(err) });
-    }
-  }, [scraperId]);
 
   return (
     <dialog
@@ -348,11 +247,11 @@ export function HealDialog({
         if (e.target === ref.current) handleClose();
       }}
       className="m-auto w-[min(92vw,680px)] rounded-sm border border-line bg-paper p-0 text-ink backdrop:bg-ink/40"
-      aria-label="Heal scraper"
+      aria-label="Heal detail"
     >
       <div className="max-h-[85vh] overflow-y-auto px-5 py-5 font-mono text-[12px] leading-relaxed">
         <header className="text-center">
-          <h2 className="font-display text-[19px]">Heal scraper</h2>
+          <h2 className="font-display text-[19px]">Self-healing</h2>
           <p className="mt-0.5 text-mute">{storeName}</p>
         </header>
 
@@ -365,9 +264,6 @@ export function HealDialog({
             incident={state.incident}
             currentTemplate={state.currentTemplate}
             defaultPrompt={state.defaultPrompt}
-            prompt={prompt}
-            onPromptChange={setPrompt}
-            onTrigger={handleTrigger}
           />
         )}
 
@@ -376,7 +272,6 @@ export function HealDialog({
             startedAt={state.startedAt}
             bdStep={state.bdStep}
             completedSteps={state.completedSteps}
-            onCancel={handleCancel}
             onBackground={handleClose}
           />
         )}
@@ -388,29 +283,11 @@ export function HealDialog({
             previewResult={state.previewResult}
             startedAt={state.startedAt}
             finishedAt={state.finishedAt}
-            onApprove={handleApprove}
-            onReject={handleReject}
           />
         )}
 
         {state.step === "orphaned" && (
-          <OrphanedView
-            diff={state.diff}
-            previewResult={state.previewResult}
-            onRecover={handleRecover}
-            onReject={handleRejectOrphaned}
-          />
-        )}
-
-        {state.step === "deciding" && <LoadingSpinner label="Processing..." />}
-
-        {state.step === "done" && (
-          <DoneView
-            verdict={state.verdict}
-            startedAt={state.startedAt}
-            finishedAt={state.finishedAt}
-            onClose={handleClose}
-          />
+          <OrphanedView diff={state.diff} previewResult={state.previewResult} />
         )}
 
         {state.step === "error" && (
@@ -418,21 +295,13 @@ export function HealDialog({
             message={state.message}
             onRetry={() => {
               setState({ step: "loading" });
-              fetchPreviewPrompt(scraperId).then((res) => {
-                const auto =
-                  res.ok && typeof res.data.prompt === "string"
-                    ? res.data.prompt
-                    : null;
-                const incident =
-                  res.ok && res.data.incident
-                    ? (res.data.incident as IncidentCtx)
-                    : null;
-                const tpl =
-                  res.ok && Array.isArray(res.data.currentTemplate)
-                    ? (res.data.currentTemplate as TemplateStep[])
-                    : null;
-                setState({ step: "idle", defaultPrompt: auto, incident, currentTemplate: tpl });
-                if (auto) setPrompt(auto);
+              void readPreviewPrompt(scraperId).then((preview) => {
+                setState({
+                  step: "idle",
+                  defaultPrompt: preview?.prompt ?? null,
+                  incident: (preview?.incident as IncidentCtx | null) ?? null,
+                  currentTemplate: preview?.currentTemplate ?? null,
+                });
               });
             }}
           />
@@ -459,16 +328,10 @@ function IdleView({
   incident,
   currentTemplate,
   defaultPrompt,
-  prompt,
-  onPromptChange,
-  onTrigger,
 }: {
   incident: IncidentCtx | null;
   currentTemplate: TemplateStep[] | null;
   defaultPrompt: string | null;
-  prompt: string;
-  onPromptChange: (v: string) => void;
-  onTrigger: () => void;
 }) {
   return (
     <>
@@ -478,34 +341,27 @@ function IdleView({
         <CurrentCodeSection steps={currentTemplate} />
       )}
 
-      <p className="caps">Heal prompt</p>
+      <p className="caps">Prompt the healer will send</p>
       {defaultPrompt ? (
-        <p className="mt-1 text-[10px] text-mute">
-          Auto-generated from the incident evidence. Edit if needed.
-        </p>
+        <>
+          <p className="mt-1 text-[10px] text-mute">
+            Composed from the incident evidence above. This is the instruction
+            Bright Data receives.
+          </p>
+          <pre className="mt-2 max-h-40 overflow-auto whitespace-pre-wrap break-words rounded-sm border border-line bg-wash p-2 text-[10.5px]">
+            {defaultPrompt}
+          </pre>
+        </>
       ) : (
-        <p className="mt-1 text-[10px] text-mute">
-          No incident evidence found. Enter a prompt describing what to fix.
+        <p className="mt-1 text-[11px] text-mute">
+          Nothing to fix: this scraper has no open incident, so there is no
+          evidence to compose a prompt from.
         </p>
       )}
-      <textarea
-        value={prompt}
-        onChange={(e) => onPromptChange(e.target.value)}
-        rows={4}
-        className="mt-2 w-full resize-none rounded-sm border border-line bg-wash px-3 py-2 text-[11px] text-ink placeholder:text-mute/60 focus:border-heal focus:outline-none"
-        placeholder="e.g. Fix size_value and size_uom extraction..."
-      />
-      <button
-        type="button"
-        onClick={onTrigger}
-        disabled={!prompt.trim()}
-        className="mt-3 w-full rounded-sm bg-heal py-1.5 text-[11px] uppercase tracking-[0.14em] text-white transition-colors hover:bg-heal/80 disabled:opacity-40"
-      >
-        Trigger heal
-      </button>
-      <p className="mt-2 text-center text-[10px] text-mute">
-        Sends a heal request to Bright Data (1-5 min). The scraper is not
-        modified until you approve.
+
+      <p className="mt-3 text-center text-[10px] text-mute">
+        Heals fire on their own when a collector breaks, or from the ops API.
+        Nothing on this page starts one.
       </p>
     </>
   );
@@ -676,13 +532,11 @@ function TriggeringView({
   startedAt,
   bdStep,
   completedSteps,
-  onCancel,
   onBackground,
 }: {
   startedAt: number;
   bdStep: string | null;
   completedSteps: string[];
-  onCancel: () => void;
   onBackground: () => void;
 }) {
   const [elapsed, setElapsed] = useState(0);
@@ -740,22 +594,13 @@ function TriggeringView({
         Bright Data is generating a fix. This usually takes 1-5 minutes.
       </p>
 
-      <div className="mt-3 flex gap-2">
-        <button
-          type="button"
-          onClick={onBackground}
-          className="flex-1 rounded-sm border border-heal/30 py-1.5 text-[11px] uppercase tracking-[0.14em] text-heal transition-colors hover:border-heal hover:bg-heal/5"
-        >
-          Continue in background
-        </button>
-        <button
-          type="button"
-          onClick={onCancel}
-          className="flex-1 rounded-sm border border-line py-1.5 text-[11px] uppercase tracking-[0.14em] text-mute transition-colors hover:border-broken hover:text-broken"
-        >
-          Cancel
-        </button>
-      </div>
+      <button
+        type="button"
+        onClick={onBackground}
+        className="mt-3 w-full rounded-sm border border-heal/30 py-1.5 text-[11px] uppercase tracking-[0.14em] text-heal transition-colors hover:border-heal hover:bg-heal/5"
+      >
+        Close
+      </button>
     </div>
   );
 }
@@ -763,21 +608,16 @@ function TriggeringView({
 function OrphanedView({
   diff,
   previewResult,
-  onRecover,
-  onReject,
 }: {
   diff: DiffData | null;
   previewResult: unknown[] | null;
-  onRecover: () => void;
-  onReject: () => void;
 }) {
   return (
     <div className="py-4">
       <p className="caps text-warning">Orphaned heal detected</p>
       <p className="mt-2 text-[11px] text-mute">
-        A previous heal is awaiting approval on Bright Data, but has no matching
-        record locally. You can adopt it to review and approve/reject, or dismiss
-        it entirely.
+        A heal is awaiting approval on Bright Data with no matching record here.
+        Adopting or dismissing it is an ops action, from the API.
       </p>
 
       {diff && <DiffView diff={diff} />}
@@ -791,22 +631,7 @@ function OrphanedView({
         </div>
       )}
 
-      <div className="mt-4 flex gap-2">
-        <button
-          type="button"
-          onClick={onRecover}
-          className="flex-1 rounded-sm bg-heal py-1.5 text-[11px] uppercase tracking-[0.14em] text-white transition-colors hover:bg-heal/80"
-        >
-          Adopt and review
-        </button>
-        <button
-          type="button"
-          onClick={onReject}
-          className="flex-1 rounded-sm border border-line py-1.5 text-[11px] uppercase tracking-[0.14em] text-mute transition-colors hover:border-broken hover:text-broken"
-        >
-          Dismiss
-        </button>
-      </div>
+
     </div>
   );
 }
@@ -817,16 +642,12 @@ function PendingView({
   previewResult,
   startedAt,
   finishedAt,
-  onApprove,
-  onReject,
 }: {
   prompt: string;
   diff: DiffData | null;
   previewResult: unknown[] | null;
   startedAt: number;
   finishedAt: number;
-  onApprove: () => void;
-  onReject: () => void;
 }) {
   return (
     <>
@@ -864,59 +685,10 @@ function PendingView({
 
       <div className="rule my-3" />
 
-      <div className="flex gap-2">
-        <button
-          type="button"
-          onClick={onApprove}
-          className="flex-1 rounded-sm bg-live py-1.5 text-[11px] uppercase tracking-[0.14em] text-white transition-colors hover:bg-live/80"
-        >
-          Approve
-        </button>
-        <button
-          type="button"
-          onClick={onReject}
-          className="flex-1 rounded-sm border border-line py-1.5 text-[11px] uppercase tracking-[0.14em] text-mute transition-colors hover:border-broken hover:text-broken"
-        >
-          Reject
-        </button>
-      </div>
-    </>
-  );
-}
-
-function DoneView({
-  verdict,
-  startedAt,
-  finishedAt,
-  onClose,
-}: {
-  verdict: string;
-  startedAt: number;
-  finishedAt: number;
-  onClose: () => void;
-}) {
-  const isApproved = verdict === "approved";
-  return (
-    <>
-      <p
-        className={`text-center text-[13px] font-medium ${isApproved ? "text-live" : "text-mute"}`}
-      >
-        {isApproved
-          ? "Heal approved. The scraper has been updated."
-          : verdict === "cancelled"
-            ? "Heal cancelled. No changes were made."
-            : "Heal rejected. No changes were made."}
+      <p className="text-center text-[10px] text-mute">
+        Awaiting approval on Bright Data. The scraper is untouched until someone
+        approves it.
       </p>
-      <div className="mt-2 text-center">
-        <TimingBadge startedAt={startedAt} finishedAt={finishedAt} />
-      </div>
-      <button
-        type="button"
-        onClick={onClose}
-        className="mt-4 w-full py-1.5 text-[11px] uppercase tracking-[0.14em] underline decoration-1 underline-offset-4 transition-colors hover:text-heal"
-      >
-        Close
-      </button>
     </>
   );
 }
