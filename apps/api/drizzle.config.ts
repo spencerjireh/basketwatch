@@ -12,11 +12,11 @@ const url = process.env.DATABASE_URL ?? "";
 /**
  * Refuse to touch a non-local database unless it is asked for explicitly.
  *
- * This is not theoretical. The repo-root .env points DATABASE_URL at the
- * deployed Postgres, because that is what the data migration needed. Without
- * this guard a bare `pnpm db:migrate` silently targets production, which holds
- * 28k observations and is the demo. dotenv does not override an already-set
- * variable, so the safe path -- passing DATABASE_URL inline -- still works.
+ * The repo-root .env now points at the local database, so the common mistake
+ * this was written for is gone. The guard stays anyway: production holds 28k
+ * observations and is the demo, and one `set -a; . ./.env.prod` in the wrong
+ * shell is all it would take. dotenv does not override an already-set variable,
+ * so the safe path -- passing DATABASE_URL inline -- still works.
  *
  * To run against the deployed database on purpose:
  *   ALLOW_REMOTE_DB=1 pnpm db:check
