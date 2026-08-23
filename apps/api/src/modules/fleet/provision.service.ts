@@ -3,6 +3,7 @@ import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { promisify } from "node:util";
 import { Injectable, Logger, NotFoundException } from "@nestjs/common";
+import { scrubSecrets } from "../../common/scrub.js";
 import { FleetRepository } from "./fleet.repository.js";
 
 const run = promisify(execFile);
@@ -89,7 +90,10 @@ export class ProvisionService {
       return { storeId, collectorId, status: "created" };
     } catch (err: unknown) {
       const stderr = (err as { stderr?: string }).stderr ?? "";
-      const message = stderr || (err instanceof Error ? err.message : String(err));
+      const message = scrubSecrets(
+        stderr || (err instanceof Error ? err.message : String(err)),
+        [this.apiKey],
+      );
       this.logger.error(`${storeId}: provision failed -- ${message}`);
       return { storeId, collectorId: null, status: "failed", error: message.slice(0, 500) };
     }
@@ -128,7 +132,8 @@ export class ProvisionService {
       "900",
     ];
 
-    this.logger.log(`creating collector for ${entry.storeId}: brightdata ${args.slice(0, 3).join(" ")} ...`);
+    // Never log args: args[1] is the API key when one is configured.
+    this.logger.log(`creating collector for ${entry.storeId}: brightdata scraper create ${entry.seedUrl}`);
 
     let stdout: string;
     let stderr: string;
@@ -142,12 +147,15 @@ export class ProvisionService {
       stderr = result.stderr;
     } catch (err: unknown) {
       const e = err as { stdout?: string; stderr?: string; code?: string };
-      const detail = e.stderr || e.stdout || (err instanceof Error ? err.message : String(err));
+      const detail = scrubSecrets(
+        e.stderr || e.stdout || (err instanceof Error ? err.message : String(err)),
+        [this.apiKey],
+      );
       throw new Error(`CLI failed (${e.code ?? "unknown"}): ${detail.slice(0, 400)}`);
     }
 
     if (stderr) {
-      this.logger.warn(`CLI stderr: ${stderr.slice(0, 200)}`);
+      this.logger.warn(`CLI stderr: ${scrubSecrets(stderr.slice(0, 200), [this.apiKey])}`);
     }
 
     const parsed = JSON.parse(stdout) as { collector_id?: string; status?: string };
