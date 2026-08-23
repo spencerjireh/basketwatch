@@ -190,9 +190,9 @@ export function ProductSearch() {
 
       {/*
        * With nothing typed the list below is the whole catalogue, alphabetically,
-       * which is a fine place to end up and a poor place to start. The ten
+       * which is a fine place to end up and a poor place to start. The fifteen
        * staples are the shortcut in for anyone who does not already know what
-       * they are looking for, and they are the same ten the front page prices.
+       * they are looking for, and they are the same fifteen the front page prices.
        * They go the moment a term is typed -- keyed off what is in the box, not
        * off what the rendered hits came from, so they leave on the keystroke
        * rather than on the reply.

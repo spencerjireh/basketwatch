@@ -101,5 +101,62 @@
     "subject": "A banana plant with its hand of fruit",
     "commons": "File:Musa paradisiaca Blanco1.88-cropped.jpg",
     "note": "Flora de Filipinas, Francisco Manuel Blanco, 1880-83."
+  },
+  "pork": {
+    "subject": "A Berkshire pig",
+    "commons": "File:Berkshire Pig • p182• Brett's Colonist's Guide 1883.tif",
+    "note": "Brett's Colonist's Guide, 1883. A wood-engraved Berkshire in side profile, the same register as the cow and the cockerel.",
+    "paper": 0.55,
+    "min_area": 0.0015,
+    "tolerance": 1.7,
+    "pad": 0.18,
+    "quantiles": [
+      0.6,
+      0.3
+    ]
+  },
+  "fish": {
+    "subject": "A milkfish",
+    "commons": "File:Chanos chanos Day.png",
+    "pad": 0.3,
+    "note": "Francis Day, Fauna of British India: Fishes, 1889. Milkfish is bangus, the Philippine staple fish; the basket line names tilapia and round scad, but the art wants the archetype.",
+    "crop": [
+      0.0,
+      0.0,
+      1.0,
+      0.69
+    ]
+  },
+  "onions": {
+    "subject": "Two onion bulbs",
+    "commons": "File:Ognon jaune des Vertus Vilmorin-Andrieux 1883.png",
+    "pad": 0.3,
+    "note": "Vilmorin-Andrieux, Les plantes potageres, 1883. The two bulbs overlap too closely to crop to one, and the pair reads truer to the basket line anyway."
+  },
+  "cheese": {
+    "subject": "A block of Swiss cheese",
+    "commons": "File:Mrs Beeton (1457).jpg",
+    "note": "Mrs Beeton's Book of Household Management, 1907 edition. Cropped to the Swiss block from a composed plate of twenty; the holes are what read as cheese at chip size.",
+    "crop": [
+      0.02,
+      0.805,
+      0.475,
+      0.975
+    ],
+    "min_area": 0.0012,
+    "tolerance": 1.5,
+    "pad": 0.25
+  },
+  "canned_fish": {
+    "subject": "A sardine",
+    "commons": "File:FMIB 40626 Sardine or Pilchard (Clupea pilchardus).jpeg",
+    "pad": 0.3,
+    "note": "Hugh McCormick Smith, 1902. The fish rather than the tin: a labelled printed object traces as a rectangle, the same failure the bread and pasta notes record.",
+    "crop": [
+      0.0,
+      0.0,
+      1.0,
+      0.72
+    ]
   }
 }
