@@ -28,7 +28,20 @@ import { Section } from "@/components/ui/section";
  * between that and the staple detail. The answer above, the justification
  * below, and a terrain click scrolls past the answer to land on the evidence.
  */
-export function BasketExplorer({ rails, midBand }: { rails: Rail[]; midBand?: ReactNode }) {
+export function BasketExplorer({
+  rails,
+  midBand,
+  tail,
+}: {
+  rails: Rail[];
+  midBand?: ReactNode;
+  /**
+   * Rendered after the staple evidence, still inside the selection provider --
+   * the panorama's store lines light the same terrain columns and dot-plot
+   * rows the rest of the page does, and a slot is what keeps that wire.
+   */
+  tail?: ReactNode;
+}) {
   const { country } = useCountry();
   const grid = useMemo(() => buildTerrainGrid(rails, country), [rails, country]);
   const weather = useMemo(() => weatherFor(rails, country), [rails, country]);
@@ -73,6 +86,8 @@ export function BasketExplorer({ rails, midBand }: { rails: Rail[]; midBand?: Re
             ))}
           </ul>
         </section>
+
+        {tail}
       </div>
     </SelectionProvider>
   );
