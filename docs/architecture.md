@@ -14,13 +14,11 @@ diverged from it. The shape held; three things changed in the detail:
 - **The dashboard is Next.js**, not a Vite SPA, and nginx is gone with it
   (section 3.4 and 3.6).
 - **PH is in scope** — the gate passed Aug 19 (section 2).
-- **The app is the repo root**, on pnpm + Turborepo. The clone store was
-  deleted in that rebuild and is pending; section 3.5 describes what it will be,
-  not what exists today.
-Companions: [hackathon-brief](hackathon-brief.md) (rules, judging, experiment
-findings) and [prd](prd.md) (confirmed scope).
-Diagrams are inline mermaid below; exported PNGs and `.mmd` sources live in
-`diagrams/`.
+- **The app is the repo root**, on pnpm + Turborepo. Parker's Pantry
+  (`apps/pantry`) is live at `pantry.spencerjireh.com` as the disclosed clone
+  store for staged break-and-heal demos.
+
+Companion: [api-contract](api-contract.md) (endpoint and response shapes).
 
 ## 1. One-liner
 
@@ -96,7 +94,6 @@ flowchart LR
     FLEET -.->|scrapes| WEB["Real store sites"]
 ```
 
-Source: `diagrams/system-architecture.mmd` (PNG export alongside).
 
 ### 3.1 Scraper fleet (Bright Data Scraper Studio)
 - One scraper per target site, AI-generated via `automate_template`, saved to
@@ -153,7 +150,6 @@ stateDiagram-v2
     ManualAttention --> Healthy: human fix +<br/>manual re-run passes
 ```
 
-Source: `diagrams/health-state-machine.mmd`.
 - **Heal orchestrator**:
   - Builds evidence bundle: failing checks, sample bad output, last-good
     sample, field-level diff summary.
@@ -164,8 +160,10 @@ Source: `diagrams/health-state-machine.mmd`.
   - Pass: save to production, close incident, ops alert "healed".
   - Fail: reject, retry with refined prompt (max 3 attempts), then escalate
     to `manual_attention`.
-  - **Budget guard**: per-scraper daily heal cap + global daily credit
-    ceiling; guard checked before every Studio call. (Protects the $50.)
+  - **Budget guard**: per-scraper daily heal cap
+    (`HEAL_MAX_PER_SCRAPER_PER_DAY`) and per-incident attempt cap
+    (`HEAL_MAX_ATTEMPTS_PER_INCIDENT`). The production Studio path does not
+    use the CLI guard wrappers.
 
   The full loop:
 
@@ -210,7 +208,6 @@ sequenceDiagram
     end
 ```
 
-Source: `diagrams/heal-loop-sequence.mmd`.
 - **Notifier**: one interface, three adapters (Resend, Telegram, Discord).
   Product alerts (price drop >X% on basket item) and ops alerts (breakage,
   healed, escalation).
@@ -274,8 +271,6 @@ erDiagram
     }
 ```
 
-Source: `diagrams/data-model.mmd` (full column detail there; abbreviated
-here for readability).
 Drizzle ORM + migrations. Raw run payloads kept (jsonb) so incidents can be
 replayed/re-validated during development.
 
@@ -292,18 +287,17 @@ replayed/re-validated during development.
 - The dashboard is a **pure client of the API** and never touches Postgres. A
   lint rule makes that structural rather than aspirational.
 
-### 3.5 Clone store ("chaos target") — pending rebuild
-Static store page (10 basket products) served on a subdomain of the VPS with
-`?layout=b` / env-flag mutation: renames CSS classes, moves price into a
-nested span, switches price format. Purpose: scripted, guaranteed
-break-and-heal demo moment + integration-test target during development.
+### 3.5 Parker's Pantry ("chaos target")
+`apps/pantry` at `pantry.spencerjireh.com` -- a fictional grocery store with
+a US storefront (`/us`, USD) and a PH twin (`/ph`, PHP). Its prices are
+deterministic seeded walks from fixed base prices; both storefronts ship with
+`index_contributor = false` so they render on the dashboard but never move
+the country index. Purpose: scripted, guaranteed break-and-heal demo moment.
 Disclosed as a test target in the submission.
 
-**Not built, and deliberately last.** The first implementation was deleted with
-the old app on Aug 20. The description above is the target, not the state.
-Team decision Aug 20: it stays the required demo centrepiece and is rebuilt
-after the read path, ingest and the heal loop — a chaos target is only
-demonstrable once there is an engine to break. See PRD decision 5.
+The break switch swaps the storefront markup between two layouts:
+`just pantry-layout us b` breaks the US scraper's assumptions, `a` restores
+them. Guarded by `PANTRY_ADMIN_TOKEN`.
 
 ### 3.6 Deployment
 Coolify VPS. **`docker-compose.prod.yml` at the repo root is the deployment
@@ -311,8 +305,7 @@ unit** — Coolify runs the stack as one Docker Compose resource watching
 `main`, and redeploys on every push. `docker-compose.dev.yml`, also at the
 root, runs just postgres locally; apps run on the host with hot reload.
 Coolify handles TLS/subdomains. Secrets (Bright Data key, Anthropic key,
-Resend, Telegram token, webhook secret) via Coolify env vars. Full runbook in
-[deploy.md](deploy.md).
+Resend, Telegram token, webhook secret) via Coolify env vars.
 
 Domains: `basketwatch.spencerjireh.com` serves the dashboard, and the API sits
 behind it same-origin at `/api/`. The API sets a global `api` prefix with no
@@ -334,15 +327,12 @@ Coolify env. Clients connect to the VPS IP rather than a hostname — the
 only, not arbitrary TCP. Postgres also listens on `55432` *inside* the
 container, to clear a `DOCKER-USER` rule on the VPS that drops external traffic
 to container port 5432; so on the compose network the database is
-`postgres:55432`, not `postgres:5432`. Both are explained in
-[deploy.md](deploy.md).
+`postgres:55432`, not `postgres:5432`.
 
-All three services -- `postgres`, `api`, `web` -- now build and start on every
-deploy. The `app` profile that once gated `api` and `web` behind the database
-is gone, so an app build that fails takes the deploy with it; that is the
-trade for having the stack come up in one step. `clone-store` is not a compose
-service at all and never was one here: it is the break-and-heal demo site in
-the PRD, still pending a rebuild, which is how the diagram below marks it.
+All four services -- `postgres`, `api`, `web`, `pantry` -- build and start on
+every deploy. The `app` profile that once gated `api` and `web` behind the
+database is gone, so an app build that fails takes the deploy with it; that
+is the trade for having the stack come up in one step.
 
 ```mermaid
 flowchart TB
@@ -363,7 +353,7 @@ flowchart TB
             APIC["orchestrator-api<br/>NestJS + pg-boss"]
             PG[("postgres 16<br/>volume-backed")]
         end
-        CLONE["clone-store<br/>static site + mutation flag<br/>(pending rebuild)"]
+        CLONE["Parker's Pantry<br/>clone store + layout switch<br/>(pantry.spencerjireh.com)"]
     end
 
     JUDGE -->|https| PROXY
@@ -381,9 +371,6 @@ flowchart TB
     TEAM -->|"postgres :55432<br/>(direct to VPS IP,<br/>bypasses Cloudflare)"| PG
 ```
 
-Source: `diagrams/deployment.mmd`. The exported PNGs beside the `.mmd` sources
-still show the pre-rebuild topology; the inline mermaid above is current, and
-the PNGs need re-exporting before they are used in the submission.
 
 ## 4. External interfaces
 
