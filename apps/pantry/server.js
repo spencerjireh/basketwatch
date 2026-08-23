@@ -36,6 +36,74 @@ const CATALOG = [
 ];
 
 /** `lite` is the awning's pale stripe: white would vanish against the page. */
+/**
+ * Product art: hand-drawn inline SVG in the storefront's printed-circular
+ * style (ink outlines, flat fills from the page palette). Decorative only
+ * and aria-hidden; the product name text carries the meaning. Not part of
+ * the scrape contract -- collectors read name/price/size, never the art.
+ */
+const svg = (shapes) =>
+  `<svg viewBox="0 0 64 64" aria-hidden="true" focusable="false" fill="none" stroke="#26221c" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round">${shapes}</svg>`;
+
+const ART = {
+  "eggs-12": svg(
+    `<path d="M10 26h44v8H10z" fill="#e6dfd2"/>` +
+      `<ellipse cx="20" cy="28" rx="6.5" ry="8.5" fill="#fdfcf8"/><ellipse cx="32" cy="28" rx="6.5" ry="8.5" fill="#fdfcf8"/><ellipse cx="44" cy="28" rx="6.5" ry="8.5" fill="#fdfcf8"/>` +
+      `<path d="M8 34h48l-4 16a4 4 0 0 1-4 3H16a4 4 0 0 1-4-3z" fill="#e6dfd2"/>`,
+  ),
+  "milk-1g": svg(
+    `<path d="M25 10h14v5H25z" fill="#1d4ed8"/>` +
+      `<path d="M25 15h14v6l6 9v20a3 3 0 0 1-3 3H22a3 3 0 0 1-3-3V30l6-9z" fill="#fdfcf8"/>` +
+      `<path d="M19 30h26" stroke-width="2"/><circle cx="32" cy="42" r="6" fill="#dbe4fa"/>`,
+  ),
+  "bread-loaf": svg(
+    `<path d="M10 32a14 14 0 0 1 14-14h16a14 14 0 0 1 14 14v14a4 4 0 0 1-4 4H14a4 4 0 0 1-4-4z" fill="#e9bd77"/>` +
+      `<path d="M22 20c2 4 2 8 0 12M32 19c2 4 2 8 0 12M42 20c2 4 2 8 0 12" stroke-width="2"/>`,
+  ),
+  "rice-5lb": svg(
+    `<path d="M20 22l-5-9M44 22l5-9" stroke-width="2"/>` +
+      `<path d="M20 22h24l4 26a6 5 0 0 1-6 5H22a6 5 0 0 1-6-5z" fill="#f4ecd8"/>` +
+      `<path d="M32 32v14" stroke="#2e7d4f" stroke-width="2"/><path d="M32 36l-5-4M32 36l5-4M32 42l-5-4M32 42l5-4" stroke="#2e7d4f" stroke-width="2"/>`,
+  ),
+  "coffee-12oz": svg(
+    `<path d="M16 15h32v8H16z" fill="#8a5d3b"/>` +
+      `<path d="M18 23h28v28a3 3 0 0 1-3 3H21a3 3 0 0 1-3-3z" fill="#6f4a2e"/>` +
+      `<circle cx="32" cy="39" r="8.5" fill="#fdfcf8"/><ellipse cx="32" cy="39" rx="4" ry="5.5" fill="#6f4a2e"/><path d="M32 34.5c-1.5 3-1.5 6 0 9" stroke="#fdfcf8" stroke-width="1.6"/>`,
+  ),
+  "sugar-4lb": svg(
+    `<path d="M22 12h20v8H22z" fill="#e6dfd2"/>` +
+      `<path d="M18 20h28l-2 32H20z" fill="#fdfcf8"/>` +
+      `<path d="M32 28l8 9-8 9-8-9z" fill="#ffd23f"/>`,
+  ),
+  "chicken-lb": svg(
+    `<path d="M40 38L50 48" stroke-width="8"/><path d="M40 38L50 48" stroke="#fdfcf8" stroke-width="4"/>` +
+      `<circle cx="51" cy="52" r="4.5" fill="#fdfcf8"/><circle cx="55" cy="46" r="4.5" fill="#fdfcf8"/>` +
+      `<path d="M42 36a17 15 0 1 0-6 6z" fill="#e39a55"/>`,
+  ),
+  "oil-48oz": svg(
+    `<path d="M27 9h10v5H27z" fill="#b91c1c"/><path d="M29 14h6v6h-6z" fill="#fbf3d9"/>` +
+      `<path d="M23 34h18v16H23z" fill="#f5c542" stroke="none"/>` +
+      `<path d="M29 20h6c6 7 6 9 6 14v17a3 3 0 0 1-3 3H26a3 3 0 0 1-3-3V34c0-5 0-7 6-14z"/>`,
+  ),
+  "pasta-1lb": svg(
+    `<path d="M20 12h24v42H20z" fill="#1d4ed8"/>` +
+      `<path d="M25 26h14v22H25z" fill="#fdfcf8"/>` +
+      `<path d="M28 28v18M31 28v18M34 28v18M37 28v18" stroke="#d9a441" stroke-width="1.8"/>` +
+      `<path d="M20 19h24" stroke-width="2"/>`,
+  ),
+  "bananas-lb": svg(
+    `<path d="M14 20c2 16 14 24 30 24 5 0 8-2 9-5-14 3-28-7-31-21z" fill="#ffd23f"/>` +
+      `<path d="M18 14c1 13 11 21 24 22-11-4-19-11-21-23z" fill="#f5c542"/>` +
+      `<path d="M13 20l-2-4M17 13l-1-4" stroke-width="3"/>`,
+  ),
+};
+
+const BASKET = svg(
+  `<path d="M21 28a11 11 0 0 1 22 0" stroke-width="2.5"/>` +
+    `<path d="M13 28h38l-4 19a4 4 0 0 1-4 3H21a4 4 0 0 1-4-3z" fill="#ffd23f"/>` +
+    `<path d="M23 33l2 12M32 33v12M41 33l-2 12" stroke-width="2"/>`,
+);
+
 const STORES = {
   us: { label: "US Store", accent: "#1d4ed8", lite: "#dbe4fa", flag: "US" },
   ph: { label: "PH Store", accent: "#b91c1c", lite: "#f8dfdc", flag: "PH" },
@@ -84,6 +152,7 @@ const productUrl = (store, key) => `${BASE_URL}/${store}/products/${key}`;
 
 const cardA = (store, p, price) => `
       <a class="product-card" href="${productUrl(store, p.key)}">
+        <span class="product-art">${ART[p.key] ?? ""}</span>
         <h3 class="product-name">${p.name}</h3>
         <span class="price" data-sku="${p.key}">${money(store, price)}</span>
         <span class="size">${p.size}</span>
@@ -95,6 +164,7 @@ const cardB = (store, p, price) => {
   const symbol = store === "us" ? "$" : "₱";
   return `
       <a class="item-tile" href="${productUrl(store, p.key)}" data-testid="sku-${p.key}">
+        <span class="tile-art">${ART[p.key] ?? ""}</span>
         <h3 class="item-title">${p.name}</h3>
         <div class="item-cost" data-testid="product-price"><span class="cost-currency">${symbol}</span><span class="cost-whole">${whole}</span><span class="cost-cents">${cents}</span></div>
         <div class="item-meta"><span class="item-pack">${p.size}</span><span class="availability" data-state="available">Available</span></div>
@@ -142,6 +212,12 @@ const css = (accent, lite) => `
   .item-tile { display: flex; flex-direction: column; gap: 0.6rem; }
   .product-name, .item-title { font-size: 0.92rem; font-weight: 600; line-height: 1.35; min-height: 2.7em; }
   .product-name { grid-column: 1 / -1; }
+  .product-art, .tile-art { display: flex; justify-content: center; align-items: center; background-image: radial-gradient(#26221c0d 1px, transparent 1.1px); background-size: 9px 9px; background-color: #f7f3ea; border-radius: 6px; padding: 0.55rem 0; }
+  .product-art { grid-column: 1 / -1; border: 1px solid var(--crate); }
+  .product-art svg, .tile-art svg { width: 74px; height: 74px; }
+  .detail .product-art svg, .detail .tile-art svg { width: 120px; height: 120px; }
+  .door-art { display: block; margin-bottom: 0.5rem; }
+  .door-art svg { width: 42px; height: 42px; }
   .price, .item-cost { background: var(--tag); color: var(--ink); font-weight: 800; font-size: 1.12rem; padding: 0.28rem 0.6rem 0.24rem; border-radius: 3px; border: 1.5px solid var(--ink); box-shadow: 2px 2px 0 var(--ink); }
   .price { grid-column: 1 / -1; justify-self: start; }
   .item-cost { align-self: flex-start; }
@@ -255,8 +331,8 @@ const server = createServer(async (req, res) => {
           "Parker's Pantry",
           `    <h2 class="aisle-sign">Pick a storefront</h2>
     <div class="doors">
-      <a class="door door-us" href="/us"><span class="door-stripe" aria-hidden="true"></span><span class="door-body"><span class="door-title">US Store</span><span class="door-note">Ten weekly staples, priced in US dollars.</span></span></a>
-      <a class="door door-ph" href="/ph"><span class="door-stripe" aria-hidden="true"></span><span class="door-body"><span class="door-title">PH Store</span><span class="door-note">The same ten staples, priced in Philippine pesos.</span></span></a>
+      <a class="door door-us" href="/us"><span class="door-stripe" aria-hidden="true"></span><span class="door-body"><span class="door-art">${BASKET}</span><span class="door-title">US Store</span><span class="door-note">Ten weekly staples, priced in US dollars.</span></span></a>
+      <a class="door door-ph" href="/ph"><span class="door-stripe" aria-hidden="true"></span><span class="door-body"><span class="door-art">${BASKET}</span><span class="door-title">PH Store</span><span class="door-note">The same ten staples, priced in Philippine pesos.</span></span></a>
     </div>`,
         ),
       );
