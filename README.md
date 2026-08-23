@@ -136,8 +136,6 @@ packages/contract   zod schemas and types. The only thing the two apps share.
 packages/tsconfig   base / library / nest / next compiler configs.
 packages/eslint-config  base / nest / next lint configs, incl. the import boundaries.
 docs/           design docs, the deploy runbook, the API contract.
-lab/            frozen exploration notebooks and the Bright Data credit guard.
-                Not product code; nothing under apps/ or packages/ imports it.
 ```
 
 Inside `apps/api/src`, `modules/` holds one directory per domain: `pullers`

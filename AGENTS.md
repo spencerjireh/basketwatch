@@ -6,23 +6,15 @@ Instructions for AI coding agents working in this repository.
 
 Team entry for the WeMakeDevs "Into the Scrape-Verse" hackathon
 (Aug 17-23, 2026): a self-healing grocery price tracker built on Bright
-Data Scraper Studio. This repo is the private lab notebook AND the
-codebase — docs, experiments, and product code live together. A scrubbed
-public repo may be split out for submission near the deadline.
+Data Scraper Studio. This repo is the product codebase with design docs alongside it.
 
 Read the doc that matches the work, not all of them:
 
-- Scoping a feature or judging demo value: `docs/hackathon-brief.md`
-  (rules, judging criteria), then `docs/prd.md` (scope, cut order).
 - Adding or wiring an API module: `docs/architecture.md` (HLD; diagrams
-  in `docs/diagrams/`).
+  inline as mermaid).
 - Touching `packages/contract` or endpoint shapes: `docs/api-contract.md`.
-- Anything that spends Bright Data credits: `docs/credit-monitoring.md`
-  (also a hard rule below).
 - Provisioning Studio collectors: `docs/collector-manifest.json` (canonical
-  definitions for all 16 stores) and `docs/collector-runbook.md` (step-by-step
-  procedure).
-- Status and open team decisions: `docs/index.md`.
+  definitions for all 16 stores).
 
 ## Layout
 
@@ -39,21 +31,8 @@ is no app subdirectory; `apps/` and `packages/` sit beside the compose files.
 - `packages/contract` — zod schemas and types. The only thing the two apps
   share, and the reason the boundary above holds.
 - `packages/tsconfig`, `packages/eslint-config` — shared configs.
-- `docs/` — all design docs and notes.
-- `lab/` — not product code. Nothing under `apps/` or `packages/` imports from
-  it, and its dependencies are installed locally to each notebook:
-  - `lab/spencer-exploration/` — Python: site discovery and scoring
-    (`registry.json`, `fleet.lock.json`), the catalogue puller and its SQLite
-    store, Studio transport. Start at its `HANDOFF.md` — it states what the app
-    has to absorb. **Frozen**: kept as documentation, nothing new written there.
-  - `lab/edjin-exploration/` — Node: browser-based site vetting (`vet.mjs`,
-    `vet.json`), the second pass that catches client-rendered stores the HTTP
-    pass misses.
-  - `lab/scripts/bd.mjs` — the guarded Bright Data wrapper (see Hard rules).
-    Reachable as `just guard`.
-
-Findings graduate from `lab/` into `docs/` and, when they change the contract,
-into a PR against the workspace.
+- `docs/` — design docs (`architecture.md`, `api-contract.md`) and
+  the collector manifest used by `ProvisionService`.
 
 Parker's Pantry (`apps/pantry`) is live at `pantry.spencerjireh.com` as the
 disclosed clone store for staged break-and-heal demos. Not yet wired: the
@@ -73,7 +52,6 @@ just dev            # contract watch + api :3001 + dashboard :3000
 just check          # typecheck, lint, test, build
 just db-migrate     # local database; see the warning below
 just db-backup      # dump the DEPLOYED database before anything risky
-just guard --report # Bright Data spend
 ```
 
 Run `just dev`, not an app's own dev script: the API depends on the contract
@@ -93,13 +71,12 @@ To restore a production dump into the local database for testing:
 
 Deployment: root `docker-compose.prod.yml` is THE Coolify deployment unit
 (single Docker Compose resource watching `main`; secrets via Coolify env
-vars). All three services deploy: `postgres`, published on port `55432` for
-the team to write scraped data into, plus `api` and `web`. `web` binds
+vars). All four services deploy: `postgres`, published on port `55432` for
+the team to write scraped data into, plus `api`, `web`, and `pantry`. `web` binds
 **3000**, not 80, and `API_INTERNAL_URL` is a Docker build arg rather than a
 runtime variable. The API applies pending migrations itself on boot, ahead of
 the queue and the first request — a Coolify deploy has no step where a human
-runs drizzle-kit. Runbook:
-[docs/deploy.md](./docs/deploy.md). Never deploy without the user's go-ahead.
+runs drizzle-kit. Never deploy without the user's go-ahead.
 
 Bright Data CLI (`brightdata`, v0.3.4+) drives Scraper Studio:
 `scraper create <url> "<desc>"`, `scraper run <id> [url]`,
@@ -118,17 +95,10 @@ Bright Data CLI (`brightdata`, v0.3.4+) drives Scraper Studio:
   token in the web container makes every visitor an operator on our credentials.
   Prod compose passes it to `api` and not to `web`, turbo does not forward it to
   the web dev server, and nothing under `apps/web` may read it.
-- **Credits are finite (~$50 per account, and the team has two separate
-  accounts — see `docs/index.md`).** Never call the Bright Data CLI
-  directly for anything that spends: go through the guarded wrapper,
-  `node lab/scripts/bd.mjs --label=<what> -- <brightdata args>` on the Node
-  side, or `studio.py`'s `Guard` on the Python side. Both enforce the same
-  caps from `.env.example`, both check before and meter after (including
-  timeouts), and both exit non-zero on a breach. The unified protocol is in
-  [credit monitoring](./docs/credit-monitoring.md) — read it before any
-  credit-spending work. Paste your guard's report in every PR that spends.
-  Raise a cap deliberately, never silently. Do not create/run/heal scrapers
-  in bulk without the user's go-ahead.
+- **Credits are finite (~$50 per account).** Production spend is controlled
+  by heal caps (`HEAL_MAX_ATTEMPTS_PER_INCIDENT`,
+  `HEAL_MAX_PER_SCRAPER_PER_DAY`). Raise a cap deliberately, never silently.
+  Do not create/run/heal scrapers in bulk without the user's go-ahead.
 - **Bound every scraper.** Creation prompts must state the crawl scope
   explicitly ("this product page only", "front page only") — an unbounded
   description once crawled ~150 pages.
@@ -163,9 +133,7 @@ Bright Data CLI (`brightdata`, v0.3.4+) drives Scraper Studio:
 
 ## Current state
 
-Snapshot, accurate as of Aug 22. Fuller status, spend, and the open team
-decisions live in [docs/index.md](./docs/index.md) — update that file as
-things land, and this list only when a line here becomes false.
+Snapshot, accurate as of Aug 22.
 
 - Every dashboard route answers from Postgres; there are no fixtures.
   Migrations run 0000-0008.
@@ -185,8 +153,7 @@ things land, and this list only when a line here becomes false.
   codebase as probing and diagnostic tools that inform collector descriptions;
   the Studio adapter itself uses sitemap discovery internally for product-page
   collectors. Collector definitions (seed URLs, descriptions, probe findings)
-  live in `docs/collector-manifest.json`; the setup procedure is in
-  `docs/collector-runbook.md`.
+  live in `docs/collector-manifest.json`.
 - **Self-healing diagnostic loop (landed Aug 22).** The validator seeds
   baselines on boot, validates every run (schema, null rates, row count, price
   drift), opens incidents with evidence, and enqueues a heal job. The

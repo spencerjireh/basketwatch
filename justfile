@@ -174,15 +174,6 @@ db-restore-local FILE:
 
     echo "restored {{FILE}} into the local database"
 
-# Guarded Bright Data CLI -- everything that spends credits goes through this.
-# Examples:
-#   just guard --report
-#   just guard --label=vet-us -- scrape https://example.com --country us
-
-# Guarded Bright Data CLI (see lab/scripts/bd.mjs)
-guard *ARGS:
-    node lab/scripts/bd.mjs {{ARGS}}
-
 # Remove build output and node_modules
 clean:
     pnpm clean

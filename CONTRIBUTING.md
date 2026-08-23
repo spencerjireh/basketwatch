@@ -99,5 +99,4 @@ protection becomes free — turn it on there.
 - [AGENTS.md](./AGENTS.md) — instructions and hard rules for AI coding agents:
   secrets, the finite Bright Data credit budget, bounded scraper scope, no
   deploys without explicit go-ahead. Those rules bind humans too.
-- [docs/](./docs/index.md) — hackathon brief, PRD, architecture, and the
-  vendored Bright Data reference.
+- [docs/](./docs/) — architecture, API contract, and collector manifest.

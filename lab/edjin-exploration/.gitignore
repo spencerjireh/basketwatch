@@ -1,5 +1,0 @@
-node_modules/
-# cached Unlocker responses - regenerable, megabytes of site content we do not own
-raw/
-# run logs, kept locally; the durable record is vet.json
-*.log

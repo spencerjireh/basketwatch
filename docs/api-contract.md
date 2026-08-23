@@ -161,8 +161,7 @@ validation and the UI's exhaustiveness checks:
   carries size and unit price; the fleet output contract still does not. The v2
   rewrite did not close this — `packages/contract/src/ingest.ts` still has the
   v1 shape. Four changes are outstanding, all specified in
-  [lab/spencer-exploration/HANDOFF.md](../lab/spencer-exploration/HANDOFF.md) with a
-  tested reference implementation in its `basket.py`:
+  the exploration HANDOFF with a tested reference implementation:
   - `unit: z.string().min(1)` must become nullable. 4,276 of 28,376 catalogue
     rows have no parseable size and are still perfectly good prices; as
     written the contract rejects 15% of the catalogue at the door.
