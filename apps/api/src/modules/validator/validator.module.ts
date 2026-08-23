@@ -4,6 +4,6 @@ import { ValidatorService } from "./validator.service.js";
 
 @Module({
   providers: [ValidatorRepository, ValidatorService],
-  exports: [ValidatorService],
+  exports: [ValidatorService, ValidatorRepository],
 })
 export class ValidatorModule {}

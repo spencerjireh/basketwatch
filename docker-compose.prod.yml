@@ -78,7 +78,8 @@ services:
       # On unless deliberately stopped. Off still opens incidents; it only
       # skips the Bright Data call that spends credits.
       HEAL_AUTO_ENABLED: ${HEAL_AUTO_ENABLED:-true}
-      HEAL_MAX_ATTEMPTS_PER_INCIDENT: ${HEAL_MAX_ATTEMPTS_PER_INCIDENT:-3}
+      HEAL_AUTO_APPROVE_ENABLED: ${HEAL_AUTO_APPROVE_ENABLED:-true}
+      HEAL_MAX_ATTEMPTS_PER_INCIDENT: ${HEAL_MAX_ATTEMPTS_PER_INCIDENT:-2}
       HEAL_MAX_PER_SCRAPER_PER_DAY: ${HEAL_MAX_PER_SCRAPER_PER_DAY:-5}
       CREDIT_DAILY_CEILING_USD: ${CREDIT_DAILY_CEILING_USD:-5}
       BD_BALANCE_USD: ${BD_BALANCE_USD:-}

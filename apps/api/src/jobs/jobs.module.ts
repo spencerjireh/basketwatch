@@ -5,6 +5,7 @@ import { ValidatorModule } from "../modules/validator/validator.module.js";
 import { BossService } from "./boss.provider.js";
 import { FleetPullHandler } from "./handlers/fleet-pull.handler.js";
 import { HealAutoHandler } from "./handlers/heal-auto.handler.js";
+import { HealPollHandler } from "./handlers/heal-poll.handler.js";
 import { ValidateRunHandler } from "./handlers/validate-run.handler.js";
 
 /**
@@ -19,7 +20,7 @@ import { ValidateRunHandler } from "./handlers/validate-run.handler.js";
 @Global()
 @Module({
   imports: [PullersModule, ValidatorModule, HealModule],
-  providers: [BossService, FleetPullHandler, HealAutoHandler, ValidateRunHandler],
+  providers: [BossService, FleetPullHandler, HealAutoHandler, HealPollHandler, ValidateRunHandler],
   exports: [BossService],
 })
 export class JobsModule {}

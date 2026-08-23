@@ -14,6 +14,10 @@ import { type Env } from "../../config/env.schema.js";
 export class HealBudget {
   constructor(private readonly config: ConfigService<Env, true>) {}
 
+  get autoApproveEnabled(): boolean {
+    return this.config.get("HEAL_AUTO_APPROVE_ENABLED", { infer: true });
+  }
+
   get maxAttemptsPerIncident(): number {
     return this.config.get("HEAL_MAX_ATTEMPTS_PER_INCIDENT", { infer: true });
   }

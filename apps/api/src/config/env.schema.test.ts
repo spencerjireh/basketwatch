@@ -54,6 +54,17 @@ describe("validateEnv", () => {
     expect(validateEnv({ ...base, HEAL_AUTO_ENABLED: "" }).HEAL_AUTO_ENABLED).toBe(true);
   });
 
+  it("reads the auto-approve kill switch as a word with a true default", () => {
+    expect(validateEnv(base).HEAL_AUTO_APPROVE_ENABLED).toBe(true);
+    expect(
+      validateEnv({ ...base, HEAL_AUTO_APPROVE_ENABLED: "false" }).HEAL_AUTO_APPROVE_ENABLED,
+    ).toBe(false);
+  });
+
+  it("caps proposals per incident at 2 by default", () => {
+    expect(validateEnv(base).HEAL_MAX_ATTEMPTS_PER_INCIDENT).toBe(2);
+  });
+
   it("refuses a flag value it cannot read, rather than guessing", () => {
     expect(() => validateEnv({ ...base, PULL_SCHEDULE_ENABLED: "maybe" })).toThrow(
       /Invalid environment/,
