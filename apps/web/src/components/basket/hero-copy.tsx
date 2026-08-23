@@ -10,10 +10,14 @@ import { formatMoney, spellNumber } from "@/lib/format";
 /**
  * The title set on the landscape.
  *
- * A claim rather than a caption. "What ten staples cost today" promised a
- * number the hero does not print, so the eye went hunting for one and found a
- * mountain range; what the range actually shows is that no store is lowest
- * across every row, which is worth saying in words.
+ * A label rather than a claim. "Nobody is cheapest at everything" was the
+ * finding, and a reader who already knew the product enjoyed it; a reader
+ * arriving cold could not tell groceries from insurance. The title now says
+ * what is on screen -- today's shelf prices, staples -- and leaves the
+ * finding to the range itself. It stops short of promising a specific
+ * number, the trap "What ten staples cost today" fell into: the spread in
+ * the paragraph below prints on good days and is dropped on thin ones, so
+ * the headline cannot owe a figure the page may not show.
  *
  * The country name in the sentence is the switcher itself. Once the sentence
  * names one country, every number in it belongs to that country -- store
@@ -37,7 +41,7 @@ export function HeroCopy({ rails }: { rails: Rail[] }) {
   return (
     <>
       <h1 className="font-display text-[38px] leading-[1.05] tracking-[-0.015em] sm:text-[60px]">
-        Nobody is cheapest at everything.
+        Today&apos;s shelf prices for the staples you actually buy.
       </h1>
       {/* A div, not a p: the dropdown renders a div and a ul, which the HTML
           parser would eject from a paragraph and hydration would trip over. */}
