@@ -222,12 +222,14 @@ export class HealRepository {
    * a proposal made before the poll loop existed) must not orphan a heal that
    * Bright Data is still holding open.
    */
-  async listPendingAttempts(): Promise<{
-    attemptId: string;
-    incidentId: string;
-    scraperId: string;
-    storeId: string | null;
-  }[]> {
+  async listPendingAttempts(): Promise<
+    {
+      attemptId: string;
+      incidentId: string;
+      scraperId: string;
+      storeId: string | null;
+    }[]
+  > {
     const rows = (await this.db.execute(sql`
       select
         ha.id::text          as attempt_id,
@@ -388,10 +390,12 @@ export class HealRepository {
    * incident: the verification pull was lost (a crashed worker, a dead job).
    * The boot sweep re-fires the canary so the incident cannot strand.
    */
-  async listApprovedAwaitingCanary(): Promise<{
-    attemptId: string;
-    storeId: string;
-  }[]> {
+  async listApprovedAwaitingCanary(): Promise<
+    {
+      attemptId: string;
+      storeId: string;
+    }[]
+  > {
     const rows = (await this.db.execute(sql`
       select ha.id::text as attempt_id, i.store_id
       from heal_attempts ha

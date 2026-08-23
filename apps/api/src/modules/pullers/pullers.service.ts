@@ -258,14 +258,16 @@ export class PullersService {
     // a store that already has one open is just noise, and the validator has
     // always worked this way.
     if (await this.repository.hasOpenIncident(config.storeId)) {
-      this.logger.log(
-        `${config.storeId}: run ${runId} recorded as failed, incident already open`,
-      );
+      this.logger.log(`${config.storeId}: run ${runId} recorded as failed, incident already open`);
       return this.studioFailureResponse(config, err, policy, startedAt, runId);
     }
 
     const incidentId = await this.repository.openIncident(
-      config.storeId, runId, policy.incidentKind, evidence, config.collectorId,
+      config.storeId,
+      runId,
+      policy.incidentKind,
+      evidence,
+      config.collectorId,
     );
 
     this.logger.log(
@@ -293,11 +295,15 @@ export class PullersService {
 
     if (config.collectorId) {
       try {
-        await this.boss.send(QUEUES.heal, {
-          scraperId: config.collectorId,
-          storeId: config.storeId,
-          incidentId,
-        }, { singletonKey: config.collectorId, retryLimit: 0 });
+        await this.boss.send(
+          QUEUES.heal,
+          {
+            scraperId: config.collectorId,
+            storeId: config.storeId,
+            incidentId,
+          },
+          { singletonKey: config.collectorId, retryLimit: 0 },
+        );
         this.logger.log(`${config.storeId}: heal job enqueued`);
       } catch (healErr) {
         this.logger.error(

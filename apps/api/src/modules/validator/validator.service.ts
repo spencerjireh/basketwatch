@@ -86,7 +86,11 @@ export class ValidatorService implements OnApplicationBootstrap {
         const incidentKind = this.pickIncidentKind(verdict.findings);
         const scraperId = await this.repository.getScraperId(storeId);
         const incidentId = await this.repository.openIncident(
-          storeId, runId, incidentKind, evidence, scraperId,
+          storeId,
+          runId,
+          incidentKind,
+          evidence,
+          scraperId,
         );
         this.logger.log(
           `${storeId}: run ${runId} is ${verdict.status}, incident opened (${incidentKind})`,
@@ -97,9 +101,7 @@ export class ValidatorService implements OnApplicationBootstrap {
           this.logger.warn(`${storeId}: no scraper_id, cannot auto-heal`);
         }
       } else {
-        this.logger.log(
-          `${storeId}: run ${runId} is ${verdict.status}, incident already open`,
-        );
+        this.logger.log(`${storeId}: run ${runId} is ${verdict.status}, incident already open`);
       }
     } else {
       this.logger.log(
@@ -133,10 +135,14 @@ export class ValidatorService implements OnApplicationBootstrap {
     }
 
     try {
-      await this.boss.send(QUEUES.heal, { scraperId, storeId, incidentId }, {
-        singletonKey: scraperId,
-        retryLimit: 0,
-      });
+      await this.boss.send(
+        QUEUES.heal,
+        { scraperId, storeId, incidentId },
+        {
+          singletonKey: scraperId,
+          retryLimit: 0,
+        },
+      );
       this.logger.log(`${storeId}: heal job enqueued for scraper ${scraperId}`);
     } catch (err) {
       this.logger.error(
@@ -174,15 +180,20 @@ export class ValidatorService implements OnApplicationBootstrap {
     parse: (row: unknown) => boolean,
   ): Promise<Verdict> {
     const parseRate = products.filter((p) => parse(p)).length / products.length;
-    const priceRate = products.filter((p) => p.price !== null && p.price !== undefined).length / products.length;
-    const nameRate = products.filter((p) => p.name !== null && p.name !== undefined && p.name !== "").length / products.length;
+    const priceRate =
+      products.filter((p) => p.price !== null && p.price !== undefined).length / products.length;
+    const nameRate =
+      products.filter((p) => p.name !== null && p.name !== undefined && p.name !== "").length /
+      products.length;
 
     const schemaOk = parseRate >= 0.7;
     const priceOk = priceRate >= 0.5;
     const nameOk = nameRate >= 0.5;
 
     if (schemaOk && priceOk && nameOk) {
-      this.logger.log(`${storeId}: first run looks healthy (parse=${(parseRate * 100).toFixed(0)}%, price=${(priceRate * 100).toFixed(0)}%, name=${(nameRate * 100).toFixed(0)}%), seeding baseline`);
+      this.logger.log(
+        `${storeId}: first run looks healthy (parse=${(parseRate * 100).toFixed(0)}%, price=${(priceRate * 100).toFixed(0)}%, name=${(nameRate * 100).toFixed(0)}%), seeding baseline`,
+      );
 
       await this.repository.computeAndSeedBaseline(storeId);
       await this.repository.updateRunFindings(runId, [], 0, "ok");

@@ -194,7 +194,7 @@ things land, and this list only when a line here becomes false.
   `refactor_template` API without auto-approval -- the dashboard shows the
   diff for human review. Baselines update automatically after healthy runs.
 - **Provisioning from the dashboard (landed Aug 22).** `POST
-  /api/fleet/:storeId/provision` and `POST /api/fleet/provision` create Studio
+/api/fleet/:storeId/provision` and `POST /api/fleet/provision` create Studio
   collectors from `collector-manifest.json` definitions. The Bright Data CLI
   is installed in the API Docker image for this purpose.
 - **Parker's Pantry (live Aug 22).** `apps/pantry` at

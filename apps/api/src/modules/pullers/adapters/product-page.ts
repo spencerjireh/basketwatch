@@ -17,13 +17,16 @@ export type ExtractedProduct = {
   via: "json-ld" | "microdata" | "og" | "bare-html";
 };
 
-const RE_LD_BLOCK = /<script[^>]+type\s*=\s*["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi;
+const RE_LD_BLOCK =
+  /<script[^>]+type\s*=\s*["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi;
 const RE_MICRO_NAME = /itemprop\s*=\s*["']name["'][^>]*content\s*=\s*["']([^"']{3,120})/i;
 const RE_MICRO_PRICE = /itemprop\s*=\s*["']price["'][^>]*content\s*=\s*["']([\d.,]+)/i;
 const RE_OG_TITLE = /property\s*=\s*["']og:title["'][^>]*content\s*=\s*["']([^"']{3,120})/i;
-const RE_OG_PRICE = /property\s*=\s*["'](?:og:)?product:price:amount["'][^>]*content\s*=\s*["']([\d.,]+)/i;
+const RE_OG_PRICE =
+  /property\s*=\s*["'](?:og:)?product:price:amount["'][^>]*content\s*=\s*["']([\d.,]+)/i;
 const RE_H1 = /<h1[^>]*>([\s\S]{3,150}?)<\/h1>/i;
-const RE_PRICE_CLASS = /class\s*=\s*["'][^"']*price[^"']*["'][^>]*>\s*[^\d<]{0,8}([\d,]+(?:\.\d{1,2})?)/i;
+const RE_PRICE_CLASS =
+  /class\s*=\s*["'][^"']*price[^"']*["'][^>]*>\s*[^\d<]{0,8}([\d,]+(?:\.\d{1,2})?)/i;
 
 export function extractProduct(html: string): ExtractedProduct | null {
   if (!html) return null;
@@ -56,7 +59,8 @@ export function extractProduct(html: string): ExtractedProduct | null {
   if (heading && priced) {
     const price = toNumber(priced[1]);
     const name = stripTags(heading[1] ?? "");
-    if (price !== null && name) return { name: name.slice(0, 150), price, currency: null, via: "bare-html" };
+    if (price !== null && name)
+      return { name: name.slice(0, 150), price, currency: null, via: "bare-html" };
   }
 
   return null;
@@ -116,5 +120,8 @@ function toNumber(value: unknown): number | null {
 }
 
 function stripTags(html: string): string {
-  return html.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
+  return html
+    .replace(/<[^>]*>/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
 }

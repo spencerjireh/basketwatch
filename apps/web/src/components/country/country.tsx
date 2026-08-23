@@ -139,6 +139,8 @@ export function useCountry(): CountryState {
 export function CountryLink({ href, ...rest }: ComponentProps<typeof Link> & { href: string }) {
   const { country } = useCountry();
   const carried =
-    country === DEFAULT_COUNTRY ? href : `${href}${href.includes("?") ? "&" : "?"}country=${country}`;
+    country === DEFAULT_COUNTRY
+      ? href
+      : `${href}${href.includes("?") ? "&" : "?"}country=${country}`;
   return <Link href={carried} {...rest} />;
 }

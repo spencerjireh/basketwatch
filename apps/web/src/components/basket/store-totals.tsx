@@ -178,7 +178,9 @@ export function StoreTotals({ rails }: { rails: Rail[] }) {
         {/* The plus is a promise, not a rounding: marks past the cap sit on
             this edge, and their true multiples are printed in red beside
             their rows. */}
-        <span className="ml-auto">{anyCapped ? `${axisMax.toFixed(1)}x+` : `${axisMax.toFixed(1)}x`}</span>
+        <span className="ml-auto">
+          {anyCapped ? `${axisMax.toFixed(1)}x+` : `${axisMax.toFixed(1)}x`}
+        </span>
       </div>
 
       {ranking.ignored.length > 0 ? (

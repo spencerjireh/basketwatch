@@ -46,23 +46,16 @@ export default async function HealingPage() {
   return (
     <main className="mx-auto min-h-screen w-full max-w-[1240px] px-5 pb-24 pt-8">
       <section className="max-w-[62ch]">
-        <h1 className="font-display text-[30px] leading-[1.15] tracking-[-0.01em]">
-          Self-healing
-        </h1>
+        <h1 className="font-display text-[30px] leading-[1.15] tracking-[-0.01em]">Self-healing</h1>
         <p className="mt-2.5 text-[14px] text-mute">
-          Store sites change without telling anyone, and a scraper that was right yesterday
-          quietly returns nothing today. This is what the fleet is doing, what has broken, and
-          what Bright Data proposed when it did — prompt, diff, verification and cost, every time.
+          Store sites change without telling anyone, and a scraper that was right yesterday quietly
+          returns nothing today. This is what the fleet is doing, what has broken, and what Bright
+          Data proposed when it did — prompt, diff, verification and cost, every time.
         </p>
       </section>
 
       <div className="mt-8">
-        <HealingBoard
-          fleet={fleet}
-          feed={feed.items}
-          incidents={incidents.items}
-          budget={budget}
-        />
+        <HealingBoard fleet={fleet} feed={feed.items} incidents={incidents.items} budget={budget} />
       </div>
     </main>
   );

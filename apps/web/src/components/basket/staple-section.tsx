@@ -85,142 +85,144 @@ export function StapleSection({ rail, index }: { rail: Rail; index: number }) {
       {/* Everything readable rides above the plate and keeps clear of the
           solid half of it, so a bar never has to be read through a leaf. */}
       <div className={cn("relative", plateRight ? "sm:pr-[26%]" : "sm:pl-[26%]")}>
-      <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
-        <h3 className="font-display text-[17px]">{rail.label}</h3>
-        <p className="font-mono text-[10.5px] text-mute">
-          {drawn.length === 0
-            ? "no comparable price"
-            : drawn.length === 1
-              ? "1 store — nothing to compare against"
-              : `${drawn.length} stores · ${spread(low, high)} spread`}
-        </p>
-      </div>
+        <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
+          <h3 className="font-display text-[17px]">{rail.label}</h3>
+          <p className="font-mono text-[10.5px] text-mute">
+            {drawn.length === 0
+              ? "no comparable price"
+              : drawn.length === 1
+                ? "1 store — nothing to compare against"
+                : `${drawn.length} stores · ${spread(low, high)} spread`}
+          </p>
+        </div>
 
-      {winner ? (
-        <p className="mt-0.5 text-[13px]">
-          <span className="font-medium text-live">{winner.storeName}</span>
-          <span className="text-mute"> · </span>
-          <span className="font-mono text-[12px]">
-            {formatMoney(winner.unitPrice.amount, winner.unitPrice.currency)}
-          </span>
-          {basis ? <span className="ml-1 font-mono text-[10.5px] text-mute">{basis}</span> : null}
-        </p>
-      ) : null}
+        {winner ? (
+          <p className="mt-0.5 text-[13px]">
+            <span className="font-medium text-live">{winner.storeName}</span>
+            <span className="text-mute"> · </span>
+            <span className="font-mono text-[12px]">
+              {formatMoney(winner.unitPrice.amount, winner.unitPrice.currency)}
+            </span>
+            {basis ? <span className="ml-1 font-mono text-[10.5px] text-mute">{basis}</span> : null}
+          </p>
+        ) : null}
 
-      {drawn.length > 0 ? (
-        <ul className="mt-3.5 flex flex-col gap-[7px]">
-          {drawn.map((pin) => {
-            const ratio = pin.unitPrice.amount / low;
-            // The longest bar fills its track; every bar is linear in the
-            // ratio, from a shared zero, so lengths compare. Prices live in
-            // their own aligned column, so the bar owns the whole lane.
-            const width = (ratio / Math.max(high / low, 1)) * 100;
-            const isHovered =
-              hovered?.itemKey === rail.itemKey &&
-              hovered?.storeId === pin.storeId &&
-              hovered?.country === rail.country;
-            return (
-              <li
-                key={`${pin.storeId}:${pin.productKey}`}
-                onMouseEnter={() =>
-                  setHovered({ country: rail.country, itemKey: rail.itemKey, storeId: pin.storeId })
-                }
-                onMouseLeave={() => setHovered(null)}
-                className={cn(
-                  "grid grid-cols-[minmax(0,8.5rem)_1fr] items-center gap-x-3 -mx-1 px-1 py-px transition-colors sm:grid-cols-[minmax(0,10rem)_1fr]",
-                  isHovered && "bg-wash",
-                )}
-                /*
-                 * The row carries the concrete product as a title rather than a
-                 * hover card: it is the one place the reader can find out which
-                 * exact catalogue item this price belongs to, and it has to
-                 * survive touch, keyboard and a screenshot in a demo video.
-                 */
-                title={`${pin.productName} — ${formatMoney(
-                  pin.unitPrice.amount,
-                  pin.unitPrice.currency,
-                )} ${basis}`}
-              >
-                <span
-                  className={cn("truncate text-[12.5px]", pin.cheapest && "font-medium")}
+        {drawn.length > 0 ? (
+          <ul className="mt-3.5 flex flex-col gap-[7px]">
+            {drawn.map((pin) => {
+              const ratio = pin.unitPrice.amount / low;
+              // The longest bar fills its track; every bar is linear in the
+              // ratio, from a shared zero, so lengths compare. Prices live in
+              // their own aligned column, so the bar owns the whole lane.
+              const width = (ratio / Math.max(high / low, 1)) * 100;
+              const isHovered =
+                hovered?.itemKey === rail.itemKey &&
+                hovered?.storeId === pin.storeId &&
+                hovered?.country === rail.country;
+              return (
+                <li
+                  key={`${pin.storeId}:${pin.productKey}`}
+                  onMouseEnter={() =>
+                    setHovered({
+                      country: rail.country,
+                      itemKey: rail.itemKey,
+                      storeId: pin.storeId,
+                    })
+                  }
+                  onMouseLeave={() => setHovered(null)}
+                  className={cn(
+                    "grid grid-cols-[minmax(0,8.5rem)_1fr] items-center gap-x-3 -mx-1 px-1 py-px transition-colors sm:grid-cols-[minmax(0,10rem)_1fr]",
+                    isHovered && "bg-wash",
+                  )}
+                  /*
+                   * The row carries the concrete product as a title rather than a
+                   * hover card: it is the one place the reader can find out which
+                   * exact catalogue item this price belongs to, and it has to
+                   * survive touch, keyboard and a screenshot in a demo video.
+                   */
+                  title={`${pin.productName} — ${formatMoney(
+                    pin.unitPrice.amount,
+                    pin.unitPrice.currency,
+                  )} ${basis}`}
                 >
-                  {pin.storeName}
-                </span>
-                <span className="flex min-w-0 items-center gap-2">
-                  <span className="relative h-[9px] min-w-0 flex-1">
+                  <span className={cn("truncate text-[12.5px]", pin.cheapest && "font-medium")}>
+                    {pin.storeName}
+                  </span>
+                  <span className="flex min-w-0 items-center gap-2">
+                    <span className="relative h-[9px] min-w-0 flex-1">
+                      <span
+                        className={cn(
+                          "absolute inset-y-0 left-0",
+                          pin.cheapest
+                            ? "bg-live"
+                            : pin.flag === "imprecise"
+                              ? "bg-drift/80"
+                              : "bg-ink/70",
+                          isHovered && !pin.cheapest && "bg-ink",
+                        )}
+                        style={{ width: `${Math.min(100, width).toFixed(2)}%` }}
+                      />
+                    </span>
                     <span
                       className={cn(
-                        "absolute inset-y-0 left-0",
-                        pin.cheapest
-                          ? "bg-live"
-                          : pin.flag === "imprecise"
-                            ? "bg-drift/80"
-                            : "bg-ink/70",
-                        isHovered && !pin.cheapest && "bg-ink",
+                        "w-[5.5rem] shrink-0 text-right font-mono text-[11px]",
+                        pin.cheapest ? "text-live" : "text-ink",
                       )}
-                      style={{ width: `${Math.min(100, width).toFixed(2)}%` }}
-                    />
+                    >
+                      {formatMoney(pin.unitPrice.amount, pin.unitPrice.currency)}
+                    </span>
+                    <span className="w-[3.5rem] shrink-0 font-mono text-[10px]">
+                      {pin.cheapest ? (
+                        <span className="text-live">cheapest</span>
+                      ) : ratio >= 1.05 ? (
+                        <span className="text-mute">{ratio.toFixed(1)}x</span>
+                      ) : null}
+                    </span>
                   </span>
-                  <span
-                    className={cn(
-                      "w-[5.5rem] shrink-0 text-right font-mono text-[11px]",
-                      pin.cheapest ? "text-live" : "text-ink",
-                    )}
-                  >
-                    {formatMoney(pin.unitPrice.amount, pin.unitPrice.currency)}
-                  </span>
-                  <span className="w-[3.5rem] shrink-0 font-mono text-[10px]">
-                    {pin.cheapest ? (
-                      <span className="text-live">cheapest</span>
-                    ) : ratio >= 1.05 ? (
-                      <span className="text-mute">{ratio.toFixed(1)}x</span>
-                    ) : null}
-                  </span>
-                </span>
+                </li>
+              );
+            })}
+          </ul>
+        ) : null}
+
+        {excluded.length > 0 ? (
+          <ul className="mt-2.5 flex flex-col gap-1">
+            {excluded.map((pin) => (
+              <li
+                key={`${pin.storeId}:${pin.productKey}`}
+                className="font-mono text-[10.5px] text-mute"
+              >
+                {/*
+                 * Two different absences, and conflating them reads as a
+                 * contradiction: a pin with no observation at all has nothing to
+                 * say about its size, while one with a sticker price but no unit
+                 * price has a reason worth printing.
+                 */}
+                <span className={pin.price === null ? "text-mute" : "text-broken"}>
+                  {pin.price === null ? "not priced yet" : "excluded"}
+                </span>{" "}
+                {pin.storeName}
+                {pin.unitPrice
+                  ? ` ${formatMoney(pin.unitPrice.amount, pin.unitPrice.currency)}`
+                  : pin.price
+                    ? ` ${formatMoney(pin.price.amount, pin.price.currency)}`
+                    : null}
+                {pin.price !== null && pin.flagReason ? ` — ${pin.flagReason}` : ""}
               </li>
-            );
-          })}
-        </ul>
-      ) : null}
+            ))}
+          </ul>
+        ) : null}
 
-      {excluded.length > 0 ? (
-        <ul className="mt-2.5 flex flex-col gap-1">
-          {excluded.map((pin) => (
-            <li
-              key={`${pin.storeId}:${pin.productKey}`}
-              className="font-mono text-[10.5px] text-mute"
-            >
-              {/*
-               * Two different absences, and conflating them reads as a
-               * contradiction: a pin with no observation at all has nothing to
-               * say about its size, while one with a sticker price but no unit
-               * price has a reason worth printing.
-               */}
-              <span className={pin.price === null ? "text-mute" : "text-broken"}>
-                {pin.price === null ? "not priced yet" : "excluded"}
-              </span>{" "}
-              {pin.storeName}
-              {pin.unitPrice ? (
-                ` ${formatMoney(pin.unitPrice.amount, pin.unitPrice.currency)}`
-              ) : pin.price ? (
-                ` ${formatMoney(pin.price.amount, pin.price.currency)}`
-              ) : null}
-              {pin.price !== null && pin.flagReason ? ` — ${pin.flagReason}` : ""}
-            </li>
-          ))}
-        </ul>
-      ) : null}
-
-      {!rail.comparable && drawn.length > 0 ? (
-        /*
-         * Below three priced pins the outlier rule never fires. Saying so is the
-         * difference between "these were checked and passed" and "there was
-         * nothing to check them against", and only one of those is true.
-         */
-        <p className="mt-2 font-mono text-[10.5px] text-mute">
-          too few pins to judge an outlier here
-        </p>
-      ) : null}
+        {!rail.comparable && drawn.length > 0 ? (
+          /*
+           * Below three priced pins the outlier rule never fires. Saying so is the
+           * difference between "these were checked and passed" and "there was
+           * nothing to check them against", and only one of those is true.
+           */
+          <p className="mt-2 font-mono text-[10.5px] text-mute">
+            too few pins to judge an outlier here
+          </p>
+        ) : null}
       </div>
     </li>
   );

@@ -34,8 +34,7 @@ export function HeroCopy({ rails }: { rails: Rail[] }) {
   const spread = useMemo(() => basketSpread(rankStores(rails, country)), [rails, country]);
 
   const countryRails = rails.filter((rail) => rail.country === country);
-  const stores = new Set(countryRails.flatMap((rail) => rail.pins.map((pin) => pin.storeId)))
-    .size;
+  const stores = new Set(countryRails.flatMap((rail) => rail.pins.map((pin) => pin.storeId))).size;
   const staples = countryRails.length;
 
   return (

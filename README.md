@@ -49,26 +49,26 @@ hidden.
 Snapshot of `GET /api/fleet` on 2026-08-23 (UTC). The `c_*` values are the
 live Bright Data Scraper Studio collector IDs.
 
-| Store | Country | Studio collector | In the index | Last pull (rows) |
-| --- | --- | --- | --- | --- |
-| Ever Supermarket | PH | HTTP pull | yes | Aug 23 (6,962) |
-| Shop Gaisano | PH | HTTP pull | yes | Aug 23 (65) |
-| Shop Suki | PH | `c_mt5q0jzi18h73rtbha` | yes | Aug 23 (291) |
-| SM Markets | PH | `c_mt5adrno248hml4trg` | yes | Aug 23 (0 — incident open) |
-| Landers Superstore | PH | `c_mt5bbos7onya4mufc` | yes | Aug 23 (0 — incident open) |
-| MerryMart Wholesale | PH | `c_mt5afb93oof2430yg` | yes | Aug 23 (0 — incident open) |
-| Amigo Foods | US | `c_mt5sf35quefc5u6s8` | yes | Aug 23 (168) |
-| Cypress Indian Grocery | US | `c_mt5sf1hn2gm0alggzg` | yes | Aug 23 (167) |
-| Dierbergs | US | `c_mt5bcgh01q3exw9das` | no | Aug 23 (389) |
-| H Mart | US | `c_mt5ahmtdb7c4qmkkf` | no | Aug 23 (1) |
-| Kesar Grocery | US | `c_mt5ag34x28n7do143j` | yes | Aug 23 (296) |
-| Latimex Market | US | `c_mt5sf4te2nl1om58n6` | yes | Aug 23 (92) |
-| Lili Mart | US | `c_mt5si8vp2cd0f03mfp` | yes | Aug 23 (122) |
-| MexGrocer | US | `c_mt5siakh3td7a3dk1` | yes | Aug 23 (95) |
-| MexMax | US | HTTP pull | yes | Aug 23 (142) |
-| Sukli | US | HTTP pull | yes | Aug 23 (1,946) |
-| Parker's Pantry (US) | US | HTTP pull | never (disclosed clone) | on demand |
-| Parker's Pantry (PH) | PH | HTTP pull | never (disclosed clone) | on demand |
+| Store                  | Country | Studio collector       | In the index            | Last pull (rows)           |
+| ---------------------- | ------- | ---------------------- | ----------------------- | -------------------------- |
+| Ever Supermarket       | PH      | HTTP pull              | yes                     | Aug 23 (6,962)             |
+| Shop Gaisano           | PH      | HTTP pull              | yes                     | Aug 23 (65)                |
+| Shop Suki              | PH      | `c_mt5q0jzi18h73rtbha` | yes                     | Aug 23 (291)               |
+| SM Markets             | PH      | `c_mt5adrno248hml4trg` | yes                     | Aug 23 (0 — incident open) |
+| Landers Superstore     | PH      | `c_mt5bbos7onya4mufc`  | yes                     | Aug 23 (0 — incident open) |
+| MerryMart Wholesale    | PH      | `c_mt5afb93oof2430yg`  | yes                     | Aug 23 (0 — incident open) |
+| Amigo Foods            | US      | `c_mt5sf35quefc5u6s8`  | yes                     | Aug 23 (168)               |
+| Cypress Indian Grocery | US      | `c_mt5sf1hn2gm0alggzg` | yes                     | Aug 23 (167)               |
+| Dierbergs              | US      | `c_mt5bcgh01q3exw9das` | no                      | Aug 23 (389)               |
+| H Mart                 | US      | `c_mt5ahmtdb7c4qmkkf`  | no                      | Aug 23 (1)                 |
+| Kesar Grocery          | US      | `c_mt5ag34x28n7do143j` | yes                     | Aug 23 (296)               |
+| Latimex Market         | US      | `c_mt5sf4te2nl1om58n6` | yes                     | Aug 23 (92)                |
+| Lili Mart              | US      | `c_mt5si8vp2cd0f03mfp` | yes                     | Aug 23 (122)               |
+| MexGrocer              | US      | `c_mt5siakh3td7a3dk1`  | yes                     | Aug 23 (95)                |
+| MexMax                 | US      | HTTP pull              | yes                     | Aug 23 (142)               |
+| Sukli                  | US      | HTTP pull              | yes                     | Aug 23 (1,946)             |
+| Parker's Pantry (US)   | US      | HTTP pull              | never (disclosed clone) | on demand                  |
+| Parker's Pantry (PH)   | PH      | HTTP pull              | never (disclosed clone) | on demand                  |
 
 <img src="docs/screenshots/prod-ph-front.png" alt="The Philippines front page, built from the PH half of the fleet." width="800">
 

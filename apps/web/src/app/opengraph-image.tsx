@@ -56,10 +56,7 @@ async function loadFont(file: string): Promise<ArrayBuffer | null> {
   return buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.byteLength) as ArrayBuffer;
 }
 
-const fontsReady = Promise.all([
-  loadFont("newsreader-500.ttf"),
-  loadFont("sometype-mono-500.ttf"),
-]);
+const fontsReady = Promise.all([loadFont("newsreader-500.ttf"), loadFont("sometype-mono-500.ttf")]);
 
 type CardData = {
   spread: { low: number; high: number; currency: string } | null;
@@ -94,86 +91,84 @@ export default async function Image() {
   ].filter((f) => f !== null);
 
   return new ImageResponse(
-    (
-      <div
-        style={{
-          width: "100%",
-          height: "100%",
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: "space-between",
-          backgroundColor: PAPER,
-          color: INK,
-          padding: "64px 72px",
-          borderTop: `10px solid ${INK}`,
-        }}
-      >
-        <div style={{ display: "flex", alignItems: "center", gap: "14px" }}>
-          <div
-            style={{
-              width: "14px",
-              height: "14px",
-              borderRadius: "50%",
-              backgroundColor: LIVE,
-            }}
-          />
-          <div style={{ fontFamily: "Newsreader", fontSize: "36px" }}>basketwatch</div>
-          <div
-            style={{
-              fontFamily: "Sometype Mono",
-              fontSize: "20px",
-              color: MUTE,
-              marginLeft: "auto",
-            }}
-          >
-            read off the shelf, daily
-          </div>
-        </div>
-
-        <div style={{ display: "flex", flexDirection: "column", gap: "34px" }}>
-          <div
-            style={{
-              fontFamily: "Newsreader",
-              fontSize: "64px",
-              lineHeight: 1.08,
-              letterSpacing: "-0.015em",
-              maxWidth: "980px",
-            }}
-          >
-            Today&apos;s shelf prices for the staples you actually buy.
-          </div>
-          {data?.spread ? (
-            <div style={{ display: "flex", alignItems: "baseline", gap: "22px" }}>
-              <div style={{ fontFamily: "Sometype Mono", fontSize: "58px" }}>
-                {formatMoney(data.spread.low, data.spread.currency)}
-                <span style={{ color: MUTE, margin: "0 14px" }}>–</span>
-                {formatMoney(data.spread.high, data.spread.currency)}
-              </div>
-              <div style={{ fontFamily: "Sometype Mono", fontSize: "22px", color: MUTE }}>
-                the same basket, cheapest store to dearest
-              </div>
-            </div>
-          ) : null}
-        </div>
-
+    <div
+      style={{
+        width: "100%",
+        height: "100%",
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "space-between",
+        backgroundColor: PAPER,
+        color: INK,
+        padding: "64px 72px",
+        borderTop: `10px solid ${INK}`,
+      }}
+    >
+      <div style={{ display: "flex", alignItems: "center", gap: "14px" }}>
         <div
           style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "12px",
-            borderTop: `1px solid ${LINE}`,
-            paddingTop: "26px",
+            width: "14px",
+            height: "14px",
+            borderRadius: "50%",
+            backgroundColor: LIVE,
+          }}
+        />
+        <div style={{ fontFamily: "Newsreader", fontSize: "36px" }}>basketwatch</div>
+        <div
+          style={{
             fontFamily: "Sometype Mono",
-            fontSize: "24px",
+            fontSize: "20px",
             color: MUTE,
+            marginLeft: "auto",
           }}
         >
-          {data
-            ? `${spellNumber(data.staples)} staples · ${data.stores} US stores · nobody is cheapest at everything`
-            : "staples priced off the shelf in the US and the Philippines"}
+          read off the shelf, daily
         </div>
       </div>
-    ),
+
+      <div style={{ display: "flex", flexDirection: "column", gap: "34px" }}>
+        <div
+          style={{
+            fontFamily: "Newsreader",
+            fontSize: "64px",
+            lineHeight: 1.08,
+            letterSpacing: "-0.015em",
+            maxWidth: "980px",
+          }}
+        >
+          Today&apos;s shelf prices for the staples you actually buy.
+        </div>
+        {data?.spread ? (
+          <div style={{ display: "flex", alignItems: "baseline", gap: "22px" }}>
+            <div style={{ fontFamily: "Sometype Mono", fontSize: "58px" }}>
+              {formatMoney(data.spread.low, data.spread.currency)}
+              <span style={{ color: MUTE, margin: "0 14px" }}>–</span>
+              {formatMoney(data.spread.high, data.spread.currency)}
+            </div>
+            <div style={{ fontFamily: "Sometype Mono", fontSize: "22px", color: MUTE }}>
+              the same basket, cheapest store to dearest
+            </div>
+          </div>
+        ) : null}
+      </div>
+
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: "12px",
+          borderTop: `1px solid ${LINE}`,
+          paddingTop: "26px",
+          fontFamily: "Sometype Mono",
+          fontSize: "24px",
+          color: MUTE,
+        }}
+      >
+        {data
+          ? `${spellNumber(data.staples)} staples · ${data.stores} US stores · nobody is cheapest at everything`
+          : "staples priced off the shelf in the US and the Philippines"}
+      </div>
+    </div>,
     { ...size, fonts: fonts.length > 0 ? fonts : undefined },
   );
 }

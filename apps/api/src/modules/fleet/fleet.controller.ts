@@ -59,9 +59,7 @@ export class FleetController {
    */
   @Post("capture-code/:scraperId")
   @UseGuards(OpsTokenGuard)
-  captureOneCode(
-    @Param("scraperId") scraperId: string,
-  ): { status: string; scraperId: string } {
+  captureOneCode(@Param("scraperId") scraperId: string): { status: string; scraperId: string } {
     this.service.captureOneCodeAsync(scraperId);
     return { status: "started", scraperId };
   }

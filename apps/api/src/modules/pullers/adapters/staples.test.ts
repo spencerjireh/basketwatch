@@ -25,7 +25,10 @@ describe("slugWords", () => {
 
 describe("termHits", () => {
   const toks = (s: string) => {
-    const words = s.toLowerCase().split(/[^a-z0-9]+/).filter(Boolean);
+    const words = s
+      .toLowerCase()
+      .split(/[^a-z0-9]+/)
+      .filter(Boolean);
     const out = new Set(words);
     for (const w of words) if (w.length > 3 && w.endsWith("s")) out.add(w.slice(0, -1));
     return out;
@@ -37,12 +40,12 @@ describe("termHits", () => {
   });
 
   it("requires multi-word terms to appear as a phrase", () => {
-    expect(termHits("cooking oil", " golden cooking oil 1l ", toks(" golden cooking oil 1l "))).toBe(
-      true,
-    );
-    expect(termHits("cooking oil", " oil painting cooking set ", toks(" oil painting cooking set "))).toBe(
-      false,
-    );
+    expect(
+      termHits("cooking oil", " golden cooking oil 1l ", toks(" golden cooking oil 1l ")),
+    ).toBe(true);
+    expect(
+      termHits("cooking oil", " oil painting cooking set ", toks(" oil painting cooking set ")),
+    ).toBe(false);
   });
 });
 

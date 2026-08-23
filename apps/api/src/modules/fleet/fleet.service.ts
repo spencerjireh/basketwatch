@@ -32,7 +32,10 @@ export class FleetService {
   captureOneCodeAsync(scraperId: string): void {
     this.codeCapture.captureCode(scraperId).then(
       (result) => this.logger.log(`${scraperId}: capture ${result ? "succeeded" : "failed"}`),
-      (err: unknown) => this.logger.error(`${scraperId}: capture error -- ${err instanceof Error ? err.message : String(err)}`),
+      (err: unknown) =>
+        this.logger.error(
+          `${scraperId}: capture error -- ${err instanceof Error ? err.message : String(err)}`,
+        ),
     );
   }
 

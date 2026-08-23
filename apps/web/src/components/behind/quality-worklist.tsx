@@ -77,8 +77,8 @@ export function QualityWorklist({ rails }: { rails: Rail[] }) {
             {thin.length} item{thin.length === 1 ? "" : "s"} with too few pins to compare
           </h3>
           <p className="mt-1.5 text-[12.5px] text-mute">
-            The outlier rule needs three priced pins to have a median worth measuring against.
-            Below that it never fires, so these are unchecked rather than clean.
+            The outlier rule needs three priced pins to have a median worth measuring against. Below
+            that it never fires, so these are unchecked rather than clean.
           </p>
           <p className="mt-2 font-mono text-[10.5px] text-mute">
             {thin

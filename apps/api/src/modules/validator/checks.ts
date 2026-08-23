@@ -171,8 +171,8 @@ export function validateSample(
   const sampleBaseline: Baseline = {
     ...baseline,
     fieldNullRates: Object.fromEntries(
-      Object.entries(baseline.fieldNullRates).filter(([field]) =>
-        field === "price" || field === "name",
+      Object.entries(baseline.fieldNullRates).filter(
+        ([field]) => field === "price" || field === "name",
       ),
     ),
   };

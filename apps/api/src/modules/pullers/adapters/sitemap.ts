@@ -13,7 +13,9 @@ export function parseSitemap(text: string): { pages: string[]; sitemaps: string[
   const stripped = text.trimStart();
   if (stripped.startsWith("<")) {
     const locs = [...text.matchAll(/<loc>\s*([^<\s]+)\s*<\/loc>/gi)].map((m) => m[1]!);
-    return /<sitemapindex/i.test(text) ? { pages: [], sitemaps: locs } : { pages: locs, sitemaps: [] };
+    return /<sitemapindex/i.test(text)
+      ? { pages: [], sitemaps: locs }
+      : { pages: locs, sitemaps: [] };
   }
   // Some stores publish a plain-text sitemap, one URL per line.
   const pages = text
@@ -25,17 +27,82 @@ export function parseSitemap(text: string): { pages: string[]; sitemaps: string[
 
 /** Path segments that mean a URL is editorial or navigational, never a product. */
 const NON_PRODUCT_PATHS = new Set([
-  "recipe", "recipes", "healthy-living", "article", "articles", "blog", "news",
-  "story", "stories", "guide", "guides", "event", "events", "career", "careers",
-  "about", "contact", "faq", "help", "support", "policy", "privacy", "terms",
-  "store-locator", "stores", "locations", "branches", "weekly-ad", "coupon",
-  "coupons", "gift-card", "giftcard", "category", "categories", "collections",
-  "container", "brand", "brands", "tag", "tags", "search", "account", "login",
-  "cart", "checkout", "sitemap", "page", "pages", "author", "press", "media",
-  "community", "recall", "recalls", "spotlight", "promo", "promos", "sale",
-  "deals", "flyer", "circular", "info", "landing", "home-page", "homepage",
-  "assets", "static", "uploads", "banners", "inspiration", "ideas", "learn",
-  "discover", "explore", "meal", "menu",
+  "recipe",
+  "recipes",
+  "healthy-living",
+  "article",
+  "articles",
+  "blog",
+  "news",
+  "story",
+  "stories",
+  "guide",
+  "guides",
+  "event",
+  "events",
+  "career",
+  "careers",
+  "about",
+  "contact",
+  "faq",
+  "help",
+  "support",
+  "policy",
+  "privacy",
+  "terms",
+  "store-locator",
+  "stores",
+  "locations",
+  "branches",
+  "weekly-ad",
+  "coupon",
+  "coupons",
+  "gift-card",
+  "giftcard",
+  "category",
+  "categories",
+  "collections",
+  "container",
+  "brand",
+  "brands",
+  "tag",
+  "tags",
+  "search",
+  "account",
+  "login",
+  "cart",
+  "checkout",
+  "sitemap",
+  "page",
+  "pages",
+  "author",
+  "press",
+  "media",
+  "community",
+  "recall",
+  "recalls",
+  "spotlight",
+  "promo",
+  "promos",
+  "sale",
+  "deals",
+  "flyer",
+  "circular",
+  "info",
+  "landing",
+  "home-page",
+  "homepage",
+  "assets",
+  "static",
+  "uploads",
+  "banners",
+  "inspiration",
+  "ideas",
+  "learn",
+  "discover",
+  "explore",
+  "meal",
+  "menu",
 ]);
 
 /**
@@ -43,14 +110,25 @@ const NON_PRODUCT_PATHS = new Set([
  * such as "sale" or "info" which can show up inside a real product name.
  */
 const EDITORIAL_WORDS = new Set([
-  "recipe", "recipes", "article", "articles", "blog", "news", "guide", "guides",
-  "inspiration", "ideas", "story", "stories",
+  "recipe",
+  "recipes",
+  "article",
+  "articles",
+  "blog",
+  "news",
+  "guide",
+  "guides",
+  "inspiration",
+  "ideas",
+  "story",
+  "stories",
 ]);
 
 /** Grocery Outlet once scored as server-rendered off a homepage banner image. */
 const RE_ASSET_SLUG = /banner|logo|hero|thumbnail|placeholder|sprite|favicon/i;
 const RE_FILE_EXT = /\.(jpg|jpeg|png|gif|pdf|css|js|webp|svg|xml|zip)$/;
-const RE_UNIT = /\b\d+(?:\.\d+)?\s?-?\s?(?:oz|lb|lbs|ml|l|g|kg|ct|pk|pack|packs|dozen|count|gal|qt|pcs|pc)\b/;
+const RE_UNIT =
+  /\b\d+(?:\.\d+)?\s?-?\s?(?:oz|lb|lbs|ml|l|g|kg|ct|pk|pack|packs|dozen|count|gal|qt|pcs|pc)\b/;
 
 /** How product-like a URL looks. Negative means: do not spend a fetch on it. */
 export function productScore(url: string): number {

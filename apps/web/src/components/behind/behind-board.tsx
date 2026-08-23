@@ -42,8 +42,8 @@ export function BehindBoard({
             check; the rest need a browser.
           </Fact>
           <Fact term={`${rowsLastPull.toLocaleString("en-US")} rows in the last pull`}>
-            Every row carries a decomposed pack size where the title gave one, which is what makes
-            a 5&nbsp;lb bag and a 5&nbsp;kg sack comparable at all.
+            Every row carries a decomposed pack size where the title gave one, which is what makes a
+            5&nbsp;lb bag and a 5&nbsp;kg sack comparable at all.
           </Fact>
           <Fact term="Change-only history">
             A price is stored when it first appears or when it moves, never on every run. Each run
@@ -51,8 +51,8 @@ export function BehindBoard({
             quiet day.
           </Fact>
           <Fact term="No carried-forward totals">
-            A day that cannot price every staple in the basket scores no total. The chart draws the gap
-            instead of interpolating across it.
+            A day that cannot price every staple in the basket scores no total. The chart draws the
+            gap instead of interpolating across it.
           </Fact>
         </dl>
       </Section>

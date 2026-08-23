@@ -111,9 +111,7 @@ export class Fetcher {
       });
 
       if (!response.ok) {
-        this.logger.warn(
-          `unlocker returned ${response.status} for ${url}, falling back to direct`,
-        );
+        this.logger.warn(`unlocker returned ${response.status} for ${url}, falling back to direct`);
         return this.getDirect(url, maxBody);
       }
 
@@ -122,7 +120,9 @@ export class Fetcher {
       // on shopsuki.ph's sitemap, 2026-08-23) -- an "ok" that carries nothing
       // and reads downstream as an empty catalogue. Treat it like a failure.
       if (body.body.length === 0) {
-        this.logger.warn(`unlocker returned 200 with empty body for ${url}, falling back to direct`);
+        this.logger.warn(
+          `unlocker returned 200 with empty body for ${url}, falling back to direct`,
+        );
         return this.getDirect(url, maxBody);
       }
       return { status: response.status, ...body };
@@ -135,7 +135,10 @@ export class Fetcher {
   }
 }
 
-async function readCapped(response: Response, maxBody: number): Promise<{ body: string; truncated: boolean }> {
+async function readCapped(
+  response: Response,
+  maxBody: number,
+): Promise<{ body: string; truncated: boolean }> {
   const reader = response.body?.getReader();
   if (!reader) return { body: "", truncated: false };
 

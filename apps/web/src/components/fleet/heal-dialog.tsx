@@ -32,14 +32,9 @@ async function readStatus(scraperId: string): Promise<HealStatusResponse | null>
   }
 }
 
-async function readPreviewPrompt(
-  scraperId: string,
-): Promise<HealPreviewPromptResponse | null> {
+async function readPreviewPrompt(scraperId: string): Promise<HealPreviewPromptResponse | null> {
   try {
-    return await apiGetClient(
-      routes.healPreviewPrompt(scraperId),
-      healPreviewPromptResponseSchema,
-    );
+    return await apiGetClient(routes.healPreviewPrompt(scraperId), healPreviewPromptResponseSchema);
   } catch {
     return null;
   }
@@ -55,7 +50,7 @@ function extractCode(step: TemplateStep): string | null {
     typeof step.parse_code === "string"
       ? step.parse_code
       : typeof (step.parser as Record<string, unknown>)?.parser === "string"
-        ? (step.parser as Record<string, unknown>).parser as string
+        ? ((step.parser as Record<string, unknown>).parser as string)
         : typeof step.parse === "string"
           ? step.parse
           : null;
@@ -90,7 +85,12 @@ interface IncidentCtx {
 
 type HealState =
   | { step: "loading" }
-  | { step: "idle"; defaultPrompt: string | null; incident: IncidentCtx | null; currentTemplate: TemplateStep[] | null }
+  | {
+      step: "idle";
+      defaultPrompt: string | null;
+      incident: IncidentCtx | null;
+      currentTemplate: TemplateStep[] | null;
+    }
   | {
       step: "triggering";
       startedAt: number;
@@ -345,8 +345,7 @@ function IdleView({
       {defaultPrompt ? (
         <>
           <p className="mt-1 text-[10px] text-mute">
-            Composed from the incident evidence above. This is the instruction
-            Bright Data receives.
+            Composed from the incident evidence above. This is the instruction Bright Data receives.
           </p>
           <pre className="mt-2 max-h-40 overflow-auto whitespace-pre-wrap break-words rounded-sm border border-line bg-wash p-2 text-[10.5px]">
             {defaultPrompt}
@@ -354,14 +353,14 @@ function IdleView({
         </>
       ) : (
         <p className="mt-1 text-[11px] text-mute">
-          Nothing to fix: this scraper has no open incident, so there is no
-          evidence to compose a prompt from.
+          Nothing to fix: this scraper has no open incident, so there is no evidence to compose a
+          prompt from.
         </p>
       )}
 
       <p className="mt-3 text-center text-[10px] text-mute">
-        Heals fire on their own when a collector breaks, or from the ops API.
-        Nothing on this page starts one.
+        Heals fire on their own when a collector breaks, or from the ops API. Nothing on this page
+        starts one.
       </p>
     </>
   );
@@ -370,8 +369,7 @@ function IdleView({
 function EvidenceSection({ incident }: { incident: IncidentCtx }) {
   const [expanded, setExpanded] = useState(false);
   const nullFields = Object.keys(incident.fieldNullRates).filter(
-    (f) =>
-      incident.fieldNullRates[f]! > (incident.baselineNullRates[f] ?? 0) + 5,
+    (f) => incident.fieldNullRates[f]! > (incident.baselineNullRates[f] ?? 0) + 5,
   );
 
   return (
@@ -379,12 +377,8 @@ function EvidenceSection({ incident }: { incident: IncidentCtx }) {
       <p className="caps text-broken">Why heal?</p>
       <div className="mt-2 rounded-sm border border-broken/20 bg-broken/5 p-3">
         <div className="flex items-baseline justify-between">
-          <span className="text-[11px] font-medium text-broken">
-            {incident.kind} incident
-          </span>
-          <span className="text-[10px] text-mute">
-            opened {formatTime(incident.openedAt)}
-          </span>
+          <span className="text-[11px] font-medium text-broken">{incident.kind} incident</span>
+          <span className="text-[10px] text-mute">opened {formatTime(incident.openedAt)}</span>
         </div>
 
         {incident.failedChecks.length > 0 && (
@@ -440,8 +434,7 @@ function EvidenceSection({ incident }: { incident: IncidentCtx }) {
               onClick={() => setExpanded(!expanded)}
               className="text-[10px] text-mute underline decoration-1 underline-offset-2 hover:text-ink"
             >
-              {expanded ? "Hide" : "Show"} sample bad rows (
-              {incident.sampleBadRows.length})
+              {expanded ? "Hide" : "Show"} sample bad rows ({incident.sampleBadRows.length})
             </button>
             {expanded && (
               <pre className="mt-1 max-h-24 overflow-auto whitespace-pre-wrap break-words text-[10px]">
@@ -454,9 +447,7 @@ function EvidenceSection({ incident }: { incident: IncidentCtx }) {
         {incident.rowCount > 0 && (
           <p className="mt-2 text-[10px] text-mute">
             {incident.rowCount} rows scraped
-            {incident.expectedRowCount > 0
-              ? ` (expected ~${incident.expectedRowCount})`
-              : ""}
+            {incident.expectedRowCount > 0 ? ` (expected ~${incident.expectedRowCount})` : ""}
           </p>
         )}
       </div>
@@ -502,8 +493,8 @@ function CurrentCodeSection({ steps }: { steps: TemplateStep[] }) {
         </div>
       ) : (
         <p className="mt-1 text-[10px] text-mute">
-          {steps.length} step{steps.length === 1 ? "" : "s"} captured. Expand
-          to view the scraper code.
+          {steps.length} step{steps.length === 1 ? "" : "s"} captured. Expand to view the scraper
+          code.
         </p>
       )}
       <div className="rule my-3" />
@@ -564,25 +555,13 @@ function TriggeringView({
           return (
             <div key={s} className="flex items-center gap-2 text-[10.5px]">
               {isDone ? (
-                <span className="inline-block size-3 text-center text-live">
-                  *
-                </span>
+                <span className="inline-block size-3 text-center text-live">*</span>
               ) : isCurrent ? (
                 <span className="inline-block size-3 animate-spin rounded-full border border-heal border-t-transparent" />
               ) : (
-                <span className="inline-block size-3 text-center text-mute/30">
-                  -
-                </span>
+                <span className="inline-block size-3 text-center text-mute/30">-</span>
               )}
-              <span
-                className={
-                  isDone
-                    ? "text-live"
-                    : isCurrent
-                      ? "text-ink"
-                      : "text-mute/40"
-                }
-              >
+              <span className={isDone ? "text-live" : isCurrent ? "text-ink" : "text-mute/40"}>
                 {stepLabel(s)}
               </span>
             </div>
@@ -616,8 +595,8 @@ function OrphanedView({
     <div className="py-4">
       <p className="caps text-drift">Orphaned heal detected</p>
       <p className="mt-2 text-[11px] text-mute">
-        A heal is awaiting approval on Bright Data with no matching record here.
-        Adopting or dismissing it is an ops action, from the API.
+        A heal is awaiting approval on Bright Data with no matching record here. Adopting or
+        dismissing it is an ops action, from the API.
       </p>
 
       {diff && <DiffView diff={diff} />}
@@ -630,8 +609,6 @@ function OrphanedView({
           </pre>
         </div>
       )}
-
-
     </div>
   );
 }
@@ -686,20 +663,13 @@ function PendingView({
       <div className="rule my-3" />
 
       <p className="text-center text-[10px] text-mute">
-        Awaiting approval on Bright Data. The scraper is untouched until someone
-        approves it.
+        Awaiting approval on Bright Data. The scraper is untouched until someone approves it.
       </p>
     </>
   );
 }
 
-function ErrorView({
-  message,
-  onRetry,
-}: {
-  message: string;
-  onRetry: () => void;
-}) {
+function ErrorView({ message, onRetry }: { message: string; onRetry: () => void }) {
   return (
     <>
       <p className="caps text-broken">Something went wrong</p>
@@ -717,18 +687,11 @@ function ErrorView({
   );
 }
 
-function TimingBadge({
-  startedAt,
-  finishedAt,
-}: {
-  startedAt: number;
-  finishedAt: number;
-}) {
+function TimingBadge({ startedAt, finishedAt }: { startedAt: number; finishedAt: number }) {
   const duration = finishedAt - startedAt;
   return (
     <span className="text-[10px] tabular-nums text-mute">
-      {formatTime(new Date(startedAt).toISOString())} --{" "}
-      {formatDuration(duration)}
+      {formatTime(new Date(startedAt).toISOString())} -- {formatDuration(duration)}
     </span>
   );
 }
@@ -755,9 +718,7 @@ function DiffView({ diff }: { diff: DiffData }) {
           if (!hasChanges) return null;
           return (
             <div key={i} className="border-b border-line last:border-b-0">
-              <p className="sticky top-0 bg-wash px-2 py-1 text-[9px] text-mute">
-                Step {i}
-              </p>
+              <p className="sticky top-0 bg-wash px-2 py-1 text-[9px] text-mute">Step {i}</p>
               <pre className="text-[10px] leading-[1.6]">
                 {changes.map((part, j) => {
                   if (!part.added && !part.removed) {
@@ -766,19 +727,22 @@ function DiffView({ diff }: { diff: DiffData }) {
                     if (lines.length <= 4) {
                       return lines.map((line, k) => (
                         <div key={`${j}-${k}`} className="px-2 text-mute/60">
-                          {"  "}{line}
+                          {"  "}
+                          {line}
                         </div>
                       ));
                     }
                     return [
                       <div key={`${j}-0`} className="px-2 text-mute/60">
-                        {"  "}{lines[0]}
+                        {"  "}
+                        {lines[0]}
                       </div>,
                       <div key={`${j}-sep`} className="px-2 text-mute/30 italic">
                         {"  "}... {lines.length - 2} unchanged lines ...
                       </div>,
                       <div key={`${j}-end`} className="px-2 text-mute/60">
-                        {"  "}{lines[lines.length - 1]}
+                        {"  "}
+                        {lines[lines.length - 1]}
                       </div>,
                     ];
                   }
@@ -788,12 +752,11 @@ function DiffView({ diff }: { diff: DiffData }) {
                     <div
                       key={`${j}-${k}`}
                       className={
-                        part.added
-                          ? "bg-live/8 px-2 text-live"
-                          : "bg-broken/8 px-2 text-broken"
+                        part.added ? "bg-live/8 px-2 text-live" : "bg-broken/8 px-2 text-broken"
                       }
                     >
-                      {part.added ? "+ " : "- "}{line}
+                      {part.added ? "+ " : "- "}
+                      {line}
                     </div>
                   ));
                 })}

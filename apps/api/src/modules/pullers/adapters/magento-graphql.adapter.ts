@@ -1,6 +1,11 @@
 import { Injectable } from "@nestjs/common";
 import { Fetcher, type FetchOptions } from "../fetcher.js";
-import { type PullResult, type Puller, type PullerConfig, type PulledRow } from "../puller.types.js";
+import {
+  type PullResult,
+  type Puller,
+  type PullerConfig,
+  type PulledRow,
+} from "../puller.types.js";
 import { buildRow, siteOf } from "./row.js";
 
 /**

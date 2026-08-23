@@ -9,9 +9,7 @@ import { verdictSchema } from "./vocabulary.js";
  * config safe to change against production data.
  */
 export const pullerRunQuerySchema = z.object({
-  dryRun: z
-    .preprocess((v) => v === "true" || v === true, z.boolean())
-    .default(false),
+  dryRun: z.preprocess((v) => v === "true" || v === true, z.boolean()).default(false),
 });
 export type PullerRunQuery = z.infer<typeof pullerRunQuerySchema>;
 

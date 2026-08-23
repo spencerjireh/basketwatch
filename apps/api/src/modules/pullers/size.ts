@@ -36,15 +36,38 @@ export type UnitPrice = {
 };
 
 const MASS_TO_G: Record<string, number> = {
-  g: 1, gram: 1, grams: 1, kg: 1000, kilo: 1000, kilogram: 1000,
-  oz: 28.3495, lb: 453.592, lbs: 453.592, pound: 453.592,
+  g: 1,
+  gram: 1,
+  grams: 1,
+  kg: 1000,
+  kilo: 1000,
+  kilogram: 1000,
+  oz: 28.3495,
+  lb: 453.592,
+  lbs: 453.592,
+  pound: 453.592,
 };
 const VOL_TO_ML: Record<string, number> = {
-  ml: 1, l: 1000, liter: 1000, litre: 1000, liters: 1000, litres: 1000,
-  floz: 29.5735, gal: 3785.41, qt: 946.353,
+  ml: 1,
+  l: 1000,
+  liter: 1000,
+  litre: 1000,
+  liters: 1000,
+  litres: 1000,
+  floz: 29.5735,
+  gal: 3785.41,
+  qt: 946.353,
 };
 const COUNT_UNITS: Record<string, number> = {
-  ct: 1, count: 1, pc: 1, pcs: 1, piece: 1, pieces: 1, s: 1, dozen: 12, doz: 12,
+  ct: 1,
+  count: 1,
+  pc: 1,
+  pcs: 1,
+  piece: 1,
+  pieces: 1,
+  s: 1,
+  dozen: 12,
+  doz: 12,
 };
 /** "pack" and "box" say how many bundles, not how much is in them. */
 const AMBIGUOUS_UNITS = new Set(["pack", "packs", "pk", "box", "case", "bundle", "set", "tray"]);
@@ -59,7 +82,10 @@ const UOM = [
   .join("|");
 
 const RE_MULTIPACK = new RegExp(`(\\d+)\\s*[x×]\\s*(\\d+(?:\\.\\d+)?)\\s*-?\\s*(${UOM})\\b`, "i");
-const RE_RANGE = new RegExp(`(\\d+(?:\\.\\d+)?)\\s*(?:${UOM})?\\s*-\\s*(\\d+(?:\\.\\d+)?)\\s*(${UOM})\\b`, "i");
+const RE_RANGE = new RegExp(
+  `(\\d+(?:\\.\\d+)?)\\s*(?:${UOM})?\\s*-\\s*(\\d+(?:\\.\\d+)?)\\s*(${UOM})\\b`,
+  "i",
+);
 const RE_FRACTION = new RegExp(`(\\d+)\\s*/\\s*(\\d+)\\s*-?\\s*(${UOM})\\b`, "i");
 const RE_FLOZ = /(\d+(?:\.\d+)?)\s*fl\.?\s*oz\b/i;
 const RE_PLAIN = new RegExp(`(?<![\\d/.])(\\d+(?:\\.\\d+)?)\\s*-?\\s*(${UOM})\\b`, "gi");
@@ -102,7 +128,14 @@ export function parseSize(text: string): Size | null {
     const each = Number(multipack[2]);
     const base = toBase(n * each, multipack[3]!);
     if (base) {
-      return { raw: multipack[0].trim(), value: n * each, uom: normUom(multipack[3]!), approximate, form: "multipack", ...base };
+      return {
+        raw: multipack[0].trim(),
+        value: n * each,
+        uom: normUom(multipack[3]!),
+        approximate,
+        form: "multipack",
+        ...base,
+      };
     }
   }
 
@@ -112,7 +145,14 @@ export function parseSize(text: string): Size | null {
     const den = Number(fraction[2]);
     const base = den ? toBase(num / den, fraction[3]!) : null;
     if (base) {
-      return { raw: fraction[0].trim(), value: num / den, uom: normUom(fraction[3]!), approximate, form: "fraction", ...base };
+      return {
+        raw: fraction[0].trim(),
+        value: num / den,
+        uom: normUom(fraction[3]!),
+        approximate,
+        form: "fraction",
+        ...base,
+      };
     }
   }
 
@@ -122,7 +162,14 @@ export function parseSize(text: string): Size | null {
     const base = toBase(mid, range[3]!);
     // Always approximate: a range is a claim about a spread, not a pack size.
     if (base) {
-      return { raw: range[0].trim(), value: mid, uom: normUom(range[3]!), approximate: true, form: "range", ...base };
+      return {
+        raw: range[0].trim(),
+        value: mid,
+        uom: normUom(range[3]!),
+        approximate: true,
+        form: "range",
+        ...base,
+      };
     }
   }
 
@@ -130,7 +177,14 @@ export function parseSize(text: string): Size | null {
   if (floz) {
     const base = toBase(Number(floz[1]), "floz");
     if (base) {
-      return { raw: floz[0].trim(), value: Number(floz[1]), uom: "floz", approximate, form: "volume", ...base };
+      return {
+        raw: floz[0].trim(),
+        value: Number(floz[1]),
+        uom: "floz",
+        approximate,
+        form: "volume",
+        ...base,
+      };
     }
   }
 
@@ -147,7 +201,15 @@ export function parseSize(text: string): Size | null {
   const count = RE_COUNT_APOS.exec(t);
   if (count) {
     const n = Number(count[1]);
-    return { raw: count[0].trim(), value: n, uom: "count", approximate, form: "count", quantity: n, baseUom: "count" };
+    return {
+      raw: count[0].trim(),
+      value: n,
+      uom: "count",
+      approximate,
+      form: "count",
+      quantity: n,
+      baseUom: "count",
+    };
   }
   return null;
 }

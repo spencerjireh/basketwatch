@@ -37,7 +37,8 @@ export function toEvidence(raw: unknown, kind: IncidentKind): IncidentEvidence {
  * is a rendering of the evidence, and storing it would let the two drift.
  */
 export function summarise(kind: IncidentKind, evidence: IncidentEvidence, raw: unknown): string {
-  const reason = typeof raw === "object" && raw !== null ? (raw as Record<string, unknown>).reason : undefined;
+  const reason =
+    typeof raw === "object" && raw !== null ? (raw as Record<string, unknown>).reason : undefined;
   if (typeof reason === "string" && reason.length > 0) return reason;
 
   const failed = evidence.failedChecks.map((check) => check.check).join(", ");

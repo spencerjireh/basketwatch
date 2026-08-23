@@ -22,8 +22,7 @@ export function buildHealPrompt(fields: BrokenField[]): string {
   if (fields.length === 0) return "";
 
   const items = fields.map(
-    (f, i) =>
-      `(${i + 1}) ${f.name} ${f.symptom}.${f.selectorHint ? ` ${f.selectorHint}.` : ""}`,
+    (f, i) => `(${i + 1}) ${f.name} ${f.symptom}.${f.selectorHint ? ` ${f.selectorHint}.` : ""}`,
   );
   const prompt = `Fix these issues:\n\n${items.join("\n")}`;
 
@@ -101,22 +100,27 @@ export function findingsToFields(findings: CheckResult[]): BrokenField[] {
  */
 export function diagnoseRawOutput(raw: unknown[]): BrokenField[] {
   if (raw.length === 0) {
-    return [{
-      name: "data collection",
-      symptom: "returns no data at all",
-      selectorHint: "Check that the CSS selectors match the current page structure and that the scraper navigates correctly",
-    }];
+    return [
+      {
+        name: "data collection",
+        symptom: "returns no data at all",
+        selectorHint:
+          "Check that the CSS selectors match the current page structure and that the scraper navigates correctly",
+      },
+    ];
   }
 
   const fields: BrokenField[] = [];
   const actualFields = collectFieldNames(raw);
 
   if (actualFields.size === 0) {
-    return [{
-      name: "scraper output",
-      symptom: "returned rows are not objects with named fields",
-      selectorHint: "The scraper should return objects with fields like name, price, url",
-    }];
+    return [
+      {
+        name: "scraper output",
+        symptom: "returned rows are not objects with named fields",
+        selectorHint: "The scraper should return objects with fields like name, price, url",
+      },
+    ];
   }
 
   for (const expected of EXPECTED_FIELDS) {
