@@ -22,6 +22,22 @@ outline ships, and the source files stay out of the repository.
 - Licence: Public domain
 - Note: Köhler's Medizinal-Pflanzen, 1887. Wheat rather than a loaf: every usable illustration of bread itself is a composed plate on a printed ground, which traces as a rectangular block instead of an object.
 
+## canned_fish
+
+- Subject: A sardine
+- Source: https://commons.wikimedia.org/wiki/File:FMIB_40626_Sardine_or_Pilchard_(Clupea_pilchardus).jpeg
+- Author: Hugh McCormick Smith
+- Licence: Public domain
+- Note: Hugh McCormick Smith, 1902. The fish rather than the tin: a labelled printed object traces as a rectangle, the same failure the bread and pasta notes record.
+
+## cheese
+
+- Subject: A block of Swiss cheese
+- Source: https://commons.wikimedia.org/wiki/File:Mrs_Beeton_(1457).jpg
+- Author: Isabella Beeton
+- Licence: Public domain
+- Note: Mrs Beeton's Book of Household Management, 1907 edition. Cropped to the Swiss block from a composed plate of twenty; the holes are what read as cheese at chip size.
+
 ## chicken
 
 - Subject: A cockerel
@@ -54,6 +70,14 @@ outline ships, and the source files stay out of the repository.
 - Licence: CC BY-SA 3.0
 - Note: The one modern photograph in the set: no period plate of a hen's egg traces into anything legible. Padded out hard because the staple rows crop a plate to the row, and an egg that filled its frame would be cropped to a featureless middle.
 
+## fish
+
+- Subject: A milkfish
+- Source: https://commons.wikimedia.org/wiki/File:Chanos_chanos_Day.png
+- Author: Sir Francis Day
+- Licence: Public domain
+- Note: Francis Day, Fauna of British India: Fishes, 1889. Milkfish is bangus, the Philippine staple fish; the basket line names tilapia and round scad, but the art wants the archetype.
+
 ## milk
 
 - Subject: A dairy cow
@@ -62,6 +86,14 @@ outline ships, and the source files stay out of the repository.
 - Licence: Public domain
 - Note: Cropped to the near cow. paper=0.42 is what separates her from the meadow: the grass hatching sits above it, her markings below.
 
+## onions
+
+- Subject: Two onion bulbs
+- Source: https://commons.wikimedia.org/wiki/File:Ognon_jaune_des_Vertus_Vilmorin-Andrieux_1883.png
+- Author: Vilmorin-Andrieux & Cie
+- Licence: Public domain
+- Note: Vilmorin-Andrieux, Les plantes potageres, 1883. The two bulbs overlap too closely to crop to one, and the pair reads truer to the basket line anyway.
+
 ## pasta
 
 - Subject: Farfalle
@@ -69,6 +101,14 @@ outline ships, and the source files stay out of the repository.
 - Author: Popo le Chien
 - Licence: CC0
 - Note: Farfalle rather than spaghetti, and a photograph rather than a plate. The period pasta charts are all composed on a printed ground, and every region of them that survives being cropped to a row is either a strip too thin to keep its proportions or a set of horizontal rods that reads as a second row of price bars. A bowtie holds its shape at any crop.
+
+## pork
+
+- Subject: A Berkshire pig
+- Source: https://commons.wikimedia.org/wiki/File:Berkshire_Pig_•_p182•_Brett's_Colonist's_Guide_1883.tif
+- Author: Unknown authorUnknown author
+- Licence: Public domain
+- Note: Brett's Colonist's Guide, 1883. A wood-engraved Berkshire in side profile, the same register as the cow and the cockerel.
 
 ## rice
 

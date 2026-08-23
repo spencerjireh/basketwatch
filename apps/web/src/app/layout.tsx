@@ -41,17 +41,17 @@ export const metadata: Metadata = {
   metadataBase: new URL("https://basketwatch.spencerjireh.com"),
   title: "Basketwatch",
   description:
-    "What ten grocery staples cost today, priced off the shelf in nineteen stores across two countries.",
+    "What fifteen grocery staples cost today, priced off the shelf in nineteen stores across two countries.",
   openGraph: {
     title: "Basketwatch",
-    description: "What ten staples cost today, priced off the shelf in two countries.",
+    description: "What fifteen staples cost today, priced off the shelf in two countries.",
     siteName: "Basketwatch",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
     title: "Basketwatch",
-    description: "What ten staples cost today, priced off the shelf in two countries.",
+    description: "What fifteen staples cost today, priced off the shelf in two countries.",
   },
 };
 

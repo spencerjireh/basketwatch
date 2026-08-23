@@ -1,5 +1,5 @@
 /**
- * The staple plates: ten pieces of art under `public/plates/`, traced from
+ * The staple plates: fifteen pieces of art under `public/plates/`, traced from
  * public-domain source imagery by `lab/plates/trace.py` and keyed by the same
  * itemKeys the basket uses.
  *
@@ -9,9 +9,14 @@
  */
 
 /**
- * Reading order for the places that show all ten at once. The basket's own
+ * Reading order for the places that show the plates at once. The basket's own
  * order comes from the API; this is only for surfaces that have no rails in
  * hand, which today means /prices.
+ *
+ * This list covers the whole basket, and keeping it that way is deliberate:
+ * `plateSrc` returns null for a key with no art rather than guessing, so a
+ * staple added without a plate still prices -- it just carries no picture
+ * until its plate is traced.
  */
 export const PLATE_KEYS = [
   "rice",
@@ -24,6 +29,11 @@ export const PLATE_KEYS = [
   "sugar",
   "coffee",
   "bananas",
+  "pork",
+  "fish",
+  "onions",
+  "cheese",
+  "canned_fish",
 ] as const;
 
 export type PlateKey = (typeof PLATE_KEYS)[number];
@@ -55,4 +65,9 @@ export const PLATE_SEARCH: Record<PlateKey, { label: string; query: string }> = 
   sugar: { label: "Sugar", query: "sugar" },
   coffee: { label: "Coffee", query: "coffee" },
   bananas: { label: "Bananas", query: "banana" },
+  pork: { label: "Pork", query: "pork" },
+  fish: { label: "Fish", query: "fish" },
+  onions: { label: "Onions", query: "onion" },
+  cheese: { label: "Cheese", query: "cheese" },
+  canned_fish: { label: "Sardines", query: "sardines" },
 };
