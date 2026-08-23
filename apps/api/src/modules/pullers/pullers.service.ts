@@ -1,5 +1,7 @@
 import { Injectable, Logger, NotFoundException } from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
 import { type PullerRunResponse } from "@basketwatch/contract";
+import { type Env } from "../../config/env.schema.js";
 import { BossService } from "../../jobs/boss.provider.js";
 import { QUEUES } from "../../jobs/queues.js";
 import { StudioError } from "./adapters/studio.adapter.js";
@@ -22,6 +24,7 @@ export class PullersService {
     private readonly registry: PullerRegistry,
     private readonly repository: PullersRepository,
     private readonly boss: BossService,
+    private readonly config: ConfigService<Env, true>,
   ) {}
 
   /** Whether this store already has a pull waiting or running on the queue. */
@@ -237,12 +240,21 @@ export class PullersService {
       `${config.storeId}: run ${runId} recorded as failed, incident ${incidentId} opened`,
     );
 
+    // Two separate questions, both of which must say yes before a credit is
+    // spent. First: is this kind of failure one a template rewrite could fix?
     if (!policy.autoHeal) {
-      // Healing rewrites the extraction template. Nothing else on this list is
-      // a template problem, so a heal here would spend a credit to change the
-      // one thing that was not wrong.
       this.logger.log(
         `${config.storeId}: ${err.kind} is not repairable by a template rewrite; no heal queued`,
+      );
+      return this.studioFailureResponse(config, err, policy, startedAt, runId);
+    }
+
+    // Second: is the loop switched on at all? Checked here rather than only in
+    // the worker so a disarmed loop leaves nothing queued to fire later.
+    if (!this.config.get("HEAL_AUTO_ENABLED", { infer: true })) {
+      this.logger.log(
+        `${config.storeId}: auto-heal is disabled (HEAL_AUTO_ENABLED=false); ` +
+          `incident ${incidentId} stands unhealed`,
       );
       return this.studioFailureResponse(config, err, policy, startedAt, runId);
     }

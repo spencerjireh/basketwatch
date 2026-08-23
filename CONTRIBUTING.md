@@ -10,8 +10,6 @@ hackathon (Aug 17-23, 2026). Applies to humans and to AI coding agents alike.
 `main` only ever moves through a merged pull request. This holds for a one-line
 docs fix, and it holds at 2am on deadline night.
 
-## Why, when we are only two people
-
 The PR is not a permission gate here (see self-merge below). It earns its keep
 for three other reasons:
 
