@@ -197,11 +197,10 @@ Cheap HTTP checks first; Studio credits only on survivors.
   two, so PH joins the fleet and the comparison view is unblocked. Scored
   registry: `lab/spencer-exploration/registry.json`.
 - C3: site list additions/vetoes — team.
-- C4: real product name — **settled in practice as `basketwatch`**: it is the
-  deployed hostname, the Postgres role and database, and now the monorepo
-  directory. The GitHub repository is still `scrape-verse-hackathon`; renaming
-  it means updating the Coolify resource, so it is not free. Decide before the
-  video whether the rename is worth doing at all.
+- ~~C4: real product name~~ — **settled as `basketwatch`**: the deployed
+  hostname, the Postgres role and database, the monorepo directory, and (as of
+  the public release) the GitHub repository `spencerjireh/basketwatch`. The
+  Coolify resource was updated to match when the repo was renamed.
 - C5: which Bright Data account owns the fleet. The team has two accounts
   with separate budgets, and triggers/heals cannot cross accounts, so this
   decides the orchestrator's key, the credit ceiling, and where every

@@ -92,8 +92,11 @@ just hangs. The web hosts are unaffected; they are HTTP and want the proxy.
 So database clients use the origin IP directly. The alternative — a DNS-only
 `db.spencerjireh.com` record — would be a nicer name but would publish the
 origin IP in public DNS, letting anyone bypass Cloudflare and reach the VPS on
-any port. Not worth it for one week. If the VPS IP changes, update the
-connection strings here and in `.env.example` at the repo root.
+any port. Not worth it for one week.
+
+`<vps-ip>` throughout this file is a placeholder: the repo is public, so the
+origin IP is deliberately not written down here. Get it from the Coolify
+server page or the team password manager.
 
 ## First-time setup
 
@@ -118,7 +121,7 @@ the `spencers-test-app` GitHub App.
 
 | Field | Value |
 | --- | --- |
-| Repository | `spencerjireh/scrape-verse-hackathon` |
+| Repository | `spencerjireh/basketwatch` |
 | Branch | `main` |
 | Base directory | `/` |
 | Compose file | `docker-compose.prod.yml` — Coolify defaults this to `docker-compose.yml`, so it must be changed |
@@ -137,18 +140,10 @@ Then deploy.
 
 ### 3. Confirm the port is reachable
 
-Checked on Aug 20 and **no change was needed**: the VPS runs no `ufw`, its
-`iptables` INPUT policy is `ACCEPT` with only a fail2ban rule on port 22, and
-there is no cloud security group in front of it — ports 8000 and 22000 were
-both reachable from outside during testing. The only thing that ever blocked
+Checked on Aug 20 and no change was needed. The only thing that ever blocked
 `55432` was the `DOCKER-USER` rule described above, which the internal-port
-change sidesteps.
-
-Re-check with this if a connection ever hangs:
-
-```sh
-ssh vps 'iptables -S DOCKER-USER; iptables -S INPUT'
-```
+change sidesteps. If a connection ever hangs, inspect the `DOCKER-USER` and
+`INPUT` chains on the VPS first.
 
 Confirm from a machine that is not the VPS:
 
