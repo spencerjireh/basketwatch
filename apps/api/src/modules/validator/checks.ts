@@ -141,3 +141,53 @@ export function validateRun(
   if (findings.length > 0) return { status: "suspect", findings };
   return { status: "ok", findings };
 }
+
+/**
+ * Judge a SMALL sample -- a heal proposal's preview rows -- against the same
+ * baseline. validateRun cannot do this: checkRowCount hard-fails any sample
+ * against a full-catalogue expectedRowCount, and per-field null rates are
+ * noise at n<=5 (one missing size in three rows is a 33% "spike").
+ *
+ * So: schema as-is (that IS the question a heal answers), nulls only for the
+ * fields a heal must fix (price, name) and hard only when the sample is
+ * mostly null AND clearly worse than baseline, drift as-is (soft only), and
+ * no row count. An empty sample is broken -- a healed template that previews
+ * nothing fixed nothing.
+ */
+export function validateSample(
+  rows: Record<string, unknown>[],
+  parse: (row: unknown) => boolean,
+  baseline: Baseline,
+): Verdict {
+  if (rows.length === 0) {
+    return {
+      status: "broken",
+      findings: [
+        { check: "rowcount", severity: "hard", detail: "preview sample contains no usable rows" },
+      ],
+    };
+  }
+
+  const sampleBaseline: Baseline = {
+    ...baseline,
+    fieldNullRates: Object.fromEntries(
+      Object.entries(baseline.fieldNullRates).filter(([field]) =>
+        field === "price" || field === "name",
+      ),
+    ),
+  };
+
+  // checkNullRates is already the relaxed rule we want: it only speaks when
+  // the sample is 25 points worse than baseline, and only hard above 60%.
+  const findings = [
+    ...checkSchema(rows, parse),
+    ...checkNullRates(rows, sampleBaseline),
+    ...checkDrift(rows, baseline),
+  ];
+
+  if (findings.some((finding) => finding.severity === "hard")) {
+    return { status: "broken", findings };
+  }
+  if (findings.length > 0) return { status: "suspect", findings };
+  return { status: "ok", findings };
+}

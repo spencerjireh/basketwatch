@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { priceRecordSchema } from "@basketwatch/contract";
-import { checkDrift, checkNullRates, checkRowCount, checkSchema, validateRun } from "./checks.js";
+import { checkDrift, checkNullRates, checkRowCount, checkSchema, validateRun, validateSample } from "./checks.js";
 import { type Baseline } from "./checks.types.js";
 
 const parse = (row: unknown) => priceRecordSchema.safeParse(row).success;
@@ -96,5 +96,41 @@ describe("validateRun", () => {
 
   it("returns suspect when only soft checks fire", () => {
     expect(validateRun(rows(10, { price: 400 }), parse, baseline).status).toBe("suspect");
+  });
+});
+
+describe("validateSample", () => {
+  // A full-catalogue baseline: expectedRowCount in the hundreds, which is
+  // exactly what makes validateRun unusable on a 3-row preview.
+  const catalogueBaseline: Baseline = {
+    fieldNullRates: { price: 0.02, name: 0.0, size_value: 0.3 },
+    expectedRowCount: 250,
+    valueRanges: { price: [1, 20] },
+  };
+
+  it("passes a healthy 3-row preview that validateRun would call broken", () => {
+    expect(validateRun(rows(3), parse, catalogueBaseline).status).toBe("broken");
+    expect(validateSample(rows(3), parse, catalogueBaseline).status).toBe("ok");
+  });
+
+  it("is broken when the sample is empty", () => {
+    expect(validateSample([], parse, catalogueBaseline).status).toBe("broken");
+  });
+
+  it("is broken when every price is null", () => {
+    const verdict = validateSample(rows(3, { price: null }), parse, catalogueBaseline);
+    expect(verdict.status).toBe("broken");
+  });
+
+  it("ignores fields other than price and name for null spikes", () => {
+    // size_value null in every row: 100% vs 30% baseline would hard-fail
+    // validateRun; a 3-row preview must not be judged on it.
+    const verdict = validateSample(rows(3, { size_value: null }), parse, catalogueBaseline);
+    expect(verdict.findings.filter((f) => f.check === "nulls")).toHaveLength(0);
+  });
+
+  it("stays soft on price drift -- a sale is not a broken scraper", () => {
+    const verdict = validateSample(rows(3, { price: 400 }), parse, catalogueBaseline);
+    expect(verdict.status).toBe("suspect");
   });
 });
