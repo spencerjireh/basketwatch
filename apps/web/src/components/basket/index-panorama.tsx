@@ -117,23 +117,45 @@ export function IndexPanorama({ series }: { series: BasketSeries[] }) {
           onPointerLeave={() => setHoveredDay(null)}
         >
           <defs>
-            {/* The scar. Hatching rather than a fill, so a gap reads as absence
-              instead of as a value of zero. */}
+            {/* The scar, in two registers. Hatching rather than a fill, so a
+                gap reads as absence instead of as a value of zero -- and the
+                broken colour only where an incident owns the gap. A day with
+                no incident is not a failure, it is a day we make no claim
+                about, and painting it alarm-red would spend the state
+                machine's word on nothing. Faint on purpose either way: the
+                hatch marks the span, the label and the readout carry the
+                story. */}
             <pattern
-              id={hatchId}
+              id={`${hatchId}-broken`}
               width="8"
               height="8"
               patternTransform="rotate(45)"
               patternUnits="userSpaceOnUse"
             >
-              <rect width="8" height="8" fill="var(--color-broken)" fillOpacity="0.05" />
               <line
                 x1="0"
                 y1="0"
                 x2="0"
                 y2="8"
                 stroke="var(--color-broken)"
-                strokeOpacity="0.3"
+                strokeOpacity="0.12"
+                strokeWidth="2"
+              />
+            </pattern>
+            <pattern
+              id={`${hatchId}-absent`}
+              width="8"
+              height="8"
+              patternTransform="rotate(45)"
+              patternUnits="userSpaceOnUse"
+            >
+              <line
+                x1="0"
+                y1="0"
+                x2="0"
+                y2="8"
+                stroke="var(--color-mute)"
+                strokeOpacity="0.14"
                 strokeWidth="2"
               />
             </pattern>
@@ -168,17 +190,17 @@ export function IndexPanorama({ series }: { series: BasketSeries[] }) {
             if (from === undefined || to === undefined) return null;
             const x0 = (x(from) - step / 2).toFixed(2);
             const w = (x(to) - x(from) + step).toFixed(2);
+            const owned = gap.incidentId !== null;
             return (
               <g key={`${gap.from}-${gap.to}`}>
+                {/* No border: the hatch alone says absence, and a dashed
+                    outline turned the span into a warning box. */}
                 <rect
                   x={x0}
                   y={PAD_T}
                   width={w}
                   height={innerH}
-                  fill={`url(#${hatchId})`}
-                  stroke="var(--color-broken)"
-                  strokeOpacity="0.25"
-                  strokeDasharray="3 3"
+                  fill={`url(#${hatchId}-${owned ? "broken" : "absent"})`}
                 />
                 <text
                   x={(x(from) + (x(to) - x(from)) / 2).toFixed(2)}
@@ -186,7 +208,7 @@ export function IndexPanorama({ series }: { series: BasketSeries[] }) {
                   textAnchor="middle"
                   fontSize="9"
                   fontFamily="var(--font-mono)"
-                  fill="var(--color-broken)"
+                  fill={owned ? "var(--color-broken)" : "var(--color-mute)"}
                 >
                   {gap.incidentId ?? "no data"}
                 </text>
