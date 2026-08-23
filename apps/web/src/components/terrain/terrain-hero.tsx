@@ -114,8 +114,10 @@ function ResetGlyph() {
  * found the relief hard to read.
  *
  * Stacking, bottom to top: the sky gradient on the container, the staple
- * etching watermark (z-0), the headline (z-[1]), the scene (z-[2]) -- so the
- * far summits graze the headline's descenders and drift over the etching --
+ * etching watermark (z-0), the headline (in DOM order, no z of its own), the
+ * scene (z-[2]) -- so the far summits graze the headline's descenders and
+ * drift over the etching -- the subtitle's country switcher (z-[3], the one
+ * piece of the headline block that must sit over the scene to be clickable),
  * and the readout chip (z-20). Nothing stands in for the scene while it
  * loads: the sky and the headline are the whole hero until it fades up.
  */
@@ -246,13 +248,18 @@ export function TerrainHero({
           descenders from below, but its column is a hard gutter the massif
           cannot enter at the home framing. When the reader pans or zooms
           away, the headline fades out entirely rather than letting land
-          slide under type. pointer-events-none end to end: nothing in it is
-          a control, and the terrain hover must pass through. */}
+          slide under type. pointer-events-none so the terrain hover passes
+          through the type; the one control inside (the country switcher in
+          the subtitle) opts back in with its own z, which is why this
+          container carries no z-index of its own -- a z here would trap the
+          control in a stacking context below the scene. Visibility rides
+          the fade so that away from home the control is gone, not merely
+          transparent and still clickable. */}
       <div
         ref={overlayRef}
         className={cn(
-          "pointer-events-none absolute left-0 top-0 z-[1] max-w-[640px] px-5 pt-8 transition-opacity duration-300 sm:px-8 sm:pt-12",
-          atHome ? "opacity-100" : "opacity-0",
+          "pointer-events-none absolute left-0 top-0 max-w-[640px] px-5 pt-8 transition-[opacity,visibility] duration-300 sm:px-8 sm:pt-12",
+          atHome ? "visible opacity-100" : "invisible opacity-0",
         )}
       >
         {overlay}

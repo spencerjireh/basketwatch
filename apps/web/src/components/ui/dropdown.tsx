@@ -20,12 +20,14 @@ export function Dropdown({
   value,
   onChange,
   className,
+  menuAlign = "right",
 }: {
   label: string;
   items: DropdownItem[];
   value: string;
   onChange: (value: string) => void;
   className?: string;
+  menuAlign?: "left" | "right";
 }) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
@@ -75,7 +77,10 @@ export function Dropdown({
           id={listId}
           role="listbox"
           aria-label={label}
-          className="absolute right-0 z-20 mt-1.5 min-w-[9rem] border border-line bg-paper py-1 shadow-sm"
+          className={cn(
+            "absolute z-20 mt-1.5 min-w-[9rem] border border-line bg-paper py-1 shadow-sm",
+            menuAlign === "right" ? "right-0" : "left-0",
+          )}
         >
           {items.map((item) => {
             const selected = item.value === value;
