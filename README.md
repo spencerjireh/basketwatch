@@ -105,7 +105,7 @@ we flipped its storefront to an alternate layout:
    collector. The redesign had split the price into two elements; the new
    recipe stitched it back together.
 3. The fix was verified against a canary pull — ten rows, zero nulls — and
-   the incident closed. No human intervened. Total cost: about four cents.
+   the incident closed. No human intervened. Total cost: a few cents.
 
 Every step of the attempt is audited in the dashboard: the evidence, the
 generated recipe, the canary result, and the cost.
