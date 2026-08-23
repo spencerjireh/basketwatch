@@ -35,9 +35,10 @@ const CATALOG = [
   { key: "bananas-lb", name: "Bananas 1 lb", size: "1 lb", usd: 0.69, php: 40 },
 ];
 
+/** `lite` is the awning's pale stripe: white would vanish against the page. */
 const STORES = {
-  us: { label: "US Store", accent: "#1d4ed8", flag: "US" },
-  ph: { label: "PH Store", accent: "#b91c1c", flag: "PH" },
+  us: { label: "US Store", accent: "#1d4ed8", lite: "#dbe4fa", flag: "US" },
+  ph: { label: "PH Store", accent: "#b91c1c", lite: "#f8dfdc", flag: "PH" },
 };
 
 const layouts = {
@@ -100,51 +101,105 @@ const cardB = (store, p, price) => {
       </a>`;
 };
 
-const css = (accent) => `
-  :root { --accent: ${accent}; }
+/**
+ * Look and feel only -- nothing below is scraper-facing. The card markup in
+ * cardA/cardB above is the scrape contract and stays frozen; this stylesheet
+ * dresses that fixed DOM as a small family grocer. The one bold element is
+ * the striped awning (country accent + white, scalloped edge); everything
+ * else stays quiet around it.
+ */
+const css = (accent, lite) => `
+  :root { --accent: ${accent}; --lite: ${lite}; --ink: #26221c; --milk: #fdfcf8; --card: #fffefb; --crate: #e6dfd2; --tag: #ffd23f; --leaf: #2e7d4f; --muted: #7d746a; }
   * { margin: 0; padding: 0; box-sizing: border-box; }
-  body { font-family: Georgia, 'Times New Roman', serif; background: #faf7f2; color: #292524; }
-  header { background: var(--accent); color: #fff; padding: 1.5rem 2rem; }
-  header .brand { font-size: 1.6rem; font-weight: bold; letter-spacing: 0.02em; }
-  header .tagline { font-size: 0.9rem; opacity: 0.85; margin-top: 0.25rem; }
-  nav { padding: 0.6rem 2rem; background: #fff; border-bottom: 1px solid #e7e5e4; font-size: 0.9rem; }
-  nav a { color: var(--accent); text-decoration: none; margin-right: 1.25rem; }
-  main { max-width: 960px; margin: 0 auto; padding: 2rem; }
-  h2 { font-size: 1.2rem; margin-bottom: 1.25rem; color: #44403c; }
-  .product-grid, .item-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem; }
-  .product-card, .item-tile { display: block; background: #fff; border: 1px solid #e7e5e4; border-radius: 8px; padding: 1rem; text-decoration: none; color: inherit; }
-  .product-card:hover, .item-tile:hover { border-color: var(--accent); }
-  .product-name, .item-title { font-size: 0.95rem; margin-bottom: 0.5rem; font-weight: normal; }
-  .price { color: var(--accent); font-size: 1.15rem; font-weight: bold; display: block; }
-  .item-cost { color: var(--accent); font-weight: bold; }
-  .cost-whole { font-size: 1.15rem; }
-  .cost-cents { font-size: 0.8rem; vertical-align: super; }
-  .size, .item-pack { color: #78716c; font-size: 0.8rem; display: inline-block; margin-top: 0.3rem; }
-  .stock, .availability { float: right; margin-top: 0.3rem; font-size: 0.75rem; color: #15803d; }
-  .detail { background: #fff; border: 1px solid #e7e5e4; border-radius: 8px; padding: 2rem; max-width: 480px; }
-  .detail .price, .detail .item-cost { font-size: 1.6rem; margin: 0.75rem 0; }
-  footer { max-width: 960px; margin: 0 auto; padding: 1rem 2rem 2rem; color: #a8a29e; font-size: 0.78rem; }`;
+  body { font-family: 'Public Sans', -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif; background: var(--milk); color: var(--ink); }
+  a:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; border-radius: 2px; }
+  .topbar { background: var(--ink); color: #f4efe6; font-size: 0.78rem; padding: 0.45rem 1.5rem; display: flex; justify-content: space-between; gap: 0.6rem 1rem; flex-wrap: wrap; }
+  .topbar a { color: #f4efe6; text-decoration: none; margin-left: 1.1rem; letter-spacing: 0.06em; text-transform: uppercase; font-weight: 600; font-size: 0.72rem; }
+  .topbar a[aria-current="true"] { color: var(--tag); }
+  .topbar a:hover { text-decoration: underline; }
+  .masthead { padding: 2.1rem 1.5rem 1.6rem; text-align: center; }
+  .brand { font-family: Bevan, Georgia, 'Times New Roman', serif; font-size: clamp(1.9rem, 5vw, 2.6rem); line-height: 1.1; }
+  .brand a { color: inherit; text-decoration: none; }
+  .tagline { margin-top: 0.55rem; color: var(--muted); font-size: 0.92rem; }
+  .storefront-label { display: inline-block; margin-top: 0.8rem; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent); border: 1px solid currentColor; padding: 0.22rem 0.7rem; border-radius: 999px; }
+  .awning { height: 30px; border-top: 4px solid var(--accent); background: linear-gradient(rgba(38,34,28,0.10), rgba(38,34,28,0) 55%), repeating-linear-gradient(90deg, var(--accent) 0 42px, var(--lite) 42px 84px); position: relative; margin-bottom: 30px; }
+  .awning::after { content: ""; position: absolute; top: 100%; left: 0; right: 0; height: 15px;
+    background:
+      radial-gradient(21px 15px at 21px 0, var(--accent) 97%, transparent 100%) 0 0 / 84px 15px repeat-x,
+      radial-gradient(21px 15px at 21px 0, var(--lite) 97%, transparent 100%) 42px 0 / 84px 15px repeat-x; }
+  main { max-width: 1020px; margin: 0 auto; padding: 0.5rem 1.5rem 3rem; }
+  .aisle-sign { display: flex; align-items: center; gap: 1rem; margin: 1.2rem 0 1.6rem; font-size: 0.8rem; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; }
+  .aisle-sign::before, .aisle-sign::after { content: ""; flex: 1; border-top: 1px solid var(--crate); }
+  .product-grid, .item-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 1.1rem; }
+  .product-card, .item-tile { background: var(--card); border: 1px solid var(--crate); border-radius: 10px; padding: 1.05rem 1.05rem 0.95rem; text-decoration: none; color: inherit; box-shadow: 0 1px 2px rgba(38,34,28,0.05); transition: transform 120ms ease, box-shadow 120ms ease, border-color 120ms ease; }
+  .product-card:hover, .item-tile:hover { transform: translateY(-2px); border-color: var(--accent); box-shadow: 0 6px 16px rgba(38,34,28,0.10); }
+  .product-card { display: grid; grid-template-columns: 1fr auto; row-gap: 0.6rem; align-items: end; }
+  .item-tile { display: flex; flex-direction: column; gap: 0.6rem; }
+  .product-name, .item-title { font-size: 0.92rem; font-weight: 600; line-height: 1.35; min-height: 2.7em; }
+  .product-name { grid-column: 1 / -1; }
+  .price, .item-cost { background: var(--tag); color: var(--ink); font-weight: 800; font-size: 1.12rem; padding: 0.28rem 0.6rem 0.24rem; border-radius: 3px; box-shadow: inset 0 -2px 0 rgba(38,34,28,0.18); }
+  .price { grid-column: 1 / -1; justify-self: start; }
+  .item-cost { align-self: flex-start; }
+  .cost-currency, .cost-cents { font-size: 0.72rem; font-weight: 700; vertical-align: 0.45em; }
+  .cost-currency { margin-right: 1px; }
+  .cost-whole { font-size: 1.2rem; }
+  .size, .item-pack { color: var(--muted); font-size: 0.78rem; }
+  .stock, .availability { font-size: 0.7rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--leaf); }
+  .stock { justify-self: end; }
+  .item-meta { display: flex; justify-content: space-between; align-items: baseline; }
+  .breadcrumb { font-size: 0.8rem; color: var(--muted); margin: 0.2rem 0 1.4rem; }
+  .breadcrumb a { color: var(--accent); text-decoration: none; }
+  .breadcrumb a:hover { text-decoration: underline; }
+  .detail-wrap { max-width: 460px; }
+  .product-card.detail, .item-tile.detail { padding: 1.6rem; }
+  .detail .price, .detail .item-cost { font-size: 1.5rem; padding: 0.4rem 0.8rem 0.35rem; }
+  .detail .cost-whole { font-size: 1.6rem; }
+  .detail .cost-currency, .detail .cost-cents { font-size: 0.95rem; }
+  .doors { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.4rem; margin-top: 1.6rem; }
+  .door { display: block; background: var(--card); border: 1px solid var(--crate); border-radius: 12px; overflow: hidden; text-decoration: none; color: inherit; box-shadow: 0 1px 2px rgba(38,34,28,0.05); transition: transform 120ms ease, box-shadow 120ms ease; }
+  .door:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(38,34,28,0.12); }
+  .door-stripe { display: block; height: 18px; border-top: 3px solid var(--door-accent); background: repeating-linear-gradient(90deg, var(--door-accent) 0 26px, var(--door-lite) 26px 52px); }
+  .door-us { --door-accent: #1d4ed8; --door-lite: #dbe4fa; }
+  .door-ph { --door-accent: #b91c1c; --door-lite: #f8dfdc; }
+  .door-body { display: block; padding: 1.2rem 1.3rem 1.35rem; }
+  .door-title { display: block; font-weight: 700; font-size: 1.05rem; }
+  .door-note { display: block; color: var(--muted); font-size: 0.85rem; margin-top: 0.35rem; line-height: 1.5; }
+  footer { border-top: 1px solid var(--crate); margin-top: 3rem; padding: 1.4rem 1.5rem 2.2rem; color: var(--muted); font-size: 0.78rem; text-align: center; line-height: 1.7; }
+  @media (prefers-reduced-motion: reduce) {
+    .product-card, .item-tile, .door { transition: none; }
+    .product-card:hover, .item-tile:hover, .door:hover { transform: none; }
+  }`;
 
-const shell = (store, title, body) => `<!doctype html>
+const shell = (store, title, body) => {
+  const s = STORES[store];
+  return `<!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>${title}</title>
-<style>${css(STORES[store]?.accent ?? "#57534e")}</style>
+<link rel="icon" href="data:image/svg+xml,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><rect width="16" height="16" fill="#fdfcf8"/><path fill="${s?.accent ?? "#26221c"}" d="M0 2h4v7a2 2 0 1 1-4 0zM8 2h4v7a2 2 0 1 1-4 0z"/><path fill="#ffd23f" d="M4 2h4v7a2 2 0 1 1-4 0zM12 2h4v7a2 2 0 1 1-4 0z"/></svg>`)}">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bevan&family=Public+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>${css(s?.accent ?? "#26221c", s?.lite ?? "#eceae4")}</style>
 </head>
 <body>
-  <header>
-    <div class="brand">Parker's Pantry${store in STORES ? ` — ${STORES[store].label}` : ""}</div>
-    <div class="tagline">Neighborhood staples, priced daily.</div>
-  </header>
-  <nav><a href="/us">US Store</a><a href="/ph">PH Store</a></nav>
+  <div class="topbar">
+    <span>Open daily 7am-9pm &middot; Family-run since 1987</span>
+    <span><a href="/us"${store === "us" ? ' aria-current="true"' : ""}>US Store</a><a href="/ph"${store === "ph" ? ' aria-current="true"' : ""}>PH Store</a></span>
+  </div>
+  <header class="masthead">
+    <div class="brand"><a href="/">Parker's Pantry</a></div>
+    <div class="tagline">Neighborhood staples, priced daily.</div>${s ? `\n    <span class="storefront-label">${s.label} &middot; ${store === "us" ? "USD" : "PHP"}</span>` : ""}
+  </header>${s ? `\n  <div class="awning" aria-hidden="true"></div>` : ""}
   <main>
 ${body}
   </main>
-  <footer>Parker's Pantry is a fictional demonstration storefront for the basketwatch hackathon project. Not a real business.</footer>
+  <footer>Parker's Pantry is a fictional demonstration storefront for the basketwatch hackathon project. Not a real business.<br>214 Market Lane, nowhere in particular &middot; Two imaginary neighborhoods, restocked daily.</footer>
 </body>
 </html>`;
+};
 
 const listingPage = (store) => {
   const layout = layouts[store];
@@ -154,7 +209,7 @@ const listingPage = (store) => {
   return shell(
     store,
     `Parker's Pantry ${STORES[store].flag} — Weekly Prices`,
-    `    <h2>This week's staples (${CATALOG.length} items)</h2>\n    <div class="${wrap}">${cards}\n    </div>`,
+    `    <h2 class="aisle-sign">This week's staples &middot; ${CATALOG.length} items</h2>\n    <div class="${wrap}">${cards}\n    </div>`,
   );
 };
 
@@ -168,7 +223,7 @@ const productPage = (store, product) => {
   return shell(
     store,
     `${product.name} — Parker's Pantry ${STORES[store].flag}`,
-    `    <h2>${product.name}</h2>\n    <div class="detail-wrap">${body}\n    </div>\n    <p style="margin-top:1rem"><a href="/${store}" style="color:var(--accent)">← Back to all staples</a></p>`,
+    `    <p class="breadcrumb"><a href="/${store}">${STORES[store].label}</a> / ${product.name}</p>\n    <div class="detail-wrap">${body}\n    </div>`,
   );
 };
 
@@ -193,7 +248,11 @@ const server = createServer(async (req, res) => {
         shell(
           "root",
           "Parker's Pantry",
-          `    <h2>Pick a storefront</h2>\n    <p style="line-height:2"><a href="/us" style="color:#1d4ed8">Parker's Pantry — US Store (USD)</a><br><a href="/ph" style="color:#b91c1c">Parker's Pantry — PH Store (PHP)</a></p>`,
+          `    <h2 class="aisle-sign">Pick a storefront</h2>
+    <div class="doors">
+      <a class="door door-us" href="/us"><span class="door-stripe" aria-hidden="true"></span><span class="door-body"><span class="door-title">US Store</span><span class="door-note">Ten weekly staples, priced in US dollars.</span></span></a>
+      <a class="door door-ph" href="/ph"><span class="door-stripe" aria-hidden="true"></span><span class="door-body"><span class="door-title">PH Store</span><span class="door-note">The same ten staples, priced in Philippine pesos.</span></span></a>
+    </div>`,
         ),
       );
     }
