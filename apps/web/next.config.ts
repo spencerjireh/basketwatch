@@ -24,6 +24,9 @@ const nextConfig: NextConfig = {
   // dependencies across the whole workspace.
   outputFileTracingIncludes: {
     "/**/*": ["../../node_modules/.pnpm/@swc+helpers@*/node_modules/@swc/helpers/**/*"],
+    // The OG route reads these at runtime with fs, which the tracer cannot
+    // see through; left untraced they exist in the image only by luck.
+    "/opengraph-image": ["./assets/fonts/**/*"],
   },
 
   async rewrites() {

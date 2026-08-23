@@ -638,9 +638,20 @@ function Tooltip({
           <p className="font-mono text-[10.5px] text-mute">
             +{formatMoney(delta, cell.unitPrice.currency)}
             <span> · </span>
-            {cell.ratio.toFixed(1)}x vs {cheapest.storeName}
+            {cell.ratio.toFixed(1)}x the cheapest
           </p>
         )}
+        {/* The row's winner, said outright on every card: the badge above
+            only marks the cell under the pointer, and a reader parked on a
+            dear shelf still deserves the answer without hunting the gold
+            dot for it. */}
+        <p className="mt-0.5 font-mono text-[10.5px]">
+          <span className="text-live">cheapest</span>
+          <span className="text-mute"> · </span>
+          {cheapest.storeName}
+          <span className="text-mute"> · </span>
+          {formatMoney(cheapest.unitPrice.amount, cheapest.unitPrice.currency)}
+        </p>
         <div className="relative mx-[3px] mt-2 h-[10px]">
           <span className="absolute inset-x-0 top-1/2 h-px bg-line" />
           {priced.map((c) => {
