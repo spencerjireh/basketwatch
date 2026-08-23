@@ -23,4 +23,40 @@ describe("validateEnv", () => {
   it("fails loudly without a database url", () => {
     expect(() => validateEnv({})).toThrow(/DATABASE_URL/);
   });
+
+  // The regression these exist for: `z.coerce.boolean()` is `Boolean(v)`, and
+  // `Boolean("false")` is `true`. Prod compose passes
+  // `${PULL_SCHEDULE_ENABLED:-false}` -- always a non-empty string -- so the
+  // catalogue schedule was armed on every deploy while every doc said it
+  // shipped disarmed. It fired twice against production before this was found.
+  it("reads a false flag as false, not as a non-empty string", () => {
+    expect(validateEnv({ ...base, PULL_SCHEDULE_ENABLED: "false" }).PULL_SCHEDULE_ENABLED).toBe(
+      false,
+    );
+    expect(validateEnv({ ...base, HEAL_AUTO_ENABLED: "false" }).HEAL_AUTO_ENABLED).toBe(false);
+  });
+
+  it("accepts the words a human would write", () => {
+    for (const yes of ["true", "1", "yes", "on", "TRUE", " On "]) {
+      expect(validateEnv({ ...base, PULL_SCHEDULE_ENABLED: yes }).PULL_SCHEDULE_ENABLED).toBe(true);
+    }
+    for (const no of ["false", "0", "no", "off", "OFF"]) {
+      expect(validateEnv({ ...base, HEAL_AUTO_ENABLED: no }).HEAL_AUTO_ENABLED).toBe(false);
+    }
+  });
+
+  it("falls back when a flag is unset or empty", () => {
+    // Empty is what `${VAR:-}` delivers, and it must mean "not configured"
+    // rather than "off" for a flag whose default is on.
+    expect(validateEnv(base).PULL_SCHEDULE_ENABLED).toBe(false);
+    expect(validateEnv({ ...base, PULL_SCHEDULE_ENABLED: "" }).PULL_SCHEDULE_ENABLED).toBe(false);
+    expect(validateEnv(base).HEAL_AUTO_ENABLED).toBe(true);
+    expect(validateEnv({ ...base, HEAL_AUTO_ENABLED: "" }).HEAL_AUTO_ENABLED).toBe(true);
+  });
+
+  it("refuses a flag value it cannot read, rather than guessing", () => {
+    expect(() => validateEnv({ ...base, PULL_SCHEDULE_ENABLED: "maybe" })).toThrow(
+      /Invalid environment/,
+    );
+  });
 });
