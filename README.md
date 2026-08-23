@@ -41,9 +41,11 @@ just check          # typecheck, lint, test, build
 
 ## Database
 
-**`DATABASE_URL` in the repo-root `.env` points at the deployed database.** A
-bare `pnpm db:migrate` would therefore target production, so `drizzle.config.ts`
-refuses any non-local host unless you opt in explicitly:
+**`DATABASE_URL` in the repo-root `.env` points at the LOCAL database.** The
+deployed one lives in `.env.prod`, which nothing loads by default — `just
+db-backup` reads it, and otherwise you name it yourself. `drizzle.config.ts`
+still refuses any non-local host unless you opt in explicitly, which is the
+second lock on the same door:
 
 ```sh
 # local dev -- the recipe passes the local URL for you

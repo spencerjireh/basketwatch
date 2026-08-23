@@ -49,17 +49,23 @@ This is why the Bright Data webhook target did not change across the rewrite.
 
 ## Dashboard reads
 
+Every read below is **public and unauthenticated**, deliberately: the dashboard
+has no login, so anything it renders has to be reachable without a secret.
+
 | Endpoint | Response | Implemented |
 |---|---|---|
 | `GET /api/health` | `HealthResponse` | yes |
 | `GET /api/health/ready` | `ReadyResponse`, 503 when degraded | yes |
-| `GET /api/fleet` | `FleetScraper[]` | no |
-| `GET /api/basket/index?country=US` | `BasketSeries[]` | no |
-| `GET /api/basket/today?country=US` | `BasketItem[]` | no |
-| `GET /api/feed?limit=&cursor=` | `Page<FeedEvent>` | no |
-| `GET /api/incidents?state=open&limit=&cursor=` | `Page<Incident>` | no |
-| `GET /api/incidents/:id` | `Incident` | no |
-| `GET /api/budget` | `CreditBudget` | no |
+| `GET /api/fleet` | `FleetScraper[]` | yes |
+| `GET /api/basket/index?country=US` | `BasketSeries[]` | yes |
+| `GET /api/basket/today?country=US` | `BasketItem[]` | yes |
+| `GET /api/feed?limit=&cursor=` | `Page<FeedEvent>` | yes |
+| `GET /api/incidents?state=open&limit=&cursor=` | `Page<Incident>` | yes |
+| `GET /api/incidents/:id` | `Incident` | yes |
+| `GET /api/budget` | `CreditBudget` | yes |
+| `GET /api/heal/:scraperId/preview-prompt` | `HealPreviewPromptResponse` | yes |
+| `GET /api/heal/:scraperId/status` | `HealStatusResponse` | yes |
+| `GET /api/fleet/capture-status/:scraperId` | `{ hasTemplate }` | yes |
 
 `country` is optional on the basket endpoints: omit it for every country, which
 is what the comparison view asks for.
@@ -69,14 +75,33 @@ travel with it, so the audit view renders from one request instead of three.
 
 ## Writes and inbound
 
+Every write costs money or changes the fleet, and every one of them carries the
+ops token. The dashboard holds no token and issues no writes at all — the API
+and the schedule are the only two ways to make this system do anything.
+
 | Endpoint | Body | Auth | Implemented |
 |---|---|---|---|
 | `POST /api/ingest/:scraperId` | `PriceRecord[]` | `X-Webhook-Secret` | validates, does not persist |
-| `POST /api/pullers/:storeId/run?dryRun=` | none | `Authorization: Bearer <OPS_TOKEN>` | no |
+| `POST /api/pullers/run` | none | `Bearer <OPS_TOKEN>` | yes — enqueues the fleet fan-out |
+| `POST /api/pullers/:storeId/run` | none | `Bearer <OPS_TOKEN>` | yes — enqueues one store |
+| `POST /api/pullers/:storeId/run?dryRun=true` | none | `Bearer <OPS_TOKEN>` | yes — answers inline, writes nothing |
+| `POST /api/heal/:scraperId/trigger` | `HealTriggerBody` | `Bearer <OPS_TOKEN>` | yes |
+| `POST /api/heal/:scraperId/{approve,reject,recover}` | none | `Bearer <OPS_TOKEN>` | yes |
+| `POST /api/fleet/provision`, `/api/fleet/:storeId/provision` | none | `Bearer <OPS_TOKEN>` | yes |
+| `POST /api/fleet/capture-code[/:scraperId]` | none | `Bearer <OPS_TOKEN>` | yes |
+| `POST /api/fleet/seed-baselines` | none | `Bearer <OPS_TOKEN>` | yes |
 | `GET /api/stream` (SSE) | `FeedEvent` per message | none | stream opens, silent |
+
+A wet pull is **queued, not run inline**: it answers
+`{ status, storeId, jobId }` and the work happens on the same `scrape-run` queue
+the schedule uses, so a hand trigger and the nightly fan-out cannot race. Asking
+twice for a store that already has one pending answers `already_queued`.
 
 Both secrets are compared with `timingSafeEqual`, not `===`: these endpoints are
 public, and a plain compare leaks the prefix over enough requests.
+
+Rate limits: 300/minute globally, and 5/minute on the pullers and heal routes,
+which are the ones that spend credits. Health and the SSE stream are exempt.
 
 `dryRun` fetches and parses exactly as a real run does and writes nothing, which
 is what makes a store's crawl config safe to change against production data.
@@ -125,7 +150,6 @@ validation and the UI's exhaustiveness checks:
 - Nothing computes `FleetScraper.nullRatePct`, `healsToday`, or
   `CreditBudget.spentToday` yet; all are derived at query time from `runs`,
   `heal_attempts` and `baselines`.
-- No endpoint reads the database. Every row above marked `no` returns 501.
 - **`priceRecordSchema` has not caught up with the data plane.** Postgres
   carries size and unit price; the fleet output contract still does not. The v2
   rewrite did not close this — `packages/contract/src/ingest.ts` still has the
