@@ -10,6 +10,8 @@ import { type PullResult, type Puller, type PullerConfig, type PulledRow } from 
 import { parseSize } from "../size.js";
 import { NO_SIZE, buildRow, siteOf } from "./row.js";
 import { parseSitemap, rankProductUrls } from "./sitemap.js";
+import { filterStapleUrls, type StapleMatchRule } from "./staples.js";
+import { PullersRepository } from "../pullers.repository.js";
 
 const run = promisify(execFile);
 
@@ -51,8 +53,15 @@ export class StudioError extends Error {
   }
 }
 
-/** An attempt count in the CLI's own polling loop, not seconds. */
-const POLL_ATTEMPTS = 60;
+/**
+ * An attempt count in the CLI's own polling loop, not seconds; polls are
+ * ~10s apart. Sixty gave up at ~10.5 minutes, which a 300-URL product-page
+ * batch legitimately outlives (ph-shopsuki, 2026-08-23: the batch was still
+ * collecting when the CLI quit, so a paid run was recorded as an error).
+ * 150 polls is ~25 minutes plus the 2-minute buffer -- inside the 1800s
+ * scrape-run job expiry.
+ */
+const POLL_ATTEMPTS = 150;
 const HARD_DEADLINE_MS = POLL_ATTEMPTS * 10_000 + 120_000;
 
 type StudioRow = Record<string, unknown>;
@@ -69,13 +78,27 @@ type StudioRow = Record<string, unknown>;
 /** Max depth for nested sitemap indices during URL discovery. */
 const MAX_SITEMAP_DEPTH = 2;
 
+/** Fewer staple survivors than this means the slugs are opaque, not the shelf bare. */
+const MIN_STAPLE_URLS = 10;
+
 @Injectable()
 export class StudioAdapter implements Puller {
   readonly method = "studio";
   private readonly logger = new Logger(StudioAdapter.name);
   private readonly apiKey = process.env.BRIGHTDATA_API_KEY ?? "";
 
-  constructor(private readonly fetcher: Fetcher) {}
+  constructor(
+    private readonly fetcher: Fetcher,
+    private readonly repository: PullersRepository,
+  ) {}
+
+  /** items rows are static seed data, so one load serves the process. */
+  private stapleRulesCache: StapleMatchRule[] | null = null;
+
+  private async stapleRules(): Promise<StapleMatchRule[]> {
+    this.stapleRulesCache ??= await this.repository.stapleMatchRules();
+    return this.stapleRulesCache;
+  }
 
   async pull(config: PullerConfig): Promise<PullResult> {
     if (!config.collectorId) {
@@ -151,12 +174,21 @@ export class StudioAdapter implements Puller {
       queue = next;
     }
 
-    const ranked = rankProductUrls(allUrls).slice(0, config.maxPages);
+    // Each URL Studio visits bills, so the list is trimmed to slugs that
+    // name a basket staple before the page ceiling spends anything. A store
+    // whose slugs are opaque SKUs would be starved by its own filter, so
+    // below MIN_STAPLE_URLS survivors the plain ranking is used instead.
+    const ranked = rankProductUrls(allUrls);
+    const staples = filterStapleUrls(ranked, await this.stapleRules(), config.country);
+    const filtered = staples.length >= MIN_STAPLE_URLS;
+    const chosen = (filtered ? staples : ranked).slice(0, config.maxPages);
     this.logger.log(
       `${config.storeId}: sitemap yielded ${allUrls.length} URLs, ` +
-        `${ranked.length} product URLs after ranking (cap ${config.maxPages})`,
+        `${ranked.length} product-like, ${staples.length} staple-slugged, ` +
+        `submitting ${chosen.length} (cap ${config.maxPages}` +
+        `${filtered ? "" : ", staple filter below floor -- using plain ranking"})`,
     );
-    return ranked;
+    return chosen;
   }
 
   private async runCollector(collectorId: string, urls: string[]): Promise<StudioRow[]> {

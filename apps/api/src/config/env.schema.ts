@@ -87,6 +87,14 @@ export const envSchema = z.object({
   HEAL_MAX_ATTEMPTS_PER_INCIDENT: z.coerce.number().int().positive().default(2),
   HEAL_MAX_PER_SCRAPER_PER_DAY: z.coerce.number().int().positive().default(5),
   CREDIT_DAILY_CEILING_USD: z.coerce.number().positive().default(5),
+
+  // How many stores may pull at once. Capped at 4 because the drizzle pool
+  // is max 4 and the HTTP path shares it; empty is normalised to undefined
+  // for the same `${VAR:-}` compose reason as BD_BALANCE_USD above.
+  SCRAPE_CONCURRENCY: z.preprocess(
+    (v) => (v === "" || v === undefined ? undefined : v),
+    z.coerce.number().int().min(1).max(4).default(3),
+  ),
 });
 
 export type Env = z.infer<typeof envSchema>;

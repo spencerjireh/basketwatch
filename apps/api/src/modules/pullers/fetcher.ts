@@ -118,6 +118,13 @@ export class Fetcher {
       }
 
       const body = await readCapped(response, maxBody);
+      // The unlocker intermittently answers 200 with an empty body (observed
+      // on shopsuki.ph's sitemap, 2026-08-23) -- an "ok" that carries nothing
+      // and reads downstream as an empty catalogue. Treat it like a failure.
+      if (body.body.length === 0) {
+        this.logger.warn(`unlocker returned 200 with empty body for ${url}, falling back to direct`);
+        return this.getDirect(url, maxBody);
+      }
       return { status: response.status, ...body };
     } catch (error) {
       this.logger.warn(`unlocker failed for ${url}: ${message(error)}, falling back to direct`);
