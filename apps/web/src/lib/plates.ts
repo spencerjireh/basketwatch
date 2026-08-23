@@ -9,9 +9,13 @@
  */
 
 /**
- * Reading order for the places that show all ten at once. The basket's own
+ * Reading order for the places that show the plates at once. The basket's own
  * order comes from the API; this is only for surfaces that have no rails in
  * hand, which today means /prices.
+ *
+ * The basket is larger than this list: the five staples added later have no
+ * traced art yet, and `plateSrc` returns null for them rather than guessing.
+ * A basket row without a plate still prices; it just carries no picture.
  */
 export const PLATE_KEYS = [
   "rice",
