@@ -60,8 +60,10 @@ export interface PullerRunOptions {
    * what makes a config change safe to try against production data.
    */
   dryRun: boolean;
-  /** cron | manual: recorded on the run row, so a schedule is legible later */
-  trigger: "cron" | "manual";
+  /** cron | manual | canary: recorded on the run row, so a schedule is legible later */
+  trigger: "cron" | "manual" | "canary";
+  /** Set on canary runs: the heal attempt this pull is verifying. */
+  healAttemptId?: string;
 }
 
 export interface Puller {
