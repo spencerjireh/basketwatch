@@ -24,11 +24,19 @@ import { apiGet } from "@/lib/api/server";
  * came for, the cheapest cart, and then what the basket has done over time.
  */
 /**
- * A minute of cache. The basket index moves at most once a day, and this is the
- * page a room full of judges opens at once -- the one place where caching is
- * worth more than freshness.
+ * Rendered per request, with the API call cached for 60 seconds.
+ *
+ * Not statically prerendered, deliberately: `next build` runs inside the web
+ * image with no API container beside it, so prerendering this page means
+ * fetching an address nothing is listening on. That is what broke every deploy
+ * from #47 until this.
+ *
+ * force-dynamic alone would also drop the fetch cache, so fetchCache asks for
+ * it back. The saving that mattered was never the prerender -- it was not
+ * asking Postgres the same question once per visitor.
  */
-export const revalidate = 60;
+export const dynamic = "force-dynamic";
+export const fetchCache = "default-cache";
 
 export default async function Page() {
   const [basketIndex, basketItems, rails] = await Promise.all([
