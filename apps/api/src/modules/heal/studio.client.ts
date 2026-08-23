@@ -1,4 +1,5 @@
 import { Injectable, Logger } from "@nestjs/common";
+import { scrubSecrets } from "../../common/scrub.js";
 import { ConfigService } from "@nestjs/config";
 import { type Env } from "../../config/env.schema.js";
 
@@ -63,7 +64,7 @@ export class StudioClient {
     );
 
     if (!triggerRes.ok) {
-      const text = await triggerRes.text();
+      const text = scrubSecrets(await triggerRes.text(), [this.apiKey ?? ""]);
       throw new StudioHealError(
         `Failed to trigger heal for ${collectorId}: ${triggerRes.status} ${text}`,
       );
@@ -92,7 +93,7 @@ export class StudioClient {
     );
 
     if (!res.ok) {
-      const text = await res.text();
+      const text = scrubSecrets(await res.text(), [this.apiKey ?? ""]);
       this.logger.warn(`${collectorId}: progress check ${res.status} -- ${text}`);
       return {
         id: "",
@@ -179,7 +180,7 @@ export class StudioClient {
     );
 
     if (!triggerRes.ok) {
-      const text = await triggerRes.text();
+      const text = scrubSecrets(await triggerRes.text(), [this.apiKey ?? ""]);
       throw new StudioHealError(
         `Failed to trigger heal for ${collectorId}: ${triggerRes.status} ${text}`,
       );
@@ -203,7 +204,7 @@ export class StudioClient {
       );
 
       if (!res.ok) {
-        const text = await res.text();
+        const text = scrubSecrets(await res.text(), [this.apiKey ?? ""]);
         this.logger.warn(`${collectorId}: progress poll ${res.status} -- ${text}`);
         continue;
       }
@@ -246,7 +247,7 @@ export class StudioClient {
       },
     );
     if (!res.ok) {
-      const text = await res.text();
+      const text = scrubSecrets(await res.text(), [this.apiKey ?? ""]);
       throw new StudioHealError(
         `Failed to approve heal for ${collectorId}: ${res.status} ${text}`,
       );
@@ -265,7 +266,7 @@ export class StudioClient {
       },
     );
     if (!res.ok) {
-      const text = await res.text();
+      const text = scrubSecrets(await res.text(), [this.apiKey ?? ""]);
       throw new StudioHealError(
         `Failed to reject heal for ${collectorId}: ${res.status} ${text}`,
       );
