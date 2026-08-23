@@ -22,11 +22,19 @@ export const metadata = {
  * move the headline number.
  */
 /**
- * Thirty seconds. Provenance and the quality worklist describe how the data is
- * built, not what the fleet is doing this second -- /healing is the page that
- * has to be live.
+ * Rendered per request, with the API call cached for 30 seconds.
+ *
+ * Not statically prerendered, deliberately: `next build` runs inside the web
+ * image with no API container beside it, so prerendering this page means
+ * fetching an address nothing is listening on. That is what broke every deploy
+ * from #47 until this.
+ *
+ * force-dynamic alone would also drop the fetch cache, so fetchCache asks for
+ * it back. The saving that mattered was never the prerender -- it was not
+ * asking Postgres the same question once per visitor.
  */
-export const revalidate = 30;
+export const dynamic = "force-dynamic";
+export const fetchCache = "default-cache";
 
 export default async function BehindPage() {
   // The fleet is still fetched, for the two provenance numbers -- how many

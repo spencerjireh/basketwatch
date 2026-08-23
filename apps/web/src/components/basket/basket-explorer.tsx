@@ -22,8 +22,9 @@ import { Section } from "@/components/ui/section";
  * handed down from the page, because the figure in it is the selected
  * country's and has to survive a flip of the switcher without a round trip.
  *
- * Below the landscape the same claim goes flat and ranked -- one bar per store
- * -- and then `midBand`, the server-rendered cheapest cart and time strip, sits
+ * Below the landscape the same claim goes flat and ranked -- one dot-plot row
+ * per store -- and then `midBand`, the server-rendered cheapest cart and time
+ * strip, sits
  * between that and the staple detail. The answer above, the justification
  * below, and a terrain click scrolls past the answer to land on the evidence.
  */
@@ -50,7 +51,7 @@ export function BasketExplorer({ rails, midBand }: { rails: Rail[]; midBand?: Re
              country's, not a constant -- so this points at that column rather
              than restating it, which would put two counts on one screen and
              wait for a null index quantity to make them disagree. */
-          caption="Bar length is how many times the cheapest shelf that store charges, averaged over the staples it prices — the landscape's own scale. The total beside it is what those staples cost there, and it only compares like for like on the rows whose coverage says every staple."
+          caption="The dot is how many times the cheapest shelf that store charges, averaged over the staples it prices — the landscape's own scale. Each small mark is one staple: a tight clump is a store that is what it is on everything, a scattered row means the answer depends on what you buy. The total beside it is what those staples cost there, and it only compares like for like on the rows whose coverage says every staple."
         >
           <StoreTotals rails={rails} />
         </Section>
