@@ -39,6 +39,25 @@ export const incidentKinds = [
   "error",
   /** a Studio collector failed and the direct puller covered for it */
   "studio_failed",
+  /**
+   * Studio ran and returned rows, but none survived parsing: the fields moved.
+   * The only Studio failure a template rewrite can actually repair, and so the
+   * only one that auto-heals.
+   */
+  "studio_broken",
+  /** the CLI was killed at the hard deadline -- says nothing about the template */
+  "studio_timeout",
+  /** Studio ran and returned nothing at all */
+  "studio_empty",
+  /** our own sitemap discovery found no URLs to submit; no template can fix that */
+  "sitemap_error",
+  /** the store has no collector yet -- a provisioning gap, not a break */
+  "provisioning_error",
+  /**
+   * Written by the puller before the kinds above existed. Kept so incidents
+   * already in the database render as themselves rather than as "error".
+   */
+  "studio_error",
   /** over 90% of an established catalogue changed at once; history left alone */
   "mass_change_suppressed",
 ] as const;

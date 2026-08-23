@@ -199,6 +199,44 @@ export class PullersRepository {
     return Number(run!.id);
   }
 
+  /**
+   * Is a pull for this store already waiting or running?
+   *
+   * pg-boss's `singletonKey` looks like it should answer this, and does not:
+   * the unique index that enforces it is only created for queues whose policy
+   * is `stately` or `short`, and ours are created with the default `standard`
+   * policy. The key is stored and ignored. `updateQueue` cannot change a
+   * policy after the fact, so this asks the question directly instead.
+   *
+   * Two requests in the same millisecond can still both pass. That is a race
+   * worth losing: the cost is one redundant pull, and the worker takes one job
+   * at a time, so they cannot overlap and corrupt each other's writes.
+   */
+  async hasPendingPull(storeId: string): Promise<boolean> {
+    const rows = (await this.db.execute(sql`
+      select 1 from pgboss.job
+      where name = 'scrape-run'
+        and state in ('created', 'retry', 'active')
+        and data->>'storeId' = ${storeId}
+      limit 1
+    `)) as unknown as unknown[];
+    return rows.length > 0;
+  }
+
+  /**
+   * Store-scoped and kind-agnostic, matching the validator's rule exactly: one
+   * open incident per store suppresses the next. A repeatedly failing store
+   * would otherwise stack a fresh incident, and a fresh heal, on every run.
+   */
+  async hasOpenIncident(storeId: string): Promise<boolean> {
+    const rows = (await this.db.execute(sql`
+      select 1 from incidents
+      where store_id = ${storeId} and state in ('open', 'healing')
+      limit 1
+    `)) as unknown as unknown[];
+    return rows.length > 0;
+  }
+
   async openIncident(
     storeId: string,
     runId: number,

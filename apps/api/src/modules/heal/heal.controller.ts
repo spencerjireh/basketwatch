@@ -1,4 +1,5 @@
 import { Body, Controller, Get, Param, Post, UseGuards } from "@nestjs/common";
+import { Throttle } from "@nestjs/throttler";
 import {
   type HealDecisionResponse,
   type HealPreviewPromptResponse,
@@ -11,8 +12,23 @@ import { OpsTokenGuard } from "../../common/guards/ops-token.guard.js";
 import { ZodValidationPipe } from "../../common/pipes/zod-validation.pipe.js";
 import { HealOrchestrator } from "./heal.orchestrator.js";
 
+/**
+ * Reads are open; writes cost credits and need the ops token.
+ *
+ * The split is deliberate rather than incidental. The dashboard is a no-login
+ * public page, so anything it renders has to be reachable without a secret --
+ * and the prompt, the diff and the live progress are the whole story worth
+ * telling. What they must not come with is a button: every route below that
+ * spends money is guarded one by one, so adding a route without a guard is a
+ * visible omission rather than an inherited default.
+ */
+/**
+ * Five a minute. These are the routes that spend Bright Data credits, and they
+ * already require the ops token -- this is the second lock, for the case where
+ * the token leaks or a script goes into a loop.
+ */
+@Throttle({ default: { limit: 5, ttl: 60_000 } })
 @Controller("heal")
-@UseGuards(OpsTokenGuard)
 export class HealController {
   constructor(private readonly orchestrator: HealOrchestrator) {}
 
@@ -50,6 +66,7 @@ export class HealController {
    * Long-running: blocks up to 5 minutes while the heal engine works.
    */
   @Post(":scraperId/trigger")
+  @UseGuards(OpsTokenGuard)
   trigger(
     @Param("scraperId") scraperId: string,
     @Body(new ZodValidationPipe(healTriggerBodySchema)) body: HealTriggerBody,
@@ -59,12 +76,14 @@ export class HealController {
 
   /** POST /api/heal/:scraperId/approve -- approve the pending heal diff. */
   @Post(":scraperId/approve")
+  @UseGuards(OpsTokenGuard)
   approve(@Param("scraperId") scraperId: string): Promise<HealDecisionResponse> {
     return this.orchestrator.approve(scraperId);
   }
 
   /** POST /api/heal/:scraperId/reject -- reject the pending heal diff. */
   @Post(":scraperId/reject")
+  @UseGuards(OpsTokenGuard)
   reject(@Param("scraperId") scraperId: string): Promise<HealDecisionResponse> {
     return this.orchestrator.reject(scraperId);
   }
@@ -77,6 +96,7 @@ export class HealController {
    * so the UI can approve or reject.
    */
   @Post(":scraperId/recover")
+  @UseGuards(OpsTokenGuard)
   recover(@Param("scraperId") scraperId: string): Promise<HealStatusResponse> {
     return this.orchestrator.recover(scraperId);
   }

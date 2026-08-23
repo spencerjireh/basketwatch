@@ -17,6 +17,12 @@ async function bootstrap(): Promise<void> {
 
   app.useGlobalFilters(new AllExceptionsFilter());
 
+  // One hop, not `true`. Coolify's proxy terminates TLS in front of this, so
+  // without it every public visitor shares the proxy's address and therefore
+  // one rate-limit bucket. Trusting the whole chain instead would let a client
+  // write its own X-Forwarded-For and mint a fresh bucket per request.
+  app.getHttpAdapter().getInstance().set("trust proxy", 1);
+
   // Required for the database pool and pg-boss to close cleanly.
   app.enableShutdownHooks();
 

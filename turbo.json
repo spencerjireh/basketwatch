@@ -36,7 +36,6 @@
         "PORT",
         "LOG_LEVEL",
         "API_INTERNAL_URL",
-        "OPS_TOKEN",
         "BD_BALANCE_USD",
         "PULL_SCHEDULE_ENABLED",
         "HEAL_AUTO_ENABLED",

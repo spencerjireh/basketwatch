@@ -1,4 +1,5 @@
 import { Controller, Get, HttpCode, Inject } from "@nestjs/common";
+import { SkipThrottle } from "@nestjs/throttler";
 import {
   type HealthResponse,
   type ReadyResponse,
@@ -12,6 +13,14 @@ import { BossService } from "../../jobs/boss.provider.js";
 const VERSION = process.env.npm_package_version ?? "0.0.0";
 const startedAt = Date.now();
 
+/**
+ * Never throttled, structurally.
+ *
+ * Compose healthchecks this every 15s and `web` will not start until it passes,
+ * so a 429 here does not degrade the API -- it stops the dashboard booting at
+ * all. That is too sharp an edge to leave to a generous limit.
+ */
+@SkipThrottle()
 @Controller("health")
 export class HealthController {
   constructor(

@@ -1,4 +1,5 @@
 import { Controller, Get, Query, Sse } from "@nestjs/common";
+import { SkipThrottle } from "@nestjs/throttler";
 import { map, type Observable } from "rxjs";
 import { type FeedResponse, type PageQuery, feedQuerySchema } from "@basketwatch/contract";
 import { ZodValidationPipe } from "../../common/pipes/zod-validation.pipe.js";
@@ -22,6 +23,9 @@ export class FeedController {
    * feed goes live; until then the stream is open but silent, which is enough
    * for the dashboard to prove its reconnect path.
    */
+  // One long-lived connection, not a burst of requests. A limiter that counts
+  // it as one hit per open is measuring the wrong thing.
+  @SkipThrottle()
   @Sse("stream")
   stream(): Observable<{ id: string; type: string; data: string }> {
     return this.service.stream().pipe(
