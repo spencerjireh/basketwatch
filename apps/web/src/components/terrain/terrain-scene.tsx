@@ -70,6 +70,20 @@ const PITCH_MAX = (1.5 * Math.PI) / 180;
 const IDLE_YAW = (0.5 * Math.PI) / 180;
 const IDLE_RATE = 0.13; // rad/s of the sine phase
 
+// The reader's own camera: drag pans across the ground plane, ctrl+scroll
+// (a trackpad pinch arrives the same way) zooms toward the cursor, and the
+// bottom-bar buttons do the same about the canvas centre. No rotation ever:
+// the composed angle is what keeps the rows and the projected labels
+// readable, so freedom here is strictly where-you-look, never how.
+const DRAG_PX = 5; // movement before a press stops being a click
+const ZOOM_MIN = 0.4; // distScale floor: 2.5x closer than home
+const ZOOM_MAX = 2.0; // distScale ceiling: twice as far as home
+const WHEEL_ZOOM_K = 0.0022; // factor = exp(deltaY * K); smooth for pinch deltas too
+const BUTTON_ZOOM = 1.3; // one press of + or -
+const AT_HOME_PAN_EPS = 0.02; // world units
+const AT_HOME_SCALE_EPS = 0.01;
+const RESET_RATE = 6; // 1 - exp(-RESET_RATE * dt) easing back home
+
 const CLAY = new THREE.Color("#e8e0d0");
 const HOVER = new THREE.Color("#2b271f");
 const INK = "#1f1c18";
@@ -96,6 +110,18 @@ const HAZE = 0.4;
 // vertices allocates nothing.
 const OVERCAST = new THREE.Color();
 
+/** What the hero's zoom buttons call. Type-only export: importing it must
+ * never pull three into the route bundle. */
+export type TerrainControls = {
+  zoomIn: () => void;
+  zoomOut: () => void;
+  reset: () => void;
+};
+
+/** Shared between the Rig's drag machine and the raycast handlers: a drag in
+ * flight mutes hover, and the click that ends it must not select or unpin. */
+type InteractionState = { dragging: boolean; suppressClick: boolean };
+
 type SceneProps = {
   grid: TerrainGrid;
   /* 0 clear .. 1 overcast; the basket's own gaps, not a mood dial. */
@@ -109,15 +135,22 @@ type SceneProps = {
   onSelect: (ref: CellRef) => void;
   onClear: () => void;
   onReady: () => void;
+  /** false while panned or zoomed away from the composed framing */
+  onAtHomeChange?: (atHome: boolean) => void;
+  /** hands the hero the zoom/reset API; null again on unmount */
+  onControls?: (api: TerrainControls | null) => void;
 };
 
 type WorldAnchor = {
   key: string;
   label: string;
-  kind: "store" | "staple" | "summit" | "etch";
+  kind: "store" | "staple" | "summit" | "etch" | "cheap";
   x: number;
   y: number;
   z: number;
+  /** the row a "cheap" tag belongs to; two stores can tie for cheapest, so
+   * the key alone cannot carry it */
+  itemKey?: string;
 };
 
 /** "Coffee (ground or instant)" earns its parenthetical in the sections, not on an axis. */
@@ -164,6 +197,24 @@ function buildWorldAnchors(grid: TerrainGrid): WorldAnchor[] {
       x: leftX,
       y: 0,
       z: stapleZ(grid, row),
+    });
+  });
+
+  // One "cheapest" tag per row, sitting over the gold cairn, lit only while
+  // its row is hovered or pinned: the halo says "look here" from any
+  // distance, and this says whose shelf it is once the reader has looked.
+  grid.cells.forEach((rowCells, row) => {
+    rowCells.forEach((cell, col) => {
+      if (!cell?.cheapest) return;
+      anchors.push({
+        key: `cheap:${cell.itemKey}:${cell.storeId}`,
+        label: cell.storeName,
+        kind: "cheap",
+        x: storeX(grid, col),
+        y: peakHeight(cell.height) + 0.3,
+        z: stapleZ(grid, row),
+        itemKey: cell.itemKey,
+      });
     });
   });
 
@@ -223,8 +274,29 @@ export default function TerrainScene({
   onSelect,
   onClear,
   onReady,
+  onAtHomeChange,
+  onControls,
 }: SceneProps) {
   const [reduced, setReduced] = useState(false);
+
+  // The drag machine in the Rig writes this; the raycast handlers read it.
+  // A ref, not state: a drag must mute hover on the very move that starts
+  // it, not a render later.
+  const interaction = useRef<InteractionState>({ dragging: false, suppressClick: false });
+  const consumeSuppress = () => {
+    const s = interaction.current.suppressClick;
+    interaction.current.suppressClick = false;
+    return s;
+  };
+  const guardedHover = (ref: CellRef | null) => {
+    if (!interaction.current.dragging) onHover(ref);
+  };
+  const guardedSelect = (ref: CellRef) => {
+    if (!consumeSuppress()) onSelect(ref);
+  };
+  const guardedClear = () => {
+    if (!consumeSuppress()) onClear();
+  };
 
   // Whether the rise has finished. The labels and the reference rings are
   // projected from full-height world anchors, so during the rise they would
@@ -265,6 +337,12 @@ export default function TerrainScene({
   };
 
   const hoverCell = hovered ? findCell(grid, hovered) : null;
+  // The hovered staple's whole row rides along so the tooltip can place this
+  // price among its neighbours without re-deriving the grid.
+  const hoverRow = hovered
+    ? grid.staples.findIndex((staple) => staple.itemKey === hovered.itemKey)
+    : -1;
+  const hoverRowCells = hoverRow >= 0 ? (grid.cells[hoverRow] ?? []) : [];
 
   const shadowExtent = Math.max(slabWidth(grid), slabDepth(grid)) / 2 + 2;
 
@@ -278,8 +356,13 @@ export default function TerrainScene({
     const y = event.clientY - box.top;
     el.style.left = `${x.toFixed(0)}px`;
     el.style.top = `${y.toFixed(0)}px`;
-    el.style.transform =
-      x > box.width * 0.68 ? "translate(calc(-100% - 14px), -120%)" : "translate(14px, -120%)";
+    // The card flips inward at the right and top edges; the flip is this
+    // transform and nothing else, so it must snap, never animate.
+    const flipX = x > box.width - 292;
+    const flipY = y < 160;
+    el.style.transform = `translate(${flipX ? "calc(-100% - 14px)" : "14px"}, ${
+      flipY ? "18px" : "calc(-100% - 12px)"
+    })`;
   };
 
   return (
@@ -295,13 +378,29 @@ export default function TerrainScene({
         dpr={[1, 1.75]}
         gl={{ alpha: true, antialias: true }}
         frameloop="demand"
+        // R3F's default is touch-action: none, which would make the hero a
+        // scroll trap on phones; pan-y hands one-finger vertical drags back
+        // to the page.
+        style={{ touchAction: "pan-y" }}
         onCreated={() => onReady()}
         onPointerMissed={() => {
+          // A drag that ends over empty ground is the drag ending, not a
+          // click on nothing -- it must not clear the hover or the pin.
+          if (consumeSuppress()) return;
           onHover(null);
           onClear();
         }}
       >
-        <Rig grid={grid} anchors={worldAnchors} labelEls={labelEls} parallax={!reduced} />
+        <Rig
+          grid={grid}
+          anchors={worldAnchors}
+          labelEls={labelEls}
+          parallax={!reduced}
+          interaction={interaction}
+          onDragStart={() => onHover(null)}
+          onAtHomeChange={onAtHomeChange}
+          onControls={onControls}
+        />
         <hemisphereLight args={["#fffdf6", "#d8cdb4", 0.55]} />
         {/* A low warm sun so the ridges catch rim light, and a cold faint
             fill from behind so the shadowed faces keep their shape. The
@@ -323,7 +422,7 @@ export default function TerrainScene({
           shadow-camera-far={40}
         />
         <directionalLight position={[9, 6, -9]} intensity={0.45 + 0.1 * weather} color="#f4ecdc" />
-        <Slab grid={grid} onHover={onHover} onClear={onClear} />
+        <Slab grid={grid} onHover={guardedHover} onClear={guardedClear} />
         <Etchings grid={grid} visible={settled} />
         <Motes grid={grid} weather={weather} animate={!reduced} />
         <Relief
@@ -332,9 +431,10 @@ export default function TerrainScene({
           hovered={hovered}
           selected={selected}
           scanStoreId={hovered?.storeId ?? hoveredStore}
-          onHover={onHover}
-          onSelect={onSelect}
+          onHover={guardedHover}
+          onSelect={guardedSelect}
           animate={!reduced}
+          interaction={interaction}
           onSettleChange={handleSettleChange}
         />
       </Canvas>
@@ -396,7 +496,7 @@ export default function TerrainScene({
                 tabIndex={-1}
                 onClick={() => {
                   const ref = rowRef(itemKey);
-                  if (ref) onSelect(ref);
+                  if (ref) guardedSelect(ref);
                 }}
                 className={cn(
                   // Not the store name's paper tag: these sit out over bare
@@ -417,6 +517,28 @@ export default function TerrainScene({
               >
                 {anchor.label}
               </button>
+            );
+          }
+          if (anchor.kind === "cheap") {
+            const lit = (hovered ?? selected)?.itemKey === anchor.itemKey;
+            return (
+              /* The gold cairn's name tag, one per row, shown only while its
+                 row is being read: ten permanent labels would be a legend
+                 printed on the picture, but the halo alone cannot say whose
+                 shelf the gold is. Same survey-tag chip as the summit. */
+              <span
+                key={anchor.key}
+                ref={registerLabel(anchor.key)}
+                className={cn(
+                  "pointer-events-none absolute -translate-x-1/2 -translate-y-[calc(100%+6px)] whitespace-nowrap border border-line bg-paper/85 px-1.5 py-0.5 font-mono text-[10px] backdrop-blur-[2px] transition-opacity duration-200",
+                  lit ? "opacity-100" : "opacity-0",
+                )}
+                style={{ left: "-9999px", top: "0px" }}
+              >
+                <span className="text-live">cheapest</span>
+                <span className="text-mute"> · </span>
+                <span className="text-ink">{anchor.label}</span>
+              </span>
             );
           }
           if (anchor.kind === "summit") {
@@ -446,62 +568,152 @@ export default function TerrainScene({
         })}
       </div>
 
-      {hoverCell ? <Tooltip ref={tooltip} cell={hoverCell} /> : null}
-    </div>
-  );
-}
-
-function Tooltip({ ref, cell }: { ref: React.Ref<HTMLDivElement>; cell: TerrainCell }) {
-  return (
-    <div
-      ref={ref}
-      aria-hidden="true"
-      className="pointer-events-none absolute z-10 whitespace-nowrap border border-line bg-paper/95 px-2.5 py-1.5 text-[11.5px] shadow-sm"
-      style={{ left: "-9999px", top: "0px" }}
-    >
-      <span className="font-medium">{cell.storeName}</span>
-      <span className="text-mute"> · </span>
-      {cell.label}
-      <span className="text-mute"> · </span>
-      <span className="font-mono text-[11px]">
-        {formatMoney(cell.unitPrice.amount, cell.unitPrice.currency)}
-      </span>{" "}
-      <span className="font-mono text-[10px] text-mute">{formatBasis(cell.unitPriceBasis)}</span>
-      <span className="text-mute"> · </span>
-      <span className={cell.cheapest ? "text-live" : "text-mute"}>
-        {cell.cheapest ? "cheapest" : `${cell.ratio.toFixed(1)}x`}
-      </span>
+      {hoverCell ? <Tooltip ref={tooltip} cell={hoverCell} rowCells={hoverRowCells} /> : null}
     </div>
   );
 }
 
 /**
- * Camera placement and drift, and the label projector in the same frame loop
- * so the two can never disagree. The base composition is the old fixed rig --
- * aimed at the height-weighted centroid of the peaks, fitted to the canvas
- * aspect -- and the pointer sways it a few degrees around that aim point,
- * easing home when the pointer settles. Under frameloop="demand" the loop
- * keeps itself alive with invalidate() only while it is still easing.
+ * The survey card: what one prism knows, read out in full. Store and its
+ * standing, the shelf product the unit price was computed from, the price
+ * itself, the concrete cost of not walking to the cheapest shelf, and a
+ * strip that places every store on this staple's row cheapest to dearest --
+ * the same log scale the heights use, so the strip is the landscape's own
+ * cross-section in miniature.
+ *
+ * Two divs on purpose: the outer one is positioned and edge-flipped
+ * imperatively by placeTooltip, the inner one carries the paper card and the
+ * entrance animation. Animating the outer transform would animate the flip.
+ */
+function Tooltip({
+  ref,
+  cell,
+  rowCells,
+}: {
+  ref: React.Ref<HTMLDivElement>;
+  cell: TerrainCell;
+  rowCells: (TerrainCell | null)[];
+}) {
+  const priced = rowCells.filter((c): c is TerrainCell => c !== null);
+  const cheapest = priced.find((c) => c.cheapest) ?? cell;
+  const delta = cell.unitPrice.amount - cheapest.unitPrice.amount;
+  // The floor keeps a tight row legible: with every price within a few
+  // percent, a raw span would stack all the dots on the left edge.
+  const span = Math.max(1.15, ...priced.map((c) => c.ratio));
+  const pos = (ratio: number) => Math.log(Math.max(1, ratio)) / Math.log(span);
+
+  return (
+    <div
+      ref={ref}
+      aria-hidden="true"
+      className="pointer-events-none absolute z-10 w-[264px]"
+      style={{ left: "-9999px", top: "0px" }}
+    >
+      <div className="border border-line bg-paper/95 px-3 py-2 shadow-sm backdrop-blur-[2px] motion-safe:animate-[tooltip-in_140ms_ease-out]">
+        <div className="flex items-baseline justify-between gap-2">
+          <span className="truncate text-[12px] font-medium">{cell.storeName}</span>
+          <span
+            className={cn(
+              "shrink-0 font-mono text-[10px]",
+              cell.cheapest ? "text-live" : "text-mute",
+            )}
+          >
+            {cell.cheapest ? "cheapest" : `${cell.ratio.toFixed(1)}x`}
+          </span>
+        </div>
+        <p className="truncate text-[11px] text-mute">{cell.productName}</p>
+        <p className="mt-1 font-mono text-[12px]">
+          {formatMoney(cell.unitPrice.amount, cell.unitPrice.currency)}{" "}
+          <span className="text-[10px] text-mute">{formatBasis(cell.unitPriceBasis)}</span>
+        </p>
+        {cell.cheapest ? null : (
+          <p className="font-mono text-[10.5px] text-mute">
+            +{formatMoney(delta, cell.unitPrice.currency)}
+            <span> · </span>
+            {cell.ratio.toFixed(1)}x vs {cheapest.storeName}
+          </p>
+        )}
+        <div className="relative mx-[3px] mt-2 h-[10px]">
+          <span className="absolute inset-x-0 top-1/2 h-px bg-line" />
+          {priced.map((c) => {
+            const current = c.storeId === cell.storeId;
+            return (
+              <span
+                key={c.storeId}
+                className={cn(
+                  "absolute top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full",
+                  current && c.cheapest
+                    ? "size-[7px] bg-[#d4a72c] ring-1 ring-ink"
+                    : current
+                      ? "size-[7px] bg-ink"
+                      : c.cheapest
+                        ? "size-[5px] bg-[#d4a72c]"
+                        : "size-[4px] bg-mute/50",
+                )}
+                style={{ left: `${(pos(c.ratio) * 100).toFixed(1)}%` }}
+              />
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/**
+ * Camera placement, drift, and now the reader's own hand -- pan and zoom --
+ * plus the label projector, all in the same frame loop so none of them can
+ * disagree. The base composition is still the fixed rig aimed at the
+ * height-weighted centroid; on top of it ride a world-XZ pan vector and a
+ * distance scale, both refs, so they survive resize recomputes untouched.
+ * Pan works as a ground grab: the point of land under the cursor at
+ * drag-start stays under the cursor, one ray-plane intersect per move.
+ * Zoom scales the home distance and re-grounds the cursor the same way, so
+ * it zooms toward what is being pointed at. The parallax sway and the idle
+ * breath only run at the home framing -- a camera the reader has taken hold
+ * of must not keep moving on its own -- and reset eases both offsets home.
  */
 function Rig({
   grid,
   anchors,
   labelEls,
   parallax,
+  interaction,
+  onDragStart,
+  onAtHomeChange,
+  onControls,
 }: {
   grid: TerrainGrid;
   anchors: WorldAnchor[];
   labelEls: React.RefObject<Map<string, HTMLElement>>;
   parallax: boolean;
+  interaction: React.RefObject<InteractionState>;
+  onDragStart?: () => void;
+  onAtHomeChange?: (atHome: boolean) => void;
+  onControls?: (api: TerrainControls | null) => void;
 }) {
   const camera = useThree((state) => state.camera);
   const size = useThree((state) => state.size);
   const gl = useThree((state) => state.gl);
+  const clock = useThree((state) => state.clock);
   const invalidate = useThree((state) => state.invalidate);
 
   const base = useRef({ position: new THREE.Vector3(), target: new THREE.Vector3() });
   const sway = useRef({ yaw: 0, pitch: 0 });
   const scratch = useRef(new THREE.Vector3());
+
+  // The reader's offsets, applied on top of the base framing every frame.
+  const pan = useRef(new THREE.Vector3()); // y stays 0
+  const distScale = useRef(1);
+  const idleAmp = useRef(0); // the breath fades out away from home
+  const atHomeRef = useRef(true);
+  const resetting = useRef(false);
+  const down = useRef<{ id: number; x: number; y: number } | null>(null);
+  const grab = useRef(new THREE.Vector3()); // the ground point held while dragging
+  const sph = useRef(new THREE.Spherical());
+  const tmpTarget = useRef(new THREE.Vector3());
+  const gpA = useRef(new THREE.Vector3());
+  const gpB = useRef(new THREE.Vector3());
 
   const projectAnchors = () => {
     camera.updateMatrixWorld();
@@ -517,7 +729,102 @@ function Rig({
   const projectRef = useRef(projectAnchors);
   projectRef.current = projectAnchors;
 
+  /** The one place the camera is written; the loop and every handler agree
+   * by construction. Handlers call it synchronously so intersect-based math
+   * (zoom-toward-cursor, ground grab) sees the camera it just moved. */
+  const applyCamera = (elapsed: number) => {
+    const b = base.current;
+    const target = tmpTarget.current.copy(b.target).add(pan.current);
+    const v = scratch.current.copy(b.position).sub(b.target).multiplyScalar(distScale.current);
+    const s = sway.current;
+    const spherical = sph.current.setFromVector3(v);
+    spherical.theta += s.yaw + idleAmp.current * Math.sin(elapsed * IDLE_RATE) * IDLE_YAW;
+    spherical.phi = THREE.MathUtils.clamp(spherical.phi + s.pitch, 0.2, Math.PI / 2 - 0.05);
+    camera.position.setFromSpherical(spherical).add(target);
+    camera.lookAt(target);
+    camera.updateMatrixWorld();
+  };
+
+  /** Cursor ray dropped onto the y=0 plane; null when it points at sky. */
+  const groundPoint = (
+    clientX: number,
+    clientY: number,
+    out: THREE.Vector3,
+  ): THREE.Vector3 | null => {
+    const rect = gl.domElement.getBoundingClientRect();
+    out
+      .set(
+        ((clientX - rect.left) / Math.max(1, rect.width)) * 2 - 1,
+        -((clientY - rect.top) / Math.max(1, rect.height)) * 2 + 1,
+        0.5,
+      )
+      .unproject(camera)
+      .sub(camera.position)
+      .normalize();
+    if (out.y > -1e-4) return null;
+    return out.multiplyScalar(-camera.position.y / out.y).add(camera.position);
+  };
+
+  // The look-at point is clamped to the slab rect. The camera always looks
+  // at screen centre, so as long as that point is on the slab the slab can
+  // never fully leave the viewport -- at any zoom, with no projection math.
+  const clampPan = () => {
+    const sw = slabWidth(grid) / 2;
+    const sd = slabDepth(grid) / 2;
+    const t = base.current.target;
+    pan.current.x = THREE.MathUtils.clamp(pan.current.x, -sw - t.x, sw - t.x);
+    pan.current.z = THREE.MathUtils.clamp(pan.current.z, -sd - t.z, sd - t.z);
+  };
+
+  const updateAtHome = () => {
+    const home =
+      pan.current.length() < AT_HOME_PAN_EPS &&
+      Math.abs(distScale.current - 1) < AT_HOME_SCALE_EPS;
+    if (home !== atHomeRef.current) {
+      atHomeRef.current = home;
+      onAtHomeChange?.(home);
+    }
+  };
+
+  /** Scale the distance, then pan so the ground point under (clientX,
+   * clientY) lands back under it: two intersects, no iteration. */
+  const zoomAt = (clientX: number, clientY: number, factor: number) => {
+    const hit = groundPoint(clientX, clientY, gpA.current);
+    const before = hit ? gpB.current.copy(hit) : null;
+    distScale.current = THREE.MathUtils.clamp(distScale.current * factor, ZOOM_MIN, ZOOM_MAX);
+    applyCamera(clock.elapsedTime);
+    if (before) {
+      const after = groundPoint(clientX, clientY, gpA.current);
+      if (after) {
+        pan.current.x += before.x - after.x;
+        pan.current.z += before.z - after.z;
+      }
+    }
+    clampPan();
+    applyCamera(clock.elapsedTime);
+    updateAtHome();
+    invalidate();
+  };
+
+  // Handlers registered in effects reach the current closures through here,
+  // the same way projectRef already works.
+  const fns = { applyCamera, groundPoint, clampPan, updateAtHome, zoomAt };
+  const fnsRef = useRef(fns);
+  fnsRef.current = fns;
+  const onDragStartRef = useRef(onDragStart);
+  onDragStartRef.current = onDragStart;
+
+  const lastGrid = useRef<TerrainGrid | null>(null);
+
   useEffect(() => {
+    // A new landscape gets a fresh framing; a mere resize keeps the reader's
+    // offsets and only re-clamps them against the recomputed base.
+    if (lastGrid.current !== grid) {
+      lastGrid.current = grid;
+      pan.current.set(0, 0, 0);
+      distScale.current = 1;
+      resetting.current = false;
+    }
     const w = (grid.stores.length - 1) * X_STEP;
     const d = (grid.staples.length - 1) * Z_STEP;
     // Aim at the massif, not the grid: the height-weighted centroid of the
@@ -541,29 +848,81 @@ function Rig({
     // store's name with it. The middle term pulls back for those, capped so it
     // can never overtake the portrait case beside it.
     const aspect = size.width / Math.max(1, size.height);
-    const fit = Math.max(1, 1.05 / aspect, Math.min(1.35, 1.9 / aspect));
-    // The full-bleed frame shares its top-left with the headline, so the
-    // massif is shifted right and aimed well above the ground line -- which
-    // drops it low in the frame and leaves the type its clear air.
-    //
-    // The aim sits higher than it used to. The headline states the finding now
-    // rather than labelling the picture, and a summit through a claim's
-    // x-height costs more than the crossing is worth: the range should graze
-    // the descenders and pass under the baseline, the way a range crosses a
-    // map title without swallowing it.
+    let fit = Math.max(1, 1.05 / aspect, Math.min(1.35, 1.9 / aspect));
     const shiftX = -w * 0.08;
-    base.current.position.set(
-      centroidX + w * 0.02 + shiftX,
-      (8.2 + d * 0.56) * fit,
-      (d / 2 + 11.8 + w * 0.34) * fit,
-    );
-    base.current.target.set(centroidX + shiftX, 0.8, -d * 0.1);
-    camera.position.copy(base.current.position);
-    camera.lookAt(base.current.target);
-    camera.updateProjectionMatrix();
+    // The headline's column is a hard gutter now: at the home framing no
+    // part of the massif may stand under it. The gutter is horizontal only
+    // -- the far summits still graze the headline's descenders from below,
+    // the way a range crosses a map title; they just cannot cross into its
+    // column. Enforced by projection: shift the whole composition right
+    // until the slab's left flank clears the gutter line, and if that pushes
+    // the right flank off the frame, pull back and try again.
+    const gutterPx = size.width >= 640 ? Math.min(640, size.width * 0.55) + 32 : 0;
+    const gutterNdc = (gutterPx / size.width) * 2 - 1;
+    const sw = slabWidth(grid) / 2;
+    const sd = slabDepth(grid) / 2;
+    const leftColX = storeX(grid, 0);
+    const testPoints: [number, number, number][] = [
+      [-sw, 0, sd],
+      [-sw, 0, -sd],
+      [leftColX, H_BASE + H_MAX, stapleZ(grid, 0)],
+      [leftColX, H_BASE + H_MAX, stapleZ(grid, grid.staples.length - 1)],
+    ];
+    const placeBase = () => {
+      base.current.position.set(
+        centroidX + w * 0.02 + shiftX,
+        (8.2 + d * 0.56) * fit,
+        (d / 2 + 11.8 + w * 0.34) * fit,
+      );
+      base.current.target.set(centroidX + shiftX, 0.8, -d * 0.1);
+    };
+    const aimBase = () => {
+      camera.position.copy(base.current.position);
+      camera.lookAt(base.current.target);
+      camera.updateProjectionMatrix();
+      camera.updateMatrixWorld();
+    };
+    for (let pass = 0; pass < 4; pass += 1) {
+      placeBase();
+      if (gutterPx <= 0) break;
+      for (let iter = 0; iter < 4; iter += 1) {
+        aimBase();
+        // The limiting point and its own view depth together: one NDC unit
+        // spans the frame's half-width at that depth, so converting the
+        // deficit there -- not at the far-off target -- is what keeps the
+        // shift from overshooting off the right edge.
+        let minX = Infinity;
+        let minDepth = 1;
+        for (const [x, y, z] of testPoints) {
+          const p = scratch.current.set(x, y, z).applyMatrix4(camera.matrixWorldInverse);
+          const depth = Math.max(0.1, -p.z);
+          const ndcX = scratch.current.set(x, y, z).project(camera).x;
+          if (ndcX < minX) {
+            minX = ndcX;
+            minDepth = depth;
+          }
+        }
+        const deficit = gutterNdc - minX;
+        if (deficit <= 0.005) break;
+        const worldPerNdc = minDepth * Math.tan((30 * Math.PI) / 360) * aspect;
+        base.current.position.x -= deficit * worldPerNdc;
+        base.current.target.x -= deficit * worldPerNdc;
+      }
+      aimBase();
+      // If clearing the gutter shoved the right flank off the frame, the
+      // slab simply does not fit at this distance: pull back in proportion
+      // to the overflow and compose again.
+      const rightX = scratch.current.set(sw, 0, sd).project(camera).x;
+      if (rightX <= 0.98 || pass === 3) break;
+      const needed = (rightX - gutterNdc) / Math.max(0.05, 0.98 - gutterNdc);
+      fit *= Math.min(1.6, Math.max(1.08, needed));
+    }
+    clampPan();
+    fnsRef.current.applyCamera(clock.elapsedTime);
+    fnsRef.current.updateAtHome();
     projectRef.current();
     invalidate();
-  }, [camera, size, grid, invalidate]);
+  }, [camera, size, grid, clock, invalidate]);
 
   // The pointer only produces frames while the canvas is being pointed at;
   // each kick lets the easing below run itself quiet.
@@ -579,30 +938,146 @@ function Rig({
     };
   }, [gl, parallax, invalidate]);
 
-  useFrame((state) => {
-    if (!parallax) return;
-    const targetYaw = state.pointer.x * YAW_MAX;
-    const targetPitch = state.pointer.y * PITCH_MAX;
+  // The drag machine and the zoom wheel, native listeners on the canvas so
+  // they run regardless of what the raycaster hits. A press only becomes a
+  // drag past DRAG_PX -- below that everything is a click and the R3F
+  // handlers behave exactly as before -- and the click that ends a real drag
+  // is marked suppressed for them to swallow.
+  useEffect(() => {
+    const el = gl.domElement;
+    const handleDown = (event: PointerEvent) => {
+      interaction.current.suppressClick = false;
+      if (event.button !== 0 || event.pointerType === "touch") return;
+      down.current = { id: event.pointerId, x: event.clientX, y: event.clientY };
+    };
+    const handleMove = (event: PointerEvent) => {
+      const d = down.current;
+      if (!d || d.id !== event.pointerId) return;
+      const f = fnsRef.current;
+      if (!interaction.current.dragging) {
+        if (Math.hypot(event.clientX - d.x, event.clientY - d.y) < DRAG_PX) return;
+        // The grab is taken here, at the threshold crossing, so the land
+        // does not jump by the dead zone when the drag engages.
+        const g = f.groundPoint(event.clientX, event.clientY, gpA.current);
+        if (!g) {
+          // Grabbed the sky; nothing to hold onto, so not a pan.
+          down.current = null;
+          return;
+        }
+        grab.current.copy(g);
+        interaction.current.dragging = true;
+        el.setPointerCapture(event.pointerId);
+        onDragStartRef.current?.();
+        document.body.style.cursor = "grabbing";
+        return;
+      }
+      const p = f.groundPoint(event.clientX, event.clientY, gpA.current);
+      if (p) {
+        pan.current.x += grab.current.x - p.x;
+        pan.current.z += grab.current.z - p.z;
+        f.clampPan();
+        f.applyCamera(clock.elapsedTime);
+        f.updateAtHome();
+      }
+      invalidate();
+    };
+    const handleUp = (event: PointerEvent) => {
+      const d = down.current;
+      if (!d || d.id !== event.pointerId) return;
+      down.current = null;
+      if (!interaction.current.dragging) return;
+      interaction.current.dragging = false;
+      interaction.current.suppressClick = true;
+      document.body.style.cursor = "";
+      if (el.hasPointerCapture(event.pointerId)) el.releasePointerCapture(event.pointerId);
+      fnsRef.current.updateAtHome();
+      invalidate();
+    };
+    const handleWheel = (event: WheelEvent) => {
+      // Plain scroll keeps scrolling the page; ctrl+wheel is the zoom, and a
+      // trackpad pinch arrives exactly that way.
+      if (!event.ctrlKey) return;
+      event.preventDefault();
+      fnsRef.current.zoomAt(event.clientX, event.clientY, Math.exp(event.deltaY * WHEEL_ZOOM_K));
+    };
+    el.addEventListener("pointerdown", handleDown);
+    el.addEventListener("pointermove", handleMove);
+    el.addEventListener("pointerup", handleUp);
+    el.addEventListener("pointercancel", handleUp);
+    el.addEventListener("wheel", handleWheel, { passive: false });
+    return () => {
+      el.removeEventListener("pointerdown", handleDown);
+      el.removeEventListener("pointermove", handleMove);
+      el.removeEventListener("pointerup", handleUp);
+      el.removeEventListener("pointercancel", handleUp);
+      el.removeEventListener("wheel", handleWheel);
+      document.body.style.cursor = "";
+    };
+  }, [gl, clock, invalidate, interaction]);
+
+  // The buttons' API, handed up to the hero. Reset eases through the frame
+  // loop; under reduced motion it snaps, because an easing camera is the
+  // exact motion that setting asked not to see.
+  useEffect(() => {
+    const center = () => {
+      const rect = gl.domElement.getBoundingClientRect();
+      return { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
+    };
+    const api: TerrainControls = {
+      zoomIn: () => {
+        const c = center();
+        fnsRef.current.zoomAt(c.x, c.y, 1 / BUTTON_ZOOM);
+      },
+      zoomOut: () => {
+        const c = center();
+        fnsRef.current.zoomAt(c.x, c.y, BUTTON_ZOOM);
+      },
+      reset: () => {
+        if (!parallax) {
+          pan.current.set(0, 0, 0);
+          distScale.current = 1;
+          fnsRef.current.applyCamera(clock.elapsedTime);
+          fnsRef.current.updateAtHome();
+          projectRef.current();
+          invalidate();
+          return;
+        }
+        resetting.current = true;
+        invalidate();
+      },
+    };
+    onControls?.(api);
+    return () => onControls?.(null);
+  }, [gl, clock, parallax, invalidate, onControls]);
+
+  useFrame((state, delta) => {
+    // Sway and breath belong to the composed framing only: a camera the
+    // reader has taken somewhere must hold still there.
+    const motion = parallax && atHomeRef.current && !resetting.current;
     const s = sway.current;
-    s.yaw += (targetYaw - s.yaw) * 0.06;
-    s.pitch += (targetPitch - s.pitch) * 0.06;
+    s.yaw += ((motion ? state.pointer.x * YAW_MAX : 0) - s.yaw) * 0.06;
+    s.pitch += ((motion ? state.pointer.y * PITCH_MAX : 0) - s.pitch) * 0.06;
+    idleAmp.current += ((motion ? 1 : 0) - idleAmp.current) * 0.06;
 
-    const idle = Math.sin(state.clock.elapsedTime * IDLE_RATE) * IDLE_YAW;
+    if (resetting.current) {
+      const k = 1 - Math.exp(-RESET_RATE * delta);
+      pan.current.multiplyScalar(1 - k);
+      distScale.current += (1 - distScale.current) * k;
+      if (pan.current.lengthSq() < 1e-4 && Math.abs(distScale.current - 1) < 0.002) {
+        pan.current.set(0, 0, 0);
+        distScale.current = 1;
+        resetting.current = false;
+      }
+      updateAtHome();
+    }
 
-    const b = base.current;
-    const v = scratch.current.copy(b.position).sub(b.target);
-    const spherical = new THREE.Spherical().setFromVector3(v);
-    spherical.theta += s.yaw + idle;
-    spherical.phi = THREE.MathUtils.clamp(spherical.phi + s.pitch, 0.2, Math.PI / 2 - 0.05);
-    camera.position.setFromSpherical(spherical).add(b.target);
-    camera.lookAt(b.target);
-
+    applyCamera(state.clock.elapsedTime);
     projectAnchors();
 
-    // The ambient drift never sleeps, so neither does the loop. The old
-    // ease-to-quiet exit is gone with it; reduced motion still gets a
-    // fully idle renderer via the early return above.
-    invalidate();
+    // With parallax on, the ambient drift never sleeps, so neither does the
+    // loop; under reduced motion frames come one at a time from invalidate()
+    // in the handlers, plus the tail of a reset easing itself quiet.
+    if (parallax || resetting.current) invalidate();
   });
 
   return null;
@@ -1092,6 +1567,7 @@ function Relief({
   onHover,
   onSelect,
   animate,
+  interaction,
   onSettleChange,
 }: {
   grid: TerrainGrid;
@@ -1102,9 +1578,11 @@ function Relief({
   onHover: (ref: CellRef | null) => void;
   onSelect: (ref: CellRef) => void;
   animate: boolean;
+  interaction: React.RefObject<InteractionState>;
   onSettleChange: (settled: boolean) => void;
 }) {
   const invalidate = useThree((state) => state.invalidate);
+  const camera = useThree((state) => state.camera);
 
   const peaks = useMemo(() => buildPeaks(grid), [grid]);
   const geometry = useMemo(() => buildFieldGeometry(grid, peaks), [grid, peaks]);
@@ -1128,13 +1606,43 @@ function Relief({
     invalidate();
   }, [grid.country, animate, onSettleChange, invalidate]);
 
-  useFrame((_, delta) => {
-    if (progress.current >= 1) return;
-    progress.current = Math.min(1, progress.current + delta / ENTRANCE_SECONDS);
-    const eased = 1 - Math.pow(1 - progress.current, 3);
-    lift.current?.scale.setY(Math.max(0.001, eased));
-    if (progress.current >= 1) onSettleChange(true);
-    invalidate();
+  // The halo rings around the gold cairns, keyed like the cells. Phase is
+  // hashed per cell so ten halos breathe out of step -- a field of lights,
+  // not a strobe.
+  const haloRefs = useRef(new Map<string, THREE.Mesh>());
+  const registerHalo = (key: string, phase: number) => (mesh: THREE.Mesh | null) => {
+    if (mesh) {
+      mesh.userData.phase = phase;
+      haloRefs.current.set(key, mesh);
+    } else {
+      haloRefs.current.delete(key);
+    }
+  };
+
+  useFrame((state, delta) => {
+    if (progress.current < 1) {
+      progress.current = Math.min(1, progress.current + delta / ENTRANCE_SECONDS);
+      const eased = 1 - Math.pow(1 - progress.current, 3);
+      lift.current?.scale.setY(Math.max(0.001, eased));
+      if (progress.current >= 1) onSettleChange(true);
+      invalidate();
+    }
+    // Billboarding runs on every frame, animated or not: a demand-rendered
+    // pan under reduced motion still has to keep the rings facing the
+    // camera. The pulse itself rides the Rig's ever-running loop, so it
+    // needs no invalidate of its own; with animation off the rings simply
+    // hold their resting size.
+    const t = state.clock.elapsedTime;
+    for (const mesh of haloRefs.current.values()) {
+      mesh.quaternion.copy(camera.quaternion);
+      if (animate) {
+        // The ripple: the ring swells to better than twice its size while it
+        // fades, a slow radio pulse off each cairn.
+        const u = (Math.sin(t * 1.9 + (mesh.userData.phase as number)) + 1) / 2;
+        mesh.scale.setScalar(1 + 1.2 * u);
+        (mesh.material as THREE.MeshBasicMaterial).opacity = 0.08 + 0.5 * (1 - u);
+      }
+    }
   });
 
   useEffect(() => {
@@ -1259,6 +1767,9 @@ function Relief({
                 position={[x, hit / 2, z]}
                 onPointerOver={(event: ThreeEvent<PointerEvent>) => {
                   event.stopPropagation();
+                  // Mid-drag the cursor is the grab hand and stays it; the
+                  // hover itself is dropped by the guarded setter upstream.
+                  if (interaction.current.dragging) return;
                   document.body.style.cursor = "pointer";
                   onHover(cellRef);
                 }}
@@ -1268,6 +1779,7 @@ function Relief({
                   event.stopPropagation();
                 }}
                 onPointerOut={() => {
+                  if (interaction.current.dragging) return;
                   document.body.style.cursor = "";
                   onHover(null);
                 }}
@@ -1279,12 +1791,36 @@ function Relief({
                 <boxGeometry args={[X_STEP, hit, Z_STEP + 0.15]} />
               </mesh>
               {cell?.cheapest ? (
-                // The summit flag for the cheapest shelf: a gold cairn --
-                // the one colour the landscape itself never wears.
-                <mesh position={[x, peakHeight(cell.height) + 0.11, z]} raycast={() => null}>
-                  <sphereGeometry args={[0.06, 12, 12]} />
-                  <meshStandardMaterial color={GOLD} roughness={0.5} />
-                </mesh>
+                <>
+                  {/* The summit flag for the cheapest shelf: a gold cairn --
+                      the one colour the landscape itself never wears. */}
+                  <mesh position={[x, peakHeight(cell.height) + 0.11, z]} raycast={() => null}>
+                    <sphereGeometry args={[0.075, 12, 12]} />
+                    <meshStandardMaterial color={GOLD} roughness={0.5} />
+                  </mesh>
+                  {/* Its halo: a billboarded ring breathing around the cairn,
+                      what makes ten small gold points read as one pattern
+                      before the first hover. Unlit material -- a beacon does
+                      not take the weather. */}
+                  <mesh
+                    ref={registerHalo(
+                      `${staple.itemKey}:${store.storeId}`,
+                      hash2(row * 7 + 1, col * 13 + 5) * Math.PI * 2,
+                    )}
+                    position={[x, peakHeight(cell.height) + 0.11, z]}
+                    raycast={() => null}
+                    renderOrder={1}
+                  >
+                    <ringGeometry args={[0.11, 0.14, 32]} />
+                    <meshBasicMaterial
+                      color={GOLD}
+                      transparent
+                      opacity={0.45}
+                      depthWrite={false}
+                      side={THREE.DoubleSide}
+                    />
+                  </mesh>
+                </>
               ) : null}
             </group>
           );
