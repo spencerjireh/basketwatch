@@ -1,12 +1,14 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { ReactNode } from "react";
 import dynamic from "next/dynamic";
 import { formatBasis, formatMoney } from "@/lib/format";
 import { GAP_READING, findCell, findGap } from "@/lib/terrain/model";
 import type { TerrainGrid } from "@/lib/terrain/model";
 import { Ridgeline } from "@/components/terrain/ridgeline";
+// Type-only, so the dynamic import below stays the only route three enters by.
+import type { TerrainControls } from "@/components/terrain/terrain-scene";
 import { useSelection } from "@/components/terrain/selection";
 import { PlateWatermark } from "@/components/plates/staple-plate";
 import { cn } from "@/lib/utils";
@@ -68,6 +70,36 @@ function FlatGlyph() {
   );
 }
 
+/*
+ * The camera glyphs, in the same hairline dialect: plus and minus for the
+ * zoom, and a frame with its mark re-centred for reset -- the picture put
+ * back where it was composed.
+ */
+function ZoomInGlyph() {
+  return (
+    <svg {...GLYPH}>
+      <path d="M8 2.5 V10.5 M4 6.5 H12" />
+    </svg>
+  );
+}
+
+function ZoomOutGlyph() {
+  return (
+    <svg {...GLYPH}>
+      <path d="M4 6.5 H12" />
+    </svg>
+  );
+}
+
+function ResetGlyph() {
+  return (
+    <svg {...GLYPH}>
+      <path d="M3.5 2.5 H12.5 V10.5 H3.5 Z" />
+      <circle cx="8" cy="6.5" r="1" fill="currentColor" stroke="none" />
+    </svg>
+  );
+}
+
 /**
  * The hero: the landscape full-bleed with the headline set on it, the way a
  * map plate carries its title. The landscape is navigation, not decoration:
@@ -82,8 +114,10 @@ function FlatGlyph() {
  * found the relief hard to read.
  *
  * Stacking, bottom to top: the sky gradient on the container, the staple
- * etching watermark (z-0), the headline (z-[1]), the scene (z-[2]) -- so the
- * far summits graze the headline's descenders and drift over the etching --
+ * etching watermark (z-0), the headline (in DOM order, no z of its own), the
+ * scene (z-[2]) -- so the far summits graze the headline's descenders and
+ * drift over the etching -- the subtitle's country switcher (z-[3], the one
+ * piece of the headline block that must sit over the scene to be clickable),
  * and the readout chip (z-20). Nothing stands in for the scene while it
  * loads: the sky and the headline are the whole hero until it fades up.
  */
@@ -103,6 +137,40 @@ export function TerrainHero({
   const [mode, setMode] = useState<"relief" | "flat">("relief");
   const [sceneLive, setSceneLive] = useState(false);
   const [weatherOverride, setWeatherOverride] = useState<number | null>(null);
+  // Where the reader's camera is. Away from home the headline yields -- the
+  // hard gutter only holds at the composed framing, and terrain sliding
+  // under live type is worse than type that steps aside.
+  const [atHome, setAtHome] = useState(true);
+  const [controls, setControls] = useState<TerrainControls | null>(null);
+
+  // The headline's real box, measured, so the scene can keep the massif out
+  // of exactly the rectangle the type occupies -- and no more. Reserving the
+  // whole column left the frame half paper.
+  const heroRef = useRef<HTMLDivElement>(null);
+  const overlayRef = useRef<HTMLDivElement>(null);
+  const [overlayBox, setOverlayBox] = useState<{ right: number; bottom: number } | null>(null);
+  useEffect(() => {
+    const measure = () => {
+      const hero = heroRef.current;
+      const el = overlayRef.current;
+      if (!hero || !el) return;
+      const heroRect = hero.getBoundingClientRect();
+      const rect = el.getBoundingClientRect();
+      const next =
+        rect.width > 10 && rect.height > 10
+          ? { right: Math.round(rect.right - heroRect.left), bottom: Math.round(rect.bottom - heroRect.top) }
+          : null;
+      // Same values, same object: the scene reframes on identity change.
+      setOverlayBox((prev) =>
+        prev?.right === next?.right && prev?.bottom === next?.bottom ? prev : next,
+      );
+    };
+    measure();
+    const observer = new ResizeObserver(measure);
+    if (heroRef.current) observer.observe(heroRef.current);
+    if (overlayRef.current) observer.observe(overlayRef.current);
+    return () => observer.disconnect();
+  }, []);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -127,7 +195,13 @@ export function TerrainHero({
   // opacity from last time and the canvas appears mid-draw -- the fade below
   // would run once, on the first visit, and never again.
   useEffect(() => {
-    if (!showScene) setSceneLive(false);
+    if (!showScene) {
+      setSceneLive(false);
+      // The next mount starts at home with no API yet; stale controls would
+      // be buttons wired to a scene that is gone.
+      setAtHome(true);
+      setControls(null);
+    }
   }, [showScene]);
 
   const w = weatherOverride ?? clamp01(weather);
@@ -150,6 +224,7 @@ export function TerrainHero({
        tone here, so the massif dissolves into air instead of ending. Clear
        weather warms the top of the sky; overcast drifts it grey. */
     <div
+      ref={heroRef}
       className="relative h-full w-full"
       style={{
         backgroundImage: `linear-gradient(to bottom, color-mix(in oklab, #f6ecd9 ${Math.round(
@@ -169,10 +244,24 @@ export function TerrainHero({
         </div>
       ) : null}
 
-      {/* The headline rides under the scene: far summits clip its descenders
-          the way a range crosses a map title. pointer-events-none end to end:
-          nothing in it is a control, and the terrain hover must pass through. */}
-      <div className="pointer-events-none absolute left-0 top-0 z-[1] max-w-[640px] px-5 pt-8 sm:px-8 sm:pt-12">
+      {/* The headline rides under the scene: far summits still graze its
+          descenders from below, but its column is a hard gutter the massif
+          cannot enter at the home framing. When the reader pans or zooms
+          away, the headline fades out entirely rather than letting land
+          slide under type. pointer-events-none so the terrain hover passes
+          through the type; the one control inside (the country switcher in
+          the subtitle) opts back in with its own z, which is why this
+          container carries no z-index of its own -- a z here would trap the
+          control in a stacking context below the scene. Visibility rides
+          the fade so that away from home the control is gone, not merely
+          transparent and still clickable. */}
+      <div
+        ref={overlayRef}
+        className={cn(
+          "pointer-events-none absolute left-0 top-0 max-w-[640px] px-5 pt-8 transition-[opacity,visibility] duration-300 sm:px-8 sm:pt-12",
+          atHome ? "visible opacity-100" : "invisible opacity-0",
+        )}
+      >
         {overlay}
       </div>
 
@@ -196,6 +285,9 @@ export function TerrainHero({
             onSelect={select}
             onClear={clear}
             onReady={() => setSceneLive(true)}
+            onAtHomeChange={setAtHome}
+            onControls={setControls}
+            overlayBox={overlayBox}
           />
         </div>
       ) : null}
@@ -262,41 +354,96 @@ export function TerrainHero({
                the flat one, but either way there is one to a row. */
             <span className="text-mute">
               Stores across, one staple to a row; height is how many times the cheapest store prices
-              that staple. Hover to read a price; click to open the staple below.
+              that staple, and the gold mark is a staple&apos;s cheapest shelf. Hover to read a
+              price; click to open the staple below.
             </span>
           )}
         </p>
 
-        {canChoose ? (
-          /* Two glyphs rather than two words, and no chrome until it is reached
-             for. The words made a second paper chip in a corner that already
-             has one, and the readout beside it is the thing worth reading.
-             Both modes stay drawn, though, and the pair never fades: this is
-             the only route to the flat view, and a control nobody finds is a
-             control that is not there. */
-          <div
-            role="group"
-            aria-label="Landscape view"
-            className="pointer-events-auto flex shrink-0 items-center gap-1 border border-transparent px-1.5 py-1 transition-colors hover:border-line hover:bg-paper/85 hover:backdrop-blur-[2px] focus-within:border-line focus-within:bg-paper/85 focus-within:backdrop-blur-[2px]"
-          >
-            {(["relief", "flat"] as const).map((option) => (
+        <div className="flex shrink-0 items-center gap-2">
+          {showScene && controls ? (
+            /* The camera's own buttons, in the same quiet chrome as the view
+               pair beside them. Ctrl+scroll and drag do the fluent version of
+               this; the buttons are the discoverable one, and Reset is the
+               way back that dims once there is nowhere to go back from. */
+            <div
+              role="group"
+              aria-label="Camera"
+              className={cn(
+                "pointer-events-auto flex items-center gap-1 border px-1.5 py-1 transition-colors hover:border-line hover:bg-paper/85 hover:backdrop-blur-[2px] focus-within:border-line focus-within:bg-paper/85 focus-within:backdrop-blur-[2px]",
+                // Away from home the terrain can stand right behind these,
+                // and mute hairlines on dark rock disappear -- the chip goes
+                // solid for as long as the camera is out.
+                atHome ? "border-transparent" : "border-line bg-paper/85 backdrop-blur-[2px]",
+              )}
+            >
               <button
-                key={option}
                 type="button"
-                aria-pressed={mode === option}
-                aria-label={option === "relief" ? "Relief" : "Flat"}
-                title={option === "relief" ? "Relief" : "Flat"}
-                onClick={() => setMode(option)}
+                aria-label="Zoom out"
+                title="Zoom out"
+                onClick={() => controls.zoomOut()}
+                className="p-1 text-mute transition-colors hover:text-ink"
+              >
+                <ZoomOutGlyph />
+              </button>
+              <button
+                type="button"
+                aria-label="Zoom in"
+                title="Zoom in"
+                onClick={() => controls.zoomIn()}
+                className="p-1 text-mute transition-colors hover:text-ink"
+              >
+                <ZoomInGlyph />
+              </button>
+              <button
+                type="button"
+                aria-label="Reset view"
+                title="Reset view"
+                disabled={atHome}
+                onClick={() => controls.reset()}
                 className={cn(
                   "p-1 transition-colors",
-                  mode === option ? "text-ink" : "text-mute hover:text-ink",
+                  atHome ? "text-mute/40" : "text-mute hover:text-ink",
                 )}
               >
-                {option === "relief" ? <ReliefGlyph /> : <FlatGlyph />}
+                <ResetGlyph />
               </button>
-            ))}
-          </div>
-        ) : null}
+            </div>
+          ) : null}
+          {canChoose ? (
+            /* Two glyphs rather than two words, and no chrome until it is
+               reached for. The words made a second paper chip in a corner that
+               already has one, and the readout beside it is the thing worth
+               reading. Both modes stay drawn, though, and the pair never
+               fades: this is the only route to the flat view, and a control
+               nobody finds is a control that is not there. */
+            <div
+              role="group"
+              aria-label="Landscape view"
+              className={cn(
+                "pointer-events-auto flex items-center gap-1 border px-1.5 py-1 transition-colors hover:border-line hover:bg-paper/85 hover:backdrop-blur-[2px] focus-within:border-line focus-within:bg-paper/85 focus-within:backdrop-blur-[2px]",
+                atHome ? "border-transparent" : "border-line bg-paper/85 backdrop-blur-[2px]",
+              )}
+            >
+              {(["relief", "flat"] as const).map((option) => (
+                <button
+                  key={option}
+                  type="button"
+                  aria-pressed={mode === option}
+                  aria-label={option === "relief" ? "Relief" : "Flat"}
+                  title={option === "relief" ? "Relief" : "Flat"}
+                  onClick={() => setMode(option)}
+                  className={cn(
+                    "p-1 transition-colors",
+                    mode === option ? "text-ink" : "text-mute hover:text-ink",
+                  )}
+                >
+                  {option === "relief" ? <ReliefGlyph /> : <FlatGlyph />}
+                </button>
+              ))}
+            </div>
+          ) : null}
+        </div>
       </div>
     </div>
   );
