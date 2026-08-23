@@ -134,6 +134,19 @@ keeps only a short snapshot and points here.
 - PH gate: **passed**. Nine PH sites vet cleanly against a requirement of
   two; the fleet is locked at 19 stores in
   `lab/spencer-exploration/fleet.lock.json`.
+- **Parker's Pantry is live but BACKUP ONLY for now** (team decision Aug 23).
+  Both storefronts serve at `pantry.spencerjireh.com` (`/us`, `/ph`, PR #56)
+  and the stores are registered dormant: `index_contributor = false`,
+  `studio_collector_id` null, zero runs. **Do not create Bright Data
+  collectors, wire collector ids, or pull these stores** until the team
+  says go — the three collectors created during the aborted first
+  provisioning were deleted from Bright Data, so nothing exists or spends
+  on that side. Two things to fix before any future provisioning: the two
+  pantry descriptions in `docs/collector-manifest.json` exceed Bright
+  Data's description length limit (proven entries run ~445-449 chars; these
+  were ~590 and got `Invalid description` back), and the API provision path
+  reads the manifest baked into the image, so a manifest fix needs a deploy
+  — or use the manual runbook path, which does not.
 - Submissions: open from Aug 19, early filing encouraged for organizer
   feedback, and the form stays editable after you submit.
 
