@@ -3,8 +3,6 @@
 import { useEffect, useRef, useState } from "react";
 import type { ReactNode } from "react";
 import dynamic from "next/dynamic";
-import { formatBasis, formatMoney } from "@/lib/format";
-import { GAP_READING, findCell, findGap } from "@/lib/terrain/model";
 import type { TerrainGrid } from "@/lib/terrain/model";
 import { Ridgeline } from "@/components/terrain/ridgeline";
 // Type-only, so the dynamic import below stays the only route three enters by.
@@ -103,9 +101,8 @@ function ResetGlyph() {
 /**
  * The hero: the landscape full-bleed with the headline set on it, the way a
  * map plate carries its title. The landscape is navigation, not decoration:
- * hovering reads a cell out in words along the bottom edge, clicking jumps
- * to the staple's section. The readout has a fixed height so hovering never
- * shifts anything.
+ * hovering raises the survey card over the cell, clicking jumps to the
+ * staple's section.
  *
  * Two views of the one grid, and the reader picks. The relief is the default
  * everywhere, including phones; the flat ridgeline is a click away in the
@@ -205,13 +202,10 @@ export function TerrainHero({
   }, [showScene]);
 
   const w = weatherOverride ?? clamp01(weather);
-  // A live hover outranks the pin; the pin keeps the readout when the pointer
-  // leaves, which is what makes a click feel like it held something.
+  // A live hover outranks the pin; the pin keeps the watermark's highlight
+  // when the pointer leaves, which is what makes a click feel like it held
+  // something.
   const shown = hovered ?? selected;
-  const cell = grid && shown ? findCell(grid, shown) : null;
-  // A crossing with no price is still a thing the reader pointed at, and the
-  // readout owes them an answer rather than the axis blurb it shows at rest.
-  const gap = grid && shown && !cell ? findGap(grid, shown) : null;
 
   // The fallback layout: the figure needs its width stated, since as a
   // shrink-to-fit flex item it would collapse around the svg's minimum.
@@ -308,58 +302,10 @@ export function TerrainHero({
         </p>
       )}
 
-      {/* The readout, pinned to the scene's bottom edge as a paper chip.
-          Anchored by its bottom so a wrapped line grows upward into the
-          scene instead of shifting anything. */}
-      <div className="pointer-events-none absolute inset-x-0 bottom-0 z-20 flex min-h-[46px] items-end justify-between gap-4 px-5 pb-4 sm:px-8">
-        <p
-          aria-live="polite"
-          className="border border-line bg-paper/85 px-2.5 py-1.5 text-[12.5px] backdrop-blur-[2px]"
-        >
-          {cell ? (
-            <>
-              <span className="font-medium">{cell.storeName}</span>
-              <span className="text-mute"> · </span>
-              {cell.label}
-              <span className="text-mute"> · </span>
-              <span className="font-mono text-[12px]">
-                {formatMoney(cell.unitPrice.amount, cell.unitPrice.currency)}
-              </span>{" "}
-              <span className="font-mono text-[10.5px] text-mute">
-                {formatBasis(cell.unitPriceBasis)}
-              </span>
-              <span className="text-mute"> · </span>
-              <span className={cell.cheapest ? "text-live" : "text-mute"}>
-                {cell.cheapest ? "the cheapest shelf" : `${cell.ratio.toFixed(1)}x the cheapest`}
-              </span>
-            </>
-          ) : gap ? (
-            /* Same three fields a priced cell fills, with the third one saying
-               there is nothing to put there. No reason given: the grid drops a
-               pin before it becomes a cell and never learns why, and the
-               staple's section below names every excluded pin in full. */
-            <>
-              <span className="font-medium">{gap.storeName}</span>
-              <span className="text-mute"> · </span>
-              {gap.label}
-              <span className="text-mute"> · </span>
-              <span className="text-mute">{GAP_READING}</span>
-            </>
-          ) : (
-            /* The axes are named here because nothing else names them any
-               more: the store labels are down until one is pointed at, and a
-               reader who never reaches for the landscape should still know
-               what its floor is measuring. Worded to hold for both views --
-               the staples run into depth in the relief and down the page in
-               the flat one, but either way there is one to a row. */
-            <span className="text-mute">
-              Stores across, one staple to a row; height is how many times the cheapest store prices
-              that staple, and the gold mark is a staple&apos;s cheapest shelf. Hover to read a
-              price; click to open the staple below.
-            </span>
-          )}
-        </p>
-
+      {/* The scene's bottom bar holds only chrome now -- the readout chip
+          that lived on the left retired when the survey card started saying
+          everything it said, closer to the pointer. */}
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 z-20 flex min-h-[46px] items-end justify-end gap-4 px-5 pb-4 sm:px-8">
         <div className="flex shrink-0 items-center gap-2">
           {showScene && controls ? (
             /* The camera's own buttons, in the same quiet chrome as the view

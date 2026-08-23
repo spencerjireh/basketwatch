@@ -1,1 +1,0 @@
-The Basketwatch mark: a price line that breaks where data is missing, ending in a green live dot, above the wordmark "basketwatch."
