@@ -3,14 +3,16 @@ import { describe, expect, it } from "vitest";
 import { STUDIO_FAILURE } from "./studio-failure.js";
 
 describe("STUDIO_FAILURE", () => {
-  it("heals exactly one kind of failure", () => {
-    // A heal rewrites the extraction template. Everything else on this list is
-    // a real failure that a template rewrite cannot repair, so healing it
-    // spends a credit changing the one thing that was not wrong.
+  it("heals the two kinds a template rewrite can repair", () => {
+    // A heal rewrites the extraction template. `broken` is fields that moved;
+    // `empty` is a collector that ran cleanly and extracted nothing -- dead
+    // selectors, the same disease. Timeouts, missing URLs and missing
+    // collectors are real failures a rewrite cannot repair, so healing them
+    // would spend a credit changing the one thing that was not wrong.
     const healable = Object.entries(STUDIO_FAILURE)
       .filter(([, policy]) => policy.autoHeal)
       .map(([kind]) => kind);
-    expect(healable).toEqual(["broken"]);
+    expect(healable).toEqual(["broken", "empty"]);
   });
 
   it("gives every kind an incident kind the contract knows", () => {
