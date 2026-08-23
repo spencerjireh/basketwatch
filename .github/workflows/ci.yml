@@ -1,7 +1,17 @@
-# The PR gate: the same list as `just check`, plus prettier. Turbo's ^build
-# dependency builds @basketwatch/contract before typecheck/lint/test, so there
-# is no separate build-first step. Tests are pure vitest -- no database, no
-# service containers.
+# The PR gate, three jobs:
+#
+#   check       the same list as `just check`, plus prettier. Turbo's ^build
+#               dependency builds @basketwatch/contract before
+#               typecheck/lint/test, so there is no separate build-first step.
+#               Tests are pure vitest -- no database.
+#   migrations  applies every migration in apps/api/drizzle to a throwaway
+#               Postgres. The migrations are hand-written (drizzle-kit
+#               generate is broken -- see apps/api/drizzle/meta), and prod
+#               auto-deploys on a main merge, so this is the only place a
+#               broken migration can fail before it fails in prod.
+#   docker      builds the prod images from the same Dockerfiles Coolify
+#               uses. `pnpm build` on the runner host does not prove the
+#               images build.
 name: CI
 
 on:
@@ -39,3 +49,70 @@ jobs:
       - run: pnpm build
         env:
           NEXT_TELEMETRY_DISABLED: "1"
+
+  migrations:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        # Same image as docker-compose.{dev,prod}.yml, so the SQL is proven
+        # against the engine version prod actually runs.
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: basketwatch
+          POSTGRES_PASSWORD: basketwatch
+          POSTGRES_DB: basketwatch
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U basketwatch"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      # migrate, not generate: generate's snapshot chain is broken and the
+      # migrations are written by hand. Applying from an empty database is the
+      # check -- it proves the SQL runs and the journal is complete. localhost
+      # passes drizzle.config.ts's remote-database guard.
+      - run: pnpm db:migrate
+        env:
+          DATABASE_URL: postgres://basketwatch:basketwatch@localhost:5432/basketwatch
+
+  docker:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - app: api
+            build-args: ""
+          - app: web
+            # Build-time, same value as docker-compose.prod.yml: Next bakes
+            # rewrites() into the routes manifest during `next build`.
+            build-args: API_INTERNAL_URL=http://api:3001
+          - app: pantry
+            build-args: ""
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: docker/setup-buildx-action@v3
+
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: apps/${{ matrix.app }}/Dockerfile
+          push: false
+          build-args: ${{ matrix.build-args }}
+          cache-from: type=gha,scope=${{ matrix.app }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.app }}
