@@ -54,11 +54,9 @@ export function IndexPanorama({ series }: { series: BasketSeries[] }) {
 
   // A store whose sum dwarfs the basket demands an axis that flattens every
   // other line into the floor -- one 16x import store and the chart becomes a
-  // portrait of it. Past the cap the store is named under the chart instead of
-  // drawn on it, the same trade the dot-plot's exclusions make: named rather
-  // than silently dropped, and never allowed to set the scale.
+  // portrait of it. Past the cap the store is left off the chart and never
+  // allowed to set the scale.
   const drawnStores = stores.filter((s) => storeRatio(s, points) <= CHART_CAP);
-  const offChart = stores.filter((s) => storeRatio(s, points) > CHART_CAP);
 
   // The y domain covers every drawn value: the basket and the drawn store
   // sums, partial days included -- a clipped point would look like a missing
@@ -454,32 +452,6 @@ export function IndexPanorama({ series }: { series: BasketSeries[] }) {
           "Hatched span: days we could not price every staple. Ringed dot: the day a heal closed the gap. Thin lines: each store's own sum over what it priced -- a hollow point is a partial day."
         )}
       </p>
-
-      {/*
-       * The honest caption for a chart with one reading on it. Drawing a wide
-       * empty axis and leaving the reader to infer why implies missing history;
-       * saying when tracking began implies nothing, because it is the fact.
-       */}
-      <p className="mt-1 font-mono text-[10.5px] text-mute">
-        {readings <= 1
-          ? `Tracking began ${formatDay(points[0]?.date ?? "")}. One reading so far; the line starts at two.`
-          : `${readings} readings since ${formatDay(points[0]?.date ?? "")}. A break in the line is a day we could not price the whole basket.`}
-      </p>
-
-      {offChart.length > 0 ? (
-        <p className="mt-1 font-mono text-[10.5px] text-mute">
-          {"Not drawn: "}
-          {offChart
-            .map((store) => {
-              const latest = store.points.findLast((p) => p.total !== null);
-              return latest && latest.total !== null
-                ? `${store.storeName} at ${formatMoney(latest.total, active.currency)}`
-                : store.storeName;
-            })
-            .join(", ")}
-          {" -- the axis such a sum demands would flatten every other line."}
-        </p>
-      ) : null}
 
       {/* The keyboard's crosshair: the same days, as real buttons. */}
       <ul className="sr-only">
