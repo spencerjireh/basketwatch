@@ -14,10 +14,11 @@ BACKUP_DIR := env_var('HOME') / "basketwatch-backups"
 default:
     @just --list --unsorted
 
-# DATABASE_URL is forced local below. Without it the API inherits the repo-root
-# .env, which points at PRODUCTION -- harmless while nothing writes, and not
-# harmless the day ingest lands. To use prod data, do it deliberately:
-#   DATABASE_URL=... pnpm dev
+# DATABASE_URL is still passed inline below, even though the root .env now
+# points at the local database too. Belt and braces: these recipes should not
+# depend on what .env happens to hold today. To use prod data, name the file
+# that has it:
+#   set -a; . ./.env.prod; set +a; pnpm dev
 
 # Contract watch + API on :3001 + dashboard on :3000 (local database)
 dev:
@@ -54,9 +55,9 @@ up:
 down:
     docker compose -f docker-compose.dev.yml down
 
-# DATABASE_URL is inline on purpose. The repo-root .env points at PRODUCTION,
-# and drizzle.config.ts refuses a non-local host -- so without this, the honest
-# first attempt is the one that gets refused. Make the safe path the easy one.
+# DATABASE_URL is inline on purpose, so these never depend on .env contents.
+# drizzle.config.ts also refuses a non-local host unless ALLOW_REMOTE_DB=1,
+# which is the second lock on the same door.
 
 # Apply migrations to the LOCAL database
 db-migrate:
@@ -82,20 +83,25 @@ db-backup:
     #!/usr/bin/env bash
     set -euo pipefail
 
-    if [ ! -f .env ]; then
-        echo "error: no .env at the repo root. Copy .env.example and set DATABASE_URL." >&2
+    # .env.prod, not .env: the root .env points at the LOCAL database, so that
+    # a command run without thinking hits localhost. Reaching production is the
+    # thing that has to be deliberate, and naming a second file is that act.
+    if [ ! -f .env.prod ]; then
+        echo "error: no .env.prod at the repo root." >&2
+        echo "       It holds the deployed DATABASE_URL and POSTGRES_PASSWORD," >&2
+        echo "       and is gitignored. See .env.example and docs/deploy.md." >&2
         exit 1
     fi
 
     # cut -f2-, not -f2: the password may contain '='.
-    url="$(grep -E '^DATABASE_URL=' .env | tail -n1 | cut -d= -f2- | sed -e 's/^"//' -e 's/"$//')"
+    url="$(grep -E '^DATABASE_URL=' .env.prod | tail -n1 | cut -d= -f2- | sed -e 's/^"//' -e 's/"$//')"
     if [ -z "$url" ]; then
-        echo "error: no DATABASE_URL in .env. See .env.example." >&2
+        echo "error: no DATABASE_URL in .env.prod. See .env.example." >&2
         exit 1
     fi
 
-    # This recipe exists to protect PRODUCTION. A local dump filed under the
-    # same name as a real one is worse than an error, so refuse outright.
+    # Belt and braces now that .env.prod is a separate file: a local dump filed
+    # under the same name as a real one is worse than an error, so refuse.
     case "$url" in
         *@localhost:*|*@127.0.0.1:*)
             echo "error: DATABASE_URL points at the local database -- there is nothing here worth backing up." >&2

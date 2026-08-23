@@ -77,18 +77,38 @@ keeps only a short snapshot and points here.
   closes C7).
 - **Data is in prod.** 19 stores, 28,378 products, 28,376 price observations,
   340 basket pins, 21 items. Real history is two days, Aug 19-20, holding 30
-  actual price moves. Nothing writes to it on a schedule yet.
+  actual price moves. **The schedule has in fact been running since Aug 21** --
+  see the correction below.
 - **The read path landed Aug 20.** Every dashboard route answers from Postgres
   and the fixtures are deleted. The basket index reads as an as-of query over
   change-only history, and a day missing any core item totals `null` — the gap
   the chart draws rather than interpolating across.
-- **The puller engine landed Aug 21**, ported from `catalogue.py`. Its schedule
-  ships **disarmed**: nothing pulls until the team arms
-  `PULL_SCHEDULE_ENABLED`. On-demand runs work now, dry or wet.
+- **The puller engine landed Aug 21**, ported from `catalogue.py`.
+- **The schedule was never actually disarmed** (found Aug 23). `PULL_SCHEDULE_ENABLED`
+  was read with `z.coerce.boolean()`, which is `Boolean(v)` -- and `Boolean("false")`
+  is `true`. Prod compose passes `${PULL_SCHEDULE_ENABLED:-false}`, always a
+  non-empty string, so every deploy armed the 06:00 UTC cron. It fired on Aug 21
+  and Aug 22, writing 32 runs with `trigger = 'cron'`. Flags are read as words
+  now (`true/1/yes/on`), with a test for the exact case that fooled us. The
+  schedule is **deliberately left on**, set in Coolify rather than by accident.
+- **Manual and scheduled pulls are one path** (Aug 23). A wet
+  `POST /api/pullers/:storeId/run` enqueues onto the same queue the cron uses
+  and answers with a job id; only a dry run still executes inline. Validation is
+  enqueued by the run itself rather than by whoever was watching the dashboard.
 - **Heal phases 1-2 landed Aug 22** (PRs #20, #21, #24): `modules/heal/` holds
   the orchestrator, code capture, Studio client, and manual endpoints
   (`/api/heal/:scraperId/*` — preview-prompt, status, trigger, approve,
-  reject, recover). Nothing triggers a heal automatically yet. The notifier
+  reject, recover). **Heals fire automatically** when a pull comes back broken,
+  gated by `HEAL_AUTO_ENABLED` (default on) and capped per scraper per day.
+- **The dashboard cannot spend anything** (Aug 23, PR #41). It had server
+  actions carrying `OPS_TOKEN`, on a page with no login. They are gone: reads
+  are public, writes need the token, and `apps/web` holds no secret at all.
+- **The heal story has its own page**, `/healing` (PR #46): fleet, activity,
+  incidents and every repair attempt with its prompt, diff, canary and cost.
+  `/behind` is provenance and data quality only.
+- **Studio failures are classified** (PR #42) into broken / timeout / empty /
+  no-urls / unprovisioned. Only `broken` auto-heals, because only a broken
+  extraction template is a thing a template rewrite can fix. The notifier
   module (email + telegram channels) exists with no callers. Migrations now
   run 0000-0005.
 - **Ingest is the open seam.** `POST /api/ingest/:scraperId` checks the

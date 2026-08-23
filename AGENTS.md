@@ -79,11 +79,16 @@ Run `just dev`, not an app's own dev script: the API depends on the contract
 package's watch build, and starting an app alone means contract edits stop
 propagating.
 
-**`DATABASE_URL` in the root `.env` points at the deployed database**, so a bare
-`pnpm db:migrate` would target production. `drizzle.config.ts` refuses a
-non-local host unless you pass `ALLOW_REMOTE_DB=1`. The `just db-*` recipes pass
-the local URL inline, which is the whole reason they exist. Migration `0000`
-must keep its exact bytes — see the README.
+**`DATABASE_URL` in the root `.env` points at the LOCAL database.** The deployed
+one lives in `.env.prod` and nothing loads it by default: `just db-backup` reads
+that file, and anything else pointed at production has to name it. The `just
+db-*` recipes still pass the local URL inline so they never depend on what
+`.env` happens to hold, and `drizzle.config.ts` still refuses a non-local host
+unless you pass `ALLOW_REMOTE_DB=1`. Migration `0000` must keep its exact bytes
+— see the README.
+
+To restore a production dump into the local database for testing:
+`just db-backup`, then `just db-restore-local <file>`.
 
 Deployment: root `docker-compose.prod.yml` is THE Coolify deployment unit
 (single Docker Compose resource watching `main`; secrets via Coolify env
@@ -102,10 +107,16 @@ Bright Data CLI (`brightdata`, v0.3.4+) drives Scraper Studio:
 
 ## Hard rules
 
-- **Never commit secrets.** One `.env` for the whole repo, at the repo **root**,
-  beside `.env.example` and the compose files. It is gitignored; keys live there
-  only, and there is no per-app copy. Never print API keys in output, code, or
-  the demo video.
+- **Never commit secrets.** Two files, both at the repo **root**, beside
+  `.env.example` and the compose files: `.env` for what you are working against
+  (local by default) and `.env.prod` for the deployed database, loaded only when
+  named. Both are gitignored. There is still no per-app copy — that rule is
+  about apps, not about these two. Never print API keys in output, code, or the
+  demo video.
+- **`OPS_TOKEN` belongs to the API alone.** The dashboard has no login, so a
+  token in the web container makes every visitor an operator on our credentials.
+  Prod compose passes it to `api` and not to `web`, turbo does not forward it to
+  the web dev server, and nothing under `apps/web` may read it.
 - **Credits are finite (~$50 per account, and the team has two separate
   accounts — see `docs/index.md`).** Never call the Bright Data CLI
   directly for anything that spends: go through the guarded wrapper,
