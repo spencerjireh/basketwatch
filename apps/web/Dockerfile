@@ -10,6 +10,7 @@ FROM base AS deps
 COPY pnpm-lock.yaml pnpm-workspace.yaml package.json .npmrc ./
 COPY apps/api/package.json apps/api/
 COPY apps/web/package.json apps/web/
+COPY apps/pantry/package.json apps/pantry/
 COPY packages/contract/package.json packages/contract/
 COPY packages/tsconfig/package.json packages/tsconfig/
 COPY packages/eslint-config/package.json packages/eslint-config/

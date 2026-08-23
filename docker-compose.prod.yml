@@ -124,5 +124,31 @@ services:
       api:
         condition: service_healthy
 
+  # Parker's Pantry: the disclosed clone store the scrapers get to break
+  # against. Dependency-free node:http server, two storefronts (/us, /ph).
+  # Served at pantry.spencerjireh.com -- a SINGLE-LEVEL subdomain, because the
+  # wildcard cert does not cover two-level names. Set domain AND port 3002 in
+  # the Coolify UI when switching this on; Coolify guesses the port wrong.
+  pantry:
+    build:
+      context: .
+      dockerfile: apps/pantry/Dockerfile
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: "3002"
+      # Guards the layout-mutation switch (POST /admin/layout). `:-` on
+      # purpose -- see the secrets note above. Unset means the switch answers
+      # 503 and the storefronts still serve.
+      ADMIN_TOKEN: ${PANTRY_ADMIN_TOKEN:-}
+      LAYOUT: ${PANTRY_LAYOUT:-a}
+    expose:
+      - "3002"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:3002/healthz || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+
 volumes:
   pgdata:

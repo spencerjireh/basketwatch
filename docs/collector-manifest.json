@@ -20,8 +20,17 @@
     "probeFindings": "Internal team notes. Structural knowledge from HTTP probing that informed the description. Never sent to Studio."
   },
   "_expectedFields": {
-    "required": ["name", "price", "url"],
-    "optional": ["currency", "in_stock", "category", "size"],
+    "required": [
+      "name",
+      "price",
+      "url"
+    ],
+    "optional": [
+      "currency",
+      "in_stock",
+      "category",
+      "size"
+    ],
     "note": "These are the fields studio.adapter.ts toRows() consumes. A canary passes if every row contains all required fields."
   },
   "stores": [
@@ -232,6 +241,32 @@
       "needsBrowser": false,
       "needsUnlocker": true,
       "indexContributor": true
+    },
+    {
+      "storeId": "clone-parkers-pantry-us",
+      "name": "Parker's Pantry (US)",
+      "country": "US",
+      "currency": "USD",
+      "method": "listing",
+      "endpoint": null,
+      "studioEndpoint": "https://pantry.spencerjireh.com/us",
+      "maxPages": 1,
+      "needsBrowser": false,
+      "needsUnlocker": false,
+      "indexContributor": false
+    },
+    {
+      "storeId": "clone-parkers-pantry-ph",
+      "name": "Parker's Pantry (PH)",
+      "country": "PH",
+      "currency": "PHP",
+      "method": "listing",
+      "endpoint": null,
+      "studioEndpoint": "https://pantry.spencerjireh.com/ph",
+      "maxPages": 1,
+      "needsBrowser": false,
+      "needsUnlocker": false,
+      "indexContributor": false
     }
   ],
   "collectors": [
@@ -378,6 +413,24 @@
       "template": "product-page",
       "maxUrls": 300,
       "probeFindings": "Client-rendered SPA (spa-opaque). 0 rows from HTTP, even through the Web Unlocker -- no price appears in raw HTML at all. No public API found; JS bundles reference private microservices (api.landers.ph, core-ms.landers.ph, Unbxd search). Studio with a real browser is the ONLY access path. 17,032 URLs in sitemap, 10/10 basket categories."
+    },
+    {
+      "storeId": "clone-parkers-pantry-us",
+      "name": "basketwatch-clone-parkers-pantry-us",
+      "seedUrl": "https://pantry.spencerjireh.com/us",
+      "description": "This is a small demo grocery storefront (Parker's Pantry). Extract every product from this listing page. For each product return: name (string), price (number in USD, shown like '$4.49'), currency ('USD'), url (the full product page URL, starting with https://pantry.spencerjireh.com/us/products/), size (the pack size string shown on the card, e.g. '12 ct', '5 lb', '1 gal', '48 fl oz'), in_stock (boolean). There are exactly 10 products, each rendered as a card that links to its own product page. Extract only the products visible on this page; do not follow links to other pages.",
+      "template": "listing-page",
+      "maxUrls": 1,
+      "probeFindings": "Our own disclosed clone store (apps/pantry). Layout A: .product-card cards, price in a .price span with data-sku, one string like $4.49. Layout B (the mutation switch): .item-tile cards, price split into .cost-whole/.cost-cents under data-testid=product-price. The heal-demo target; flip with `just pantry-layout us b`."
+    },
+    {
+      "storeId": "clone-parkers-pantry-ph",
+      "name": "basketwatch-clone-parkers-pantry-ph",
+      "seedUrl": "https://pantry.spencerjireh.com/ph",
+      "description": "This is a small demo grocery storefront (Parker's Pantry). Extract every product from this listing page. For each product return: name (string), price (number in PHP, shown like '₱260.00'), currency ('PHP'), url (the full product page URL, starting with https://pantry.spencerjireh.com/ph/products/), size (the pack size string shown on the card, e.g. '12 ct', '5 lb', '1 gal', '48 fl oz'), in_stock (boolean). There are exactly 10 products, each rendered as a card that links to its own product page. Extract only the products visible on this page; do not follow links to other pages.",
+      "template": "listing-page",
+      "maxUrls": 1,
+      "probeFindings": "Our own disclosed clone store (apps/pantry), PH twin of the US storefront: same markup and layout switch, prices in ₱. Flip with `just pantry-layout ph b`."
     }
   ]
 }

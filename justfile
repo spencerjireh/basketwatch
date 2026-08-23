@@ -186,3 +186,21 @@ guard *ARGS:
 # Remove build output and node_modules
 clean:
     pnpm clean
+
+# Flip a Parker's Pantry storefront layout to break (b) or restore (a) its
+# scraper on purpose. Needs PANTRY_ADMIN_TOKEN in the environment.
+#   just pantry-layout us b
+pantry-layout store layout:
+    curl -sS -X POST https://pantry.spencerjireh.com/admin/layout \
+        -H "X-Admin-Token: $PANTRY_ADMIN_TOKEN" \
+        -H "content-type: application/json" \
+        -d '{"store":"{{store}}","layout":"{{layout}}"}'
+
+# Flip whether a store's prices count toward the index. Retroactive: the index
+# filters on this flag at query time. Needs OPS_TOKEN in the environment.
+#   just index-contributor clone-parkers-pantry-ph true
+index-contributor store_id contrib:
+    curl -sS -X POST https://basketwatch.spencerjireh.com/api/fleet/{{store_id}}/index-contributor \
+        -H "Authorization: Bearer $OPS_TOKEN" \
+        -H "content-type: application/json" \
+        -d '{"contributor":{{contrib}}}'
