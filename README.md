@@ -21,30 +21,28 @@ data. The application layer (NestJS, Next.js, Postgres) exists to
 orchestrate, validate, and display what Scraper Studio produces.
 
 - **Live demo:** [basketwatch.spencerjireh.com](https://basketwatch.spencerjireh.com) — no login, no signup
-- **Demo video:** `TODO: paste YouTube link before submitting`
+- **Demo video:** [youtu.be/9L9E7pTpCWk](https://youtu.be/9L9E7pTpCWk)
 - **Parker's Pantry** (our disclosed test store): [US](https://pantry.spencerjireh.com/us) · [PH](https://pantry.spencerjireh.com/ph)
 
 ## What you are looking at
 
-<img src="docs/screenshots/prod-panorama.png" alt="The front-page price terrain: staple rows, store columns, height showing each store's price as a multiple of the cheapest." width="800">
+<img src="docs/screenshots/prod-ph-front.png" alt="The front page: a price terrain drawn from live shelf data, with staple rows, store columns, and height showing each store's price as a multiple of the cheapest." width="800">
 
 The front page draws a price terrain from live shelf data: rows are 15 staples
 (rice, eggs, chicken, and so on), columns are stores with the cheapest basket
 on the left, and height is each store's price as a multiple of the cheapest
-shelf for that staple. Hovering any point shows the receipt: the product, the
-price, and when it was scraped. One click switches the whole page between the
-United States and the Philippines.
-
-<img src="docs/screenshots/prod-receipt.png" alt="Hovering a terrain point shows the underlying product, price, and scrape time." width="800">
+shelf for that staple. Hovering any point shows the product, the price, and
+when it was scraped. One click switches the whole page between the United
+States and the Philippines.
 
 Each staple has a listing page with every store's price side by side, a
-cheapest-cart summary (the winning store per staple and the basket total if
-you buy each line at its winner), and the basket cost over time. Days where a
-price could not be collected render as gaps and hatched spans; missing data is
-never interpolated. The **Behind the data** page shows where every number came
-from and flags the prices we do not fully trust, including ones still feeding
-the front page. The **Prices** page is a raw search over the full catalogue of
-roughly 19,000 products.
+cheapest-cart summary, and the basket cost over time. Days where a price could
+not be collected render as gaps; missing data is never interpolated. The
+**Behind the data** page shows where every number came from and flags the
+prices we do not fully trust. The **Prices** page is a raw search over roughly
+19,000 products.
+
+<img src="docs/screenshots/prod-panorama.png" alt="The basket over time: each store's basket cost as a line, with hatched spans on days that could not be fully priced." width="800">
 
 ## The fleet
 
@@ -78,8 +76,6 @@ live Bright Data Scraper Studio collector IDs.
 | Sukli                  | US      | HTTP pull              | yes                     | Aug 23 (1,946)             |
 | Parker's Pantry (US)   | US      | HTTP pull              | never (disclosed clone) | on demand                  |
 | Parker's Pantry (PH)   | PH      | HTTP pull              | never (disclosed clone) | on demand                  |
-
-<img src="docs/screenshots/prod-ph-front.png" alt="The Philippines front page, built from the PH half of the fleet." width="800">
 
 ## How Bright Data Scraper Studio runs this
 
@@ -165,8 +161,8 @@ decisions — see [Scraper Studio usage](docs/scraper-studio-usage.md).
 <img src="docs/screenshots/prod-healing.png" alt="The Self-healing page: every store, its status, its last pull, and its open incidents." width="800">
 
 Parker's Pantry is a fictional grocery store we host ourselves, so the heal
-loop has a target we are allowed to break. To demonstrate the loop end to end,
-we flipped its storefront to an alternate layout:
+loop has a target we are allowed to break. We flipped its storefront to an
+alternate layout:
 
 1. The next pull returned zero rows and the system opened an incident.
 2. The heal loop fetched the broken page and asked Scraper Studio to refactor the
@@ -175,8 +171,8 @@ we flipped its storefront to an alternate layout:
 3. The fix was verified against a canary pull — ten rows, zero nulls — and
    the incident closed. No human intervened. Total cost: a few cents.
 
-Every step of the attempt is audited in the dashboard: the evidence, the
-generated recipe, the canary result, and the cost.
+Every step is audited in the dashboard: the evidence, the generated recipe,
+the canary result, and the cost.
 
 Full disclosure, because a price tracker must not launder fake data: Parker's
 Pantry prices are generated (a deterministic seeded walk of at most 1.5% per
@@ -184,11 +180,9 @@ day per product), both storefronts are labeled as fake, and they ship with
 `index_contributor = false`, so they render on the dashboard but never move
 the country index.
 
-<p>
-<img src="docs/screenshots/pantry-us.png" alt="Parker's Pantry US storefront." width="32%">
-<img src="docs/screenshots/pantry-ph.png" alt="Parker's Pantry PH storefront." width="32%">
-<img src="docs/screenshots/pantry-product.png" alt="A Parker's Pantry product page, the kind of page the collectors parse." width="32%">
-</p>
+More detail: [`docs/architecture.md`](docs/architecture.md) covers the system
+design; [`docs/api-contract.md`](docs/api-contract.md) covers the full API
+surface.
 
 ---
 
@@ -203,21 +197,19 @@ apps/pantry     Parker's Pantry, the disclosed clone store (see below).
 packages/contract   zod schemas and types. The only thing the two apps share.
 packages/tsconfig   base / library / nest / next compiler configs.
 packages/eslint-config  base / nest / next lint configs, incl. the import boundaries.
-docs/           design docs, the deploy runbook, the API contract.
+docs/           architecture, API contract, collector manifest, brand assets.
 ```
 
 Inside `apps/api/src`, `modules/` holds one directory per domain: `pullers`
 (Scraper Studio data pipeline), `heal` (self-healing orchestrator with
 auto-approve), `validator` (baseline checks and incident opening), `fleet`
-(provisioning and scraper state). The notifier module is scaffolded but not
-yet wired to a delivery channel.
+(provisioning and scraper state).
 
 ## Commands
 
 `just` is the entry point; run `just` on its own to list every recipe. Use
-`just dev` rather than an app's own dev script: the API depends on the contract
-package's watch build, and starting an app directly means contract edits stop
-propagating.
+`just dev` rather than an app's own dev script: the API depends on the
+contract package's watch build.
 
 ```sh
 pnpm install
@@ -229,10 +221,8 @@ just check          # typecheck, lint, test, build
 ## Database
 
 **`DATABASE_URL` in the repo-root `.env` points at the LOCAL database.** The
-deployed one lives in `.env.prod`, which nothing loads by default — `just
-db-backup` reads it, and otherwise you name it yourself. `drizzle.config.ts`
-still refuses any non-local host unless you opt in explicitly, which is the
-second lock on the same door:
+deployed one lives in `.env.prod`, which nothing loads by default.
+`drizzle.config.ts` refuses any non-local host unless you opt in explicitly:
 
 ```sh
 # local dev -- the recipe passes the local URL for you
@@ -242,55 +232,29 @@ just db-migrate
 ALLOW_REMOTE_DB=1 pnpm db:check
 ```
 
-`apps/api/src/database/schema.ts` and `apps/api/drizzle/` were carried over
-verbatim from the previous app, because they describe a live database holding
-real data. Migration `0000` must keep its exact bytes: drizzle decides what to
-apply from the journal's `when` timestamp, and re-running `0000` against
-production fails on `CREATE VIEW "latest_price"`, which is the one statement in
-that file without an `IF NOT EXISTS` guard.
+`apps/api/src/database/schema.ts` and `apps/api/drizzle/` describe a live
+database holding real data. Migration `0000` must keep its exact bytes:
+drizzle decides what to apply from the journal's `when` timestamp, and
+re-running `0000` against production fails on `CREATE VIEW "latest_price"`,
+the one statement in that file without an `IF NOT EXISTS` guard.
 
 ## Parker's Pantry, the disclosed test rig
 
-`apps/pantry` is a fictional grocery store we run ourselves at
-`pantry.spencerjireh.com`, with a US storefront (`/us`, USD) and a PH twin
-(`/ph`, PHP). It exists so the break-detect-heal loop has a target we can
-break on purpose, and so the comparison view keeps one source per country
-that cannot go down with a third-party site.
-
-Full disclosure, because a price tracker must not launder fake data:
-
-- Its prices are **generated**: a deterministic seeded walk of at most 1.5%
-  per day per product from fixed base prices. Same day, same price; no
-  storage involved.
-- Both stores ship with `index_contributor = false`, so they render on the
-  dashboard (marked as not counted) but never move the country index. Letting
-  one in is a deliberate ops action:
-  `POST /api/fleet/:storeId/index-contributor` (ops token), or
-  `just index-contributor clone-parkers-pantry-ph true`.
-- The break switch swaps the storefront markup between two layouts:
-  `just pantry-layout us b` breaks the US scraper's assumptions, `a` restores
-  them. Guarded by `PANTRY_ADMIN_TOKEN`.
-
-## Things that will bite you
-
-- **Do not run the API under `tsx`.** esbuild does not implement
-  `emitDecoratorMetadata`, so NestJS injection silently hands every provider
-  `undefined`. `pnpm dev` uses the real compiler for exactly this reason.
-- **Do not enable `@typescript-eslint/consistent-type-imports` for the API.** Its
-  autofix rewrites injected classes to `import type` and breaks DI the same way.
-- **`API_INTERNAL_URL` is a build-time value for the dashboard image.** Next
-  bakes `rewrites()` into the routes manifest during `next build`, so it is a
-  Docker build arg, not a runtime env var.
-- **Container healthchecks must use `127.0.0.1`, not `localhost`.** In the
-  container `localhost` resolves to `::1` first and the server binds IPv4.
-- `typescript` is pinned exactly. The latest major drops the decorator metadata
-  emit that NestJS needs.
+`apps/pantry` runs at `pantry.spencerjireh.com` with a US storefront (`/us`,
+USD) and a PH twin (`/ph`, PHP), so the break-detect-heal loop has a target
+we can break on purpose. Prices and disclosure are described above; letting a
+clone into the index is a deliberate ops action
+(`POST /api/fleet/:storeId/index-contributor`, ops token, or
+`just index-contributor clone-parkers-pantry-ph true`). The break switch
+swaps the storefront between two layouts: `just pantry-layout us b` breaks
+the US scraper's assumptions, `a` restores them. Guarded by
+`PANTRY_ADMIN_TOKEN`.
 
 ## The API seam
 
 Nest sets a global `api` prefix with no exclusions, and the dashboard rewrites
-`/api/:path*` straight through without stripping anything. The path is identical
-everywhere:
+`/api/:path*` straight through without stripping anything. The path is
+identical everywhere:
 
 | Where                  | URL                                       |
 | ---------------------- | ----------------------------------------- |
