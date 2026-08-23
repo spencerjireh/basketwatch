@@ -12,7 +12,7 @@ Built for the Bright Data x WeMakeDevs
 hackathon. NestJS, Next.js, Postgres, Bright Data Scraper Studio.
 
 - **Live demo:** [basketwatch.spencerjireh.com](https://basketwatch.spencerjireh.com) — no login, no signup
-- **Demo video:** `TODO: paste YouTube link before submitting`
+- **Demo video:** [youtu.be/9L9E7pTpCWk](https://youtu.be/9L9E7pTpCWk)
 - **Parker's Pantry** (our disclosed test store): [US](https://pantry.spencerjireh.com/us) · [PH](https://pantry.spencerjireh.com/ph)
 
 ## What you are looking at
