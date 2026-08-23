@@ -10,7 +10,8 @@ import { PullersRepository } from "./pullers.repository.js";
 import { PullersService } from "./pullers.service.js";
 
 /**
- * The TypeScript pullers, ported from lab/spencer-exploration/catalogue.py.
+ * The TypeScript pullers, ported from the Python exploration codebase that
+ * preceded this repo.
  *
  * Four adapters cover the sixteen pullable stores: shopify (10),
  * magento-graphql (1), sitemap (4, and sitemap-bounded maps onto it), and

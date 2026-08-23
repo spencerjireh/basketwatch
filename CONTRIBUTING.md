@@ -15,7 +15,7 @@ for three other reasons:
 
 - The diff stays reviewable after the fact. Judges score clean code, and "every
   change landed through a PR" is evidence we can point at.
-- `main` stays deployable. Root `docker-compose.prod.yml` is the Coolify
+- `main` stays deployable. Root `docker-compose.prod.yml` is the production
   deployment unit and auto-deploys on every push, so a broken `main` is a
   broken demo.
 - Reverting one merge commit is cheap. Untangling a direct push is not.
@@ -60,8 +60,8 @@ docs: ignore .obsidian vault state (per-machine UI files)
   purpose.
 - No secrets in the diff. `.env` is gitignored and stays that way.
 - No emojis, anywhere: code, docs, output, commit messages.
-- If the change touches the dashboard's fixtures or the API contract, both move
-  together: the fixtures are typed by the contract schemas. See AGENTS.md.
+- If the change touches the API contract, every consumer moves with it: both
+  apps are typed by the contract schemas. See AGENTS.md.
 
 ## Enforcement
 
@@ -85,14 +85,9 @@ on `main` with no PR behind it and has to go archaeology.
 
 ### The gap, stated plainly
 
-GitHub-side branch protection is **not available on this repo**. It is private
-on a Free plan, and both the rulesets and branch-protection APIs return 403
-("Upgrade to GitHub Pro or make this repository public"). So the local hook is
-the only enforcement that exists, and it only protects clones that ran the
+GitHub-side branch protection is **not enabled on this repo**, so the local
+hook is the enforcement that exists, and it only protects clones that ran the
 `core.hooksPath` command above.
-
-When the scrubbed public repo is split out for submission, real branch
-protection becomes free — turn it on there.
 
 ## Related
 

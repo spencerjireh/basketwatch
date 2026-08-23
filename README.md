@@ -14,6 +14,7 @@ hackathon. NestJS, Next.js, Postgres, Bright Data Scraper Studio.
 - **Live demo:** [basketwatch.spencerjireh.com](https://basketwatch.spencerjireh.com) — no login, no signup
 - **Demo video:** [youtu.be/9L9E7pTpCWk](https://youtu.be/9L9E7pTpCWk)
 - **Parker's Pantry** (our disclosed test store): [US](https://pantry.spencerjireh.com/us) · [PH](https://pantry.spencerjireh.com/ph)
+- **Docs:** [architecture](docs/architecture.md) · [API contract](docs/api-contract.md) · [collector manifest](docs/collector-manifest.json)
 
 ## What you are looking at
 
@@ -30,19 +31,20 @@ Each staple has a listing page with every store's price side by side, a
 cheapest-cart summary, and the basket cost over time. Days where a price could
 not be collected render as gaps; missing data is never interpolated. The
 **Behind the data** page shows where every number came from and flags the
-prices we do not fully trust. The **Prices** page is a raw search over roughly
-19,000 products.
+prices we do not fully trust. The **Prices** page is a raw search over more
+than 28,000 products.
 
 <img src="docs/screenshots/prod-panorama.png" alt="The basket over time: each store's basket cost as a line, with hatched spans on days that could not be fully priced." width="800">
 
 ## The fleet
 
-Sixteen real stores are registered across the United States and the
-Philippines, plus the two disclosed Parker's Pantry clones. In the 24 hours
-before this snapshot, 13 of the 16 returned fresh rows; the three that
-returned nothing have open incidents, visible on the
-[Self-healing](https://basketwatch.spencerjireh.com/healing) page rather than
-hidden.
+Nineteen real stores are registered across the United States and the
+Philippines, plus the two disclosed Parker's Pantry clones. Sixteen of them
+are actively pulled — the table below — and three sit registered but
+unscheduled. In the 24 hours before this snapshot, 13 of the 16 returned
+fresh rows; the three that returned nothing have open incidents, visible on
+the [Self-healing](https://basketwatch.spencerjireh.com/healing) page rather
+than hidden.
 
 Snapshot of `GET /api/fleet` on 2026-08-23 (UTC). The `c_*` values are the
 live Bright Data Scraper Studio collector IDs.

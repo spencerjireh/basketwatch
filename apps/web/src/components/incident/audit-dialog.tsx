@@ -105,7 +105,7 @@ export function AuditDialog({
               </div>
 
               <p className="mt-1 text-mute">Diagnosis</p>
-              <p>{attempt.claudeDiagnosis}</p>
+              <p>{attempt.diagnosis}</p>
 
               <p className="mt-1.5 text-mute">Prompt</p>
               <p>&ldquo;{attempt.healPrompt}&rdquo;</p>

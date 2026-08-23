@@ -22,7 +22,7 @@ import { toMoney } from "../../database/mappers/money.mapper.js";
  * Three filters, and each one is a decision rather than a convenience:
  * `status` keeps unresolved and out-of-stock pins out, `index_contributor`
  * keeps a store the team has not endorsed from moving the headline number, and
- * `tier = 'core'` fixes the basket at the ten staples the PRD names. Widening
+ * `tier = 'core'` fixes the basket at the fifteen core staples. Widening
  * any of them changes what the chart means, so they live in one place.
  */
 const PIN_FILTER = sql`

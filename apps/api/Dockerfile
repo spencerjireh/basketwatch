@@ -1,6 +1,6 @@
 # Build context: the repo root, which is also the workspace root.
 # Everything not excluded by .dockerignore is transferred and baked in by
-# the `COPY . .` below -- including .env and lab/ if that file is wrong.
+# the `COPY . .` below -- including .env if that file is wrong.
 FROM node:24-alpine AS base
 ENV PNPM_HOME="/pnpm" PATH="/pnpm:$PATH"
 # npm i -g rather than corepack: deterministic, and no corepack signature-key

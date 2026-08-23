@@ -16,7 +16,7 @@ const UNLOCKER_TIMEOUT_MS = 90_000;
 const UNLOCKER_API = "https://api.brightdata.com/request";
 const UNLOCKER_ZONE = "cli_unlocker";
 
-/** A browser-shaped UA: several of these stores refuse an obvious bot. */
+/** Standard browser headers: several of these stores serve degraded or empty pages to unidentified clients. */
 const HEADERS = {
   "user-agent":
     "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0 Safari/537.36",
@@ -42,11 +42,14 @@ export type FetchOptions = {
  * HTTP client for the puller adapters.
  *
  * When `useUnlocker` is set, requests are routed through Bright Data's Web
- * Unlocker API (`POST https://api.brightdata.com/request`), ensuring all data
- * flows through BD infrastructure. The Unlocker does not execute JavaScript --
- * browser-required stores continue using Studio.
+ * Unlocker API (`POST https://api.brightdata.com/request`), with a direct
+ * fetch as the fallback when the Unlocker errors or answers with an empty
+ * body -- a degraded pull beats a failed one, and the fallback logs a warning
+ * each time it is taken. The Unlocker does not execute JavaScript;
+ * browser-required stores use Studio.
  *
- * Ported from the Python `UnlockerFetcher` in `lab/spencer-exploration/basket.py`.
+ * Ported from the Python `UnlockerFetcher` in the exploration codebase that
+ * preceded this repo.
  */
 @Injectable()
 export class Fetcher {

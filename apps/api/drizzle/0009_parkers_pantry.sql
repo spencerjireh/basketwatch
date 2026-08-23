@@ -1,12 +1,12 @@
 -- Parker's Pantry: the disclosed clone store, one storefront per country.
 --
 -- Reference data, in the migration, for the same reason the items rows are
--- (0002): the deploy is Coolify pulling main and running compose, and there
--- is no step where a human runs a seed script. Two stores because the rig is
--- the comparison view's insurance policy -- if the real PH fleet wobbles
--- during judging, the PH side still has one source we control. Both launch
--- with index_contributor false: a fake store must not move the real index
--- unless someone deliberately flips it in (POST /api/fleet/:id/index-contributor).
+-- (0002): the deploy pulls main and runs compose, and there is no step where
+-- a human runs a seed script. Two stores so the comparison view keeps one
+-- always-up source per country that cannot go down with a third-party site.
+-- Both launch with index_contributor false: a fake store must not move the
+-- real index unless someone deliberately flips it in
+-- (POST /api/fleet/:id/index-contributor).
 --
 -- method 'listing' takes the Studio adapter's paginated-listing path with
 -- max_pages 1, so the collector sees exactly <studio_endpoint>?page=1.

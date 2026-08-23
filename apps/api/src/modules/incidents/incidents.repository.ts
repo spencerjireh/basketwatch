@@ -186,7 +186,7 @@ function toAttempt(row: AttemptRow): HealAttempt {
     attempt: row.attempt,
     startedAt: new Date(row.started_at).toISOString(),
     finishedAt: row.finished_at === null ? null : new Date(row.finished_at).toISOString(),
-    claudeDiagnosis: row.claude_diagnosis,
+    diagnosis: row.claude_diagnosis,
     healPrompt: row.heal_prompt,
     studioDiff: row.studio_diff,
     canary: canary.success ? canary.data : null,

@@ -1,5 +1,5 @@
 {
-  "_purpose": "Canonical registry of every pullable store and its Studio collector. This is the single source of truth for reproducing the entire fleet on any environment or Bright Data account. See docs/collector-runbook.md for the step-by-step setup procedure.",
+  "_purpose": "Canonical registry of every pullable store and its Studio collector. This is the single source of truth for reproducing the entire fleet on any environment or Bright Data account.",
   "_storeFields": {
     "storeId": "Primary key in the stores table",
     "name": "Human-readable store name",

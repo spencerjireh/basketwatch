@@ -45,7 +45,6 @@ export const envSchema = z.object({
 
   BRIGHTDATA_API_KEY: secret(),
   BRIGHTDATA_WEBHOOK_SECRET: secret(),
-  ANTHROPIC_API_KEY: secret(),
   RESEND_API_KEY: secret(),
   TELEGRAM_BOT_TOKEN: secret(),
   TELEGRAM_CHAT_ID: secret(),

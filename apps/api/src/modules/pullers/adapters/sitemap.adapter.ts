@@ -20,8 +20,8 @@ const MAX_SITEMAP_DEPTH = 2;
  * round trips for 400 products, against 250 products per call on Shopify -- so
  * URLs are ranked before any is fetched and the ceiling is a hard stop.
  *
- * When `needs_unlocker` is set, all requests route through Bright Data's Web
- * Unlocker.
+ * When `needs_unlocker` is set, requests route through Bright Data's Web
+ * Unlocker, with a direct fetch as the fallback when the Unlocker fails.
  */
 @Injectable()
 export class SitemapAdapter implements Puller {

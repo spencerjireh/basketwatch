@@ -89,7 +89,7 @@ db-backup:
     if [ ! -f .env.prod ]; then
         echo "error: no .env.prod at the repo root." >&2
         echo "       It holds the deployed DATABASE_URL and POSTGRES_PASSWORD," >&2
-        echo "       and is gitignored. See .env.example and docs/deploy.md." >&2
+        echo "       and is gitignored. See .env.example." >&2
         exit 1
     fi
 
@@ -105,7 +105,7 @@ db-backup:
     case "$url" in
         *@localhost:*|*@127.0.0.1:*)
             echo "error: DATABASE_URL points at the local database -- there is nothing here worth backing up." >&2
-            echo "       Point it at the deployed database and run this again. See docs/deploy.md." >&2
+            echo "       Point it at the deployed database and run this again." >&2
             exit 1
             ;;
     esac

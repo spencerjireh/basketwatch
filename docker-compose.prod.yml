@@ -3,7 +3,6 @@
 # Secrets come from Coolify-managed env vars; nothing secret belongs in here.
 #
 # All four services (postgres, api, web, pantry) deploy on every push to main.
-# See docs/deploy.md for the full runbook.
 name: basketwatch-prod
 
 services:
@@ -70,7 +69,6 @@ services:
       OPS_TOKEN: ${OPS_TOKEN:-}
       BRIGHTDATA_API_KEY: ${BRIGHTDATA_API_KEY:-}
       BRIGHTDATA_WEBHOOK_SECRET: ${BRIGHTDATA_WEBHOOK_SECRET:-}
-      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
       RESEND_API_KEY: ${RESEND_API_KEY:-}
       TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN:-}
       TELEGRAM_CHAT_ID: ${TELEGRAM_CHAT_ID:-}
