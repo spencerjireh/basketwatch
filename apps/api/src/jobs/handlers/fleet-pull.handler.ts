@@ -86,6 +86,11 @@ export class FleetPullHandler implements OnApplicationBootstrap {
           // The store id is the singleton key, so a slow store cannot have two
           // runs in flight and double-write its own history.
           singletonKey: storeId,
+          // A Studio pull can legitimately run ~14 minutes (discovery + the
+          // CLI's 12-minute deadline), which outlives pg-boss's default
+          // 15-minute job expiration -- and an expired-but-alive pull being
+          // retried means two concurrent pulls of the same store.
+          expireInSeconds: 1800,
           retryLimit: 2,
           retryDelay: 300,
           retryBackoff: true,
