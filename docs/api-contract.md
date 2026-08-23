@@ -70,6 +70,13 @@ has no login, so anything it renders has to be reachable without a secret.
 `country` is optional on the basket endpoints: omit it for every country, which
 is what the comparison view asks for.
 
+`BasketSeries` also carries an optional `stores` array — per-store daily sums
+(index contributors only, at index quantities), each store's points parallel to
+the series' own. A store's partial day still totals and is flagged by
+`pricedItems < expectedItems`, where the country total nulls instead: the
+basket's number claims the whole basket, a store's line claims only what that
+store charged for what it had.
+
 `Incident` is deliberately a fat response — evidence and every heal attempt
 travel with it, so the audit view renders from one request instead of three.
 
