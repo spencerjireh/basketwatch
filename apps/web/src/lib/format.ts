@@ -48,6 +48,26 @@ export function formatMoney(amount: number, currency: string): string {
   return formatter.format(amount);
 }
 
+const axisFormatters = new Map<string, Intl.NumberFormat>();
+
+/**
+ * Money for an axis tick: whole units only. A gridline labelled $44.12 spends
+ * its precision where nobody reads it -- the exact figure belongs to the
+ * point's own label and the readout, not the ruler.
+ */
+export function formatMoneyAxis(amount: number, currency: string): string {
+  let formatter = axisFormatters.get(currency);
+  if (!formatter) {
+    formatter = new Intl.NumberFormat(LOCALE, {
+      style: "currency",
+      currency,
+      maximumFractionDigits: 0,
+    });
+    axisFormatters.set(currency, formatter);
+  }
+  return formatter.format(amount);
+}
+
 const NUMBER_WORDS = [
   "no",
   "one",
@@ -62,9 +82,12 @@ const NUMBER_WORDS = [
   "ten",
   "eleven",
   "twelve",
+  "thirteen",
+  "fourteen",
+  "fifteen",
 ];
 
-/** Small counts read as words in a sentence; past twelve, digits are kinder. */
+/** Small counts read as words in a sentence; past fifteen, digits are kinder. */
 export function spellNumber(value: number): string {
   return NUMBER_WORDS[value] ?? String(value);
 }

@@ -8,7 +8,7 @@ export const metadata = {
 /**
  * The catalogue.
  *
- * The basket is ten curated staples; this is the other 28,000 rows behind them.
+ * The basket is fifteen curated staples; this is the other 28,000 rows behind them.
  * Nothing else in the product reaches them, and a price tracker you cannot look
  * a product up in is not a price tracker.
  */

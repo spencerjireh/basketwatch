@@ -34,6 +34,36 @@ export const basketPointSchema = z.object({
 export type BasketPoint = z.infer<typeof basketPointSchema>;
 
 /**
+ * One day of one store's own sum, over the staples it priced that day.
+ *
+ * Unlike the basket total, a partial day still totals. The basket nulls a day
+ * missing any staple because its number claims to be the whole basket; a
+ * store's line claims only "what this store charged for what it had", and
+ * gapping it would hide the store exactly when it is being flaky. The chart
+ * dims a point instead, and `pricedItems < expectedItems` is how it knows to.
+ */
+export const storePointSchema = z.object({
+  date: z.iso.date(),
+  /** sum of the store's prices at index quantities; null when it priced nothing */
+  total: z.number().nullable(),
+  pricedItems: z.number().int(),
+  expectedItems: z.number().int(),
+});
+export type StorePoint = z.infer<typeof storePointSchema>;
+
+/**
+ * One store's daily line. `points` is parallel to the series' own points
+ * array -- same dates, same order -- so a chart maps both onto one x axis
+ * without a join.
+ */
+export const storeSeriesSchema = z.object({
+  storeId: z.string(),
+  storeName: z.string(),
+  points: z.array(storePointSchema),
+});
+export type StoreSeries = z.infer<typeof storeSeriesSchema>;
+
+/**
  * GET /api/basket/index?country=US
  *
  * One series per country. Currencies are never mixed within a series, which is
@@ -44,6 +74,11 @@ export const basketSeriesSchema = z.object({
   country: countrySchema,
   currency: currencyCodeSchema,
   points: z.array(basketPointSchema),
+  /**
+   * Per-store daily sums, index contributors only. Optional so the api and
+   * web deploys need not land in one breath; the repository always fills it.
+   */
+  stores: z.array(storeSeriesSchema).optional(),
 });
 export type BasketSeries = z.infer<typeof basketSeriesSchema>;
 
@@ -158,7 +193,7 @@ export const basketRailsResponseSchema = z.array(railSchema);
 export type BasketRailsResponse = z.infer<typeof basketRailsResponseSchema>;
 
 /**
- * Rails default to the ten core items, which are the ones the basket totals.
+ * Rails default to the core items, which are the ones the basket totals.
  * The quality worklist asks for core and stretch, because a mispin on a stretch
  * item is exactly as wrong -- it is just not in the headline number.
  */

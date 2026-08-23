@@ -891,11 +891,17 @@ function Rig({
         testPoints.push([cx - KERNEL_RX * 0.6, apex * 0.55, cz]);
       }
     });
+    // The readout chip owns the bottom band of the frame, so the nearest rows
+    // must end above it. At ten staples the old rig cleared it by luck; at
+    // fifteen the front row ran under the chip and took its label with it.
+    // The extra distance scales with depth, so the ten-staple framing is the
+    // same as it ever was and only a deeper basket pulls further back.
+    const clear = 1 + Math.max(0, d - 11) * 0.012;
     const placeBase = () => {
       base.current.position.set(
         centroidX + w * 0.02 + shiftX,
-        (8.2 + d * 0.56) * fit,
-        (d / 2 + 11.8 + w * 0.34) * fit,
+        (8.2 + d * 0.56) * fit * clear,
+        (d / 2 + 11.8 + w * 0.34) * fit * clear,
       );
       base.current.target.set(centroidX + shiftX, 0.8, -d * 0.1);
     };

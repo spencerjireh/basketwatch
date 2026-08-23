@@ -6,7 +6,7 @@ import {
 } from "@basketwatch/contract";
 import { BasketExplorer } from "@/components/basket/basket-explorer";
 import { CheapestCart } from "@/components/basket/cheapest-cart";
-import { IndexStrip } from "@/components/basket/index-strip";
+import { IndexPanorama } from "@/components/basket/index-panorama";
 import { CountryLink } from "@/components/country/country";
 import { Section } from "@/components/ui/section";
 import { apiGet } from "@/lib/api/server";
@@ -20,8 +20,10 @@ import { apiGet } from "@/lib/api/server";
  * section at the bottom. Its headline and its flat twin belong to the client
  * boundary, because both answer to the country switcher.
  *
- * What is server-rendered here is the mid band: the answer a shopper actually
- * came for, the cheapest cart, and then what the basket has done over time.
+ * What is server-rendered here is the mid band -- the answer a shopper
+ * actually came for, the cheapest cart, at full width -- and the tail: the
+ * basket's history as a panorama, sitting under the staple evidence where its
+ * scars and heals close the page's argument rather than crowding its opening.
  */
 /**
  * Rendered per request, with the API call cached for 60 seconds.
@@ -45,29 +47,34 @@ export default async function Page() {
     apiGet(routes.basketRails, basketRailsResponseSchema, 60),
   ]);
 
-  // One band, two columns: the receipt on the left, the history filling the
-  // paper the old stacked layout left dead on the right.
+  // The receipt takes the full width of the band. Its old flatmate, the time
+  // strip, pushed both into columns whose heights never agreed; the receipt's
+  // own two-column-and-rail layout fills the paper that pairing left dead.
   const midBand = (
-    <div className="mt-14 grid grid-cols-1 gap-x-16 gap-y-14 lg:grid-cols-[minmax(0,420px)_minmax(0,1fr)]">
-      <Section
-        title="The cheapest cart"
-        caption="The winning store for each staple, and what the whole basket costs if you buy every line at its winner."
-      >
-        <CheapestCart items={basketItems} index={basketIndex} />
-      </Section>
+    <Section
+      className="mt-14"
+      title="The cheapest cart"
+      caption="The winning store for each staple, and what the whole basket costs if you buy every line at its winner."
+    >
+      <CheapestCart items={basketItems} index={basketIndex} />
+    </Section>
+  );
 
-      <Section
-        title="The basket over time"
-        caption="A gap is a day we could not price every staple, drawn as a gap rather than guessed across."
-      >
-        <IndexStrip series={basketIndex} />
-      </Section>
-    </div>
+  // The history closes the argument instead of opening it: after the staple
+  // evidence, before the methodology, drawn wide with every store's own line.
+  const tail = (
+    <Section
+      className="mt-14"
+      title="The basket over time"
+      caption="A gap is a day we could not price every staple, drawn as a gap rather than guessed across."
+    >
+      <IndexPanorama series={basketIndex} />
+    </Section>
   );
 
   return (
     <main className="min-h-screen w-full pb-24">
-      <BasketExplorer rails={rails} midBand={midBand} />
+      <BasketExplorer rails={rails} midBand={midBand} tail={tail} />
 
       <div className="mx-auto w-full max-w-[1240px] px-5">
         <Section
