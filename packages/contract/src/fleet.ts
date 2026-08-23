@@ -31,3 +31,16 @@ export type FleetScraper = z.infer<typeof fleetScraperSchema>;
 
 export const fleetResponseSchema = z.array(fleetScraperSchema);
 export type FleetResponse = z.infer<typeof fleetResponseSchema>;
+
+/**
+ * POST /api/fleet/:storeId/index-contributor
+ *
+ * Flip whether a store's prices count toward the country index. The index
+ * filters on stores.index_contributor at query time, so the flip is
+ * retroactive over the store's whole history -- built for the clone stores,
+ * which launch excluded and join only by an explicit operator decision.
+ */
+export const indexContributorBodySchema = z.object({
+  contributor: z.boolean(),
+});
+export type IndexContributorBody = z.infer<typeof indexContributorBodySchema>;

@@ -34,4 +34,6 @@ export const routes = {
   healTrigger: (scraperId: string) => `/api/heal/${scraperId}/trigger`,
   healApprove: (scraperId: string) => `/api/heal/${scraperId}/approve`,
   healReject: (scraperId: string) => `/api/heal/${scraperId}/reject`,
+  /** Write. Ops token: flips whether a store counts toward the index. */
+  fleetIndexContributor: (storeId: string) => `/api/fleet/${storeId}/index-contributor`,
 } as const;

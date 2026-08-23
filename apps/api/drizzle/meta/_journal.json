@@ -64,6 +64,13 @@
       "when": 1787691600002,
       "tag": "0008_studio_endpoint",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1787691600003,
+      "tag": "0009_parkers_pantry",
+      "breakpoints": true
     }
   ]
 }
