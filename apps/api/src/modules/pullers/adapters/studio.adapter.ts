@@ -53,8 +53,15 @@ export class StudioError extends Error {
   }
 }
 
-/** An attempt count in the CLI's own polling loop, not seconds. */
-const POLL_ATTEMPTS = 60;
+/**
+ * An attempt count in the CLI's own polling loop, not seconds; polls are
+ * ~10s apart. Sixty gave up at ~10.5 minutes, which a 300-URL product-page
+ * batch legitimately outlives (ph-shopsuki, 2026-08-23: the batch was still
+ * collecting when the CLI quit, so a paid run was recorded as an error).
+ * 150 polls is ~25 minutes plus the 2-minute buffer -- inside the 1800s
+ * scrape-run job expiry.
+ */
+const POLL_ATTEMPTS = 150;
 const HARD_DEADLINE_MS = POLL_ATTEMPTS * 10_000 + 120_000;
 
 type StudioRow = Record<string, unknown>;
