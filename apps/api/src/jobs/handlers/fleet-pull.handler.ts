@@ -39,25 +39,31 @@ export class FleetPullHandler implements OnApplicationBootstrap {
       await this.fanOut();
     });
 
-    await this.boss.work<ScrapeRunJob>(
-      QUEUES.scrapeRun,
-      async (jobs) => {
-        for (const job of jobs) {
-          // The ops API enqueues onto this same queue, so the job says which
-          // it was and the run row records it honestly.
-          await this.pullers.runStore(job.data.storeId, {
-            dryRun: false,
-            trigger: job.data.trigger ?? "cron",
-            healAttemptId: job.data.healAttemptId,
-          });
-          // Validation is enqueued by runStore itself now -- it is part of
-          // finishing a run, not something the caller has to remember.
-        }
-      },
-      // One store at a time, and never the same store twice at once: a pull
-      // that outruns the next tick must not race its own writes.
-      { batchSize: 1 },
-    );
+    const handleScrapeRun = async (jobs: { data: ScrapeRunJob }[]): Promise<void> => {
+      for (const job of jobs) {
+        // The ops API enqueues onto this same queue, so the job says which
+        // it was and the run row records it honestly.
+        await this.pullers.runStore(job.data.storeId, {
+          dryRun: false,
+          trigger: job.data.trigger ?? "cron",
+          healAttemptId: job.data.healAttemptId,
+        });
+        // Validation is enqueued by runStore itself now -- it is part of
+        // finishing a run, not something the caller has to remember.
+      }
+    };
+
+    // N independent workers, one job each: pg-boss 11 has no teamSize, and a
+    // batchSize above 1 completes or fails the whole batch atomically, so
+    // separate registrations are the safe route to parallel stores. The
+    // same-store invariant does not live here -- singletonKey is decorative
+    // on standard queues; the controller's hasPendingPull check is the guard.
+    // Different stores in parallel are safe: adapter and fetcher are
+    // stateless and each pull works in its own mkdtemp.
+    const concurrency = this.config.get("SCRAPE_CONCURRENCY", { infer: true });
+    for (let i = 0; i < concurrency; i += 1) {
+      await this.boss.work<ScrapeRunJob>(QUEUES.scrapeRun, handleScrapeRun, { batchSize: 1 });
+    }
 
     const enabled = this.config.get("PULL_SCHEDULE_ENABLED", { infer: true });
     const cron = this.config.get("PULL_SCHEDULE_CRON", { infer: true });

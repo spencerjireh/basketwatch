@@ -78,6 +78,20 @@
       "when": 1787691600004,
       "tag": "0010_basket_fifteen",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1787691600005,
+      "tag": "0011_product_page_fleet",
+      "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1787691600006,
+      "tag": "0012_local_harvest",
+      "breakpoints": true
     }
   ]
 }

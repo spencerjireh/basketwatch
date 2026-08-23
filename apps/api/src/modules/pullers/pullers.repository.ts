@@ -5,6 +5,7 @@ import { DRIZZLE } from "../../database/database.tokens.js";
 import { type Db } from "../../database/database.module.js";
 import { type PriceChange } from "./diff.js";
 import { type PulledRow, type PullerConfig } from "./puller.types.js";
+import { type StapleMatchRule } from "./adapters/staples.js";
 
 type StoreRow = {
   store_id: string;
@@ -83,6 +84,25 @@ export class PullersRepository {
         } satisfies PullerConfig,
       ];
     });
+  }
+
+  /**
+   * Match rules for the basket staples, straight from items.match jsonb.
+   * Core tier only: the filter's job is to keep pulls cheap, and the index
+   * prices exactly the core fifteen. Match rules are data, never code.
+   */
+  async stapleMatchRules(): Promise<StapleMatchRule[]> {
+    const rows = (await this.db.execute(sql`
+      select match from items where tier = 'core' and match is not null
+    `)) as unknown as {
+      match: { must?: string[]; must_by_country?: Record<string, string[]>; exclude?: string[] };
+    }[];
+
+    return rows.map(({ match }) => ({
+      must: match.must ?? [],
+      mustByCountry: match.must_by_country,
+      exclude: match.exclude ?? [],
+    }));
   }
 
   /** The last known price per product, which is what `diff` compares against. */

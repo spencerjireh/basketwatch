@@ -113,8 +113,11 @@ async function meter() {
     /* metering must never be the reason an action fails */
   }
 
-  // Use the direct API for balance: it returns pending_costs which the
-  // CLI's `budget balance` ignores. Net available = balance - pending.
+  // Use the direct API for balance. Its `balance` field already nets out
+  // pending_costs (verified against the dashboard on Aug 23: deposits minus
+  // pending equals this field exactly), so subtracting pending again
+  // double-counts and reported us ~$29 poorer than we were. Pending is kept
+  // as an FYI only; the dashboard's Balance card remains the authority.
   const apiKey = process.env.BRIGHTDATA_API_KEY;
   if (apiKey) {
     try {
@@ -125,7 +128,7 @@ async function meter() {
         const data = await res.json();
         const gross = Number(data.balance ?? NaN);
         pendingUsd = Number(data.pending_costs ?? 0);
-        balanceUsd = Number.isNaN(gross) ? null : Number((gross - pendingUsd).toFixed(2));
+        balanceUsd = Number.isNaN(gross) ? null : Number(gross.toFixed(2));
       }
     } catch {
       /* fall through to CLI */
