@@ -7,6 +7,125 @@ from a fleet of scrapers; when one breaks, the index line stops rather than
 interpolating over the missing days, and a heal loop repairs the scraper with
 the whole attempt audited.
 
+Built for the Bright Data x WeMakeDevs
+[Into the Scrape-Verse](https://www.wemakedevs.org/hackathons/scrape-verse)
+hackathon. NestJS, Next.js, Postgres, Bright Data Scraper Studio.
+
+- **Live demo:** [basketwatch.spencerjireh.com](https://basketwatch.spencerjireh.com) — no login, no signup
+- **Demo video:** `TODO: paste YouTube link before submitting`
+- **Parker's Pantry** (our disclosed test store): [US](https://pantry.spencerjireh.com/us) · [PH](https://pantry.spencerjireh.com/ph)
+
+## What you are looking at
+
+<img src="docs/screenshots/prod-panorama.png" alt="The front-page price terrain: staple rows, store columns, height showing each store's price as a multiple of the cheapest." width="800">
+
+The front page draws a price terrain from live shelf data: rows are 15 staples
+(rice, eggs, chicken, and so on), columns are stores with the cheapest basket
+on the left, and height is each store's price as a multiple of the cheapest
+shelf for that staple. Hovering any point shows the receipt: the product, the
+price, and when it was scraped. One click switches the whole page between the
+United States and the Philippines.
+
+<img src="docs/screenshots/prod-receipt.png" alt="Hovering a terrain point shows the underlying product, price, and scrape time." width="800">
+
+Each staple has a listing page with every store's price side by side, a
+cheapest-cart summary (the winning store per staple and the basket total if
+you buy each line at its winner), and the basket cost over time. Days where a
+price could not be collected render as gaps and hatched spans; missing data is
+never interpolated. The **Behind the data** page shows where every number came
+from and flags the prices we do not fully trust, including ones still feeding
+the front page. The **Prices** page is a raw search over the full catalogue of
+roughly 19,000 products.
+
+## The fleet
+
+Sixteen real stores are registered across the United States and the
+Philippines, plus the two disclosed Parker's Pantry clones. In the 24 hours
+before this snapshot, 13 of the 16 returned fresh rows; the three that
+returned nothing have open incidents, visible on the
+[Self-healing](https://basketwatch.spencerjireh.com/healing) page rather than
+hidden.
+
+Snapshot of `GET /api/fleet` on 2026-08-23 (UTC). The `c_*` values are the
+live Bright Data Scraper Studio collector IDs.
+
+| Store | Country | Studio collector | In the index | Last pull (rows) |
+| --- | --- | --- | --- | --- |
+| Ever Supermarket | PH | HTTP pull | yes | Aug 23 (6,962) |
+| Shop Gaisano | PH | HTTP pull | yes | Aug 23 (65) |
+| Shop Suki | PH | `c_mt5q0jzi18h73rtbha` | yes | Aug 23 (291) |
+| SM Markets | PH | `c_mt5adrno248hml4trg` | yes | Aug 23 (0 — incident open) |
+| Landers Superstore | PH | `c_mt5bbos7onya4mufc` | yes | Aug 23 (0 — incident open) |
+| MerryMart Wholesale | PH | `c_mt5afb93oof2430yg` | yes | Aug 23 (0 — incident open) |
+| Amigo Foods | US | `c_mt5sf35quefc5u6s8` | yes | Aug 23 (168) |
+| Cypress Indian Grocery | US | `c_mt5sf1hn2gm0alggzg` | yes | Aug 23 (167) |
+| Dierbergs | US | `c_mt5bcgh01q3exw9das` | no | Aug 23 (389) |
+| H Mart | US | `c_mt5ahmtdb7c4qmkkf` | no | Aug 23 (1) |
+| Kesar Grocery | US | `c_mt5ag34x28n7do143j` | yes | Aug 23 (296) |
+| Latimex Market | US | `c_mt5sf4te2nl1om58n6` | yes | Aug 23 (92) |
+| Lili Mart | US | `c_mt5si8vp2cd0f03mfp` | yes | Aug 23 (122) |
+| MexGrocer | US | `c_mt5siakh3td7a3dk1` | yes | Aug 23 (95) |
+| MexMax | US | HTTP pull | yes | Aug 23 (142) |
+| Sukli | US | HTTP pull | yes | Aug 23 (1,946) |
+| Parker's Pantry (US) | US | HTTP pull | never (disclosed clone) | on demand |
+| Parker's Pantry (PH) | PH | HTTP pull | never (disclosed clone) | on demand |
+
+<img src="docs/screenshots/prod-ph-front.png" alt="The Philippines front page, built from the PH half of the fleet." width="800">
+
+## How Bright Data Scraper Studio runs this
+
+Scraper Studio is the collection layer, not an add-on:
+
+- **Twelve stores run as Studio collectors** (the `c_*` IDs above). Four
+  Shopify-style sites expose a machine-readable catalogue and are pulled over
+  plain HTTP instead. Requests route through Web Unlocker for the sites that
+  block scraping.
+- **Collectors parse product pages, not listings.** A staple filter selects
+  which product URLs to fetch, which cuts each pull 10-20x, so a full-store
+  pull costs cents in credits.
+- **The heal loop repairs collectors through Studio.** When a store changes
+  its layout, the loop sends the broken page to Studio's refactor API, which
+  rewrites the collector's extraction recipe in place. Studio is the mechanism
+  of self-healing, not only of ingestion.
+- **The fleet is reproducible.** [`docs/collector-manifest.json`](docs/collector-manifest.json)
+  registers every store and the exact seed URL and instruction used to create
+  its collector; [`docs/collector-runbook.md`](docs/collector-runbook.md) is
+  the step-by-step procedure to rebuild the fleet on any Bright Data account.
+
+## The self-healing loop, demonstrated
+
+<img src="docs/screenshots/prod-healing.png" alt="The Self-healing page: every store, its status, its last pull, and its open incidents." width="800">
+
+Parker's Pantry is a fictional grocery store we host ourselves, so the heal
+loop has a target we are allowed to break. To demonstrate the loop end to end,
+we flipped its storefront to an alternate layout:
+
+1. The next pull returned zero rows and the system opened an incident.
+2. The heal loop fetched the broken page and asked Studio to refactor the
+   collector. The redesign had split the price into two elements; the new
+   recipe stitched it back together.
+3. The fix was verified against a canary pull — ten rows, zero nulls — and
+   the incident closed. No human intervened. Total cost: about four cents.
+
+Every step of the attempt is audited in the dashboard: the evidence, the
+generated recipe, the canary result, and the cost.
+
+Full disclosure, because a price tracker must not launder fake data: Parker's
+Pantry prices are generated (a deterministic seeded walk of at most 1.5% per
+day per product), both storefronts are labeled as fake, and they ship with
+`index_contributor = false`, so they render on the dashboard but never move
+the country index.
+
+<p>
+<img src="docs/screenshots/pantry-us.png" alt="Parker's Pantry US storefront." width="32%">
+<img src="docs/screenshots/pantry-ph.png" alt="Parker's Pantry PH storefront." width="32%">
+<img src="docs/screenshots/pantry-product.png" alt="A Parker's Pantry product page, the kind of page the collectors parse." width="32%">
+</p>
+
+---
+
+# Development
+
 ## Layout
 
 ```
