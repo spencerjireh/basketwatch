@@ -10,6 +10,7 @@ import {
   type Rail,
   type RailFlag,
   type RailPin,
+  type StoreSeries,
 } from "@basketwatch/contract";
 import { DRIZZLE } from "../../database/database.tokens.js";
 import { type Db } from "../../database/database.module.js";
@@ -126,9 +127,22 @@ type TodayRow = {
 type IndexRow = {
   d: string;
   country: string;
+  /* null on basket rows; a store id marks a row of that store's own sum */
+  store_id: string | null;
+  store_name: string | null;
   priced: string;
   expected: string;
   missing: string[];
+  total: string | null;
+};
+
+/** One store-day off the wire, before densifying against the calendar. */
+export type StoreDayRow = {
+  store_id: string;
+  store_name: string;
+  d: string;
+  priced: string;
+  expected: string;
   total: string | null;
 };
 
@@ -230,7 +244,7 @@ export class BasketRepository {
       ),
       as_of as (
         select distinct on (cd.d, o.country, o.item_key, o.store_id, o.product_key)
-               cd.d, o.country, o.item_key, o.unit_price
+               cd.d, o.country, o.item_key, o.store_id, o.unit_price
         from country_days cd
         join obs o on o.country = cd.country and o.d <= cd.d
         order by cd.d, o.country, o.item_key, o.store_id, o.product_key, o.id desc
@@ -247,37 +261,89 @@ export class BasketRepository {
         cross join expected e
         left join cheapest c
           on c.d = cd.d and c.country = cd.country and c.item_key = e.item_key
+      ),
+      basket as (
+        select
+          d::text as d,
+          country,
+          count(*) filter (where unit_price is not null)::text as priced,
+          count(*)::text                                       as expected,
+          -- array_agg over an all-priced day returns NULL, not an empty array,
+          -- and the cast is what lets Postgres type the empty literal.
+          coalesce(
+            array_agg(item_key order by item_key) filter (where unit_price is null),
+            '{}'::text[]
+          ) as missing,
+          -- index_quantity is double precision. Without the cast the whole
+          -- product resolves to double precision and a float lands in the middle
+          -- of a money sum.
+          case
+            when count(*) filter (where unit_price is null) = 0
+            then sum(unit_price * index_quantity::numeric)::text
+            else null
+          end as total
+        from grid
+        group by 1, 2
+      ),
+      store_best as (
+        -- A store can hold two pins on one staple. Its price for the staple is
+        -- its own cheapest usable pin, the same rule "cheapest" applies
+        -- country-wide, so the store lines and the basket line disagree only
+        -- where the stores actually do.
+        select d, country, store_id, item_key, min(unit_price) as unit_price
+        from as_of
+        group by 1, 2, 3, 4
+      ),
+      store_days as (
+        -- Unlike the basket, a partial day still totals: the line claims only
+        -- what the store charged for what it had, and the priced count is how
+        -- the chart knows to dim it. Same ::numeric cast as the basket sum.
+        select sb.d, sb.country, sb.store_id, s.name as store_name,
+               count(*)::text as priced,
+               sum(sb.unit_price * e.index_quantity::numeric)::text as total
+        from store_best sb
+        join expected e on e.item_key = sb.item_key and e.index_quantity is not null
+        join stores s on s.store_id = sb.store_id
+        group by 1, 2, 3, 4
       )
-      select
-        d::text as d,
-        country,
-        count(*) filter (where unit_price is not null)::text as priced,
-        count(*)::text                                       as expected,
-        -- array_agg over an all-priced day returns NULL, not an empty array,
-        -- and the cast is what lets Postgres type the empty literal.
-        coalesce(
-          array_agg(item_key order by item_key) filter (where unit_price is null),
-          '{}'::text[]
-        ) as missing,
-        -- index_quantity is double precision. Without the cast the whole
-        -- product resolves to double precision and a float lands in the middle
-        -- of a money sum.
-        case
-          when count(*) filter (where unit_price is null) = 0
-          then sum(unit_price * index_quantity::numeric)::text
-          else null
-        end as total
-      from grid
-      group by 1, 2
-      order by country, d
+      -- Basket rows first per country (nulls first), each branch in ascending
+      -- date order -- annotate() reads the basket run as a single left-to-right
+      -- pass and must not meet a store row mid-stream. The store branch reuses
+      -- the basket's denominator so "9 of 15" means the same thing on any line.
+      select d, country, null as store_id, null as store_name,
+             priced, expected, missing, total
+      from basket
+      union all
+      select d::text as d, country, store_id, store_name,
+             priced, (select count(*) from expected)::text as expected,
+             '{}'::text[] as missing, total
+      from store_days
+      order by country, store_id nulls first, d
     `)) as unknown as IndexRow[];
 
     const incidents = await this.contributingIncidents(country);
     const byCountry = new Map<Country, BasketPoint[]>();
+    const storesByCountry = new Map<Country, StoreDayRow[]>();
 
     for (const row of rows) {
       const parsed = countrySchema.safeParse(row.country);
       if (!parsed.success) continue;
+
+      // A store id marks the row as one store's own day, kept aside until the
+      // country's calendar exists to densify against.
+      if (row.store_id !== null && row.store_name !== null) {
+        const days = storesByCountry.get(parsed.data) ?? [];
+        days.push({
+          store_id: row.store_id,
+          store_name: row.store_name,
+          d: row.d,
+          priced: row.priced,
+          expected: row.expected,
+          total: row.total,
+        });
+        storesByCountry.set(parsed.data, days);
+        continue;
+      }
 
       // The null is the product. A partial basket is not a cheaper basket, so a
       // day missing any core item scores no total at all and the chart draws the
@@ -298,7 +364,14 @@ export class BasketRepository {
     return [...byCountry].map(([seriesCountry, points]) => ({
       country: seriesCountry,
       currency: DEFAULT_CURRENCY_BY_COUNTRY[seriesCountry],
-      points: annotate(points, incidents.filter((i) => i.country === seriesCountry)),
+      points: annotate(
+        points,
+        incidents.filter((i) => i.country === seriesCountry),
+      ),
+      stores: buildStoreSeries(
+        points.map((p) => p.date),
+        storesByCountry.get(seriesCountry) ?? [],
+      ),
     }));
   }
 
@@ -589,6 +662,50 @@ function annotate(points: BasketPoint[], incidents: IncidentRow[]): BasketPoint[
     );
     return closed ? { ...point, healed: true } : point;
   });
+}
+
+/**
+ * Densify each store's day rows against the country's calendar.
+ *
+ * The SQL emits a store-day only where the store had a price, but the chart
+ * maps store points onto the basket's own x axis by array position, so every
+ * store series must carry every date. A day with no row becomes a null total
+ * with nothing priced -- absence, not zero. Exported and free of the class so
+ * it can be tested without a database.
+ */
+export function buildStoreSeries(dates: string[], rows: StoreDayRow[]): StoreSeries[] {
+  const byStore = new Map<string, { name: string; days: Map<string, StoreDayRow> }>();
+  for (const row of rows) {
+    const store = byStore.get(row.store_id) ?? { name: row.store_name, days: new Map() };
+    store.days.set(row.d, row);
+    byStore.set(row.store_id, store);
+  }
+
+  return (
+    [...byStore]
+      .map(([storeId, store]) => {
+        // The denominator rides on the store's own rows; a day the store is
+        // absent still shows the same expectation, not a shrunken one.
+        const expected = Number([...store.days.values()][0]?.expected ?? 0);
+        return {
+          storeId,
+          storeName: store.name,
+          points: dates.map((date) => {
+            const day = store.days.get(date);
+            return day
+              ? {
+                  date,
+                  total: day.total === null ? null : Number(day.total),
+                  pricedItems: Number(day.priced),
+                  expectedItems: expected,
+                }
+              : { date, total: null, pricedItems: 0, expectedItems: expected };
+          }),
+        };
+      })
+      // Map insertion order is SQL row order, which is not a contract.
+      .sort((a, b) => a.storeName.localeCompare(b.storeName))
+  );
 }
 
 /** Percent move against the previous observation; 0 means unchanged or first seen. */
