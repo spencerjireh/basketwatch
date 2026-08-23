@@ -27,8 +27,8 @@ export function AttemptHistory({
     return (
       <p className="max-w-[72ch] text-[13px] text-mute">
         No repairs yet. When a collector stops returning usable rows, the loop opens an incident,
-        sends Bright Data the evidence, and files what came back here — including the ones that
-        were rejected.
+        sends Bright Data the evidence, and files what came back here — including the ones that were
+        rejected.
       </p>
     );
   }
@@ -42,8 +42,8 @@ export function AttemptHistory({
         {attempts.length} attempt{attempts.length === 1 ? "" : "s"} across{" "}
         {incidents.filter((i) => i.attempts.length > 0).length} incident
         {incidents.filter((i) => i.attempts.length > 0).length === 1 ? "" : "s"}, costing{" "}
-        {formatMoney(total, currency)}. A rejected repair costs the same as an accepted one, so
-        both are here.
+        {formatMoney(total, currency)}. A rejected repair costs the same as an accepted one, so both
+        are here.
       </p>
 
       <ul className="mt-3 flex flex-col">

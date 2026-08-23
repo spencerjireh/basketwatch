@@ -19,7 +19,10 @@ export type StapleMatchRule = {
 
 /** Word tokens plus naive singulars, so "cubes" is caught by the term "cube". */
 function tokens(text: string): Set<string> {
-  const words = (text ?? "").toLowerCase().split(/[^a-z0-9]+/).filter(Boolean);
+  const words = (text ?? "")
+    .toLowerCase()
+    .split(/[^a-z0-9]+/)
+    .filter(Boolean);
   const out = new Set(words);
   for (const w of words) {
     if (w.length > 3 && w.endsWith("es")) out.add(w.slice(0, -2));
@@ -32,7 +35,10 @@ function tokens(text: string): Set<string> {
 export function termHits(term: string, text: string, toks: Set<string>): boolean {
   const t = term.replaceAll("-", " ").toLowerCase().trim();
   if (t.includes(" ")) {
-    const flat = (text ?? "").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+    const flat = (text ?? "")
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, " ")
+      .trim();
     return ` ${flat} `.includes(` ${t} `);
   }
   return toks.has(t) || (t.endsWith("s") && toks.has(t.slice(0, -1)));
@@ -41,7 +47,10 @@ export function termHits(term: string, text: string, toks: Set<string>): boolean
 /** The URL's last path segment as space-delimited words, padded for phrase matching. */
 export function slugWords(url: string): string {
   const seg = url.replace(/\/+$/, "").split("/").at(-1) ?? "";
-  return ` ${seg.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim()} `;
+  return ` ${seg
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, " ")
+    .trim()} `;
 }
 
 /**

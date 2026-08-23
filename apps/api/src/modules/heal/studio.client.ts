@@ -54,14 +54,11 @@ export class StudioClient {
   async proposeHeal(collectorId: string, prompt: string): Promise<HealProgressResult> {
     this.logger.log(`${collectorId}: triggering heal -- ${prompt.slice(0, 80)}...`);
 
-    const triggerRes = await fetch(
-      `${BD_API}/dca/collectors/${collectorId}/refactor_template`,
-      {
-        method: "POST",
-        headers: this.headers(),
-        body: JSON.stringify({ prompt }),
-      },
-    );
+    const triggerRes = await fetch(`${BD_API}/dca/collectors/${collectorId}/refactor_template`, {
+      method: "POST",
+      headers: this.headers(),
+      body: JSON.stringify({ prompt }),
+    });
 
     if (!triggerRes.ok) {
       const text = scrubSecrets(await triggerRes.text(), [this.apiKey ?? ""]);
@@ -87,10 +84,9 @@ export class StudioClient {
    * Used by the status endpoint for live polling from the frontend.
    */
   async checkProgress(collectorId: string): Promise<HealProgressResult> {
-    const res = await fetch(
-      `${BD_API}/dca/collectors/${collectorId}/refactor_template/progress`,
-      { headers: this.headers() },
-    );
+    const res = await fetch(`${BD_API}/dca/collectors/${collectorId}/refactor_template/progress`, {
+      headers: this.headers(),
+    });
 
     if (!res.ok) {
       const text = scrubSecrets(await res.text(), [this.apiKey ?? ""]);
@@ -106,7 +102,7 @@ export class StudioClient {
       };
     }
 
-    return this.parseProgress(await res.json() as Record<string, unknown>);
+    return this.parseProgress((await res.json()) as Record<string, unknown>);
   }
 
   private parseProgress(data: Record<string, unknown>): HealProgressResult {
@@ -170,14 +166,11 @@ export class StudioClient {
   async proposeHealAndWait(collectorId: string, prompt: string): Promise<HealProgressResult> {
     this.logger.log(`${collectorId}: triggering heal (blocking) -- ${prompt.slice(0, 80)}...`);
 
-    const triggerRes = await fetch(
-      `${BD_API}/dca/collectors/${collectorId}/refactor_template`,
-      {
-        method: "POST",
-        headers: this.headers(),
-        body: JSON.stringify({ prompt }),
-      },
-    );
+    const triggerRes = await fetch(`${BD_API}/dca/collectors/${collectorId}/refactor_template`, {
+      method: "POST",
+      headers: this.headers(),
+      body: JSON.stringify({ prompt }),
+    });
 
     if (!triggerRes.ok) {
       const text = scrubSecrets(await triggerRes.text(), [this.apiKey ?? ""]);
@@ -238,38 +231,28 @@ export class StudioClient {
   /** Approve the pending heal diff and save to production. */
   async approve(collectorId: string): Promise<void> {
     this.logger.log(`${collectorId}: approving heal`);
-    const res = await fetch(
-      `${BD_API}/dca/collectors/${collectorId}/resume_automation_job`,
-      {
-        method: "POST",
-        headers: this.headers(),
-        body: JSON.stringify({ message: true, auto_save: true }),
-      },
-    );
+    const res = await fetch(`${BD_API}/dca/collectors/${collectorId}/resume_automation_job`, {
+      method: "POST",
+      headers: this.headers(),
+      body: JSON.stringify({ message: true, auto_save: true }),
+    });
     if (!res.ok) {
       const text = scrubSecrets(await res.text(), [this.apiKey ?? ""]);
-      throw new StudioHealError(
-        `Failed to approve heal for ${collectorId}: ${res.status} ${text}`,
-      );
+      throw new StudioHealError(`Failed to approve heal for ${collectorId}: ${res.status} ${text}`);
     }
   }
 
   /** Reject the pending heal diff. Scraper stays unchanged. */
   async reject(collectorId: string): Promise<void> {
     this.logger.log(`${collectorId}: rejecting heal`);
-    const res = await fetch(
-      `${BD_API}/dca/collectors/${collectorId}/resume_automation_job`,
-      {
-        method: "POST",
-        headers: this.headers(),
-        body: JSON.stringify({ message: false }),
-      },
-    );
+    const res = await fetch(`${BD_API}/dca/collectors/${collectorId}/resume_automation_job`, {
+      method: "POST",
+      headers: this.headers(),
+      body: JSON.stringify({ message: false }),
+    });
     if (!res.ok) {
       const text = scrubSecrets(await res.text(), [this.apiKey ?? ""]);
-      throw new StudioHealError(
-        `Failed to reject heal for ${collectorId}: ${res.status} ${text}`,
-      );
+      throw new StudioHealError(`Failed to reject heal for ${collectorId}: ${res.status} ${text}`);
     }
   }
 }

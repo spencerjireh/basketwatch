@@ -7,17 +7,19 @@ import { checkResultSchema, incidentKindSchema } from "./vocabulary.js";
 // ---------------------------------------------------------------------------
 
 /** Incident context surfaced before the user triggers a heal. */
-const incidentContextSchema = z.object({
-  id: z.string(),
-  kind: incidentKindSchema,
-  openedAt: timestampSchema,
-  failedChecks: z.array(checkResultSchema),
-  fieldNullRates: z.record(z.string(), z.number()),
-  baselineNullRates: z.record(z.string(), z.number()),
-  sampleBadRows: z.array(z.unknown()),
-  rowCount: z.number().int(),
-  expectedRowCount: z.number().int(),
-}).nullable();
+const incidentContextSchema = z
+  .object({
+    id: z.string(),
+    kind: incidentKindSchema,
+    openedAt: timestampSchema,
+    failedChecks: z.array(checkResultSchema),
+    fieldNullRates: z.record(z.string(), z.number()),
+    baselineNullRates: z.record(z.string(), z.number()),
+    sampleBadRows: z.array(z.unknown()),
+    rowCount: z.number().int(),
+    expectedRowCount: z.number().int(),
+  })
+  .nullable();
 export type IncidentContext = z.infer<typeof incidentContextSchema>;
 
 /** One step of a scraper template (code + optional parse). */
@@ -64,11 +66,13 @@ export const healTriggerBodySchema = z.object({
 export type HealTriggerBody = z.infer<typeof healTriggerBodySchema>;
 
 /** Before/after diff returned by BD's refactor_template/progress. */
-export const healDiffSchema = z.object({
-  title: z.string(),
-  template_a: z.array(templateStepSchema),
-  template_b: z.array(templateStepSchema),
-}).nullable();
+export const healDiffSchema = z
+  .object({
+    title: z.string(),
+    template_a: z.array(templateStepSchema),
+    template_b: z.array(templateStepSchema),
+  })
+  .nullable();
 export type HealDiff = z.infer<typeof healDiffSchema>;
 
 export const healTriggerResponseSchema = z.object({

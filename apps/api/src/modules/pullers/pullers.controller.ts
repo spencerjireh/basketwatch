@@ -82,5 +82,4 @@ export class PullersController {
 
     return { status: jobId ? "queued" : "already_queued", storeId, jobId };
   }
-
 }

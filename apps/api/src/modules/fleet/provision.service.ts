@@ -100,10 +100,9 @@ export class ProvisionService {
       return { storeId, collectorId, status: "created" };
     } catch (err: unknown) {
       const stderr = (err as { stderr?: string }).stderr ?? "";
-      const message = scrubSecrets(
-        stderr || (err instanceof Error ? err.message : String(err)),
-        [this.apiKey],
-      );
+      const message = scrubSecrets(stderr || (err instanceof Error ? err.message : String(err)), [
+        this.apiKey,
+      ]);
       this.logger.error(`${storeId}: provision failed -- ${message}`);
       return { storeId, collectorId: null, status: "failed", error: message.slice(0, 500) };
     }
@@ -151,7 +150,9 @@ export class ProvisionService {
     ];
 
     // Never log args: args[1] is the API key when one is configured.
-    this.logger.log(`creating collector for ${entry.storeId}: brightdata scraper create ${entry.seedUrl}`);
+    this.logger.log(
+      `creating collector for ${entry.storeId}: brightdata scraper create ${entry.seedUrl}`,
+    );
 
     let stdout: string;
     let stderr: string;

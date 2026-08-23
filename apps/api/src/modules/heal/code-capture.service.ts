@@ -26,10 +26,7 @@ export class CodeCaptureService {
     this.logger.log(`${scraperId}: capturing code via heal-and-reject`);
 
     try {
-      const progress = await this.studio.proposeHealAndWait(
-        scraperId,
-        "Inspect current state",
-      );
+      const progress = await this.studio.proposeHealAndWait(scraperId, "Inspect current state");
 
       if (progress.status !== "pending_answer" || !progress.diff?.template_a) {
         this.logger.warn(
@@ -37,7 +34,9 @@ export class CodeCaptureService {
         );
         try {
           await this.studio.reject(scraperId);
-        } catch { /* best-effort */ }
+        } catch {
+          /* best-effort */
+        }
         return null;
       }
 

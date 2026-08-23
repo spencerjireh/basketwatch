@@ -155,7 +155,10 @@ export function TerrainHero({
       const rect = el.getBoundingClientRect();
       const next =
         rect.width > 10 && rect.height > 10
-          ? { right: Math.round(rect.right - heroRect.left), bottom: Math.round(rect.bottom - heroRect.top) }
+          ? {
+              right: Math.round(rect.right - heroRect.left),
+              bottom: Math.round(rect.bottom - heroRect.top),
+            }
           : null;
       // Same values, same object: the scene reframes on identity change.
       setOverlayBox((prev) =>

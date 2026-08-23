@@ -1,9 +1,4 @@
-import {
-  BadRequestException,
-  Injectable,
-  Logger,
-  NotFoundException,
-} from "@nestjs/common";
+import { BadRequestException, Injectable, Logger, NotFoundException } from "@nestjs/common";
 import {
   type CheckResult,
   type HealDecisionResponse,
@@ -166,7 +161,9 @@ export class HealOrchestrator {
       await this.repository
         .updateAttemptDiff(pending.attemptId, JSON.stringify(progress.diff))
         .catch((err: unknown) => {
-          this.logger.warn(`Failed to persist diff: ${err instanceof Error ? err.message : String(err)}`);
+          this.logger.warn(
+            `Failed to persist diff: ${err instanceof Error ? err.message : String(err)}`,
+          );
         });
     }
 
@@ -180,10 +177,14 @@ export class HealOrchestrator {
 
     const base: HealStatusResponse = {
       scraperId,
-      status: progress.status === "pending_answer" ? "pending_answer"
-        : progress.status === "error" ? "error"
-        : progress.status === "done" ? "idle"
-        : "running",
+      status:
+        progress.status === "pending_answer"
+          ? "pending_answer"
+          : progress.status === "error"
+            ? "error"
+            : progress.status === "done"
+              ? "idle"
+              : "running",
       attemptId: pending.attemptId,
       incidentId: pending.incidentId,
       step: progress.step,
@@ -231,9 +232,10 @@ export class HealOrchestrator {
     const incidentId = await this.ensureIncident(scraperId, scraper.store_id, findings);
     const attemptNumber = (await this.repository.attemptCount(incidentId)) + 1;
 
-    const diagnosis = findings.length > 0
-      ? findings.map((f) => `[${f.check}/${f.severity}] ${f.detail}`).join("; ")
-      : "Manual trigger";
+    const diagnosis =
+      findings.length > 0
+        ? findings.map((f) => `[${f.check}/${f.severity}] ${f.detail}`).join("; ")
+        : "Manual trigger";
 
     const attemptId = await this.repository.recordAttempt(
       incidentId,
@@ -242,9 +244,7 @@ export class HealOrchestrator {
       prompt,
     );
 
-    this.logger.log(
-      `${scraperId}: heal attempt ${attemptNumber} -- ${prompt.slice(0, 80)}...`,
-    );
+    this.logger.log(`${scraperId}: heal attempt ${attemptNumber} -- ${prompt.slice(0, 80)}...`);
 
     try {
       await this.studio.proposeHeal(scraperId, prompt);
@@ -336,7 +336,9 @@ export class HealOrchestrator {
           storedDiff = JSON.stringify(progress.diff);
           await this.repository.updateAttemptDiff(pending.attemptId, storedDiff);
         }
-      } catch { /* best-effort */ }
+      } catch {
+        /* best-effort */
+      }
     }
 
     const claimed = await this.repository.claimVerdict(pending.attemptId, "approved", storedDiff);
@@ -353,11 +355,16 @@ export class HealOrchestrator {
         const parsed = JSON.parse(storedDiff) as { template_b?: unknown };
         if (parsed.template_b) {
           await this.repository.saveTemplate(
-            scraperId, parsed.template_b, "heal_approved", pending.attemptId,
+            scraperId,
+            parsed.template_b,
+            "heal_approved",
+            pending.attemptId,
           );
           this.logger.log(`${scraperId}: template_b saved to scraper_templates`);
         }
-      } catch { /* diff not parseable, skip template save */ }
+      } catch {
+        /* diff not parseable, skip template save */
+      }
     }
 
     // An approval is a claim, not a proof. When the scraper has a store, the
@@ -469,9 +476,7 @@ export class HealOrchestrator {
 
   /** Judge a proposal at the approval gate: preview sample vs store baseline. */
   private async judge(job: HealPollJob, progress: HealProgressResult): Promise<void> {
-    const baseline = job.storeId
-      ? await this.validatorRepository.loadBaseline(job.storeId)
-      : null;
+    const baseline = job.storeId ? await this.validatorRepository.loadBaseline(job.storeId) : null;
     if (!baseline || baseline.expectedRowCount <= 0) {
       // Nothing to judge against. Leave the proposal at the gate for a person;
       // the dashboard shows it exactly as before this loop existed.
@@ -484,7 +489,10 @@ export class HealOrchestrator {
 
     const rows = normalizePreviewRows(progress.previewResult ?? []);
     const verdict = validateSample(rows, parsePreviewRow, baseline);
-    const summary = verdict.findings.map((f) => f.detail).join("; ").slice(0, 300);
+    const summary = verdict.findings
+      .map((f) => f.detail)
+      .join("; ")
+      .slice(0, 300);
 
     if (verdict.status !== "broken") {
       await this.studio.approve(job.scraperId);
@@ -547,11 +555,7 @@ export class HealOrchestrator {
    * itself cannot start), hold the incident for a person. The incident stays
    * 'healing' between machine attempts -- 'manual' is the terminal hold.
    */
-  private async reproposeOrHold(
-    scraperId: string,
-    incidentId: string,
-    why: string,
-  ): Promise<void> {
+  private async reproposeOrHold(scraperId: string, incidentId: string, why: string): Promise<void> {
     const attempts = await this.repository.attemptCount(incidentId);
     if (attempts >= this.budget.maxAttemptsPerIncident) {
       await this.repository.markIncidentManual(incidentId);
@@ -563,7 +567,8 @@ export class HealOrchestrator {
 
     try {
       const { prompt } = await this.resolvePrompt(scraperId, {});
-      const feedback = `${prompt ?? "The scraper has an open incident. Inspect and fix."}\n\n` +
+      const feedback =
+        `${prompt ?? "The scraper has an open incident. Inspect and fix."}\n\n` +
         `Note: ${why}. Propose a different fix.`;
       const result = await this.trigger(scraperId, { prompt: feedback.slice(0, 1500) });
       if (result.status === "error") {
@@ -618,9 +623,7 @@ export class HealOrchestrator {
       return;
     }
 
-    this.logger.warn(
-      `${attempt.scraperId}: canary failed (${canary.rows} rows, ${canary.status})`,
-    );
+    this.logger.warn(`${attempt.scraperId}: canary failed (${canary.rows} rows, ${canary.status})`);
     await this.reproposeOrHold(
       attempt.scraperId,
       attempt.incidentId,
@@ -655,11 +658,10 @@ export class HealOrchestrator {
 
   /** The next link in the chain. */
   private async requeuePoll(job: HealPollJob, errors: number): Promise<void> {
-    await this.boss.send(
-      QUEUES.healPoll,
-      { ...job, errors } satisfies HealPollJob,
-      { startAfter: POLL_INTERVAL_S, retryLimit: 0 },
-    );
+    await this.boss.send(QUEUES.healPoll, { ...job, errors } satisfies HealPollJob, {
+      startAfter: POLL_INTERVAL_S,
+      retryLimit: 0,
+    });
   }
 
   // -----------------------------------------------------------------------
@@ -672,9 +674,7 @@ export class HealOrchestrator {
 
     const progress = await this.studio.checkProgress(scraperId);
     if (progress.status !== "pending_answer" || !progress.diff) {
-      throw new BadRequestException(
-        "No orphaned heal found on Bright Data for this scraper.",
-      );
+      throw new BadRequestException("No orphaned heal found on Bright Data for this scraper.");
     }
 
     const storeId = scraper.store_id;
@@ -692,7 +692,9 @@ export class HealOrchestrator {
       await this.repository
         .updateAttemptDiff(attemptId, JSON.stringify(progress.diff))
         .catch((err: unknown) => {
-          this.logger.warn(`Failed to persist recovered diff: ${err instanceof Error ? err.message : String(err)}`);
+          this.logger.warn(
+            `Failed to persist recovered diff: ${err instanceof Error ? err.message : String(err)}`,
+          );
         });
     }
 

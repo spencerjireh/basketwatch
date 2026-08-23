@@ -6,7 +6,12 @@ import { promisify } from "node:util";
 import { Injectable, Logger } from "@nestjs/common";
 import { scrubSecrets } from "../../../common/scrub.js";
 import { Fetcher, type FetchOptions } from "../fetcher.js";
-import { type PullResult, type Puller, type PullerConfig, type PulledRow } from "../puller.types.js";
+import {
+  type PullResult,
+  type Puller,
+  type PullerConfig,
+  type PulledRow,
+} from "../puller.types.js";
 import { parseSize } from "../size.js";
 import { NO_SIZE, buildRow, siteOf } from "./row.js";
 import { parseSitemap, rankProductUrls } from "./sitemap.js";
@@ -229,10 +234,9 @@ export class StudioAdapter implements Puller {
       if (error instanceof StudioError) throw error;
       // execFile's message embeds the full command line, -k <key> included,
       // and this string fans out into evidence, prompts and API responses.
-      const detail = scrubSecrets(
-        error instanceof Error ? error.message : String(error),
-        [this.apiKey],
-      );
+      const detail = scrubSecrets(error instanceof Error ? error.message : String(error), [
+        this.apiKey,
+      ]);
       // execFile kills the child at `timeout` with SIGTERM and sets killed.
       // That is the only signal separating "ran out of time" from "broke",
       // and it was being discarded with the rest of the error object.
@@ -291,7 +295,10 @@ export class StudioAdapter implements Puller {
  * A size that is wrong produces a unit price that is wrong, and a wrong unit
  * price is worse than a missing one: it compares as if it were true.
  */
-function reconcileSize(collectorSize: string | null, name: string | null): string | null | typeof NO_SIZE {
+function reconcileSize(
+  collectorSize: string | null,
+  name: string | null,
+): string | null | typeof NO_SIZE {
   if (!collectorSize) return name;
   const fromCollector = parseSize(collectorSize);
   const fromName = parseSize(name ?? "");

@@ -1,6 +1,11 @@
 import { Injectable, Logger } from "@nestjs/common";
 import { Fetcher, type FetchOptions } from "../fetcher.js";
-import { type PullResult, type Puller, type PullerConfig, type PulledRow } from "../puller.types.js";
+import {
+  type PullResult,
+  type Puller,
+  type PullerConfig,
+  type PulledRow,
+} from "../puller.types.js";
 import { extractProduct } from "./product-page.js";
 import { parseSitemap, rankProductUrls } from "./sitemap.js";
 import { buildRow, siteOf } from "./row.js";
@@ -35,7 +40,9 @@ export class SitemapAdapter implements Puller {
 
     const { urls, pages: discoveryPages } = await this.discover(config.endpoint, fetchOpts);
     const ranked = rankProductUrls(urls).slice(0, config.maxPages);
-    this.logger.log(`${config.storeId}: ${urls.length} urls in the sitemap, ${ranked.length} worth fetching`);
+    this.logger.log(
+      `${config.storeId}: ${urls.length} urls in the sitemap, ${ranked.length} worth fetching`,
+    );
 
     const rows: PulledRow[] = [];
     let pages = discoveryPages;

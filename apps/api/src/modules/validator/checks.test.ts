@@ -1,6 +1,13 @@
 import { describe, expect, it } from "vitest";
 import { priceRecordSchema } from "@basketwatch/contract";
-import { checkDrift, checkNullRates, checkRowCount, checkSchema, validateRun, validateSample } from "./checks.js";
+import {
+  checkDrift,
+  checkNullRates,
+  checkRowCount,
+  checkSchema,
+  validateRun,
+  validateSample,
+} from "./checks.js";
 import { type Baseline } from "./checks.types.js";
 
 const parse = (row: unknown) => priceRecordSchema.safeParse(row).success;

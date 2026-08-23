@@ -40,7 +40,7 @@ lint:
 typecheck:
     pnpm typecheck
 
-# Everything CI would run, if there were CI
+# Everything CI runs -- .github/workflows/ci.yml is this list plus format:check
 check: typecheck lint test build
 
 # Prettier over apps/ and packages/ only -- see .prettierignore

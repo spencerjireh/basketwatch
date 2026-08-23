@@ -799,8 +799,7 @@ function Rig({
 
   const updateAtHome = () => {
     const home =
-      pan.current.length() < AT_HOME_PAN_EPS &&
-      Math.abs(distScale.current - 1) < AT_HOME_SCALE_EPS;
+      pan.current.length() < AT_HOME_PAN_EPS && Math.abs(distScale.current - 1) < AT_HOME_SCALE_EPS;
     if (home !== atHomeRef.current) {
       atHomeRef.current = home;
       onAtHomeChange?.(home);

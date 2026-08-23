@@ -27,7 +27,13 @@ const CATALOG = [
   { key: "milk-1g", name: "Whole Milk 1 gal", size: "1 gal", usd: 3.89, php: 340 },
   { key: "bread-loaf", name: "Classic White Bread 20 oz", size: "20 oz", usd: 2.79, php: 95 },
   { key: "rice-5lb", name: "Long Grain White Rice 5 lb", size: "5 lb", usd: 6.99, php: 310 },
-  { key: "coffee-12oz", name: "House Blend Ground Coffee 12 oz", size: "12 oz", usd: 9.49, php: 480 },
+  {
+    key: "coffee-12oz",
+    name: "House Blend Ground Coffee 12 oz",
+    size: "12 oz",
+    usd: 9.49,
+    php: 480,
+  },
   { key: "sugar-4lb", name: "Granulated Sugar 4 lb", size: "4 lb", usd: 3.59, php: 210 },
   { key: "chicken-lb", name: "Chicken Breast 1 lb", size: "1 lb", usd: 4.29, php: 200 },
   { key: "oil-48oz", name: "Vegetable Oil 48 fl oz", size: "48 fl oz", usd: 5.19, php: 290 },
@@ -145,8 +151,7 @@ const priceFor = (store, product) => {
   return store === "us" ? Math.round(price * 100) / 100 : Math.round(price);
 };
 
-const money = (store, value) =>
-  store === "us" ? `$${value.toFixed(2)}` : `₱${value.toFixed(2)}`;
+const money = (store, value) => (store === "us" ? `$${value.toFixed(2)}` : `₱${value.toFixed(2)}`);
 
 const productUrl = (store, key) => `${BASE_URL}/${store}/products/${key}`;
 
@@ -367,7 +372,8 @@ const server = createServer(async (req, res) => {
     }
     const { store, layout } = parsed;
     if (!(store in layouts)) return json(res, 400, { error: 'store must be "us" or "ph"' });
-    if (layout !== "a" && layout !== "b") return json(res, 400, { error: 'layout must be "a" or "b"' });
+    if (layout !== "a" && layout !== "b")
+      return json(res, 400, { error: 'layout must be "a" or "b"' });
     layouts[store] = layout;
     return json(res, 200, { ...layouts });
   }
