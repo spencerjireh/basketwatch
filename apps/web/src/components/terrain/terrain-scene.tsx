@@ -139,6 +139,10 @@ type SceneProps = {
   onAtHomeChange?: (atHome: boolean) => void;
   /** hands the hero the zoom/reset API; null again on unmount */
   onControls?: (api: TerrainControls | null) => void;
+  /** the headline's measured rectangle (right and bottom edges, px from the
+   * hero's top-left); the home framing keeps the massif out of exactly this
+   * box, not out of its whole column */
+  overlayBox?: { right: number; bottom: number } | null;
 };
 
 type WorldAnchor = {
@@ -276,6 +280,7 @@ export default function TerrainScene({
   onReady,
   onAtHomeChange,
   onControls,
+  overlayBox,
 }: SceneProps) {
   const [reduced, setReduced] = useState(false);
 
@@ -400,6 +405,7 @@ export default function TerrainScene({
           onDragStart={() => onHover(null)}
           onAtHomeChange={onAtHomeChange}
           onControls={onControls}
+          overlayBox={overlayBox ?? null}
         />
         <hemisphereLight args={["#fffdf6", "#d8cdb4", 0.55]} />
         {/* A low warm sun so the ridges catch rim light, and a cold faint
@@ -682,6 +688,7 @@ function Rig({
   onDragStart,
   onAtHomeChange,
   onControls,
+  overlayBox,
 }: {
   grid: TerrainGrid;
   anchors: WorldAnchor[];
@@ -691,6 +698,7 @@ function Rig({
   onDragStart?: () => void;
   onAtHomeChange?: (atHome: boolean) => void;
   onControls?: (api: TerrainControls | null) => void;
+  overlayBox: { right: number; bottom: number } | null;
 }) {
   const camera = useThree((state) => state.camera);
   const size = useThree((state) => state.size);
@@ -850,24 +858,39 @@ function Rig({
     const aspect = size.width / Math.max(1, size.height);
     let fit = Math.max(1, 1.05 / aspect, Math.min(1.35, 1.9 / aspect));
     const shiftX = -w * 0.08;
-    // The headline's column is a hard gutter now: at the home framing no
-    // part of the massif may stand under it. The gutter is horizontal only
-    // -- the far summits still graze the headline's descenders from below,
-    // the way a range crosses a map title; they just cannot cross into its
-    // column. Enforced by projection: shift the whole composition right
-    // until the slab's left flank clears the gutter line, and if that pushes
-    // the right flank off the frame, pull back and try again.
-    const gutterPx = size.width >= 640 ? Math.min(640, size.width * 0.55) + 32 : 0;
-    const gutterNdc = (gutterPx / size.width) * 2 - 1;
+    // The headline is a rectangle, not a column: the massif must stay out of
+    // the measured box the type actually occupies, and is welcome to all the
+    // paper under it -- a full-height gutter left half the frame dead. Every
+    // silhouette point that projects inside the box pushes the composition
+    // right by its own deficit, converted at its own view depth; if that
+    // shoves the right flank off the frame, pull back and compose again.
+    const GUTTER_MARGIN = 24;
+    const gutterOn = overlayBox !== null && size.width >= 640;
+    const gRight = gutterOn ? overlayBox.right + GUTTER_MARGIN : 0;
+    const gBottom = gutterOn ? overlayBox.bottom + GUTTER_MARGIN : 0;
     const sw = slabWidth(grid) / 2;
     const sd = slabDepth(grid) / 2;
-    const leftColX = storeX(grid, 0);
+    // The left silhouette, at its real heights: the slab's own left corners
+    // at ground level, and the two leftmost columns' actual apexes plus a
+    // mid-flank point each -- what can genuinely rise into the headline's
+    // box. The old version tested a full-height mast in column 0 whether or
+    // not anything stood that tall, and reserved space for a mountain that
+    // was not there.
     const testPoints: [number, number, number][] = [
       [-sw, 0, sd],
       [-sw, 0, -sd],
-      [leftColX, H_BASE + H_MAX, stapleZ(grid, 0)],
-      [leftColX, H_BASE + H_MAX, stapleZ(grid, grid.staples.length - 1)],
     ];
+    grid.cells.forEach((rowCells, row) => {
+      for (const col of [0, 1]) {
+        const cell = rowCells[col];
+        if (!cell) continue;
+        const apex = peakHeight(cell.height);
+        const cx = storeX(grid, col);
+        const cz = stapleZ(grid, row);
+        testPoints.push([cx, apex, cz]);
+        testPoints.push([cx - KERNEL_RX * 0.6, apex * 0.55, cz]);
+      }
+    });
     const placeBase = () => {
       base.current.position.set(
         centroidX + w * 0.02 + shiftX,
@@ -884,45 +907,48 @@ function Rig({
     };
     for (let pass = 0; pass < 4; pass += 1) {
       placeBase();
-      if (gutterPx <= 0) break;
+      if (!gutterOn) break;
       for (let iter = 0; iter < 4; iter += 1) {
         aimBase();
-        // The limiting point and its own view depth together: one NDC unit
+        // The worst offender and its own view depth together: one NDC unit
         // spans the frame's half-width at that depth, so converting the
         // deficit there -- not at the far-off target -- is what keeps the
         // shift from overshooting off the right edge.
-        let minX = Infinity;
-        let minDepth = 1;
+        let deficitPx = 0;
+        let depthAt = 1;
         for (const [x, y, z] of testPoints) {
-          const p = scratch.current.set(x, y, z).applyMatrix4(camera.matrixWorldInverse);
-          const depth = Math.max(0.1, -p.z);
-          const ndcX = scratch.current.set(x, y, z).project(camera).x;
-          if (ndcX < minX) {
-            minX = ndcX;
-            minDepth = depth;
+          const view = scratch.current.set(x, y, z).applyMatrix4(camera.matrixWorldInverse);
+          const depth = Math.max(0.1, -view.z);
+          const p = scratch.current.set(x, y, z).project(camera);
+          const xPx = ((p.x + 1) / 2) * size.width;
+          const yPx = ((1 - p.y) / 2) * size.height;
+          if (yPx >= gBottom || xPx >= gRight) continue;
+          const d = gRight - xPx;
+          if (d > deficitPx) {
+            deficitPx = d;
+            depthAt = depth;
           }
         }
-        const deficit = gutterNdc - minX;
-        if (deficit <= 0.005) break;
-        const worldPerNdc = minDepth * Math.tan((30 * Math.PI) / 360) * aspect;
-        base.current.position.x -= deficit * worldPerNdc;
-        base.current.target.x -= deficit * worldPerNdc;
+        if (deficitPx <= 2) break;
+        const worldPerNdc = depthAt * Math.tan((30 * Math.PI) / 360) * aspect;
+        const shift = (deficitPx / size.width) * 2 * worldPerNdc;
+        base.current.position.x -= shift;
+        base.current.target.x -= shift;
       }
       aimBase();
-      // If clearing the gutter shoved the right flank off the frame, the
+      // If clearing the headline shoved the right flank off the frame, the
       // slab simply does not fit at this distance: pull back in proportion
       // to the overflow and compose again.
       const rightX = scratch.current.set(sw, 0, sd).project(camera).x;
       if (rightX <= 0.98 || pass === 3) break;
-      const needed = (rightX - gutterNdc) / Math.max(0.05, 0.98 - gutterNdc);
-      fit *= Math.min(1.6, Math.max(1.08, needed));
+      fit *= Math.min(1.6, Math.max(1.08, (rightX + 1) / 1.98));
     }
     clampPan();
     fnsRef.current.applyCamera(clock.elapsedTime);
     fnsRef.current.updateAtHome();
     projectRef.current();
     invalidate();
-  }, [camera, size, grid, clock, invalidate]);
+  }, [camera, size, grid, clock, invalidate, overlayBox]);
 
   // The pointer only produces frames while the canvas is being pointed at;
   // each kick lets the easing below run itself quiet.

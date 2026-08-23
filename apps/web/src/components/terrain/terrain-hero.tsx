@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { ReactNode } from "react";
 import dynamic from "next/dynamic";
 import { formatBasis, formatMoney } from "@/lib/format";
@@ -141,6 +141,35 @@ export function TerrainHero({
   const [atHome, setAtHome] = useState(true);
   const [controls, setControls] = useState<TerrainControls | null>(null);
 
+  // The headline's real box, measured, so the scene can keep the massif out
+  // of exactly the rectangle the type occupies -- and no more. Reserving the
+  // whole column left the frame half paper.
+  const heroRef = useRef<HTMLDivElement>(null);
+  const overlayRef = useRef<HTMLDivElement>(null);
+  const [overlayBox, setOverlayBox] = useState<{ right: number; bottom: number } | null>(null);
+  useEffect(() => {
+    const measure = () => {
+      const hero = heroRef.current;
+      const el = overlayRef.current;
+      if (!hero || !el) return;
+      const heroRect = hero.getBoundingClientRect();
+      const rect = el.getBoundingClientRect();
+      const next =
+        rect.width > 10 && rect.height > 10
+          ? { right: Math.round(rect.right - heroRect.left), bottom: Math.round(rect.bottom - heroRect.top) }
+          : null;
+      // Same values, same object: the scene reframes on identity change.
+      setOverlayBox((prev) =>
+        prev?.right === next?.right && prev?.bottom === next?.bottom ? prev : next,
+      );
+    };
+    measure();
+    const observer = new ResizeObserver(measure);
+    if (heroRef.current) observer.observe(heroRef.current);
+    if (overlayRef.current) observer.observe(overlayRef.current);
+    return () => observer.disconnect();
+  }, []);
+
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     setWeatherOverride(parseWeatherOverride(params.get("weather")));
@@ -193,6 +222,7 @@ export function TerrainHero({
        tone here, so the massif dissolves into air instead of ending. Clear
        weather warms the top of the sky; overcast drifts it grey. */
     <div
+      ref={heroRef}
       className="relative h-full w-full"
       style={{
         backgroundImage: `linear-gradient(to bottom, color-mix(in oklab, #f6ecd9 ${Math.round(
@@ -219,6 +249,7 @@ export function TerrainHero({
           slide under type. pointer-events-none end to end: nothing in it is
           a control, and the terrain hover must pass through. */}
       <div
+        ref={overlayRef}
         className={cn(
           "pointer-events-none absolute left-0 top-0 z-[1] max-w-[640px] px-5 pt-8 transition-opacity duration-300 sm:px-8 sm:pt-12",
           atHome ? "opacity-100" : "opacity-0",
@@ -249,6 +280,7 @@ export function TerrainHero({
             onReady={() => setSceneLive(true)}
             onAtHomeChange={setAtHome}
             onControls={setControls}
+            overlayBox={overlayBox}
           />
         </div>
       ) : null}
