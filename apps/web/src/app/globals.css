@@ -84,6 +84,15 @@
   }
 }
 
+/* The terrain tooltip's entrance: a small settle, run once on mount. The
+   reduced-motion block below flattens it along with everything else. */
+@keyframes tooltip-in {
+  from {
+    opacity: 0;
+    transform: translateY(3px) scale(0.97);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
