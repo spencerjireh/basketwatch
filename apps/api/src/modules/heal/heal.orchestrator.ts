@@ -560,7 +560,13 @@ export class HealOrchestrator {
     healAttemptId: string,
     canary: { ranAt: string; rows: number; nullRatePct: number; status: string },
   ): Promise<void> {
-    await this.repository.updateAttemptCanary(healAttemptId, JSON.stringify(canary));
+    const claimed = await this.repository.claimCanary(healAttemptId, JSON.stringify(canary));
+    if (!claimed) {
+      // A duplicate verification already reported. Only the first may drive
+      // the cap, or two copies of one failure spend both proposals.
+      this.logger.warn(`attempt ${healAttemptId}: duplicate canary outcome dropped`);
+      return;
+    }
 
     const attempt = await this.repository.getAttempt(healAttemptId);
     if (!attempt) return;
@@ -583,6 +589,21 @@ export class HealOrchestrator {
       attempt.incidentId,
       `the approved template failed its verification pull (${canary.rows} rows, status ${canary.status})`,
     );
+  }
+
+  /** Re-fire lost verification pulls; called by the boot sweep. */
+  async sweepApprovedAwaitingCanary(): Promise<number> {
+    const stranded = await this.repository.listApprovedAwaitingCanary();
+    let fired = 0;
+    for (const { attemptId, storeId } of stranded) {
+      // pg-boss keeps jobs across restarts: a canary that is merely queued or
+      // mid-run is not lost, and re-firing it would double the pull's spend.
+      if (await this.repository.hasPendingCanary(attemptId)) continue;
+      await this.enqueueCanary(storeId, attemptId);
+      this.logger.warn(`${storeId}: re-fired lost canary for approved attempt ${attemptId}`);
+      fired += 1;
+    }
+    return fired;
   }
 
   /** The verification pull behind every approval. */

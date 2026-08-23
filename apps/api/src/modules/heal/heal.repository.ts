@@ -179,13 +179,31 @@ export class HealRepository {
     };
   }
 
-  /** Store the verification-pull result on the attempt. */
-  async updateAttemptCanary(attemptId: string, canaryJson: string): Promise<void> {
-    await this.db.execute(sql`
+  /**
+   * Store the verification-pull result -- first outcome wins. Duplicate
+   * canaries exist by design tolerance (a boot sweep racing an already-queued
+   * job), and each outcome drives cap decisions, so only one may count.
+   */
+  async claimCanary(attemptId: string, canaryJson: string): Promise<boolean> {
+    const rows = (await this.db.execute(sql`
       update heal_attempts
       set canary = ${canaryJson}::jsonb
-      where id = ${attemptId}::uuid
-    `);
+      where id = ${attemptId}::uuid and canary is null
+      returning id::text
+    `)) as unknown as AttemptIdRow[];
+    return rows.length > 0;
+  }
+
+  /** Is a verification pull for this attempt already queued or running? */
+  async hasPendingCanary(attemptId: string): Promise<boolean> {
+    const rows = (await this.db.execute(sql`
+      select 1 from pgboss.job
+      where name = 'scrape-run'
+        and state in ('created', 'retry', 'active')
+        and data->>'healAttemptId' = ${attemptId}
+      limit 1
+    `)) as unknown as unknown[];
+    return rows.length > 0;
   }
 
   /**
@@ -363,6 +381,28 @@ export class HealRepository {
       select studio_diff from heal_attempts where id = ${attemptId}::uuid
     `)) as unknown as { studio_diff: string | null }[];
     return rows[0]?.studio_diff ?? null;
+  }
+
+  /**
+   * Approved attempts whose canary never reported, on a still-healing
+   * incident: the verification pull was lost (a crashed worker, a dead job).
+   * The boot sweep re-fires the canary so the incident cannot strand.
+   */
+  async listApprovedAwaitingCanary(): Promise<{
+    attemptId: string;
+    storeId: string;
+  }[]> {
+    const rows = (await this.db.execute(sql`
+      select ha.id::text as attempt_id, i.store_id
+      from heal_attempts ha
+      join incidents i on i.id = ha.incident_id
+      where ha.verdict = 'approved'
+        and ha.canary is null
+        and i.state = 'healing'
+        and i.store_id is not null
+      order by ha.started_at asc
+    `)) as unknown as { attempt_id: string; store_id: string }[];
+    return rows.map((r) => ({ attemptId: r.attempt_id, storeId: r.store_id }));
   }
 
   // -----------------------------------------------------------------------
