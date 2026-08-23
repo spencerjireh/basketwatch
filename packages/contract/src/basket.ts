@@ -158,7 +158,7 @@ export const basketRailsResponseSchema = z.array(railSchema);
 export type BasketRailsResponse = z.infer<typeof basketRailsResponseSchema>;
 
 /**
- * Rails default to the ten core items, which are the ones the basket totals.
+ * Rails default to the core items, which are the ones the basket totals.
  * The quality worklist asks for core and stretch, because a mispin on a stretch
  * item is exactly as wrong -- it is just not in the headline number.
  */

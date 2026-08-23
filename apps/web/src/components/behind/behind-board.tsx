@@ -51,7 +51,7 @@ export function BehindBoard({
             quiet day.
           </Fact>
           <Fact term="No carried-forward totals">
-            A day that cannot price all ten staples scores no total. The chart draws the gap
+            A day that cannot price every staple in the basket scores no total. The chart draws the gap
             instead of interpolating across it.
           </Fact>
         </dl>
