@@ -2,9 +2,8 @@
 # on every push (base directory `/`, compose file `docker-compose.prod.yml`).
 # Secrets come from Coolify-managed env vars; nothing secret belongs in here.
 #
-# Right now only `postgres` starts. It is published on a public port so the
-# team can dump scraped data into it from their laptops while the rest of the
-# app is still being built. See docs/deploy.md.
+# All four services (postgres, api, web, pantry) deploy on every push to main.
+# See docs/deploy.md for the full runbook.
 name: basketwatch-prod
 
 services:

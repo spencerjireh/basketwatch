@@ -38,6 +38,17 @@ export class PullersService {
     return stores.map((store) => store.storeId);
   }
 
+  /**
+   * The central pull method. Collects a store's catalogue via its Studio
+   * collector, dedupes the rows, diffs against the previous snapshot, guards
+   * against mass-change events (>90% of an established catalogue changing at
+   * once), persists the run, and enqueues validation.
+   *
+   * Studio failures are caught and routed to `handleStudioFailure`, which
+   * records the broken run, opens an incident, and -- if the failure kind is
+   * healable -- enqueues a heal job. The caller always gets a response, never
+   * an unhandled throw.
+   */
   async runStore(storeId: string, options: PullerRunOptions): Promise<PullerRunResponse> {
     const startedAt = Date.now();
     const [config] = await this.repository.pullableStores([storeId]);
@@ -151,9 +162,14 @@ export class PullersService {
   }
 
   /**
-   * Studio threw: record the failure as a run, open an incident with the raw
-   * output as evidence, and enqueue a heal. Returns a response the caller can
-   * hand back without rethrowing.
+   * Classifies a Studio failure by its `StudioFailureKind` (broken, timeout,
+   * empty, no_urls, unprovisioned) and decides whether a template rewrite
+   * could fix it. Only `broken` and `empty` auto-heal; the rest open an
+   * incident but skip the credit spend.
+   *
+   * The run is always recorded (evidence for the audit trail). If no incident
+   * is already open for the store, one is created with raw output and field
+   * names as evidence so the heal orchestrator can compose a targeted prompt.
    */
   private async handleStudioFailure(
     config: PullerConfig,

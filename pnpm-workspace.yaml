@@ -6,12 +6,6 @@ packages:
 # here. Omitting this is silent and confusing: esbuild ships without its binary
 # (breaking drizzle-kit and vitest) and tailwind's native oxide module is
 # missing. The first symptom is a build error that names none of them.
-onlyBuiltDependencies:
-  - esbuild
-  - "@tailwindcss/oxide"
-  - sharp
-  - unrs-resolver
-
 # Single source for versions that must not drift between workspaces.
 catalog:
   # EXACT, not ^. The latest typescript is 7.x, whose native compiler does not
@@ -34,3 +28,5 @@ catalog:
 allowBuilds:
   esbuild: true
   unrs-resolver: true
+  "@tailwindcss/oxide": true
+  sharp: true

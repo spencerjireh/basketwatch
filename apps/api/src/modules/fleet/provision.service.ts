@@ -67,6 +67,16 @@ export class ProvisionService {
     );
   }
 
+  /**
+   * Provision a single store's Studio collector. Idempotent: if the store
+   * already has a `studio_collector_id` in the database, the existing id is
+   * returned without touching Bright Data. Otherwise, looks up the store in
+   * the collector manifest, shells out to the CLI to create the collector,
+   * and wires the new id into the scrapers and stores tables.
+   *
+   * For listing-page collectors, also sets the `studio_endpoint` so the
+   * Studio adapter knows which URL to submit.
+   */
   async provisionStore(storeId: string): Promise<ProvisionResult> {
     const existing = await this.repository.getCollectorId(storeId);
     if (existing) {
@@ -119,6 +129,14 @@ export class ProvisionService {
     return missing;
   }
 
+  /**
+   * Shell out to `brightdata scraper create` with the manifest entry's seed
+   * URL and description. Parses the JSON response for the new collector id.
+   *
+   * API keys are never logged; errors are scrubbed through `scrubSecrets`
+   * before surfacing. The CLI is given a generous timeout because Bright
+   * Data's creation flow includes an initial crawl of the seed URL.
+   */
   private async createCollector(entry: ManifestEntry): Promise<string> {
     const args = [
       ...(this.apiKey ? ["-k", this.apiKey] : []),

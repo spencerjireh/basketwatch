@@ -14,8 +14,3 @@ export function toMoney(value: string | number | null, currency: CurrencyCode): 
   if (Number.isNaN(amount)) return null;
   return { amount, currency };
 }
-
-/** Money back to the string form the numeric column expects. */
-export function fromMoney(money: Money): string {
-  return money.amount.toString();
-}

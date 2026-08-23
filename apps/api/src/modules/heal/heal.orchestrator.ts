@@ -54,6 +54,26 @@ const previewRowSchema = z.object({
 });
 const parsePreviewRow = (row: unknown) => previewRowSchema.safeParse(row).success;
 
+/**
+ * Drives the five-step auto-approve heal loop:
+ *
+ * 1. **Propose** -- `trigger()` sends a diagnostic prompt to Bright Data's
+ *    `refactor_template` API, which rewrites the scraper template.
+ * 2. **Poll** -- `pollTick()` is called by a self-rescheduling pg-boss chain
+ *    until BD reaches the approval gate or the deadline expires.
+ * 3. **Judge** -- the preview sample is validated against the store baseline;
+ *    passing means the template change is worth trying live.
+ * 4. **Approve / Reject** -- `approve()` or `reject()` tells BD whether to
+ *    commit the rewrite. A rejection under the per-incident cap triggers a
+ *    re-proposal with feedback; at the cap the incident is held for a person.
+ * 5. **Verify** -- `handleCanaryOutcome()` receives the result of a real pull
+ *    on the approved template. A healthy canary resolves the incident; a
+ *    broken one feeds back into step 4.
+ *
+ * Every settlement goes through `claimVerdict`, a compare-and-swap that
+ * prevents two writers (poll worker + dashboard user) from double-counting
+ * a single proposal against the per-incident attempt cap.
+ */
 @Injectable()
 export class HealOrchestrator {
   private readonly logger = new Logger(HealOrchestrator.name);
@@ -185,6 +205,13 @@ export class HealOrchestrator {
   // Trigger
   // -----------------------------------------------------------------------
 
+  /**
+   * Step 1: compose a diagnostic prompt and submit it to Bright Data's
+   * refactor_template API. If auto-approve is enabled, the first poll-chain
+   * link is enqueued so the proposal is watched without anyone looking at
+   * the dashboard. Returns immediately; the caller gets the attempt id and
+   * the prompt that was sent, not the outcome.
+   */
   async trigger(scraperId: string, body: HealTriggerBody): Promise<HealTriggerResponse> {
     const startedAt = Date.now();
 
@@ -279,6 +306,12 @@ export class HealOrchestrator {
   // Approve / Reject
   // -----------------------------------------------------------------------
 
+  /**
+   * Step 4a: accept the proposed template rewrite. Tells BD to commit, saves
+   * the new template locally, then enqueues a canary pull to verify the fix
+   * against real data. The incident stays in 'healing' until the canary
+   * reports back -- approval is a claim, not a proof.
+   */
   async approve(scraperId: string): Promise<HealDecisionResponse> {
     const pending = await this.repository.findPendingAttempt(scraperId);
     if (!pending) {
@@ -550,11 +583,15 @@ export class HealOrchestrator {
   }
 
   /**
-   * The verification pull's verdict, reported by the validate-run handler.
-   * ok or suspect with rows applied resolves the incident -- suspect is soft
-   * findings only, and prices legitimately move; nothing else in the system
-   * would ever close the incident on a later good run. Broken counts toward
-   * the same per-incident cap as a failed preview.
+   * Step 5: the canary pull's verdict, reported by the validate-run handler.
+   *
+   * A healthy canary (ok or suspect with rows) resolves the incident and
+   * closes the loop. A broken canary counts toward the same per-incident
+   * attempt cap as a failed preview: under the cap it re-proposes with
+   * feedback, at the cap it holds the incident for a person.
+   *
+   * Duplicate outcomes are dropped via `claimCanary` so two copies of one
+   * verification never spend two proposals.
    */
   async handleCanaryOutcome(
     healAttemptId: string,

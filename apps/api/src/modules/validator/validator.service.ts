@@ -44,6 +44,19 @@ export class ValidatorService implements OnApplicationBootstrap {
     this.logger.log(`seeded baselines for ${count} stores`);
   }
 
+  /**
+   * Validate a completed run against the store's rolling baseline.
+   *
+   * 1. Loads the baseline (expected row count, field null rates, value
+   *    ranges). If none exists this is a first run, delegated to
+   *    `handleFirstRun` which seeds or rejects.
+   * 2. Runs the pure check suite (schema parse rate, row count, null rates,
+   *    price drift) -- all in `checks.ts`, IO-free and unit-tested.
+   * 3. Persists findings and the run's verdict.
+   * 4. On a `broken` verdict, opens an incident (if one is not already open)
+   *    with raw output as evidence, and enqueues a heal job if auto-heal is
+   *    enabled and a scraper id is known.
+   */
   async validateStoredRun(runId: number, storeId: string): Promise<Verdict> {
     const baseline = await this.repository.loadBaseline(storeId);
 

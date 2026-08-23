@@ -27,8 +27,3 @@ export function runStatusFromDb(value: string | null): RunStatus | null {
       return null;
   }
 }
-
-/** Writes use the contract vocabulary directly; 0001 makes this the only one. */
-export function runStatusToDb(value: RunStatus): string {
-  return value;
-}

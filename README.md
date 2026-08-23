@@ -21,10 +21,11 @@ lab/            frozen exploration notebooks and the Bright Data credit guard.
                 Not product code; nothing under apps/ or packages/ imports it.
 ```
 
-Inside `apps/api/src`, `modules/` holds one directory per domain. The four
-subsystems that are not built yet -- `pullers`, `heal`, `notifier`, and the
-per-module `*.repository.ts` query layer -- already have their files and their
-interfaces, so there is one obvious place for each to land.
+Inside `apps/api/src`, `modules/` holds one directory per domain: `pullers`
+(Studio-only data pipeline), `heal` (self-healing orchestrator with
+auto-approve), `validator` (baseline checks and incident opening), `fleet`
+(provisioning and scraper state). The notifier module is scaffolded but not
+yet wired to a delivery channel.
 
 ## Commands
 
