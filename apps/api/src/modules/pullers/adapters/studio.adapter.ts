@@ -4,6 +4,7 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { promisify } from "node:util";
 import { Injectable, Logger } from "@nestjs/common";
+import { scrubSecrets } from "../../../common/scrub.js";
 import { Fetcher, type FetchOptions } from "../fetcher.js";
 import { type PullResult, type Puller, type PullerConfig, type PulledRow } from "../puller.types.js";
 import { parseSize } from "../size.js";
@@ -194,7 +195,12 @@ export class StudioAdapter implements Puller {
       throw new StudioError("collector returned an unrecognised JSON envelope", "broken", [parsed]);
     } catch (error) {
       if (error instanceof StudioError) throw error;
-      const detail = error instanceof Error ? error.message : String(error);
+      // execFile's message embeds the full command line, -k <key> included,
+      // and this string fans out into evidence, prompts and API responses.
+      const detail = scrubSecrets(
+        error instanceof Error ? error.message : String(error),
+        [this.apiKey],
+      );
       // execFile kills the child at `timeout` with SIGTERM and sets killed.
       // That is the only signal separating "ran out of time" from "broke",
       // and it was being discarded with the rest of the error object.
@@ -207,7 +213,7 @@ export class StudioAdapter implements Puller {
         code: e.code ?? null,
         signal: e.signal ?? null,
         killed: e.killed ?? false,
-        stderrTail: (e.stderr ?? "").slice(-500),
+        stderrTail: scrubSecrets((e.stderr ?? "").slice(-500), [this.apiKey]),
       });
     } finally {
       await rm(dir, { recursive: true, force: true });
