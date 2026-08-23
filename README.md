@@ -74,23 +74,28 @@ live Bright Data Scraper Studio collector IDs.
 
 ## How Bright Data Scraper Studio runs this
 
-Scraper Studio is the collection layer, not an add-on:
+Scraper Studio is not an add-on; it is the single production path for both
+collecting prices and repairing the collectors when stores change their
+layouts. Twelve of sixteen stores run as Studio collectors (the `c_*` IDs
+above); the four exceptions are Shopify-style sites that expose a free JSON
+catalogue.
 
-- **Twelve stores run as Studio collectors** (the `c_*` IDs above). Four
-  Shopify-style sites expose a machine-readable catalogue and are pulled over
-  plain HTTP instead. Requests route through Web Unlocker for the sites that
-  block scraping.
-- **Collectors parse product pages, not listings.** A staple filter selects
-  which product URLs to fetch, which cuts each pull 10-20x, so a full-store
-  pull costs cents in credits.
-- **The heal loop repairs collectors through Studio.** When a store changes
-  its layout, the loop sends the broken page to Studio's refactor API, which
-  rewrites the collector's extraction recipe in place. Studio is the mechanism
-  of self-healing, not only of ingestion.
-- **The fleet is reproducible.** [`docs/collector-manifest.json`](docs/collector-manifest.json)
-  registers every store and the exact seed URL and instruction used to create
-  its collector; [`docs/collector-runbook.md`](docs/collector-runbook.md) is
-  the step-by-step procedure to rebuild the fleet on any Bright Data account.
+- **Collection.** Each pull passes a bounded URL list to Studio, which
+  renders the pages in a cloud browser and returns structured product rows.
+  A staple filter selects which product URLs to fetch, cutting each pull
+  10-20x so a full-store run costs cents.
+- **Self-healing.** When a pull fails validation, the system composes a
+  targeted prompt from the failure evidence and sends it to Studio's
+  `refactor_template` API. Studio rewrites the collector's extraction logic;
+  the fix is verified by a canary re-scrape before it goes live.
+- **Reproducibility.** [`docs/collector-manifest.json`](docs/collector-manifest.json)
+  registers every store with the exact seed URL and description used to
+  create its collector. The API's provisioning endpoint can rebuild any
+  collector from those definitions.
+
+For the full walkthrough of the collection pipeline, the five-step heal
+loop, budget controls, and what we learned building it, see
+[Scraper Studio usage](docs/scraper-studio-usage.md).
 
 ## The self-healing loop, demonstrated
 
