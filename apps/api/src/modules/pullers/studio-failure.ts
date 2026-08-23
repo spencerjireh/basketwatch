@@ -36,7 +36,11 @@ export const STUDIO_FAILURE: Record<StudioFailureKind, FailurePolicy> = {
   },
   empty: {
     incidentKind: "studio_empty",
-    autoHeal: false,
+    // A collector that runs cleanly and extracts nothing is selectors
+    // pointing at nothing -- the most heal-able failure there is. The thin
+    // stores rotted for days on exactly this, invisibly, under the old
+    // pipeline; the heal loop's cap bounds what a retry can spend.
+    autoHeal: true,
     check: "rowcount",
     reason: () => "Scraper Studio ran and returned nothing at all",
   },
