@@ -77,8 +77,14 @@ export const envSchema = z.object({
    * dashboard -- only the Bright Data call is skipped.
    */
   HEAL_AUTO_ENABLED: boolFlag(true),
+  /**
+   * The second kill switch: with auto-heal on, this decides whether a
+   * proposal whose preview sample passes validation is approved by the
+   * machine or held for a person. Off = today's propose-then-review flow.
+   */
+  HEAL_AUTO_APPROVE_ENABLED: boolFlag(true),
 
-  HEAL_MAX_ATTEMPTS_PER_INCIDENT: z.coerce.number().int().positive().default(3),
+  HEAL_MAX_ATTEMPTS_PER_INCIDENT: z.coerce.number().int().positive().default(2),
   HEAL_MAX_PER_SCRAPER_PER_DAY: z.coerce.number().int().positive().default(5),
   CREDIT_DAILY_CEILING_USD: z.coerce.number().positive().default(5),
 });

@@ -5,7 +5,11 @@ import { PullersService } from "../../modules/pullers/pullers.service.js";
 import { BossService } from "../boss.provider.js";
 import { QUEUES } from "../queues.js";
 
-type ScrapeRunJob = { storeId: string; trigger?: "cron" | "manual" };
+type ScrapeRunJob = {
+  storeId: string;
+  trigger?: "cron" | "manual" | "canary";
+  healAttemptId?: string;
+};
 
 /** Spread the fan-out so sixteen stores are not all fetched in the same second. */
 const JITTER_SECONDS = 90;
@@ -44,6 +48,7 @@ export class FleetPullHandler implements OnApplicationBootstrap {
           await this.pullers.runStore(job.data.storeId, {
             dryRun: false,
             trigger: job.data.trigger ?? "cron",
+            healAttemptId: job.data.healAttemptId,
           });
           // Validation is enqueued by runStore itself now -- it is part of
           // finishing a run, not something the caller has to remember.

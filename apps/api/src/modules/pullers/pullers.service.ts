@@ -111,7 +111,11 @@ export class PullersService {
       });
     }
 
-    await this.enqueueValidation(runId, config.storeId);
+    // A canary whose observations were mass-change-suppressed proved nothing:
+    // the validator would judge the OLD products and falsely resolve the
+    // incident. Report it as a failed verification instead of validating.
+    const canaryFailed = options.trigger === "canary" && suppressed;
+    await this.enqueueValidation(runId, config.storeId, options.healAttemptId, canaryFailed);
 
     this.logger.log(
       `${config.storeId}: run ${runId}, ${rows.length} rows, ${summary.changes} changes` +
@@ -222,6 +226,18 @@ export class PullersService {
       studioDetail: err.detail,
     };
 
+    // A canary that never produced a run's worth of data is a failed
+    // verification, not a fresh incident: its incident is already open in
+    // 'healing', and the heal loop owns what happens next. The validate-run
+    // job is the seam so pullers never call heal code directly.
+    if (options.trigger === "canary" && options.healAttemptId) {
+      await this.enqueueValidation(runId, config.storeId, options.healAttemptId, true);
+      this.logger.warn(
+        `${config.storeId}: canary run ${runId} failed at the studio layer (${err.kind})`,
+      );
+      return this.studioFailureResponse(config, err, policy, startedAt, runId);
+    }
+
     // The run row is the invariant and is always written; a second incident for
     // a store that already has one open is just noise, and the validator has
     // always worked this way.
@@ -285,9 +301,19 @@ export class PullersService {
    * that first saw the pull finish -- so closing the tab at the wrong moment
    * meant the run was never validated and its anomalies never found.
    */
-  private async enqueueValidation(runId: number, storeId: string): Promise<void> {
+  private async enqueueValidation(
+    runId: number,
+    storeId: string,
+    healAttemptId?: string,
+    canaryFailed?: boolean,
+  ): Promise<void> {
     try {
-      await this.boss.send(QUEUES.validateRun, { runId: Number(runId), storeId });
+      await this.boss.send(QUEUES.validateRun, {
+        runId: Number(runId),
+        storeId,
+        ...(healAttemptId ? { healAttemptId } : {}),
+        ...(canaryFailed ? { canaryFailed } : {}),
+      });
     } catch (err) {
       this.logger.error(
         `${storeId}: failed to enqueue validation for run ${runId} -- ` +
