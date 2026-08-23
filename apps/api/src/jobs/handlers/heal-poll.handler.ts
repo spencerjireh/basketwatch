@@ -58,6 +58,8 @@ export class HealPollHandler implements OnApplicationBootstrap {
       return;
     }
 
+    await this.orchestrator.sweepApprovedAwaitingCanary();
+
     const pending = await this.repository.listPendingAttempts();
     for (const attempt of pending) {
       await this.boss.send(

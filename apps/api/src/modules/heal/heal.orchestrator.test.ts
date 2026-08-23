@@ -52,7 +52,8 @@ function makeDeps() {
     }),
     claimVerdict: vi.fn().mockResolvedValue(true),
     updateAttemptDiff: vi.fn().mockResolvedValue(undefined),
-    updateAttemptCanary: vi.fn().mockResolvedValue(undefined),
+    claimCanary: vi.fn().mockResolvedValue(true),
+    hasPendingCanary: vi.fn().mockResolvedValue(false),
     saveTemplate: vi.fn().mockResolvedValue("tpl-1"),
     resolveIncident: vi.fn().mockResolvedValue(undefined),
     reopenIncident: vi.fn().mockResolvedValue(undefined),
@@ -252,7 +253,7 @@ describe("handleCanaryOutcome", () => {
       nullRatePct: 3,
       status: "ok",
     });
-    expect(deps.repository.updateAttemptCanary).toHaveBeenCalled();
+    expect(deps.repository.claimCanary).toHaveBeenCalled();
     expect(deps.repository.resolveIncident).toHaveBeenCalledWith("inc-1");
   });
 
@@ -278,6 +279,19 @@ describe("handleCanaryOutcome", () => {
     });
     expect(deps.repository.resolveIncident).not.toHaveBeenCalled();
     expect(deps.repository.markIncidentManual).toHaveBeenCalledWith("inc-1");
+  });
+
+  it("drops a duplicate canary outcome without touching the incident", async () => {
+    const deps = makeDeps();
+    deps.repository.claimCanary.mockResolvedValue(false);
+    await deps.orchestrator.handleCanaryOutcome("att-1", {
+      ranAt: new Date().toISOString(),
+      rows: 0,
+      nullRatePct: 100,
+      status: "broken",
+    });
+    expect(deps.repository.resolveIncident).not.toHaveBeenCalled();
+    expect(deps.repository.markIncidentManual).not.toHaveBeenCalled();
   });
 
   it("counts a broken canary toward the cap and re-proposes under it", async () => {
