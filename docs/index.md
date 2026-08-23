@@ -75,10 +75,16 @@ keeps only a short snapshot and points here.
   carried across. The clone store — still the required demo centrepiece — is
   rebuilt **last**, after ingest and the heal loop (team decision Aug 20,
   closes C7).
-- **Data is in prod.** 19 stores, 28,378 products, 28,376 price observations,
-  340 basket pins, 21 items. Real history is two days, Aug 19-20, holding 30
-  actual price moves. **The schedule has in fact been running since Aug 21** --
-  see the correction below.
+- **Data is in prod.** 19 stores, 28,649 products, 28,745 price observations,
+  340 basket pins across 20 items.
+- **History is four days, Aug 19-22, and five charted points** (the index reads
+  as-of, so today carries the last known price rather than a gap). Aug 19 and 20
+  are the seed pulls; **Aug 21 and 22 came from the schedule nobody knew was
+  armed** -- 32 successful runs, 54,918 rows fetched, and 369 price movements
+  recorded. The rest were unchanged, which is what change-only history is for.
+  The basket total is flat at $66.26 across those days because only two of the
+  369 movements touched a pinned staple. A flat line drawn from real
+  observations, not an absence of data.
 - **The read path landed Aug 20.** Every dashboard route answers from Postgres
   and the fixtures are deleted. The basket index reads as an as-of query over
   change-only history, and a day missing any core item totals `null` — the gap
