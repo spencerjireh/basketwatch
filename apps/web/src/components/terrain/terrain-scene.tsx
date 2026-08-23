@@ -457,14 +457,16 @@ export default function TerrainScene({
         {worldAnchors.map((anchor) => {
           if (anchor.kind === "store") {
             const storeId = anchor.key.slice("store:".length);
-            const lit = hovered?.storeId === storeId || hoveredStore === storeId;
+            const lit = hoveredStore === storeId;
             return (
               /*
-               * The store axis names one column and only while it is pointed
-               * at -- from a prism up here, or from its bar in the ranking
-               * below. At rest the hero is land and nothing else, which is the
-               * whole reason the axis was quieted; a row of names standing
-               * over it is a legend printed on a picture.
+               * The store axis names one column, and only for a hover that
+               * starts outside the canvas -- a store's bar in the ranking
+               * below, where nothing else says which column just lit. A prism
+               * hover up here already raises the survey card with the store
+               * name on its first line, and the chip beside it read as a
+               * second tooltip saying less. At rest the hero is land and
+               * nothing else, which is the whole reason the axis was quieted.
                *
                * Every label stays mounted and projected either way, so the one
                * that lights is already in position. Inert, though: an
