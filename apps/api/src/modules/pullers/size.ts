@@ -1,5 +1,6 @@
 /**
- * Size parsing, ported from lab/spencer-exploration/basket.py.
+ * Size parsing, ported from the Python exploration codebase that preceded
+ * this repo.
  *
  * Unit price is the comparison primitive -- it is what lets a 500 g loaf and a
  * 1 lb loaf be compared honestly across two countries -- and almost no store

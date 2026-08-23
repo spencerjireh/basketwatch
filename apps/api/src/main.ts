@@ -17,7 +17,7 @@ async function bootstrap(): Promise<void> {
 
   app.useGlobalFilters(new AllExceptionsFilter());
 
-  // One hop, not `true`. Coolify's proxy terminates TLS in front of this, so
+  // One hop, not `true`. The deploy platform's proxy terminates TLS in front of this, so
   // without it every public visitor shares the proxy's address and therefore
   // one rate-limit bucket. Trusting the whole chain instead would let a client
   // write its own X-Forwarded-For and mint a fresh bucket per request.

@@ -25,7 +25,7 @@ is no app subdirectory; `apps/` and `packages/` sit beside the compose files.
   queue, no Redis). One directory per domain under `src/modules/`. Only
   `*.repository.ts` may touch the Drizzle schema; a lint rule enforces it. The
   spider-sense validator in `modules/validator/checks.ts` stays pure and IO-free.
-- `apps/web` — dashboard (Next.js App Router + Tailwind + Recharts, no component
+- `apps/web` — dashboard (Next.js App Router + Tailwind, no component
   library). A pure client of the API: it never touches Postgres, and a lint rule
   enforces that too.
 - `packages/contract` — zod schemas and types. The only thing the two apps
@@ -36,7 +36,7 @@ is no app subdirectory; `apps/` and `packages/` sit beside the compose files.
 
 Parker's Pantry (`apps/pantry`) is live at `pantry.spencerjireh.com` as the
 disclosed clone store for staged break-and-heal demos. Not yet wired: the
-notifier module (scaffolded, no delivery channel).
+notifier module (channels scaffolded, nothing enqueues alerts).
 
 ## Commands
 
@@ -69,13 +69,13 @@ unless you pass `ALLOW_REMOTE_DB=1`. Migration `0000` must keep its exact bytes
 To restore a production dump into the local database for testing:
 `just db-backup`, then `just db-restore-local <file>`.
 
-Deployment: root `docker-compose.prod.yml` is THE Coolify deployment unit
-(single Docker Compose resource watching `main`; secrets via Coolify env
+Deployment: root `docker-compose.prod.yml` is THE deployment unit
+(single Docker Compose resource watching `main`; secrets via deploy-time env
 vars). All four services deploy: `postgres`, published on port `55432` for
 the team to write scraped data into, plus `api`, `web`, and `pantry`. `web` binds
 **3000**, not 80, and `API_INTERNAL_URL` is a Docker build arg rather than a
 runtime variable. The API applies pending migrations itself on boot, ahead of
-the queue and the first request — a Coolify deploy has no step where a human
+the queue and the first request — a deploy has no step where a human
 runs drizzle-kit. Never deploy without the user's go-ahead.
 
 Bright Data CLI (`brightdata`, v0.3.4+) drives Scraper Studio:
@@ -110,7 +110,6 @@ Bright Data CLI (`brightdata`, v0.3.4+) drives Scraper Studio:
 - **Never push to `main`.** Branch, open a PR, merge the PR — see
   [CONTRIBUTING.md](./CONTRIBUTING.md). A pre-push hook enforces this once
   `git config core.hooksPath .githooks` has been run in the clone.
-- The pre-build HN heal test is excluded from demo material (team decision).
 
 ## Conventions
 
@@ -133,33 +132,35 @@ Bright Data CLI (`brightdata`, v0.3.4+) drives Scraper Studio:
 
 ## Current state
 
-Snapshot, accurate as of Aug 22.
+Snapshot, accurate as of Aug 23.
 
 - Every dashboard route answers from Postgres; there are no fixtures.
-  Migrations run 0000-0008.
-- The puller engine covers the sixteen pullable stores (four adapters, crawl
+  Migrations run 0000-0012.
+- The puller engine covers the pullable stores (four adapters, crawl
   config from the `stores` table): `POST /api/pullers/:storeId/run`, and
   `?dryRun=true` writes nothing. The pull schedule ships disarmed
   (`PULL_SCHEDULE_ENABLED` defaults false); a scheduled run bypasses the
   guarded wrapper, so arming it is a team decision, never a deploy default.
-- **Studio-only production pipeline (decided Aug 22).** In production, every
-  store is collected through a Bright Data Studio scraper -- there is no HTTP
-  fallback. If a store has no collector, the pull fails with a clear error
-  requiring provisioning. If Studio fails on a provisioned store, the failure
-  is real: it gets recorded, validated, diagnosed, and triggers a heal through
-  Studio's self-healing API. This is the core narrative of the hackathon --
-  Bright Data's self-healing scrapers as the single data path, not one of
-  many. HTTP adapters (shopify, magento-graphql, sitemap) remain in the
-  codebase as probing and diagnostic tools that inform collector descriptions;
-  the Studio adapter itself uses sitemap discovery internally for product-page
+- **Hybrid collection pipeline (settled Aug 23).** Twelve stores are
+  collected through Bright Data Studio collectors; four Shopify-style stores
+  with machine-readable catalogues are pulled over plain HTTP, routed through
+  Web Unlocker where the site blocks scraping (`needs_unlocker` on the store
+  row). A Studio store with no collector fails with a clear error requiring
+  provisioning; a Studio failure on a provisioned store is real -- recorded,
+  validated, diagnosed, and healed through Studio's self-healing API. The
+  Studio adapter uses sitemap discovery internally for product-page
   collectors. Collector definitions (seed URLs, descriptions, probe findings)
-  live in `docs/collector-manifest.json`.
-- **Self-healing diagnostic loop (landed Aug 22).** The validator seeds
-  baselines on boot, validates every run (schema, null rates, row count, price
-  drift), opens incidents with evidence, and enqueues a heal job. The
-  `HealAutoHandler` consumes heal jobs and proposes fixes via the BD
-  `refactor_template` API without auto-approval -- the dashboard shows the
-  diff for human review. Baselines update automatically after healthy runs.
+  live in `docs/collector-manifest.json`; the README's fleet table shows
+  which store runs which way.
+- **Self-healing diagnostic loop (landed Aug 22, closed Aug 23).** The
+  validator seeds baselines on boot, validates every run (schema, null rates,
+  row count, price drift), opens incidents with evidence, and enqueues a heal
+  job. The `HealAutoHandler` proposes fixes via the BD `refactor_template`
+  API; with `HEAL_AUTO_APPROVE_ENABLED` the machine judges the proposal's
+  preview sample against the store baseline, approves or rejects, and
+  verifies an approval with one canary pull -- capped per incident, then held
+  for a person. The dashboard is a read-only window on all of it. Baselines
+  update automatically after healthy runs.
 - **Provisioning from the dashboard (landed Aug 22).** `POST
 /api/fleet/:storeId/provision` and `POST /api/fleet/provision` create Studio
   collectors from `collector-manifest.json` definitions. The Bright Data CLI
@@ -167,4 +168,5 @@ Snapshot, accurate as of Aug 22.
 - **Parker's Pantry (live Aug 22).** `apps/pantry` at
   `pantry.spencerjireh.com` is the disclosed clone store for controlled
   break-and-heal demos (two storefronts: `/us` USD, `/ph` PHP).
-- Not yet wired: the notifier module (scaffolded, no delivery channel).
+- Not yet wired: the notifier module (channels scaffolded, nothing enqueues
+  alerts).

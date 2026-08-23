@@ -6,7 +6,7 @@ ALTER TABLE "items" ADD CONSTRAINT "items_index_uom_matches_normal_unit" CHECK (
 -- The ten staples the basket is made of, and how much of each one basket buys.
 --
 -- Reference data, in the migration, for the same reason the items rows are: the
--- deploy is Coolify pulling main and running compose, and there is no step where
+-- deploy pulls main and runs compose, and there is no step where
 -- a human runs a seed script. A null index_quantity does not degrade gracefully
 -- either -- it nulls the headline total on every day of the chart -- so shipping
 -- the column without the values would be shipping a broken page.

@@ -47,7 +47,7 @@ export const healAttemptSchema = z.object({
   attempt: z.number().int().positive(),
   startedAt: timestampSchema,
   finishedAt: timestampSchema.nullable(),
-  claudeDiagnosis: z.string(),
+  diagnosis: z.string(),
   healPrompt: z.string(),
   /** null until Studio returns a proposal */
   studioDiff: z.string().nullable(),

@@ -11,11 +11,11 @@ status: v2
 The seam between the two work slices in [architecture](architecture.md)
 section 5. Source of truth is `packages/contract/src/`: zod schemas
 with types derived from them, so runtime validation and the compiler read the
-same definition. `apps/web/src/fixtures/dashboard.ts` holds fixtures
-in exactly those shapes. Change the schema and the fixture together, or neither.
+same definition. Both apps are typed by those schemas — change a schema and
+every consumer of it together, or neither.
 
-v2 replaces the frozen v1 that lived in `scrape-verse/packages/shared/src/api.ts`.
-The shapes are mostly recognisable; the differences are listed at the bottom.
+v2 replaces the frozen v1 from the pre-rebuild codebase. The shapes are
+mostly recognisable; the differences are listed at the bottom.
 
 ## Conventions
 
@@ -160,8 +160,8 @@ validation and the UI's exhaustiveness checks:
 - **`priceRecordSchema` has not caught up with the data plane.** Postgres
   carries size and unit price; the fleet output contract still does not. The v2
   rewrite did not close this — `packages/contract/src/ingest.ts` still has the
-  v1 shape. Four changes are outstanding, all specified in
-  the exploration HANDOFF with a tested reference implementation:
+  v1 shape. Four changes are outstanding, each with a tested reference
+  implementation in the exploration codebase that preceded this repo:
   - `unit: z.string().min(1)` must become nullable. 4,276 of 28,376 catalogue
     rows have no parseable size and are still perfectly good prices; as
     written the contract rejects 15% of the catalogue at the door.

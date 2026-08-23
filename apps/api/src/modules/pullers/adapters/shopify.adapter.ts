@@ -23,8 +23,8 @@ type ShopifyProduct = {
  * Shopify publishes its whole catalogue at /products.json, 250 per page.
  *
  * Ten of the sixteen pullable stores are Shopify. When `needs_unlocker` is set
- * on the store, requests route through Bright Data's Web Unlocker so all data
- * flows through BD infrastructure.
+ * on the store, requests route through Bright Data's Web Unlocker, with a
+ * direct fetch as the fallback when the Unlocker fails.
  */
 @Injectable()
 export class ShopifyAdapter implements Puller {

@@ -1,7 +1,7 @@
 /**
- * The staple plates: fifteen pieces of art under `public/plates/`, traced from
- * public-domain source imagery by `lab/plates/trace.py` and keyed by the same
- * itemKeys the basket uses.
+ * The staple plates: fifteen pieces of art under `public/plates/`, traced
+ * from public-domain source imagery by a tracing script (kept outside this
+ * repo) and keyed by the same itemKeys the basket uses.
  *
  * Each file carries three nested ink bands and its own edge fade, and no
  * opacity of its own -- the caller sets that, and the three bands lift in

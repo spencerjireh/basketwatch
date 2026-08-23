@@ -2,14 +2,15 @@
 title: Architecture (HLD)
 tags: [hackathon, hld]
 created: 2026-08-15
-updated: 2026-08-20
+updated: 2026-08-23
 status: v1
 ---
 
 # HLD: Self-Healing Price Tracker ("Into the Scrape-Verse" 2026)
 
-Status: draft v1 for team review, Aug 15, 2026, amended Aug 20 where the build
-diverged from it. The shape held; three things changed in the detail:
+Status: draft v1 for team review, Aug 15, 2026, amended Aug 20 and Aug 23
+where the build diverged from it. The shape held; four things changed in the
+detail:
 
 - **The dashboard is Next.js**, not a Vite SPA, and nginx is gone with it
   (section 3.4 and 3.6).
@@ -17,6 +18,11 @@ diverged from it. The shape held; three things changed in the detail:
 - **The app is the repo root**, on pnpm + Turborepo. Parker's Pantry
   (`apps/pantry`) is live at `pantry.spencerjireh.com` as the disclosed clone
   store for staged break-and-heal demos.
+- **Heal prompts are built deterministically.** The plan below sketched an
+  LLM step composing heal prompts from evidence; what shipped is a pure
+  template (`modules/heal/prompt.ts`) that turns validator findings and raw
+  output diagnosis into the prompt sent to Studio's refactor API. No
+  Anthropic call exists in the codebase.
 
 Companion: [api-contract](api-contract.md) (endpoint and response shapes).
 
@@ -39,7 +45,7 @@ Goals
   fleet health board, heal audit timeline.
 - Alerts: price drops (product) and breakage/heal events (ops) via Resend
   email + Telegram; Discord if time allows.
-- Deployed live on the Coolify VPS; judges click a URL.
+- Deployed live on a VPS; judges click a URL.
 
 Non-goals (explicitly out)
 - User accounts / auth of any kind.
@@ -59,7 +65,7 @@ flowchart LR
         SS -->|generates & repairs| FLEET
     end
 
-    subgraph VPS["Coolify VPS"]
+    subgraph VPS["VPS"]
         subgraph API["Orchestrator API (TypeScript)"]
             SCHED["pg-boss queue<br/>cron 2x daily + retries"]
             INGEST["Ingest<br/>webhook receiver + poller"]
@@ -72,7 +78,6 @@ flowchart LR
         CLONE["Clone Store Site<br/>layout-mutation switch<br/>(demo chaos target)"]
     end
 
-    CLAUDE["Claude API<br/>diagnoses evidence,<br/>writes heal prompts"]
     USERS["Users / Judges"]
     CHANNELS["Email / Telegram"]
 
@@ -81,7 +86,6 @@ flowchart LR
     INGEST --> SENSE
     SENSE -->|clean data| DB
     SENSE -->|anomaly detected| HEAL
-    HEAL <-->|evidence / prompt| CLAUDE
     HEAL -->|"heal + approve<br/>(refactor_template)"| SS
     HEAL -->|canary verify run| FLEET
     HEAL -->|audit trail| DB
@@ -153,8 +157,9 @@ stateDiagram-v2
 - **Heal orchestrator**:
   - Builds evidence bundle: failing checks, sample bad output, last-good
     sample, field-level diff summary.
-  - Claude API turns evidence into a plain-language heal prompt (Studio's
-    docs recommend small, specific prompts — one field at a time).
+  - A deterministic prompt builder (`modules/heal/prompt.ts`) turns evidence
+    into a plain-language heal prompt (Studio's docs recommend small, specific
+    prompts — one field at a time).
   - Calls `refactor_template`, polls; on `awaiting_approval` calls
     `resume_automation_job` (approve) -> canary run -> re-validate.
   - Pass: save to production, close incident, ops alert "healed".
@@ -175,7 +180,6 @@ sequenceDiagram
     participant Sense as Spider-Sense<br/>Validator
     participant DB as Postgres
     participant Heal as Heal<br/>Orchestrator
-    participant Claude as Claude API
     participant Studio as Scraper Studio<br/>(AI heal)
     participant Notif as Notifier
 
@@ -188,8 +192,7 @@ sequenceDiagram
         Sense->>DB: open incident (status: broken)
         Sense->>Notif: ops alert "scraper X broken"
         Sense->>Heal: evidence bundle<br/>(failing fields, samples, last-good diff)
-        Heal->>Claude: diagnose evidence
-        Claude-->>Heal: heal prompt (plain language fix)
+        Heal->>Heal: build heal prompt from evidence
         Heal->>Studio: refactor_template(prompt)
         Studio-->>Heal: proposed diff (awaiting approval)
         Heal->>Studio: approve (resume_automation_job)
@@ -254,7 +257,6 @@ erDiagram
     HEAL_ATTEMPT {
         uuid id PK
         uuid incident_id FK
-        text claude_diagnosis
         text heal_prompt
         text studio_diff
         text verdict "approved|rejected|failed"
@@ -274,7 +276,7 @@ erDiagram
 Drizzle ORM + migrations. Raw run payloads kept (jsonb) so incidents can be
 replayed/re-validated during development.
 
-### 3.4 Dashboard (Next.js App Router + Tailwind + Recharts)
+### 3.4 Dashboard (Next.js App Router + Tailwind)
 - **Public**: basket index line (the hero chart — gaps visualize breakage,
   heals close the line), per-product store comparison, price-drop feed.
 - **Ops ("web" view)**: fleet health board (state machine per scraper),
@@ -300,12 +302,13 @@ The break switch swaps the storefront markup between two layouts:
 them. Guarded by `PANTRY_ADMIN_TOKEN`.
 
 ### 3.6 Deployment
-Coolify VPS. **`docker-compose.prod.yml` at the repo root is the deployment
-unit** — Coolify runs the stack as one Docker Compose resource watching
-`main`, and redeploys on every push. `docker-compose.dev.yml`, also at the
-root, runs just postgres locally; apps run on the host with hot reload.
-Coolify handles TLS/subdomains. Secrets (Bright Data key, Anthropic key,
-Resend, Telegram token, webhook secret) via Coolify env vars.
+A VPS. **`docker-compose.prod.yml` at the repo root is the deployment
+unit** — the deploy platform runs the stack as one Docker Compose resource
+watching `main`, and redeploys on every push. `docker-compose.dev.yml`, also
+at the root, runs just postgres locally; apps run on the host with hot
+reload. The platform's reverse proxy handles TLS/subdomains. Secrets (Bright
+Data key, ops token, Resend, Telegram token, webhook secret) via deploy-time
+env vars.
 
 Domains: `basketwatch.spencerjireh.com` serves the dashboard, and the API sits
 behind it same-origin at `/api/`. The API sets a global `api` prefix with no
@@ -322,7 +325,7 @@ routes manifest, so setting it at runtime does nothing.
 Postgres is the exception to "internal-only": it is published on host port
 `55432` so the team can write scraped data into it directly from their
 laptops. Password auth is scram-sha-256 and the password lives only in the
-Coolify env. Clients connect to the VPS IP rather than a hostname — the
+deploy env. Clients connect to the VPS IP rather than a hostname — the
 `*.spencerjireh.com` wildcard is Cloudflare-proxied and the proxy forwards HTTP
 only, not arbitrary TCP. Postgres also listens on `55432` *inside* the
 container, to clear a `DOCKER-USER` rule on the VPS that drops external traffic
@@ -340,14 +343,13 @@ flowchart TB
         JUDGE["Judges / Users<br/>(browser)"]
         TG["Telegram"]
         RESEND["Resend (email)"]
-        ANTHROPIC["Anthropic API"]
         BDCLOUD["Bright Data Cloud<br/>Scraper Studio + fleet"]
         STORES["Real store sites"]
         TEAM["Team laptops<br/>psql / pandas ingest"]
     end
 
-    subgraph COOLIFY["Coolify VPS (Docker)"]
-        PROXY["Reverse proxy + TLS<br/>(Coolify-managed)"]
+    subgraph COOLIFY["VPS (Docker)"]
+        PROXY["Reverse proxy + TLS"]
         subgraph APP["app stack (docker compose)"]
             WEB["dashboard<br/>Next.js :3000"]
             APIC["orchestrator-api<br/>NestJS + pg-boss"]
@@ -365,7 +367,6 @@ flowchart TB
     BDCLOUD -->|"webhook delivery<br/>(signed)"| PROXY
     BDCLOUD -->|scrapes| STORES
     BDCLOUD -->|scrapes| CLONE
-    APIC -->|heal-prompt calls| ANTHROPIC
     APIC -->|alerts| RESEND
     APIC -->|alerts| TG
     TEAM -->|"postgres :55432<br/>(direct to VPS IP,<br/>bypasses Cloudflare)"| PG
@@ -378,7 +379,6 @@ flowchart TB
 |---|---|---|
 | `api.brightdata.com /dca/*` | out | trigger, get_result, refactor_template, resume_automation_job |
 | Studio webhook delivery | in | signed; per-scraper path |
-| Anthropic API | out | evidence -> heal prompt; also breakage classification |
 | Resend / Telegram / Discord | out | notifier adapters |
 | Public REST `/api/*` | in | dashboard reads; manual trigger (unauthenticated but rate-limited, mutation endpoints behind a simple token) |
 
@@ -402,23 +402,10 @@ API contract (defined day 1).
 | Fri 22 | Demo video, README, Scraper Studio usage writeup, submission draft |
 | Sat 23 | Buffer + submit |
 
-**Where this actually stands, Aug 20.** The week went differently: Mon to Wed
-went on site vetting (163 candidates scored, 32 fleet-ready), the catalogue
-migration into Postgres, and then the rebuild into `basketwatch/`. Against the
-table above:
-
-| Planned | Actual |
-|---|---|
-| Sun 17 — scaffold, schema, ingest storing runs | Scaffold and schema done. **Ingest does not persist**; it validates and returns. |
-| Mon 18 — validator, 4+ scrapers, baselines forming | Validator done and tested. Four Studio collectors exist from vetting, but the fleet is not on a schedule and **no baselines exist**. |
-| Tue 19 — heal orchestrator end-to-end | **Not started.** The day went to PH vetting, which passed the gate. |
-| Wed 20 — dashboard core, notifier | Dashboard core done, on fixtures. **Notifier not started.** Day also absorbed the rebuild. |
-
-So three planned days are outstanding with three days left, and they are the
-three that depend on each other: ingest -> validator -> heal. The critical path
-is now a single item — an endpoint and a writer that touch the database. Until
-that lands, the price history that the definition of done wants "4+ days" of
-has not started accumulating.
+The week ran differently in practice — the first half went to site vetting
+(163 candidates scored) and the catalogue migration into Postgres — but the
+plan's components all landed: ingest, validator, heal loop, dashboard, and
+the deployed stack described above.
 
 ## 7. Risks
 
@@ -428,7 +415,6 @@ has not started accumulating.
 | Real store sites block/return junk | Weak product data | Bright Data unlocker infra mitigates; vet 8-10 candidate sites day 1, keep best 4-6; clone store guarantees demo |
 | Heal quality is poor on real breakage | Loop demo fails on real sites | Clone store gives controlled reproducible case; refine prompts (one field at a time per BD docs) |
 | Credit burn (heals cost unknown) | Dead account mid-week | Budget guard before every Studio call; measure heal cost Tue and recalibrate caps |
-| Studio heal latency (up to 15 min) | Sluggish live demo | Demo uses pre-recorded heal + live dashboard state; video shows real-time timeline |
 
 ## 8. Open questions for the team
 

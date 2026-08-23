@@ -64,7 +64,7 @@ export class DatabaseModule implements OnModuleInit, OnApplicationShutdown {
   /**
    * Apply pending migrations before anything else starts.
    *
-   * Coolify deploys by pulling main and running compose -- there is no step in
+   * A deploy pulls main and runs compose -- there is no step in
    * between where a human runs drizzle-kit, and a deploy that ships code
    * expecting a column the database does not have is a broken demo. onModuleInit
    * runs ahead of every onApplicationBootstrap hook, so the queue and the
