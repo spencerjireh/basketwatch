@@ -107,6 +107,11 @@ const cardB = (store, p, price) => {
  * dresses that fixed DOM as a small family grocer. The one bold element is
  * the striped awning (country accent + white, scalloped edge); everything
  * else stays quiet around it.
+ *
+ * The Scrape-Verse nod is printed, not webbed: the wordmark carries a hint
+ * of misregistered red/blue plates, the masthead a faint halftone dot
+ * field, and the shelf tags a comic-sticker ink line -- all readings that a
+ * grocer's weekly circular and a comic page happen to share.
  */
 const css = (accent, lite) => `
   :root { --accent: ${accent}; --lite: ${lite}; --ink: #26221c; --milk: #fdfcf8; --card: #fffefb; --crate: #e6dfd2; --tag: #ffd23f; --leaf: #2e7d4f; --muted: #7d746a; }
@@ -117,8 +122,8 @@ const css = (accent, lite) => `
   .topbar a { color: #f4efe6; text-decoration: none; margin-left: 1.1rem; letter-spacing: 0.06em; text-transform: uppercase; font-weight: 600; font-size: 0.72rem; }
   .topbar a[aria-current="true"] { color: var(--tag); }
   .topbar a:hover { text-decoration: underline; }
-  .masthead { padding: 2.1rem 1.5rem 1.6rem; text-align: center; }
-  .brand { font-family: Bevan, Georgia, 'Times New Roman', serif; font-size: clamp(1.9rem, 5vw, 2.6rem); line-height: 1.1; }
+  .masthead { padding: 2.1rem 1.5rem 1.6rem; text-align: center; background-image: radial-gradient(${accent}12 1.2px, transparent 1.3px); background-size: 13px 13px; }
+  .brand { font-family: Bevan, Georgia, 'Times New Roman', serif; font-size: clamp(1.9rem, 5vw, 2.6rem); line-height: 1.1; text-shadow: -2px 1px 0 rgba(29,78,216,0.30), 2px -1px 0 rgba(185,28,28,0.30); }
   .brand a { color: inherit; text-decoration: none; }
   .tagline { margin-top: 0.55rem; color: var(--muted); font-size: 0.92rem; }
   .storefront-label { display: inline-block; margin-top: 0.8rem; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent); border: 1px solid currentColor; padding: 0.22rem 0.7rem; border-radius: 999px; }
@@ -137,7 +142,7 @@ const css = (accent, lite) => `
   .item-tile { display: flex; flex-direction: column; gap: 0.6rem; }
   .product-name, .item-title { font-size: 0.92rem; font-weight: 600; line-height: 1.35; min-height: 2.7em; }
   .product-name { grid-column: 1 / -1; }
-  .price, .item-cost { background: var(--tag); color: var(--ink); font-weight: 800; font-size: 1.12rem; padding: 0.28rem 0.6rem 0.24rem; border-radius: 3px; box-shadow: inset 0 -2px 0 rgba(38,34,28,0.18); }
+  .price, .item-cost { background: var(--tag); color: var(--ink); font-weight: 800; font-size: 1.12rem; padding: 0.28rem 0.6rem 0.24rem; border-radius: 3px; border: 1.5px solid var(--ink); box-shadow: 2px 2px 0 var(--ink); }
   .price { grid-column: 1 / -1; justify-self: start; }
   .item-cost { align-self: flex-start; }
   .cost-currency, .cost-cents { font-size: 0.72rem; font-weight: 700; vertical-align: 0.45em; }
@@ -196,7 +201,7 @@ const shell = (store, title, body) => {
   <main>
 ${body}
   </main>
-  <footer>Parker's Pantry is a fictional demonstration storefront for the basketwatch hackathon project. Not a real business.<br>214 Market Lane, nowhere in particular &middot; Two imaginary neighborhoods, restocked daily.</footer>
+  <footer>Parker's Pantry is a fictional demonstration storefront for the basketwatch hackathon project. Not a real business.<br>214 Market Lane, Earth-616 &middot; Two imaginary neighborhoods, restocked daily.</footer>
 </body>
 </html>`;
 };
