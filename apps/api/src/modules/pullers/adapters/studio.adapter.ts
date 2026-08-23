@@ -276,7 +276,7 @@ export class StudioAdapter implements Puller {
         productKey: keyFromUrl(url),
         name,
         price,
-        currency: normaliseCurrency(firstString(item.currency)),
+        currency: firstString(item.currency),
         url,
         inStock: item.in_stock !== false,
         category: firstString(item.category),
@@ -357,16 +357,4 @@ function firstString(...values: unknown[]): string | null {
     if (typeof value === "string" && value.trim()) return value.trim();
   }
   return null;
-}
-
-const CURRENCY_SYMBOLS: Record<string, string> = {
-  $: "USD",
-  "\u20B1": "PHP",
-  "\u20AC": "EUR",
-  "\u00A3": "GBP",
-};
-
-function normaliseCurrency(raw: string | null): string | null {
-  if (!raw) return null;
-  return CURRENCY_SYMBOLS[raw] ?? raw;
 }

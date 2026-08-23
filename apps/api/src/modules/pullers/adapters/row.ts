@@ -1,6 +1,7 @@
 import { DEFAULT_CURRENCY_BY_COUNTRY } from "@basketwatch/contract";
 import { type PulledRow, type PullerConfig } from "../puller.types.js";
 import { parseSize, unitPrice, type Size } from "../size.js";
+import { normaliseCurrencyCode } from "./currency.js";
 
 /** "the size is not knowable", as distinct from "read it off the name". */
 export const NO_SIZE = Symbol("no-size");
@@ -39,8 +40,12 @@ export function buildRow(config: PullerConfig, input: RowInput): PulledRow | nul
     name: (input.name ?? "").trim().slice(0, 200),
     price: input.price,
     // Shopify publishes no currency at all, so the store's own is the fallback
-    // and a source-provided value wins.
-    currency: input.currency || config.currency || DEFAULT_CURRENCY_BY_COUNTRY[config.country],
+    // and a source-provided value wins -- but only once reduced to a real code:
+    // collectors have echoed the whole price label ("USD 11.99") here.
+    currency:
+      normaliseCurrencyCode(input.currency) ||
+      config.currency ||
+      DEFAULT_CURRENCY_BY_COUNTRY[config.country],
     url: input.url,
     inStock: input.inStock ?? true,
     category: input.category ?? null,
