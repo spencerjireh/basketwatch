@@ -62,9 +62,12 @@ const NUMBER_WORDS = [
   "ten",
   "eleven",
   "twelve",
+  "thirteen",
+  "fourteen",
+  "fifteen",
 ];
 
-/** Small counts read as words in a sentence; past twelve, digits are kinder. */
+/** Small counts read as words in a sentence; past fifteen, digits are kinder. */
 export function spellNumber(value: number): string {
   return NUMBER_WORDS[value] ?? String(value);
 }
