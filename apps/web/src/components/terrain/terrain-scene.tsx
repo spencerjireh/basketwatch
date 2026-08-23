@@ -943,7 +943,12 @@ function Rig({
       if (rightX <= 0.98 || pass === 3) break;
       fit *= Math.min(1.6, Math.max(1.08, (rightX + 1) / 1.98));
     }
-    clampPan();
+    // Clamp only a pan the reader actually made. At the home framing the pan
+    // is zero, and when the composed target itself sits past the slab edge --
+    // a tall headline box pushes it there -- the clamp would shove the pan
+    // off zero, and the hero would wake up thinking the reader had already
+    // taken the camera: reset lit, headline faded, on a page nobody touched.
+    if (!atHomeRef.current) clampPan();
     fnsRef.current.applyCamera(clock.elapsedTime);
     fnsRef.current.updateAtHome();
     projectRef.current();
