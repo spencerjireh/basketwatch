@@ -180,7 +180,7 @@ Cheap HTTP checks first; Studio credits only on survivors.
 >
 > | Item | Where it stands |
 > |---|---|
-> | 5+ scrapers, 4+ days of history | History is two days, Aug 19-20, with 30 real price moves. Nothing writes on a schedule yet — the puller engine is built but its schedule ships disarmed, by decision, until the team says go. Still the item most exposed to the deadline, and the only one no amount of later effort recovers. |
+> | 5+ scrapers, 4+ days of history | **Met, accidentally.** 19 scrapers, and four days of observations (Aug 19-22) charted as five points. Aug 21 and 22 arrived from the catalogue schedule, which was armed the whole time by a boolean-coercion bug — `z.coerce.boolean()` reads `"false"` as `true`, and prod compose always passes a non-empty string. 32 runs, 54,918 rows, 369 recorded price movements. The one item no later effort could have recovered was being quietly banked while the docs said it was not. |
 > | Clone-store break-and-heal | **Not started, and deliberately last.** The clone store was deleted in the rebuild and is scheduled after the engine works — see decision 5. |
 > | Public URL, zero mock data | **Zero mock data: done.** Every dashboard route reads Postgres and `apps/web/src/fixtures/` is deleted. `api` and `web` are no longer profile-gated, so the public URL lands with the next deploy. |
 > | Demo video | Not started. |
