@@ -92,6 +92,13 @@
       "when": 1787691600006,
       "tag": "0012_local_harvest",
       "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "7",
+      "when": 1787691600007,
+      "tag": "0013_fix_currency_codes",
+      "breakpoints": true
     }
   ]
 }

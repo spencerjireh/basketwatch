@@ -19,6 +19,11 @@ const storedProductSchema = z.object({
   product_key: z.string().min(1),
   name: z.string().min(1),
   price: z.number().positive(),
+  // Exactly a code, never a label: a collector once echoed "USD 11.99" here,
+  // which the read contract rejects. Length-checked so that lands as an
+  // incident instead of a silently green run. Nullable because nullness is
+  // the null-rates check's job, not a schema failure.
+  currency: z.string().length(3).nullable(),
   url: z.string().min(1),
 });
 
