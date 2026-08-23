@@ -1,6 +1,6 @@
 import { Module } from "@nestjs/common";
-import { ConfigModule as NestConfigModule, ConfigService } from "@nestjs/config";
-import { type Env, validateEnv } from "./env.schema.js";
+import { ConfigModule as NestConfigModule } from "@nestjs/config";
+import { validateEnv } from "./env.schema.js";
 
 /**
  * `ignoreEnvFile: true` on purpose: env loading in dev is a runtime flag on the
@@ -18,9 +18,3 @@ import { type Env, validateEnv } from "./env.schema.js";
   ],
 })
 export class ConfigModule {}
-
-/**
- * Typed ConfigService. The `true` type argument marks the config as validated,
- * so `config.get("DATABASE_URL")` is `string` rather than `string | undefined`.
- */
-export type TypedConfigService = ConfigService<Env, true>;

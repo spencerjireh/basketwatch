@@ -92,8 +92,3 @@ export const verdictSchema = z.object({
   findings: z.array(checkResultSchema),
 });
 export type Verdict = z.infer<typeof verdictSchema>;
-
-/** How a row reached us. Recorded per observation, not per run. */
-export const dataSources = ["studio", "puller", "manual"] as const;
-export const dataSourceSchema = z.enum(dataSources);
-export type DataSource = z.infer<typeof dataSourceSchema>;

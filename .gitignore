@@ -26,3 +26,4 @@ next-env.d.ts
 !apps/web/**/*.png
 !docs/**/*.png
 .claude/worktrees/
+.pnpm-store/

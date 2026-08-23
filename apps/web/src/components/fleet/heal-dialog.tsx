@@ -614,7 +614,7 @@ function OrphanedView({
 }) {
   return (
     <div className="py-4">
-      <p className="caps text-warning">Orphaned heal detected</p>
+      <p className="caps text-drift">Orphaned heal detected</p>
       <p className="mt-2 text-[11px] text-mute">
         A heal is awaiting approval on Bright Data with no matching record here.
         Adopting or dismissing it is an ops action, from the API.

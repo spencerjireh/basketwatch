@@ -55,8 +55,9 @@ is no app subdirectory; `apps/` and `packages/` sit beside the compose files.
 Findings graduate from `lab/` into `docs/` and, when they change the contract,
 into a PR against the workspace.
 
-Not built yet: the clone store (demo prop for staged break-and-heal),
-the notifier module.
+Parker's Pantry (`apps/pantry`) is live at `pantry.spencerjireh.com` as the
+disclosed clone store for staged break-and-heal demos. Not yet wired: the
+notifier module (scaffolded, no delivery channel).
 
 ## Commands
 
@@ -196,4 +197,7 @@ things land, and this list only when a line here becomes false.
   /api/fleet/:storeId/provision` and `POST /api/fleet/provision` create Studio
   collectors from `collector-manifest.json` definitions. The Bright Data CLI
   is installed in the API Docker image for this purpose.
-- Not yet: the notifier, the clone store (demo prop for staged break-and-heal).
+- **Parker's Pantry (live Aug 22).** `apps/pantry` at
+  `pantry.spencerjireh.com` is the disclosed clone store for controlled
+  break-and-heal demos (two storefronts: `/us` USD, `/ph` PHP).
+- Not yet wired: the notifier module (scaffolded, no delivery channel).
