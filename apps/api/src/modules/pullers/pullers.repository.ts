@@ -25,7 +25,7 @@ export type RunSummary = {
   method: string;
   transport: "http" | "studio" | "unlocker";
   source: "puller" | "studio";
-  trigger: "cron" | "manual";
+  trigger: "cron" | "manual" | "canary";
   rows: number;
   unitPriced: number;
   pages: number;

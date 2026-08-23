@@ -125,21 +125,113 @@ export class HealRepository {
     return rows[0]!.id;
   }
 
-  /** Update a heal attempt with the result from Studio. */
-  async finishAttempt(
+  /**
+   * Set the attempt's verdict -- but only if nobody has set one yet.
+   *
+   * Two writers race here by design: the dashboard's status poll (which fails
+   * an attempt when Bright Data reports error/done) and the auto-approve poll
+   * worker. Whoever claims first wins, and every side effect -- resolve,
+   * reopen, hold, template save, canary enqueue, re-propose -- must run only
+   * on a won claim. COALESCE keeps a diff that an earlier poll persisted:
+   * the old unconditional update was nulling the diff approve() had just
+   * saved.
+   */
+  async claimVerdict(
     attemptId: string,
     verdict: string,
     studioDiff: string | null,
-    creditsSpent: number | null,
-  ): Promise<void> {
-    await this.db.execute(sql`
+  ): Promise<boolean> {
+    const rows = (await this.db.execute(sql`
       update heal_attempts
       set finished_at = now(),
           verdict = ${verdict},
-          studio_diff = ${studioDiff},
-          credits_spent = ${creditsSpent !== null ? String(creditsSpent) : null}
+          studio_diff = coalesce(${studioDiff}, studio_diff)
+      where id = ${attemptId}::uuid and verdict is null
+      returning id::text
+    `)) as unknown as AttemptIdRow[];
+    return rows.length > 0;
+  }
+
+  /** The attempt's verdict, incident and owners, for poll ticks and canary outcomes. */
+  async getAttempt(attemptId: string): Promise<{
+    verdict: string | null;
+    incidentId: string;
+    scraperId: string;
+    storeId: string | null;
+  } | null> {
+    const rows = (await this.db.execute(sql`
+      select ha.verdict, ha.incident_id::text as incident_id, i.scraper_id, i.store_id
+      from heal_attempts ha
+      join incidents i on i.id = ha.incident_id
+      where ha.id = ${attemptId}::uuid
+    `)) as unknown as {
+      verdict: string | null;
+      incident_id: string;
+      scraper_id: string;
+      store_id: string | null;
+    }[];
+    if (!rows[0]) return null;
+    return {
+      verdict: rows[0].verdict,
+      incidentId: rows[0].incident_id,
+      scraperId: rows[0].scraper_id,
+      storeId: rows[0].store_id,
+    };
+  }
+
+  /** Store the verification-pull result on the attempt. */
+  async updateAttemptCanary(attemptId: string, canaryJson: string): Promise<void> {
+    await this.db.execute(sql`
+      update heal_attempts
+      set canary = ${canaryJson}::jsonb
       where id = ${attemptId}::uuid
     `);
+  }
+
+  /**
+   * Hold an incident for a person: the machine is out of proposals (or out of
+   * its depth). 'manual' is already in the contract's incidentStates.
+   */
+  async markIncidentManual(incidentId: string): Promise<void> {
+    await this.db.execute(sql`
+      update incidents set state = 'manual'
+      where id = ${incidentId}::uuid and state in ('open', 'healing')
+    `);
+  }
+
+  /**
+   * Every attempt still awaiting a verdict, for the boot sweep: a restart (or
+   * a proposal made before the poll loop existed) must not orphan a heal that
+   * Bright Data is still holding open.
+   */
+  async listPendingAttempts(): Promise<{
+    attemptId: string;
+    incidentId: string;
+    scraperId: string;
+    storeId: string | null;
+  }[]> {
+    const rows = (await this.db.execute(sql`
+      select
+        ha.id::text          as attempt_id,
+        ha.incident_id::text as incident_id,
+        i.scraper_id,
+        i.store_id
+      from heal_attempts ha
+      join incidents i on i.id = ha.incident_id
+      where ha.verdict is null
+      order by ha.started_at asc
+    `)) as unknown as {
+      attempt_id: string;
+      incident_id: string;
+      scraper_id: string;
+      store_id: string | null;
+    }[];
+    return rows.map((r) => ({
+      attemptId: r.attempt_id,
+      incidentId: r.incident_id,
+      scraperId: r.scraper_id,
+      storeId: r.store_id,
+    }));
   }
 
   /** Count today's heal attempts for budget checks. */

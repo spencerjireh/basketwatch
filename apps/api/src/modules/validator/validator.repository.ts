@@ -197,6 +197,18 @@ export class ValidatorRepository {
     return baseline;
   }
 
+  /** The recorded size and null rate of one run, for canary outcomes. */
+  async getRunStats(runId: number): Promise<{ rows: number; nullRatePct: number } | null> {
+    const result = (await this.db.execute(sql`
+      select rows, null_rate_pct from runs where id = ${runId}
+    `)) as unknown as { rows: number; null_rate_pct: string | number | null }[];
+    if (!result[0]) return null;
+    return {
+      rows: Number(result[0].rows ?? 0),
+      nullRatePct: Number(result[0].null_rate_pct ?? 0),
+    };
+  }
+
   /** Seed baselines for all stores that have products. */
   async seedAllBaselines(): Promise<number> {
     const storeRows = (await this.db.execute(sql`
