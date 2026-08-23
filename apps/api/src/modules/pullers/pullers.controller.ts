@@ -77,7 +77,7 @@ export class PullersController {
       { storeId, trigger: "manual" },
       // No retries: a person can press it again, and a silent retry of a
       // credit-spending job is not a favour.
-      { singletonKey: storeId, retryLimit: 0 },
+      { singletonKey: storeId, retryLimit: 0, expireInSeconds: 1800 },
     );
 
     return { status: jobId ? "queued" : "already_queued", storeId, jobId };

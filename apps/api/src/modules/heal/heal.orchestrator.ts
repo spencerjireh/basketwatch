@@ -611,7 +611,7 @@ export class HealOrchestrator {
     await this.boss.send(
       QUEUES.scrapeRun,
       { storeId, trigger: "canary", healAttemptId },
-      { singletonKey: storeId, retryLimit: 0 },
+      { singletonKey: storeId, retryLimit: 0, expireInSeconds: 1800 },
     );
     this.logger.log(`${storeId}: canary pull enqueued for attempt ${healAttemptId}`);
   }
