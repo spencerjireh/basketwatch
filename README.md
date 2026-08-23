@@ -12,6 +12,7 @@ the whole attempt audited.
 ```
 apps/api        NestJS + Drizzle + pg-boss. Owns every read and write, incl. SSE.
 apps/web        Next.js dashboard. A pure client of the API; never touches Postgres.
+apps/pantry     Parker's Pantry, the disclosed clone store (see below).
 packages/contract   zod schemas and types. The only thing the two apps share.
 packages/tsconfig   base / library / nest / next compiler configs.
 packages/eslint-config  base / nest / next lint configs, incl. the import boundaries.
@@ -61,6 +62,28 @@ real data. Migration `0000` must keep its exact bytes: drizzle decides what to
 apply from the journal's `when` timestamp, and re-running `0000` against
 production fails on `CREATE VIEW "latest_price"`, which is the one statement in
 that file without an `IF NOT EXISTS` guard.
+
+## Parker's Pantry, the disclosed test rig
+
+`apps/pantry` is a fictional grocery store we run ourselves at
+`pantry.spencerjireh.com`, with a US storefront (`/us`, USD) and a PH twin
+(`/ph`, PHP). It exists so the break-detect-heal loop has a target we can
+break on purpose, and so the comparison view keeps one source per country
+that cannot go down with a third-party site.
+
+Full disclosure, because a price tracker must not launder fake data:
+
+- Its prices are **generated**: a deterministic seeded walk of at most 1.5%
+  per day per product from fixed base prices. Same day, same price; no
+  storage involved.
+- Both stores ship with `index_contributor = false`, so they render on the
+  dashboard (marked as not counted) but never move the country index. Letting
+  one in is a deliberate ops action:
+  `POST /api/fleet/:storeId/index-contributor` (ops token), or
+  `just index-contributor clone-parkers-pantry-ph true`.
+- The break switch swaps the storefront markup between two layouts:
+  `just pantry-layout us b` breaks the US scraper's assumptions, `a` restores
+  them. Guarded by `PANTRY_ADMIN_TOKEN`.
 
 ## Things that will bite you
 

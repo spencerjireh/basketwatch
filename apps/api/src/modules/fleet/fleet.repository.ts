@@ -112,6 +112,16 @@ export class FleetRepository {
     `);
   }
 
+  /** Returns false when no such store exists, so the controller can 404. */
+  async setIndexContributor(storeId: string, contributor: boolean): Promise<boolean> {
+    const rows = (await this.db.execute(sql`
+      update stores set index_contributor = ${contributor}
+      where store_id = ${storeId}
+      returning store_id
+    `)) as unknown as { store_id: string }[];
+    return rows.length > 0;
+  }
+
   async setStudioEndpoint(storeId: string, endpoint: string): Promise<void> {
     await this.db.execute(sql`
       update stores set studio_endpoint = ${endpoint} where store_id = ${storeId}
