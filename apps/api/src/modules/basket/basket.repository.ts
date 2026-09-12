@@ -632,35 +632,19 @@ export class BasketRepository {
 }
 
 /**
- * Attach the incident that explains each gap, and mark the day a gap closed.
+ * Attach the incident that explains each gap.
  *
- * The chart reads both: `incidentId` labels the hatched span, `healed` puts a
- * marker where the line resumes. Neither is invented -- a gap with no matching
- * incident stays unlabelled rather than being blamed on the nearest one.
+ * `incidentId` labels the hatched span. It is never invented -- a gap with no
+ * matching incident stays unlabelled rather than being blamed on the nearest
+ * one.
  */
 function annotate(points: BasketPoint[], incidents: IncidentRow[]): BasketPoint[] {
-  return points.map((point, index) => {
-    if (point.total === null) {
-      const open = incidents.filter(
-        (i) => i.opened_at <= point.date && (i.resolved_at === null || i.resolved_at >= point.date),
-      );
-      return { ...point, incidentId: open.at(-1)?.id ?? null };
-    }
-
-    const previous = points[index - 1];
-    if (!previous || previous.total !== null) return point;
-
-    // Only the incident the gap itself named, and only if it closed in this
-    // window. Any resolved incident nearby would put a heal marker on a gap it
-    // did not cause -- which reads as a claim, not a coincidence.
-    const closed = incidents.some(
-      (i) =>
-        i.id === previous.incidentId &&
-        i.resolved_at !== null &&
-        i.resolved_at > previous.date &&
-        i.resolved_at <= point.date,
+  return points.map((point) => {
+    if (point.total !== null) return point;
+    const open = incidents.filter(
+      (i) => i.opened_at <= point.date && (i.resolved_at === null || i.resolved_at >= point.date),
     );
-    return closed ? { ...point, healed: true } : point;
+    return { ...point, incidentId: open.at(-1)?.id ?? null };
   });
 }
 

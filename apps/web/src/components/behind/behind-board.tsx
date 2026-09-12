@@ -8,10 +8,8 @@ import { Section } from "@/components/ui/section";
 /**
  * How the prices are known, and which of them we do not believe.
  *
- * The fleet board, the activity feed, the incidents and the heal dialog used to
- * live here too. They are the machinery rather than the provenance, and they
- * have their own page now -- this one answers a shopper's question, not an
- * operator's.
+ * This answers a shopper's question, not an operator's: the machinery stays
+ * out of it, the provenance stays in.
  *
  * Still a client component: both numbers below and the worklist follow the
  * country switcher, which lives in context.

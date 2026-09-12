@@ -108,8 +108,7 @@ function kindFor(row: FeedRow): FeedEventKind {
     case "incident":
       // The phase, not the state: an incident that opened this morning and
       // closed this afternoon must still read as a breakage where it opened.
-      if (row.phase === "resolved") return "healed";
-      return row.b === "healing" ? "healing" : "breakage";
+      return row.phase === "resolved" ? "recovery" : "breakage";
     case "alert": {
       const parsed = feedEventKindSchema.safeParse(row.a);
       return parsed.success ? parsed.data : "breakage";

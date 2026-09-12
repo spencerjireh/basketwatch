@@ -1,19 +1,15 @@
 import { Injectable, Logger, type OnApplicationBootstrap } from "@nestjs/common";
-import { ConfigService } from "@nestjs/config";
 import { type CheckResult, type Verdict } from "@basketwatch/contract";
 import { z } from "zod";
-import { type Env } from "../../config/env.schema.js";
-import { BossService } from "../../jobs/boss.provider.js";
-import { QUEUES } from "../../jobs/queues.js";
 import { validateRun } from "./checks.js";
 import { type Baseline } from "./checks.types.js";
 import { ValidatorRepository } from "./validator.repository.js";
 
 /**
  * Schema for stored products as returned by loadStoreProducts(). Distinct from
- * the ingest priceRecordSchema because stored rows lack observed_at and have
- * nullable size fields. A row failing this means a core field (name, price, url)
- * was lost -- the exact symptom a heal should fix.
+ * priceRecordSchema because stored rows lack observed_at and have nullable size
+ * fields. A row failing this means a core field (name, price, url) was lost --
+ * the exact symptom of an adapter that stopped understanding the site.
  */
 const storedProductSchema = z.object({
   product_key: z.string().min(1),
@@ -29,20 +25,16 @@ const storedProductSchema = z.object({
 
 /**
  * The impure edge around the pure checks: loads a baseline, runs the checks,
- * opens an incident with its evidence bundle, and updates the run record.
+ * opens or resolves incidents, and updates the run record.
  *
  * Keeping this separate from checks.ts is what lets an incident be replayed
- * from its stored raw_output against rules that did not exist when it opened.
+ * from its stored evidence against rules that did not exist when it opened.
  */
 @Injectable()
 export class ValidatorService implements OnApplicationBootstrap {
   private readonly logger = new Logger(ValidatorService.name);
 
-  constructor(
-    private readonly repository: ValidatorRepository,
-    private readonly boss: BossService,
-    private readonly config: ConfigService<Env, true>,
-  ) {}
+  constructor(private readonly repository: ValidatorRepository) {}
 
   async onApplicationBootstrap(): Promise<void> {
     const count = await this.repository.seedAllBaselines();
@@ -59,8 +51,8 @@ export class ValidatorService implements OnApplicationBootstrap {
    *    price drift) -- all in `checks.ts`, IO-free and unit-tested.
    * 3. Persists findings and the run's verdict.
    * 4. On a `broken` verdict, opens an incident (if one is not already open)
-   *    with raw output as evidence, and enqueues a heal job if auto-heal is
-   *    enabled and a scraper id is known.
+   *    with the findings as evidence. On an `ok` verdict, resolves whatever
+   *    incident was open: the store came back, and the record should say so.
    */
   async validateStoredRun(runId: number, storeId: string): Promise<Verdict> {
     const baseline = await this.repository.loadBaseline(storeId);
@@ -86,25 +78,12 @@ export class ValidatorService implements OnApplicationBootstrap {
     if (verdict.status === "broken") {
       const hasOpen = await this.repository.hasOpenIncident(storeId);
       if (!hasOpen) {
-        const rawOutput = await this.repository.loadRunRawOutput(runId);
-        const evidence = this.buildEvidence(verdict.findings, products, baseline, rawOutput);
+        const evidence = this.buildEvidence(verdict.findings, products, baseline);
         const incidentKind = this.pickIncidentKind(verdict.findings);
-        const scraperId = await this.repository.getScraperId(storeId);
-        const incidentId = await this.repository.openIncident(
-          storeId,
-          runId,
-          incidentKind,
-          evidence,
-          scraperId,
-        );
+        await this.repository.openIncident(storeId, runId, incidentKind, evidence);
         this.logger.log(
           `${storeId}: run ${runId} is ${verdict.status}, incident opened (${incidentKind})`,
         );
-        if (scraperId) {
-          await this.enqueueHeal(scraperId, storeId, incidentId);
-        } else {
-          this.logger.warn(`${storeId}: no scraper_id, cannot auto-heal`);
-        }
       } else {
         this.logger.log(`${storeId}: run ${runId} is ${verdict.status}, incident already open`);
       }
@@ -112,6 +91,15 @@ export class ValidatorService implements OnApplicationBootstrap {
       this.logger.log(
         `${storeId}: run ${runId} is ${verdict.status}, ${verdict.findings.length} findings`,
       );
+      // Only a run that applied rows reaches validation, so an `ok` here is a
+      // store that pulls and parses again. Without this the open incident
+      // would outlive the breakage and, through hasOpenIncident, swallow the
+      // next real one.
+      if (verdict.status === "ok") {
+        const resolved = await this.repository.resolveOpenIncidents(storeId);
+        if (resolved > 0)
+          this.logger.log(`${storeId}: recovered, ${resolved} incident(s) resolved`);
+      }
     }
 
     return verdict;
@@ -125,35 +113,6 @@ export class ValidatorService implements OnApplicationBootstrap {
   /** Update a single store's baseline after a successful validation. */
   async updateBaseline(storeId: string): Promise<void> {
     await this.repository.computeAndSeedBaseline(storeId);
-  }
-
-  private async enqueueHeal(scraperId: string, storeId: string, incidentId: string): Promise<void> {
-    // Checked here rather than only in the worker so a disarmed loop leaves no
-    // queued job behind to fire the moment someone arms it again. The incident
-    // is already open either way -- what this skips is the spend.
-    if (!this.config.get("HEAL_AUTO_ENABLED", { infer: true })) {
-      this.logger.log(
-        `${storeId}: auto-heal is disabled (HEAL_AUTO_ENABLED=false); ` +
-          `incident ${incidentId} stands unhealed`,
-      );
-      return;
-    }
-
-    try {
-      await this.boss.send(
-        QUEUES.heal,
-        { scraperId, storeId, incidentId },
-        {
-          singletonKey: scraperId,
-          retryLimit: 0,
-        },
-      );
-      this.logger.log(`${storeId}: heal job enqueued for scraper ${scraperId}`);
-    } catch (err) {
-      this.logger.error(
-        `${storeId}: failed to enqueue heal -- ${err instanceof Error ? err.message : String(err)}`,
-      );
-    }
   }
 
   private computeNullRatePct(products: Record<string, unknown>[]): number {
@@ -238,25 +197,11 @@ export class ValidatorService implements OnApplicationBootstrap {
 
     this.logger.warn(`${storeId}: first run failed validation, opening incident`);
 
-    const scraperId = await this.repository.getScraperId(storeId);
-    const rawOutput = await this.repository.loadRunRawOutput(runId);
     const emptyBaseline: Baseline = { expectedRowCount: 0, fieldNullRates: {}, valueRanges: {} };
-    const evidence = this.buildEvidence(findings, products, emptyBaseline, rawOutput);
+    const evidence = this.buildEvidence(findings, products, emptyBaseline);
     const incidentKind = this.pickIncidentKind(findings);
-    await this.repository.openIncident(storeId, runId, incidentKind, evidence, scraperId);
+    await this.repository.openIncident(storeId, runId, incidentKind, evidence);
     await this.repository.updateRunFindings(runId, findings, 0, "broken");
-
-    try {
-      if (scraperId) {
-        await this.boss.send(
-          QUEUES.heal,
-          { scraperId, storeId },
-          { singletonKey: scraperId, retryLimit: 0 },
-        );
-      }
-    } catch {
-      this.logger.error(`${storeId}: failed to enqueue heal for first-run incident`);
-    }
 
     return { status: "broken", findings };
   }
@@ -265,7 +210,6 @@ export class ValidatorService implements OnApplicationBootstrap {
     findings: CheckResult[],
     products: Record<string, unknown>[],
     baseline: Baseline,
-    rawOutput: unknown[] = [],
   ): Record<string, unknown> {
     const fieldNullRates: Record<string, number> = {};
     const fields = ["name", "url", "price", "currency", "in_stock", "size_value", "size_uom"];
@@ -287,7 +231,6 @@ export class ValidatorService implements OnApplicationBootstrap {
       baselineNullRates: baseline.fieldNullRates,
       rowCount: products.length,
       expectedRowCount: baseline.expectedRowCount,
-      rawSample: rawOutput.slice(0, 5),
     };
   }
 

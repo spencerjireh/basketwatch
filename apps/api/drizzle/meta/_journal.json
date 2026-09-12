@@ -99,6 +99,13 @@
       "when": 1787691600007,
       "tag": "0013_fix_currency_codes",
       "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "7",
+      "when": 1787691600008,
+      "tag": "0014_drop_bright_data",
+      "breakpoints": true
     }
   ]
 }

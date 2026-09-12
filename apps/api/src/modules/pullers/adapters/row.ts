@@ -14,9 +14,8 @@ type RowInput = {
   url: string | null;
   inStock?: boolean;
   category?: string | null;
-  /** pass NO_SIZE where the collector's own size contradicts the title's */
+  /** pass NO_SIZE where the page's own size contradicts the title's */
   rawSize?: string | null | typeof NO_SIZE;
-  source?: "puller" | "studio";
 };
 
 /**
@@ -52,7 +51,6 @@ export function buildRow(config: PullerConfig, input: RowInput): PulledRow | nul
     observedAt: now(),
     size,
     unitPrice: unitPrice(input.price, size),
-    source: input.source ?? "puller",
   };
 }
 

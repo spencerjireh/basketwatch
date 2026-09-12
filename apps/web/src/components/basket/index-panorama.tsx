@@ -23,7 +23,7 @@ const PAD_B = 36;
  * Every price chart on the internet draws a smooth line, and a smooth line
  * lies: it interpolates across the days a scraper was broken. This one stops.
  * The missing span is hatched in the broken colour and labelled with the
- * incident that caused it, and the line resumes where the heal closed the gap.
+ * incident that caused it, and the line resumes where the data does.
  *
  * Behind the basket line, one thin line per store: that store's own sum over
  * the staples it priced. A store line does not go quiet on a partial day --
@@ -346,28 +346,6 @@ export function IndexPanorama({ series }: { series: BasketSeries[] }) {
             const tag = marked.get(i);
             return (
               <g key={`pt-${point.date}`}>
-                {point.healed ? (
-                  <>
-                    <circle
-                      cx={x(i).toFixed(2)}
-                      cy={y(point.total).toFixed(2)}
-                      r="6"
-                      fill="var(--color-paper)"
-                      stroke="var(--color-live)"
-                      strokeWidth="1.5"
-                    />
-                    <text
-                      x={x(i).toFixed(2)}
-                      y={(y(point.total) - 12).toFixed(2)}
-                      textAnchor="middle"
-                      fontSize="9"
-                      fontFamily="var(--font-mono)"
-                      fill="var(--color-live)"
-                    >
-                      healed
-                    </text>
-                  </>
-                ) : null}
                 <circle
                   cx={x(i).toFixed(2)}
                   cy={y(point.total).toFixed(2)}
@@ -379,7 +357,7 @@ export function IndexPanorama({ series }: { series: BasketSeries[] }) {
                 {tag ? (
                   <text
                     x={x(i).toFixed(2)}
-                    y={(y(point.total) - (point.healed ? 24 : 10)).toFixed(2)}
+                    y={(y(point.total) - 10).toFixed(2)}
                     textAnchor="middle"
                     fontSize="10"
                     fontFamily="var(--font-mono)"
@@ -432,7 +410,6 @@ export function IndexPanorama({ series }: { series: BasketSeries[] }) {
               {" · "}
               <span className="text-ink">{formatMoney(hoveredPoint.total, active.currency)}</span>
               {` · ${hoveredPoint.pricedItems} of ${hoveredPoint.expectedItems} priced`}
-              {hoveredPoint.healed ? " · a heal closed the gap here" : ""}
               {hotSeries && hoveredDay !== null
                 ? storeReadout(hotSeries, hoveredDay, active.currency)
                 : ""}
@@ -449,7 +426,7 @@ export function IndexPanorama({ series }: { series: BasketSeries[] }) {
         ) : hotSeries ? (
           storeRestReadout(hotSeries, active.currency)
         ) : (
-          "Hatched span: days we could not price every staple. Ringed dot: the day a heal closed the gap. Thin lines: each store's own sum over what it priced -- a hollow point is a partial day."
+          "Hatched span: days we could not price every staple. Thin lines: each store's own sum over what it priced -- a hollow point is a partial day."
         )}
       </p>
 
@@ -463,7 +440,7 @@ export function IndexPanorama({ series }: { series: BasketSeries[] }) {
               onBlur={() => setHoveredDay(null)}
             >
               {point.total !== null
-                ? `${formatDay(point.date)}: ${formatMoney(point.total, active.currency)}, ${point.pricedItems} of ${point.expectedItems} staples priced${point.healed ? ", heal closed the gap" : ""}`
+                ? `${formatDay(point.date)}: ${formatMoney(point.total, active.currency)}, ${point.pricedItems} of ${point.expectedItems} staples priced`
                 : `${formatDay(point.date)}: no full basket${point.incidentId ? `, incident ${point.incidentId}` : ""}`}
             </button>
           </li>

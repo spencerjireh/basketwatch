@@ -10,8 +10,8 @@ import type { Request } from "express";
 import { type Env } from "../../config/env.schema.js";
 
 /**
- * Guards the endpoints that cost money or change the fleet: manual runs, heal
- * triggers. Reads are public because the dashboard is public and has no auth.
+ * Guards the endpoints that hit real stores or change the fleet: manual runs,
+ * index flags. Reads are public because the dashboard is public and has no auth.
  */
 @Injectable()
 export class OpsTokenGuard implements CanActivate {

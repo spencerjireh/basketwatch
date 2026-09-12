@@ -12,7 +12,7 @@ async function bootstrap(): Promise<void> {
 
   // One prefix, no exclusions. The path is byte-identical whether you curl the
   // container, go through the dashboard's rewrite in dev, or hit the public
-  // domain -- which is also why the Bright Data webhook URL does not change.
+  // domain.
   app.setGlobalPrefix(API_PREFIX);
 
   app.useGlobalFilters(new AllExceptionsFilter());

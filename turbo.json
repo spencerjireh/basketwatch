@@ -36,10 +36,7 @@
         "PORT",
         "LOG_LEVEL",
         "API_INTERNAL_URL",
-        "BD_BALANCE_USD",
         "PULL_SCHEDULE_ENABLED",
-        "HEAL_AUTO_ENABLED",
-        "HEAL_AUTO_APPROVE_ENABLED",
         "PULL_SCHEDULE_CRON"
       ]
     },

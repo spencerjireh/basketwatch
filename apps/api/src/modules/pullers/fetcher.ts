@@ -10,12 +10,6 @@ export const API_MAX_BODY = 32_000_000;
 
 const DEFAULT_TIMEOUT_MS = 30_000;
 
-/** Bright Data Web Unlocker gets a longer leash -- the proxy adds latency. */
-const UNLOCKER_TIMEOUT_MS = 90_000;
-
-const UNLOCKER_API = "https://api.brightdata.com/request";
-const UNLOCKER_ZONE = "cli_unlocker";
-
 /** Standard browser headers: several of these stores serve degraded or empty pages to unidentified clients. */
 const HEADERS = {
   "user-agent":
@@ -30,47 +24,16 @@ export type FetchResult = {
   truncated: boolean;
 };
 
-export type FetchOptions = {
-  /** Route through Bright Data Web Unlocker instead of direct fetch. */
-  useUnlocker?: boolean;
-  /** Two-letter country code for BD geo-targeting (e.g. "US", "PH"). */
-  country?: string;
-  maxBody?: number;
-};
-
 /**
- * HTTP client for the puller adapters.
- *
- * When `useUnlocker` is set, requests are routed through Bright Data's Web
- * Unlocker API (`POST https://api.brightdata.com/request`), with a direct
- * fetch as the fallback when the Unlocker errors or answers with an empty
- * body -- a degraded pull beats a failed one, and the fallback logs a warning
- * each time it is taken. The Unlocker does not execute JavaScript;
- * browser-required stores use Studio.
- *
- * Ported from the Python `UnlockerFetcher` in the exploration codebase that
- * preceded this repo.
+ * HTTP client for the puller adapters: a plain fetch with browser headers, a
+ * timeout, and a body cap. A failed request answers with status 0 rather than
+ * throwing, so an adapter treats it like any other non-200.
  */
 @Injectable()
 export class Fetcher {
   private readonly logger = new Logger(Fetcher.name);
-  private readonly apiKey = process.env.BRIGHTDATA_API_KEY ?? "";
 
-  async get(url: string, opts?: FetchOptions): Promise<FetchResult>;
-  /** @deprecated use the opts overload */
-  async get(url: string, maxBody?: number): Promise<FetchResult>;
-  async get(url: string, optsOrMax?: FetchOptions | number): Promise<FetchResult> {
-    const opts: FetchOptions =
-      typeof optsOrMax === "number" ? { maxBody: optsOrMax } : (optsOrMax ?? {});
-    const maxBody = opts.maxBody ?? API_MAX_BODY;
-
-    if (opts.useUnlocker) {
-      return this.getViaUnlocker(url, opts.country ?? "US", maxBody);
-    }
-    return this.getDirect(url, maxBody);
-  }
-
-  private async getDirect(url: string, maxBody: number): Promise<FetchResult> {
+  async get(url: string, maxBody: number = API_MAX_BODY): Promise<FetchResult> {
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), DEFAULT_TIMEOUT_MS);
     try {
@@ -80,58 +43,6 @@ export class Fetcher {
     } catch (error) {
       this.logger.warn(`fetch failed for ${url}: ${message(error)}`);
       return { status: 0, body: "", truncated: false };
-    } finally {
-      clearTimeout(timer);
-    }
-  }
-
-  private async getViaUnlocker(
-    url: string,
-    country: string,
-    maxBody: number,
-  ): Promise<FetchResult> {
-    if (!this.apiKey) {
-      this.logger.warn("BRIGHTDATA_API_KEY not set, falling back to direct fetch");
-      return this.getDirect(url, maxBody);
-    }
-
-    const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), UNLOCKER_TIMEOUT_MS);
-    try {
-      const response = await fetch(UNLOCKER_API, {
-        method: "POST",
-        headers: {
-          authorization: `Bearer ${this.apiKey}`,
-          "content-type": "application/json",
-        },
-        body: JSON.stringify({
-          zone: UNLOCKER_ZONE,
-          url,
-          format: "raw",
-          country: country.toLowerCase(),
-        }),
-        signal: controller.signal,
-      });
-
-      if (!response.ok) {
-        this.logger.warn(`unlocker returned ${response.status} for ${url}, falling back to direct`);
-        return this.getDirect(url, maxBody);
-      }
-
-      const body = await readCapped(response, maxBody);
-      // The unlocker intermittently answers 200 with an empty body (observed
-      // on shopsuki.ph's sitemap, 2026-08-23) -- an "ok" that carries nothing
-      // and reads downstream as an empty catalogue. Treat it like a failure.
-      if (body.body.length === 0) {
-        this.logger.warn(
-          `unlocker returned 200 with empty body for ${url}, falling back to direct`,
-        );
-        return this.getDirect(url, maxBody);
-      }
-      return { status: response.status, ...body };
-    } catch (error) {
-      this.logger.warn(`unlocker failed for ${url}: ${message(error)}, falling back to direct`);
-      return this.getDirect(url, maxBody);
     } finally {
       clearTimeout(timer);
     }

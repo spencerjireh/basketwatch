@@ -4,8 +4,7 @@
  * API_PREFIX is set as Nest's global prefix with no exclusions, and Next
  * rewrites /api/* to the same path on the API without stripping anything. The
  * URL is therefore byte-identical whether you curl the container directly, go
- * through the dashboard in dev, or hit the public domain -- which is also why
- * the Bright Data webhook target does not change.
+ * through the dashboard in dev, or hit the public domain.
  */
 export const API_PREFIX = "api";
 
@@ -20,20 +19,10 @@ export const routes = {
   stream: "/api/stream",
   incidents: "/api/incidents",
   incident: (id: string) => `/api/incidents/${id}`,
-  budget: "/api/budget",
   productSearch: "/api/products/search",
-  ingest: (scraperId: string) => `/api/ingest/${scraperId}`,
-  runScraper: (id: string) => `/api/scrapers/${id}/run`,
   runPuller: (storeId: string) => `/api/pullers/${storeId}/run`,
   /** The whole fleet, the same fan-out the schedule performs. */
   runPullerFleet: "/api/pullers/run",
-  /** Reads. Open: the dashboard renders these on a page with no login. */
-  healPreviewPrompt: (scraperId: string) => `/api/heal/${scraperId}/preview-prompt`,
-  healStatus: (scraperId: string) => `/api/heal/${scraperId}/status`,
-  /** Writes. Ops token only -- every one of these spends Bright Data credits. */
-  healTrigger: (scraperId: string) => `/api/heal/${scraperId}/trigger`,
-  healApprove: (scraperId: string) => `/api/heal/${scraperId}/approve`,
-  healReject: (scraperId: string) => `/api/heal/${scraperId}/reject`,
   /** Write. Ops token: flips whether a store counts toward the index. */
   fleetIndexContributor: (storeId: string) => `/api/fleet/${storeId}/index-contributor`,
 } as const;

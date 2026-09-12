@@ -23,7 +23,7 @@ import { apiGet } from "@/lib/api/server";
  * What is server-rendered here is the mid band -- the answer a shopper
  * actually came for, the cheapest cart, at full width -- and the tail: the
  * basket's history as a panorama, sitting under the staple evidence where its
- * scars and heals close the page's argument rather than crowding its opening.
+ * scars close the page's argument rather than crowding its opening.
  */
 /**
  * Rendered per request, with the API call cached for 60 seconds.

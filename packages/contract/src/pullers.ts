@@ -2,6 +2,21 @@ import { z } from "zod";
 import { verdictSchema } from "./vocabulary.js";
 
 /**
+ * The row shape every puller emits and the validator enforces on every run.
+ */
+export const priceRecordSchema = z.object({
+  product_key: z.string().min(1),
+  name: z.string().min(1),
+  price: z.number().positive(),
+  currency: z.string().length(3),
+  unit: z.string().min(1),
+  in_stock: z.boolean(),
+  url: z.url(),
+  observed_at: z.iso.datetime(),
+});
+export type PriceRecord = z.infer<typeof priceRecordSchema>;
+
+/**
  * POST /api/pullers/:storeId/run
  *
  * Shapes for the manual trigger and its dry run. Dry run fetches and parses
@@ -31,7 +46,7 @@ export type PullerRunResponse = z.infer<typeof pullerRunResponseSchema>;
 /**
  * The answer to a wet manual run, which is queued rather than executed inline.
  *
- * A pull takes minutes and costs credits, so it belongs on the same queue the
+ * A pull takes minutes, so it belongs on the same queue the
  * schedule uses -- one execution path, two ways to ask for it. The caller gets
  * a job id, not a result; the run lands in `runs` and on the dashboard.
  *

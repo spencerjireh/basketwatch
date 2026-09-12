@@ -10,32 +10,23 @@ import { cn } from "@/lib/utils";
 /**
  * Three surfaces, named for what the reader gets rather than for what the
  * system is: prices, then the catalogue behind them, then the machinery that
- * collected both. "Behind the data" is a door, not a disclaimer -- the fleet and
- * the incidents are the reason to believe the first two pages, so they stay one
- * click away rather than hidden.
+ * collected both. "Behind the data" is a door, not a disclaimer -- the stores
+ * and the incidents are the reason to believe the first two pages, so they stay
+ * one click away rather than hidden.
  *
  * The country switcher lives here because it scopes all three pages at once:
- * one flip and the basket, the catalogue and the fleet all change world.
+ * one flip and the basket, the catalogue and the store list all change world.
  */
 const LINKS = [
   { href: "/", label: "Basket" },
   { href: "/prices", label: "Prices" },
   { href: "/behind", label: "Behind the data" },
-  { href: "/healing", label: "Self-healing" },
 ] as const;
 
 export function Nav() {
   const pathname = usePathname();
-  const { country, setCountry, scope, setScope } = useCountry();
-
-  // "All stores" is offered only where it means something. The fleet is
-  // machinery and has no country; the basket and the catalogue do, and there
-  // is no sensible all-countries basket to show.
-  const onHealing = pathname.startsWith("/healing");
-  const items = [
-    ...countries.map((c) => ({ value: c, label: COUNTRY_NAME[c] })),
-    ...(onHealing ? [{ value: "all", label: "All stores" }] : []),
-  ];
+  const { country, setCountry } = useCountry();
+  const items = countries.map((c) => ({ value: c, label: COUNTRY_NAME[c] }));
 
   return (
     <header className="border-b border-line">
@@ -69,17 +60,8 @@ export function Nav() {
           className="ml-auto"
           label="Country"
           items={items}
-          value={onHealing && scope === "all" ? "all" : country}
-          onChange={(value) => {
-            if (value === "all") {
-              setScope("all");
-              return;
-            }
-            // Reset the scope as well, or the label reads "Philippines" while
-            // the board is still showing every store.
-            setScope("country");
-            setCountry(value as Country);
-          }}
+          value={country}
+          onChange={(value) => setCountry(value as Country)}
         />
       </div>
     </header>

@@ -27,9 +27,9 @@ import { PullersService } from "./pullers.service.js";
  * Every route here is a write, so the guard stays at the class.
  */
 /**
- * Five a minute. These are the routes that spend Bright Data credits, and they
- * already require the ops token -- this is the second lock, for the case where
- * the token leaks or a script goes into a loop.
+ * Five a minute. These routes hit real stores, and they already require the
+ * ops token -- this is the second lock, for the case where the token leaks or
+ * a script goes into a loop.
  */
 @Throttle({ default: { limit: 5, ttl: 60_000 } })
 @Controller("pullers")

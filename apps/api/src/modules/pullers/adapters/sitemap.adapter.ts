@@ -1,5 +1,5 @@
 import { Injectable, Logger } from "@nestjs/common";
-import { Fetcher, type FetchOptions } from "../fetcher.js";
+import { Fetcher } from "../fetcher.js";
 import {
   type PullResult,
   type Puller,
@@ -19,9 +19,6 @@ const MAX_SITEMAP_DEPTH = 2;
  * This is the expensive shape -- Dierbergs' ceiling of 400 pages is 400 HTTP
  * round trips for 400 products, against 250 products per call on Shopify -- so
  * URLs are ranked before any is fetched and the ceiling is a hard stop.
- *
- * When `needs_unlocker` is set, requests route through Bright Data's Web
- * Unlocker, with a direct fetch as the fallback when the Unlocker fails.
  */
 @Injectable()
 export class SitemapAdapter implements Puller {
@@ -33,12 +30,7 @@ export class SitemapAdapter implements Puller {
   async pull(config: PullerConfig): Promise<PullResult> {
     if (!config.endpoint) return { rows: [], pages: 0 };
 
-    const fetchOpts: FetchOptions = {
-      useUnlocker: config.needsUnlocker,
-      country: config.country,
-    };
-
-    const { urls, pages: discoveryPages } = await this.discover(config.endpoint, fetchOpts);
+    const { urls, pages: discoveryPages } = await this.discover(config.endpoint);
     const ranked = rankProductUrls(urls).slice(0, config.maxPages);
     this.logger.log(
       `${config.storeId}: ${urls.length} urls in the sitemap, ${ranked.length} worth fetching`,
@@ -49,7 +41,7 @@ export class SitemapAdapter implements Puller {
 
     for (const url of ranked) {
       if (pages >= config.maxPages) break;
-      const response = await this.fetcher.get(url, fetchOpts);
+      const response = await this.fetcher.get(url);
       pages += 1;
       if (response.status !== 200) continue;
 
@@ -70,10 +62,7 @@ export class SitemapAdapter implements Puller {
     return { rows, pages };
   }
 
-  private async discover(
-    endpoint: string,
-    fetchOpts: FetchOptions,
-  ): Promise<{ urls: string[]; pages: number }> {
+  private async discover(endpoint: string): Promise<{ urls: string[]; pages: number }> {
     const site = siteOf(endpoint);
     const start = endpoint.includes("sitemap") ? endpoint : `${site}/sitemap.xml`;
 
@@ -84,7 +73,7 @@ export class SitemapAdapter implements Puller {
     for (let depth = 0; depth <= MAX_SITEMAP_DEPTH && queue.length > 0; depth += 1) {
       const next: string[] = [];
       for (const target of queue.slice(0, 20)) {
-        const response = await this.fetcher.get(target, fetchOpts);
+        const response = await this.fetcher.get(target);
         pages += 1;
         if (response.status !== 200) continue;
         const parsed = parseSitemap(response.body);

@@ -43,24 +43,10 @@ export const envSchema = z.object({
   // valid startup state. Fail at boot instead.
   DATABASE_URL: z.string().min(1),
 
-  BRIGHTDATA_API_KEY: secret(),
-  BRIGHTDATA_WEBHOOK_SECRET: secret(),
   RESEND_API_KEY: secret(),
   TELEGRAM_BOT_TOKEN: secret(),
   TELEGRAM_CHAT_ID: secret(),
   OPS_TOKEN: secret(),
-
-  // What the account held when we last looked. Bright Data's own `budget
-  // balance` rounds to the dollar, so the meter starts from a figure the team
-  // sets deliberately and subtracts recorded spend from it.
-  //
-  // Empty is normalised to undefined before coercion: prod compose passes
-  // `${BD_BALANCE_USD:-}`, and z.coerce.number() reads "" as 0, which would
-  // put the meter at zero credits rather than at "not configured".
-  BD_BALANCE_USD: z.preprocess(
-    (v) => (v === "" || v === undefined ? undefined : v),
-    z.coerce.number().optional(),
-  ),
 
   // The catalogue pull schedule, off by default. The first scheduled pull is
   // when this project starts writing into the one dataset it cannot
@@ -69,27 +55,10 @@ export const envSchema = z.object({
   /** Daily at 06:00 UTC, which is mid-afternoon in Manila. */
   PULL_SCHEDULE_CRON: z.string().default("0 6 * * *"),
 
-  /**
-   * The auto-heal loop, on by default: this is the behaviour the product is
-   * built around, and the flag exists to stop it in a hurry rather than to
-   * gate it. Off means an incident still opens and still shows on the
-   * dashboard -- only the Bright Data call is skipped.
-   */
-  HEAL_AUTO_ENABLED: boolFlag(true),
-  /**
-   * The second kill switch: with auto-heal on, this decides whether a
-   * proposal whose preview sample passes validation is approved by the
-   * machine or held for a person. Off = today's propose-then-review flow.
-   */
-  HEAL_AUTO_APPROVE_ENABLED: boolFlag(true),
-
-  HEAL_MAX_ATTEMPTS_PER_INCIDENT: z.coerce.number().int().positive().default(2),
-  HEAL_MAX_PER_SCRAPER_PER_DAY: z.coerce.number().int().positive().default(5),
-  CREDIT_DAILY_CEILING_USD: z.coerce.number().positive().default(5),
-
   // How many stores may pull at once. Capped at 4 because the drizzle pool
-  // is max 4 and the HTTP path shares it; empty is normalised to undefined
-  // for the same `${VAR:-}` compose reason as BD_BALANCE_USD above.
+  // is max 4 and the HTTP path shares it. Empty is normalised to undefined
+  // before coercion: prod compose passes `${VAR:-}`, and z.coerce.number()
+  // reads "" as 0.
   SCRAPE_CONCURRENCY: z.preprocess(
     (v) => (v === "" || v === undefined ? undefined : v),
     z.coerce.number().int().min(1).max(4).default(3),

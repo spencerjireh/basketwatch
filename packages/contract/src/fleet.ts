@@ -5,26 +5,19 @@ import { scraperStateSchema } from "./vocabulary.js";
 /**
  * GET /api/fleet
  *
- * One row per fleet member. Note that a store is not a scraper: most stores are
- * pulled directly over HTTP and have no Studio collector, so `collectorId` is
- * nullable and `storeId` is the stable identity.
+ * One row per registered store; `storeId` is the stable identity.
  */
 export const fleetScraperSchema = z.object({
   storeId: z.string(),
   name: z.string(),
   country: countrySchema,
-  /** collector_id from Scraper Studio; null for HTTP-pulled stores */
-  collectorId: z.string().nullable(),
   status: scraperStateSchema,
   lastRunAt: timestampSchema.nullable(),
   lastRunRows: z.number().int(),
   nullRatePct: z.number(),
-  healsToday: z.number().int(),
-  /** set while the store is not healthy, so the board can link to the audit */
+  /** set while the store is not healthy, so the board can link to the incident */
   openIncidentId: z.string().nullable(),
-  /** true when scraper_templates has at least one snapshot for this collector */
-  hasTemplate: z.boolean(),
-  /** true when stores.method is set and not 'none' -- can trigger a pull */
+  /** true when the store is active and stores.method is not 'none' -- can trigger a pull */
   isPullable: z.boolean(),
 });
 export type FleetScraper = z.infer<typeof fleetScraperSchema>;
