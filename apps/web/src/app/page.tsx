@@ -4,10 +4,10 @@ import {
   basketTodayResponseSchema,
   routes,
 } from "@basketwatch/contract";
+import Link from "next/link";
 import { BasketExplorer } from "@/components/basket/basket-explorer";
 import { CheapestCart } from "@/components/basket/cheapest-cart";
 import { IndexPanorama } from "@/components/basket/index-panorama";
-import { CountryLink } from "@/components/country/country";
 import { Section } from "@/components/ui/section";
 import { apiGet } from "@/lib/api/server";
 
@@ -87,12 +87,12 @@ export default async function Page() {
             a scraper breaks, the basket stops rather than carrying yesterday&apos;s number forward,
             and the pins we do not trust are excluded and named.
           </p>
-          <CountryLink
+          <Link
             href="/behind"
             className="mt-4 inline-block text-[13px] underline decoration-1 underline-offset-4 transition-colors hover:text-heal"
           >
             Behind the data →
-          </CountryLink>
+          </Link>
         </Section>
       </div>
     </main>

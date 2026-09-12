@@ -112,7 +112,7 @@ services:
         condition: service_healthy
 
   # Parker's Pantry: the clone store the scrapers get to break
-  # against. Dependency-free node:http server, two storefronts (/us, /ph).
+  # against. Dependency-free node:http server, one storefront (/ph).
   # Served at pantry.spencerjireh.com -- a SINGLE-LEVEL subdomain, because the
   # wildcard cert does not cover two-level names. Set domain AND port 3002 in
   # the Coolify UI when switching this on; Coolify guesses the port wrong.

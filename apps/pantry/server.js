@@ -1,10 +1,14 @@
 import { createServer } from "node:http";
 
 /**
- * Parker's Pantry: a fake grocery store with two storefronts (US and PH)
- * whose markup can be mutated on demand to break scrapers in a controlled,
- * reproducible way. The heal test target and the comparison view's
- * insurance policy.
+ * Parker's Pantry: a fake grocery store whose markup can be mutated on demand
+ * to break scrapers in a controlled, reproducible way. The incident test
+ * target and the comparison view's insurance policy.
+ *
+ * Besides the HTML, it serves what the sitemap adapter reads: /ph/sitemap.xml
+ * listing every product page, and a JSON-LD Product block on each page.
+ * Layout B drops the JSON-LD too, so the break is visible to the puller, not
+ * only to a human.
  *
  * Layout A: prices in .price spans with data-sku attributes.
  * Layout B: renamed classes, price split into whole/cents nested spans,
@@ -14,30 +18,24 @@ import { createServer } from "node:http";
  * of at most 1.5% per day from a fixed launch date. The same request gives
  * the same price all day; the walk needs no storage and survives restarts.
  *
- * Toggle: POST /admin/layout {"store":"us"|"ph","layout":"a"|"b"} with
- * X-Admin-Token header, or set LAYOUT at boot for both storefronts.
+ * Toggle: POST /admin/layout {"store":"ph","layout":"a"|"b"} with
+ * X-Admin-Token header, or set LAYOUT at boot.
  */
 
 const BASE_URL = process.env.PUBLIC_BASE_URL ?? "https://pantry.spencerjireh.com";
 
 /** Names embed a parseable size: unit-price math reads it off the page. */
 const CATALOG = [
-  { key: "eggs-12", name: "Farm Fresh Large Eggs 12 ct", size: "12 ct", usd: 4.49, php: 260 },
-  { key: "milk-1g", name: "Whole Milk 1 gal", size: "1 gal", usd: 3.89, php: 340 },
-  { key: "bread-loaf", name: "Classic White Bread 20 oz", size: "20 oz", usd: 2.79, php: 95 },
-  { key: "rice-5lb", name: "Long Grain White Rice 5 lb", size: "5 lb", usd: 6.99, php: 310 },
-  {
-    key: "coffee-12oz",
-    name: "House Blend Ground Coffee 12 oz",
-    size: "12 oz",
-    usd: 9.49,
-    php: 480,
-  },
-  { key: "sugar-4lb", name: "Granulated Sugar 4 lb", size: "4 lb", usd: 3.59, php: 210 },
-  { key: "chicken-lb", name: "Chicken Breast 1 lb", size: "1 lb", usd: 4.29, php: 200 },
-  { key: "oil-48oz", name: "Vegetable Oil 48 fl oz", size: "48 fl oz", usd: 5.19, php: 290 },
-  { key: "pasta-1lb", name: "Spaghetti Pasta 1 lb", size: "1 lb", usd: 1.89, php: 105 },
-  { key: "bananas-lb", name: "Bananas 1 lb", size: "1 lb", usd: 0.69, php: 40 },
+  { key: "eggs-12", name: "Farm Fresh Large Eggs 12 ct", size: "12 ct", php: 260 },
+  { key: "milk-1g", name: "Whole Milk 1 gal", size: "1 gal", php: 340 },
+  { key: "bread-loaf", name: "Classic White Bread 20 oz", size: "20 oz", php: 95 },
+  { key: "rice-5lb", name: "Long Grain White Rice 5 lb", size: "5 lb", php: 310 },
+  { key: "coffee-12oz", name: "House Blend Ground Coffee 12 oz", size: "12 oz", php: 480 },
+  { key: "sugar-4lb", name: "Granulated Sugar 4 lb", size: "4 lb", php: 210 },
+  { key: "chicken-lb", name: "Chicken Breast 1 lb", size: "1 lb", php: 200 },
+  { key: "oil-48oz", name: "Vegetable Oil 48 fl oz", size: "48 fl oz", php: 290 },
+  { key: "pasta-1lb", name: "Spaghetti Pasta 1 lb", size: "1 lb", php: 105 },
+  { key: "bananas-lb", name: "Bananas 1 lb", size: "1 lb", php: 40 },
 ];
 
 /** `lite` is the awning's pale stripe: white would vanish against the page. */
@@ -110,12 +108,10 @@ const BASKET = svg(
 );
 
 const STORES = {
-  us: { label: "US Store", accent: "#1d4ed8", lite: "#dbe4fa", flag: "US" },
   ph: { label: "PH Store", accent: "#b91c1c", lite: "#f8dfdc", flag: "PH" },
 };
 
 const layouts = {
-  us: (process.env.LAYOUT ?? "a").toLowerCase() === "b" ? "b" : "a",
   ph: (process.env.LAYOUT ?? "a").toLowerCase() === "b" ? "b" : "a",
 };
 
@@ -140,17 +136,17 @@ const mulberry32 = (seed) => {
 };
 
 const priceFor = (store, product) => {
-  const base = store === "us" ? product.usd : product.php;
+  const base = product.php;
   const days = Math.max(0, Math.floor((Date.now() - LAUNCH) / DAY_MS));
   let price = base;
   for (let d = 1; d <= days; d++) {
     const r = mulberry32(fnv1a(`${store}:${product.key}:${d}`));
     price *= 1 + (r * 2 - 1) * 0.015;
   }
-  return store === "us" ? Math.round(price * 100) / 100 : Math.round(price);
+  return Math.round(price);
 };
 
-const money = (store, value) => (store === "us" ? `$${value.toFixed(2)}` : `₱${value.toFixed(2)}`);
+const money = (_store, value) => `₱${value.toFixed(2)}`;
 
 const productUrl = (store, key) => `${BASE_URL}/${store}/products/${key}`;
 
@@ -165,12 +161,11 @@ const cardA = (store, p, price) => `
 
 const cardB = (store, p, price) => {
   const [whole, cents] = price.toFixed(2).split(".");
-  const symbol = store === "us" ? "$" : "₱";
   return `
       <a class="item-tile" href="${productUrl(store, p.key)}" data-testid="sku-${p.key}">
         <span class="tile-art">${ART[p.key] ?? ""}</span>
         <h3 class="item-title">${p.name}</h3>
-        <div class="item-cost" data-testid="product-price"><span class="cost-currency">${symbol}</span><span class="cost-whole">${whole}</span><span class="cost-cents">${cents}</span></div>
+        <div class="item-cost" data-testid="product-price"><span class="cost-currency">₱</span><span class="cost-whole">${whole}</span><span class="cost-cents">${cents}</span></div>
         <div class="item-meta"><span class="item-pack">${p.size}</span><span class="availability" data-state="available">Available</span></div>
       </a>`;
 };
@@ -244,7 +239,6 @@ const css = (accent, lite) => `
   .door { display: block; background: var(--card); border: 1px solid var(--crate); border-radius: 12px; overflow: hidden; text-decoration: none; color: inherit; box-shadow: 0 1px 2px rgba(38,34,28,0.05); transition: transform 120ms ease, box-shadow 120ms ease; }
   .door:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(38,34,28,0.12); }
   .door-stripe { display: block; height: 18px; border-top: 3px solid var(--door-accent); background: repeating-linear-gradient(90deg, var(--door-accent) 0 26px, var(--door-lite) 26px 52px); }
-  .door-us { --door-accent: #1d4ed8; --door-lite: #dbe4fa; }
   .door-ph { --door-accent: #b91c1c; --door-lite: #f8dfdc; }
   .door-body { display: block; padding: 1.2rem 1.3rem 1.35rem; }
   .door-title { display: block; font-weight: 700; font-size: 1.05rem; }
@@ -272,16 +266,16 @@ const shell = (store, title, body) => {
 <body>
   <div class="topbar">
     <span>Open daily 7am-9pm &middot; Family-run since 1987</span>
-    <span><a href="/us"${store === "us" ? ' aria-current="true"' : ""}>US Store</a><a href="/ph"${store === "ph" ? ' aria-current="true"' : ""}>PH Store</a></span>
+    <span><a href="/ph"${store === "ph" ? ' aria-current="true"' : ""}>PH Store</a></span>
   </div>
   <header class="masthead">
     <div class="brand"><a href="/">Parker's Pantry</a></div>
-    <div class="tagline">Neighborhood staples, priced daily.</div>${s ? `\n    <span class="storefront-label">${s.label} &middot; ${store === "us" ? "USD" : "PHP"}</span>` : ""}
+    <div class="tagline">Neighborhood staples, priced daily.</div>${s ? `\n    <span class="storefront-label">${s.label} &middot; PHP</span>` : ""}
   </header>${s ? `\n  <div class="awning" aria-hidden="true"></div>` : ""}
   <main>
 ${body}
   </main>
-  <footer>Parker's Pantry is a fictional test storefront for basketwatch. Not a real business.<br>214 Market Lane &middot; Two imaginary neighborhoods, restocked daily.</footer>
+  <footer>Parker's Pantry is a fictional test storefront for basketwatch. Not a real business.<br>214 Market Lane &middot; One imaginary neighborhood, restocked daily.</footer>
 </body>
 </html>`;
 };
@@ -298,19 +292,43 @@ const listingPage = (store) => {
   );
 };
 
+/**
+ * What the sitemap adapter's structured-data reader needs: a Product with a
+ * name and an offer price. Only layout A carries it -- the whole point of
+ * layout B is that the page stops being machine-readable.
+ */
+const productJsonLd = (product, price) =>
+  `<script type="application/ld+json">${JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: product.name,
+    offers: { "@type": "Offer", price: price.toFixed(2), priceCurrency: "PHP" },
+  })}</script>`;
+
 const productPage = (store, product) => {
   const layout = layouts[store];
   const price = priceFor(store, product);
   const body =
     layout === "b"
       ? cardB(store, product, price).replace('class="item-tile"', 'class="item-tile detail"')
-      : cardA(store, product, price).replace('class="product-card"', 'class="product-card detail"');
+      : cardA(store, product, price).replace(
+          'class="product-card"',
+          'class="product-card detail"',
+        ) +
+        "\n" +
+        productJsonLd(product, price);
   return shell(
     store,
     `${product.name} — Parker's Pantry ${STORES[store].flag}`,
     `    <p class="breadcrumb"><a href="/${store}">${STORES[store].label}</a> / ${product.name}</p>\n    <div class="detail-wrap">${body}\n    </div>`,
   );
 };
+
+/** Product pages only: the listing scores nothing to the URL ranker and would burn a fetch. */
+const sitemap = (store) =>
+  `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n` +
+  CATALOG.map((p) => `  <url><loc>${productUrl(store, p.key)}</loc></url>`).join("\n") +
+  `\n</urlset>\n`;
 
 const json = (res, status, payload) => {
   res.writeHead(status, { "content-type": "application/json" });
@@ -319,6 +337,11 @@ const json = (res, status, payload) => {
 
 const html = (res, status, page) => {
   res.writeHead(status, { "content-type": "text/html; charset=utf-8" });
+  res.end(page);
+};
+
+const xml = (res, status, page) => {
+  res.writeHead(status, { "content-type": "application/xml; charset=utf-8" });
   res.end(page);
 };
 
@@ -333,19 +356,19 @@ const server = createServer(async (req, res) => {
         shell(
           "root",
           "Parker's Pantry",
-          `    <h2 class="aisle-sign">Pick a storefront</h2>
+          `    <h2 class="aisle-sign">Come on in</h2>
     <div class="doors">
-      <a class="door door-us" href="/us"><span class="door-stripe" aria-hidden="true"></span><span class="door-body"><span class="door-art">${BASKET}</span><span class="door-title">US Store</span><span class="door-note">Ten weekly staples, priced in US dollars.</span></span></a>
-      <a class="door door-ph" href="/ph"><span class="door-stripe" aria-hidden="true"></span><span class="door-body"><span class="door-art">${BASKET}</span><span class="door-title">PH Store</span><span class="door-note">The same ten staples, priced in Philippine pesos.</span></span></a>
+      <a class="door door-ph" href="/ph"><span class="door-stripe" aria-hidden="true"></span><span class="door-body"><span class="door-art">${BASKET}</span><span class="door-title">PH Store</span><span class="door-note">Ten weekly staples, priced in Philippine pesos.</span></span></a>
     </div>`,
         ),
       );
     }
     if (path === "/healthz") return json(res, 200, { ok: true });
     if (path === "/admin/layout") return json(res, 200, { ...layouts });
-    if (path === "/us" || path === "/ph") return html(res, 200, listingPage(path.slice(1)));
+    if (path === "/ph") return html(res, 200, listingPage("ph"));
+    if (path === "/ph/sitemap.xml") return xml(res, 200, sitemap("ph"));
 
-    const match = path.match(/^\/(us|ph)\/products\/([a-z0-9-]+)$/);
+    const match = path.match(/^\/(ph)\/products\/([a-z0-9-]+)$/);
     if (match) {
       const product = CATALOG.find((p) => p.key === match[2]);
       if (!product) return json(res, 404, { error: "no such product" });
@@ -370,7 +393,7 @@ const server = createServer(async (req, res) => {
       return json(res, 400, { error: "invalid JSON" });
     }
     const { store, layout } = parsed;
-    if (!(store in layouts)) return json(res, 400, { error: 'store must be "us" or "ph"' });
+    if (!(store in layouts)) return json(res, 400, { error: 'store must be "ph"' });
     if (layout !== "a" && layout !== "b")
       return json(res, 400, { error: 'layout must be "a" or "b"' });
     layouts[store] = layout;
@@ -382,5 +405,5 @@ const server = createServer(async (req, res) => {
 
 const port = Number(process.env.PORT ?? 3002);
 server.listen(port, () => {
-  console.log(`parkers-pantry on :${port} (layouts us=${layouts.us} ph=${layouts.ph})`);
+  console.log(`parkers-pantry on :${port} (layout ph=${layouts.ph})`);
 });

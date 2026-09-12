@@ -39,17 +39,19 @@ export const moneySchema = z.object({
 });
 export type Money = z.infer<typeof moneySchema>;
 
-export const countries = ["US", "PH"] as const;
+/**
+ * One country. The dimension stays in the data and on the wire -- rows from
+ * the US era keep their `country` -- but the product reads and shows PH only.
+ */
+export const countries = ["PH"] as const;
 export const countrySchema = z.enum(countries);
 export type Country = z.infer<typeof countrySchema>;
 
 /**
- * Currency is derived from country when a store row does not carry one --
- * fleet.lock.json has no currency field, so 19 of 19 stores need this. It lives
- * in the contract because both sides need the same answer.
+ * Currency is derived from country when a store row does not carry one. It
+ * lives in the contract because both sides need the same answer.
  */
 export const DEFAULT_CURRENCY_BY_COUNTRY: Record<Country, CurrencyCode> = {
-  US: "USD",
   PH: "PHP",
 };
 
@@ -59,7 +61,6 @@ export const DEFAULT_CURRENCY_BY_COUNTRY: Record<Country, CurrencyCode> = {
  * would silently mislabel a third country.
  */
 export const COUNTRY_NAME: Record<Country, string> = {
-  US: "United States",
   PH: "Philippines",
 };
 

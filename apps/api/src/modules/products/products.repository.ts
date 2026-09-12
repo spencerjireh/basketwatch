@@ -135,7 +135,7 @@ export class ProductsRepository {
       /*
        * The latest_price view is a DISTINCT ON over every observation and the
        * planner cannot push a join into it, so it costs the whole table however
-       * selective the search is. Measured on production for q=rice, country=US:
+       * selective the search is. Measured on production for q=rice, country=US (US-era data):
        * 84ms through the view, 14.5ms through this lateral. The difference is
        * structural, not a tuning detail.
        */
@@ -147,6 +147,7 @@ export class ProductsRepository {
         limit 1
       ) lp on true
       where ${nameMatch}
+        and s.active
         and (${query.country ?? null}::text is null or s.country = ${query.country ?? null})
         and (${query.storeId ?? null}::text is null or pr.store_id = ${query.storeId ?? null})
         and (${query.basis ?? null}::text is null or lp.unit_price_basis = ${query.basis ?? null})

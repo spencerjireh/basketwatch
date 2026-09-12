@@ -67,10 +67,10 @@ type CardData = {
 async function readBasket(): Promise<CardData | null> {
   try {
     const rails = await apiGet(routes.basketRails, basketRailsResponseSchema, 60);
-    const countryRails = rails.filter((rail: Rail) => rail.country === "US");
+    const countryRails = rails.filter((rail: Rail) => rail.country === "PH");
     if (countryRails.length === 0) return null;
     return {
-      spread: basketSpread(rankStores(rails, "US")),
+      spread: basketSpread(rankStores(rails, "PH")),
       stores: new Set(countryRails.flatMap((rail: Rail) => rail.pins.map((pin) => pin.storeId)))
         .size,
       staples: countryRails.length,
@@ -165,8 +165,8 @@ export default async function Image() {
         }}
       >
         {data
-          ? `${spellNumber(data.staples)} staples · ${data.stores} US stores · nobody is cheapest at everything`
-          : "staples priced off the shelf in the US and the Philippines"}
+          ? `${spellNumber(data.staples)} staples · ${data.stores} Philippine stores · nobody is cheapest at everything`
+          : "staples priced off the shelf in the Philippines"}
       </div>
     </div>,
     { ...size, fonts: fonts.length > 0 ? fonts : undefined },
