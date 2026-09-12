@@ -2,19 +2,17 @@
 
 # basketwatch
 
-A grocery basket index that tracks real shelf prices across sixteen stores in
-the United States and the Philippines, and repairs its own scrapers when a
-store changes its website. When a collector breaks, the system reads the
-failure from its own output, asks Bright Data Scraper Studio to rewrite the
-extraction code, and verifies the fix with a live re-scrape — no human in the
-loop. Days where a price could not be collected render as gaps in the index,
-never interpolated.
+A grocery basket index for the Philippines. It reads shelf prices straight
+from supermarket catalogues, prices the same fifteen staples in every store at
+the same quantities, and shows what the basket costs today and how it moved.
+When a store's site changes and the pull stops making sense, the index shows a
+gap for that day rather than a guess: a missing price is never interpolated.
 
 Built with NestJS, Next.js, and Postgres.
 
 - **Live:** [basketwatch.spencerjireh.com](https://basketwatch.spencerjireh.com) — no login, no signup
-- **Parker's Pantry** (our own test store): [US](https://pantry.spencerjireh.com/us) · [PH](https://pantry.spencerjireh.com/ph)
-- **Docs:** [Scraper Studio usage](docs/scraper-studio-usage.md) · [architecture](docs/architecture.md) · [API contract](docs/api-contract.md) · [collector manifest](docs/collector-manifest.json)
+- **Parker's Pantry** (our own test store): [pantry.spencerjireh.com/ph](https://pantry.spencerjireh.com/ph)
+- **Docs:** [architecture](docs/architecture.md) · [API contract](docs/api-contract.md)
 
 ## What you are looking at
 
@@ -23,108 +21,71 @@ Built with NestJS, Next.js, and Postgres.
 The front page draws a price terrain from live shelf data: rows are fifteen
 staples, columns are stores with the cheapest basket on the left, and height
 is each store's price as a multiple of the cheapest shelf for that staple.
-Hovering a point shows the product, the price, and when it was scraped; one
-click switches the page between the United States and the Philippines. Below
+Hovering a point shows the product, the price, and when it was scraped. Below
 the terrain, each staple gets every store's price side by side. **Behind the
 data** shows where each number came from and which prices we do not fully
-trust, and **Prices** is a raw search over more than 28,000 products.
+trust, and **Prices** is a raw search over the stores' catalogues, about
+27,000 products.
 
 <img src="docs/screenshots/prod-panorama.png" alt="The basket over time: each store's basket cost as a line, with hatched spans on days that could not be fully priced." width="800">
 
-## The fleet
+## The stores
 
-Nineteen real stores are registered, sixteen of them actively pulled, plus
-the two Parker's Pantry clones. In the 24 hours before this snapshot, 13 of
-the 16 returned fresh rows; the three that returned nothing have open
-incidents, visible on the
-[Self-healing](https://basketwatch.spencerjireh.com/healing) page rather than
-hidden.
+| Store               | Pulled through                   | In the index       |
+| ------------------- | -------------------------------- | ------------------ |
+| Ever Supermarket    | Shopify `products.json`          | yes                |
+| Shop Gaisano        | Shopify `products.json`          | yes                |
+| Shop Suki           | Shopify `products.json`          | yes                |
+| SM Markets          | Magento GraphQL                  | yes                |
+| Landers Superstore  | parked: the site needs a browser | yes, from history  |
+| MerryMart Wholesale | parked: no machine-readable feed | yes, from history  |
+| Parker's Pantry     | sitemap + JSON-LD product pages  | never (test clone) |
 
-Snapshot of `GET /api/fleet` at the end of the first collection week. The
-`c_*` values are the live Bright Data Scraper Studio collector IDs.
+A parked store keeps its price history and its place in the index; it stops
+getting new observations until an adapter exists for it. US stores from the
+project's first weeks are still in the database with `active = false`: their
+history is kept, nothing reads it.
 
-| Store                  | Country | Scraper Studio collector | In the index       | Last pull (rows)  |
-| ---------------------- | ------- | ------------------------ | ------------------ | ----------------- |
-| Ever Supermarket       | PH      | HTTP pull                | yes                | 6,962             |
-| Shop Gaisano           | PH      | HTTP pull                | yes                | 65                |
-| Shop Suki              | PH      | `c_mt5q0jzi18h73rtbha`   | yes                | 291               |
-| SM Markets             | PH      | `c_mt5adrno248hml4trg`   | yes                | 0 — incident open |
-| Landers Superstore     | PH      | `c_mt5bbos7onya4mufc`    | yes                | 0 — incident open |
-| MerryMart Wholesale    | PH      | `c_mt5afb93oof2430yg`    | yes                | 0 — incident open |
-| Amigo Foods            | US      | `c_mt5sf35quefc5u6s8`    | yes                | 168               |
-| Cypress Indian Grocery | US      | `c_mt5sf1hn2gm0alggzg`   | yes                | 167               |
-| Dierbergs              | US      | `c_mt5bcgh01q3exw9das`   | no                 | 389               |
-| H Mart                 | US      | `c_mt5ahmtdb7c4qmkkf`    | no                 | 1                 |
-| Kesar Grocery          | US      | `c_mt5ag34x28n7do143j`   | yes                | 296               |
-| Latimex Market         | US      | `c_mt5sf4te2nl1om58n6`   | yes                | 92                |
-| Lili Mart              | US      | `c_mt5si8vp2cd0f03mfp`   | yes                | 122               |
-| MexGrocer              | US      | `c_mt5siakh3td7a3dk1`    | yes                | 95                |
-| MexMax                 | US      | HTTP pull                | yes                | 142               |
-| Sukli                  | US      | HTTP pull                | yes                | 1,946             |
-| Parker's Pantry (US)   | US      | HTTP pull                | never (test clone) | on demand         |
-| Parker's Pantry (PH)   | PH      | HTTP pull                | never (test clone) | on demand         |
+## How collection works
 
-## How Bright Data Scraper Studio runs this
+Each store row names a `method`, and the method names an adapter: `shopify`
+pages through `/products.json`, `magento-graphql` walks the category tree,
+`sitemap` reads the sitemap and each product page's JSON-LD. The adapters
+share one plain HTTP fetcher with browser headers, a 30-second timeout and a
+32 MB body cap. Adding a store is a row edit.
 
-The application decides when to collect, whether the output is healthy, and
-what to ask for when it is not; Scraper Studio does the collecting and the
-repairing. Twelve of the sixteen stores run as Studio collectors (the `c_*`
-IDs above); the other four expose a structured `/products.json` catalogue and
-are pulled over HTTP.
+A pull dedupes the rows, diffs them against the store's last known prices,
+and writes only the changes, so the history is change-only and every run
+row says how many rows the pull returned. If more than 90% of an
+established catalogue changes at once, the run is recorded but the
+observations are not applied: a wholesale change is far more likely to be a
+product-key scheme change than a repricing of everything.
 
-**Collection.** Each collector's extraction logic was generated by Scraper
-Studio's AI from a seed URL and a plain-language description ("product name,
-price, currency, stock status from this product page; do not follow links").
-A pull hands the collector a bounded URL list, filtered to the tracked
-staples — which cuts each pull 10-20x — and Studio renders each page in a
-cloud browser and returns structured rows.
+After every applied run the validator compares the store's products against a
+rolling baseline: schema parse rate, row count, per-field null rates, price
+drift. A `broken` verdict opens an incident with the findings as evidence,
+one per store at a time. A pull that throws, or that returns nothing for a
+store with history, opens a `pull_failed` incident without going through the
+validator. An `ok` verdict on a later run resolves whatever was open: the
+store came back, and the record says so.
 
-**Self-healing.** When a pull fails the validator's baseline checks (schema,
-null rates, row count, price drift), an incident opens and the repair runs
-autonomously:
+Days with an open incident on an index store render as hatched gaps on the
+chart, labelled with the incident.
 
-1. **Diagnose** — compare the failed output field by field against the last
-   healthy baseline.
-2. **Compose** — build a targeted heal prompt naming the broken fields;
-   small, field-specific prompts beat broad rewrites.
-3. **Propose** — send it to Studio's `refactor_template` API, which returns
-   a rewritten collector and a preview of its output.
-4. **Judge** — validate the preview against the same baseline; a pass
-   approves, a fail re-proposes with the failure as feedback.
-5. **Verify** — one canary pull against the store's live pages; only a
-   passing canary resolves the incident.
+## Parker's Pantry, the test store
 
-Every step — evidence, prompt, diff, canary, verdict — is persisted and
-rendered on the [Self-healing](https://basketwatch.spencerjireh.com/healing)
-page.
+Real stores break on their own schedule, so we host one we may break on
+purpose. `apps/pantry` serves a ten-product storefront at
+`pantry.spencerjireh.com/ph` with a sitemap and JSON-LD product pages.
+`just pantry-layout ph b` flips it to a layout with no structured data;
+the next pull returns zero rows and opens an incident. `just pantry-layout
+ph a` restores it, and the next pull resolves the incident. Both flips are
+guarded by `PANTRY_ADMIN_TOKEN`.
 
-**Reproducibility and spend.**
-[`collector-manifest.json`](docs/collector-manifest.json) records each
-store's seed URL and creation description, so the provisioning endpoint can
-recreate the whole fleet on any Bright Data account. Heal attempts are capped
-per incident and per scraper per day, and every collector description bounds
-its crawl scope — the lesson of an unbounded crawl that cost $26 in early
-development.
-
-The full walkthrough is in
-[Scraper Studio usage](docs/scraper-studio-usage.md).
-
-## The self-healing loop, demonstrated
-
-<img src="docs/screenshots/prod-healing.png" alt="The Self-healing page: every store, its status, its last pull, and its open incidents." width="800">
-
-Parker's Pantry is a fictional grocery store we host ourselves, so the heal
-loop has a target we are allowed to break. We flipped its storefront to an
-alternate layout: the next pull returned zero rows and opened an incident;
-the heal loop sent the broken page to Scraper Studio, whose rewrite stitched
-the redesign's split price back together; a canary pull returned ten rows
-with zero nulls and the incident closed. No human intervened.
-
-Because a price tracker must not launder fake data: Parker's Pantry prices
-are generated (a deterministic seeded walk of at most 1.5% per
-day per product), both storefronts are labeled as fake, and they ship with
-`index_contributor = false`, so they render on the dashboard but never move
-the country index.
+Its prices are generated (a deterministic seeded walk of at most 1.5% per
+day per product), the storefront is labelled as fake, and it ships with
+`index_contributor = false`, so it renders on the dashboard but never moves
+the index. Letting it in is a deliberate ops action behind the ops token.
 
 ---
 
@@ -135,14 +96,15 @@ the country index.
 ```
 apps/api        NestJS + Drizzle + pg-boss. Owns every read and write, incl. SSE.
 apps/web        Next.js dashboard. A pure client of the API; never touches Postgres.
-apps/pantry     Parker's Pantry, the test clone store.
+apps/pantry     Parker's Pantry, the test store.
 packages/       contract (the zod schemas both apps share), tsconfig, eslint-config.
-docs/           architecture, API contract, collector manifest, brand assets.
+docs/           architecture, API contract, brand assets.
 ```
 
-`apps/api/src/modules/` holds one directory per domain: `pullers` (the data
-pipeline), `heal` (the self-healing orchestrator), `validator` (baseline
-checks and incidents), `fleet` (provisioning and scraper state).
+`apps/api/src/modules/` holds one directory per domain: `pullers` (the
+adapters and the run pipeline), `validator` (baseline checks and incidents),
+`basket` (the index, the rails, the cheapest cart), `fleet` (store state and
+the index flag), `products` (catalogue search).
 
 ## Commands
 
@@ -166,13 +128,6 @@ deployed one lives in `.env.prod`, which nothing loads by default, and
 and migration `0000` must keep its exact bytes: drizzle decides what to apply
 from the journal's `when` timestamp, and re-running `0000` against production
 fails on its one unguarded statement.
-
-## Parker's Pantry, the test store
-
-`apps/pantry` serves the two storefronts at `pantry.spencerjireh.com` (`/us`,
-`/ph`). `just pantry-layout us b` flips the US storefront to the breaking
-layout and `a` restores it, guarded by `PANTRY_ADMIN_TOKEN`. Letting a clone
-into the index is a deliberate ops action behind the ops token.
 
 ## The API seam
 

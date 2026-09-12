@@ -41,8 +41,8 @@ first. That is a courtesy, not a gate.
 ### Branch names
 
 `area/short-summary`, using the same areas as commit messages:
-`api/heal-orchestrator`, `web/price-chart`, `docs/prd-cut-order`,
-`clone-store/layout-switch`.
+`api/sitemap-adapter`, `web/price-chart`, `docs/prd-cut-order`,
+`pantry/layout-switch`.
 
 ### Commit messages
 
@@ -92,6 +92,6 @@ hook is the enforcement that exists, and it only protects clones that ran the
 ## Related
 
 - [AGENTS.md](./AGENTS.md) — instructions and hard rules for AI coding agents:
-  secrets, the finite Bright Data credit budget, bounded scraper scope, no
-  deploys without explicit go-ahead. Those rules bind humans too.
-- [docs/](./docs/) — architecture, API contract, and collector manifest.
+  secrets, pulls that hit real stores, no deploys without explicit go-ahead.
+  Those rules bind humans too.
+- [docs/](./docs/) — architecture and API contract.

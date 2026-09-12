@@ -2,315 +2,294 @@
 title: Architecture (HLD)
 tags: [hld]
 created: 2026-08-15
-updated: 2026-08-23
-status: v1
+updated: 2026-09-12
+status: v2
 ---
 
-# HLD: Self-Healing Price Tracker
+# HLD: Basketwatch
 
-Status: v1, amended where the build diverged from it. The shape held; four things changed in the
-detail:
-
-- **The dashboard is Next.js**, not a Vite SPA, and nginx is gone with it
-  (section 3.4 and 3.6).
-- **PH is in scope** (section 2).
-- **The app is the repo root**, on pnpm + Turborepo. Parker's Pantry
-  (`apps/pantry`) is live at `pantry.spencerjireh.com` as the clone store for
-  staged break-and-heal tests.
-- **Heal prompts are built deterministically.** The plan below sketched an
-  LLM step composing heal prompts from evidence; what shipped is a pure
-  template (`modules/heal/prompt.ts`) that turns validator findings and raw
-  output diagnosis into the prompt sent to Studio's refactor API. No
-  Anthropic call exists in the codebase.
+A grocery basket index for the Philippines. v2 describes the system as built
+after the collection layer moved in-house: the pullers read store catalogues
+directly, the validator opens incidents, and nothing repairs an adapter on
+its own.
 
 Companion: [api-contract](api-contract.md) (endpoint and response shapes).
 
 ## 1. One-liner
 
-A US/global grocery/staples price tracker whose scraper fleet cannot silently
-die: a "spider-sense" layer detects breakage from output anomalies, an AI heal
-orchestrator repairs scrapers autonomously through Bright Data Scraper Studio,
-and every repair is verified and audited.
+Shelf prices read straight from supermarket catalogues, a fifteen-staple
+basket priced in every store at the same quantities, and a validator that
+says so when a store's pull stops making sense, so the index shows a gap
+rather than a guess.
 
 ## 2. Goals / non-goals
 
 Goals
-- Fleet of 4-6 Studio scrapers over structurally different store sites, plus
-  one self-hosted clone store used as a controlled chaos target.
-- Autonomous detect -> diagnose -> heal -> verify -> approve loop with a
-  complete audit trail (evidence, prompt, diff, verdict, credits).
-- Public dashboard: basket index over time, per-store/per-product prices,
-  fleet health board, heal audit timeline.
-- Alerts: price drops (product) and breakage/heal events (ops) via Resend
-  email + Telegram; Discord if time allows.
+- A fleet of direct pullers over structurally different store platforms
+  (Shopify, Magento, sitemap + JSON-LD), plus one self-hosted test store
+  that can be broken on purpose.
+- Detect breakage from the output: schema, null rates, row count, price
+  drift, mass change. Open an incident with evidence; resolve it when the
+  store comes back.
+- Public dashboard: the basket terrain, the basket over time with gaps
+  where data is missing, per-staple store comparison, catalogue search,
+  provenance.
+- Alerts: price drops (product) and breakage/recovery (ops) via Resend
+  email + Telegram. Scaffolded, not yet wired.
 - Deployed live on a VPS behind a public URL.
 
 Non-goals (explicitly out)
 - User accounts / auth of any kind.
-- ~~Philippines site coverage.~~ **Superseded.** The PRD made country a
-  first-class dimension rather than a feature. PH is in scope.
-- Human approval gates in the heal loop (auto-approve with audit instead).
+- Automatic repair of a broken adapter. An incident names what to look at;
+  a person fixes the adapter.
+- A second country. The dimension stays in the data (`country` on every
+  store-, product- and basket-shaped payload) but the contract lists PH
+  alone.
 - Scraping anything login-walled, paywalled, or private (house rule).
 
 ## 3. Component overview
 
 ```mermaid
 flowchart LR
-    subgraph BD["Bright Data Cloud"]
-        SS["Scraper Studio<br/>AI create / heal"]
-        FLEET["Scraper Fleet<br/>4-6 store scrapers<br/>+ 1 clone-site scraper"]
-        SS -->|generates & repairs| FLEET
-    end
-
     subgraph VPS["VPS"]
-        subgraph API["Orchestrator API (TypeScript)"]
-            SCHED["pg-boss queue<br/>cron 2x daily + retries"]
-            INGEST["Ingest<br/>webhook receiver + poller"]
-            SENSE["Spider-Sense Layer<br/>schema / null-rate / row-count /<br/>value-drift / freshness checks"]
-            HEAL["Heal Orchestrator<br/>evidence -> prompt -> heal -><br/>verify -> approve"]
-            NOTIF["Notifier<br/>Resend email | Telegram | (Discord)"]
+        subgraph API["Orchestrator API (NestJS)"]
+            SCHED["pg-boss queue<br/>daily cron + manual trigger"]
+            PULL["Pullers<br/>shopify | magento-graphql | sitemap"]
+            SENSE["Validator<br/>schema / null-rate / row-count /<br/>value-drift checks"]
+            NOTIF["Notifier<br/>Resend email | Telegram<br/>(scaffolded)"]
         end
-        DB[("Postgres<br/>prices, runs, incidents,<br/>heals, audit log")]
-        DASH["Dashboard (React)<br/>public: basket index charts<br/>ops: fleet health + heal audit"]
-        CLONE["Clone Store Site<br/>layout-mutation switch<br/>(chaos target)"]
+        DB[("Postgres<br/>products, price history,<br/>runs, incidents, baselines")]
+        DASH["Dashboard (Next.js)<br/>basket terrain, basket over time,<br/>catalogue search, provenance"]
+        PANTRY["Parker's Pantry<br/>layout-mutation switch<br/>(test store)"]
     end
 
     USERS["Users"]
     CHANNELS["Email / Telegram"]
+    STORES["Store catalogues<br/>products.json, GraphQL, sitemaps"]
 
-    SCHED -->|"trigger runs<br/>(/dca/trigger)"| FLEET
-    FLEET -->|"structured JSON<br/>(webhook / get_result)"| INGEST
-    INGEST --> SENSE
-    SENSE -->|clean data| DB
-    SENSE -->|anomaly detected| HEAL
-    HEAL -->|"heal + approve<br/>(refactor_template)"| SS
-    HEAL -->|canary verify run| FLEET
-    HEAL -->|audit trail| DB
+    SCHED -->|scrape-run per store| PULL
+    PULL -->|fetches| STORES
+    PULL -.->|fetches| PANTRY
+    PULL -->|run + changed prices| DB
+    PULL -->|validate-run| SENSE
+    SENSE -->|verdict, incident open / resolve| DB
     SENSE --> NOTIF
-    HEAL --> NOTIF
     DB --> DASH
     NOTIF --> CHANNELS
     USERS --> DASH
-    FLEET -.->|scrapes| CLONE
-    FLEET -.->|scrapes| WEB["Real store sites"]
 ```
 
+### 3.1 Pullers
+One adapter per store platform, chosen by `stores.method`; the store row
+also carries `endpoint` and `max_pages`, so adding a store is a row edit.
 
-### 3.1 Scraper fleet (Bright Data Scraper Studio)
-- One scraper per target site, AI-generated via `automate_template`, saved to
-  production. Uniform output contract per scraper:
-  `[{ product_key, name, price, currency, unit, in_stock, url, observed_at }]`.
-- Delivery: webhook to our ingest endpoint (validated by shared secret);
-  fallback: poll `/dca/get_result`.
-- Canary runs: same scraper, `--sync`/trigger_immediate against 1 URL, used
-  only for verification after heals.
-- Studio exposes browser **functions** — click, navigate, wait, input — over a
-  cloud browser, so a scraper can drive interaction before extracting. This is
-  the lever for store-or-ZIP gating, which is the most likely reason a grocery
-  candidate fails vetting. Reach for it before dropping a site.
+- `shopify` pages through `/products.json`, 250 products per call, keyed by
+  the numeric product id.
+- `magento-graphql` reads the category tree, then pages each category.
+- `sitemap` reads the sitemap (nested sitemaps to a bounded depth), ranks
+  the URLs that look like product pages, fetches each and reads the JSON-LD
+  `Product` block (microdata and Open Graph as fallbacks).
+
+All three share one `Fetcher`: plain `fetch` with browser headers, a
+30-second timeout and a 32 MB body cap; a failed request answers with status
+0 and the adapter treats it like any other non-200. Every adapter checks
+`max_pages` before each fetch, so a runaway crawl is impossible by
+construction.
+
+A run dedupes the rows, diffs them against the store's last known prices
+(`latest_price`) and writes only the changes. Over 90% of an established
+catalogue changing at once is recorded as a run and an incident but not
+applied: a product-key scheme change is far more likely than a repricing of
+everything. A pull that throws, or that returns nothing for a store with
+history, records an `error` run and opens a `pull_failed` incident without
+going through the validator; there are no rows to judge.
+
+Stores with `method = 'none'` are registered but never pulled. Landers
+(browser-rendered) and MerryMart (no machine-readable feed) sit there until
+an adapter exists.
 
 ### 3.2 Orchestrator API (NestJS)
-Single NestJS service, modular internals (controllers + injectable
-services). Why TS: Studio scraper code is JS, so one language covers
-scrapers, backend and frontend (replaces the earlier Hono sketch).
+Single NestJS service, one directory per domain under `src/modules/`. Only
+`*.repository.ts` files touch the Drizzle schema; a lint rule enforces it.
 
-- **Jobs**: pg-boss — a Postgres-backed queue (no Redis broker): persistent
-  jobs, retries with backoff, cron schedules. Queues: `fleet-scrape`
-  (2x daily + manual trigger from ops UI, jitter between scrapers) and
-  `heal` (enqueued when an incident opens).
-- **Ingest**: webhook receiver; verifies signature, stores raw run, enqueues
-  validation.
-- **Spider-Sense validator** (pure functions, unit-tested — this is the
-  technical heart):
-  1. JSON Schema validation (hard fail)
-  2. Row-count anomaly vs baseline expected count (hard fail if < 40%)
-  3. Field null-rate spike vs rolling baseline (e.g. price null-rate jumps
-     from 2% to 60%)
-  4. Value drift: per-field p5/p95 envelope; flag runs where >50% of prices
-     fall outside, or store-level median jumps >30% run-over-run
-  5. Freshness: expected delivery missed by >2h
-  - Soft anomaly -> `suspect` (stored, flagged, excluded from baselines);
-    confirmed/hard -> `broken` + incident:
+- **Jobs**: pg-boss, a Postgres-backed queue (no Redis broker): persistent
+  jobs, retries with backoff, cron schedules. Queues: `fleet-pull` (the
+  daily fan-out, disarmed by default), `scrape-run` (one per store, N
+  workers), `validate-run` (enqueued by every applied run), `notify`.
+- **Validator** (pure functions in `checks.ts`, unit-tested):
+  1. Schema parse rate against the stored product shape (hard fail)
+  2. Row count vs the baseline expected count (hard fail if far below)
+  3. Field null-rate spike vs the rolling baseline
+  4. Value drift: per-field p5/p95 envelope; soft
+  - Soft anomaly -> `suspect`; hard -> `broken` + incident. One open
+    incident per store at a time; an `ok` verdict on a later run resolves
+    whatever was open. A healthy run also refreshes the baseline.
 
 ```mermaid
 stateDiagram-v2
-    [*] --> Healthy: first successful run
+    [*] --> Healthy: first run seeds the baseline
 
-    Healthy --> Suspect: soft anomaly<br/>(drift within tolerance,<br/>single missed run)
+    Healthy --> Suspect: soft anomaly<br/>(drift within tolerance)
     Suspect --> Healthy: next run clean
-    Suspect --> Broken: anomaly confirmed<br/>(2nd consecutive failure or<br/>hard schema violation)
-    Healthy --> Broken: hard failure<br/>(schema violation, empty output,<br/>run error)
+    Suspect --> Broken: hard failure
+    Healthy --> Broken: hard failure<br/>(schema, row count, null spike,<br/>pull failed)
 
-    Broken --> Healing: heal orchestrator picks up<br/>(within budget cap)
-    Healing --> Verifying: Studio diff approved,<br/>canary run triggered
-    Verifying --> Healthy: canary passes validation<br/>(incident closed, diff logged)
-    Verifying --> Healing: canary fails,<br/>retry with refined prompt<br/>(attempt < N)
-    Healing --> ManualAttention: attempts exhausted<br/>or credit budget hit
-    Broken --> ManualAttention: heal budget exhausted
-    ManualAttention --> Healthy: human fix +<br/>manual re-run passes
+    Broken --> Healthy: a later run validates ok<br/>(incident resolved)
+    Broken --> ManualAttention: a person takes the store<br/>(incident state = manual)
+    ManualAttention --> Healthy: adapter fixed,<br/>incident closed by hand
 ```
-
-- **Heal orchestrator**:
-  - Builds evidence bundle: failing checks, sample bad output, last-good
-    sample, field-level diff summary.
-  - A deterministic prompt builder (`modules/heal/prompt.ts`) turns evidence
-    into a plain-language heal prompt (Studio's docs recommend small, specific
-    prompts — one field at a time).
-  - Calls `refactor_template`, polls; on `awaiting_approval` calls
-    `resume_automation_job` (approve) -> canary run -> re-validate.
-  - Pass: save to production, close incident, ops alert "healed".
-  - Fail: reject, retry with refined prompt (max 3 attempts), then escalate
-    to `manual_attention`.
-  - **Budget guard**: per-scraper daily heal cap
-    (`HEAL_MAX_PER_SCRAPER_PER_DAY`) and per-incident attempt cap
-    (`HEAL_MAX_ATTEMPTS_PER_INCIDENT`). The production Studio path does not
-    use the CLI guard wrappers.
-
-  The full loop:
 
 ```mermaid
 sequenceDiagram
     autonumber
     participant Cron as Scheduler
-    participant BD as Bright Data<br/>Scraper Fleet
-    participant Sense as Spider-Sense<br/>Validator
+    participant Pull as Puller
+    participant Store as Store catalogue
     participant DB as Postgres
-    participant Heal as Heal<br/>Orchestrator
-    participant Studio as Scraper Studio<br/>(AI heal)
+    participant Sense as Validator
     participant Notif as Notifier
 
-    Cron->>BD: trigger scheduled run
-    BD-->>Sense: deliver JSON (webhook)
-    Sense->>Sense: schema + null-rate + row-count<br/>+ value-drift + freshness checks
-    alt output healthy
-        Sense->>DB: store records, update baseline
-    else anomaly detected
-        Sense->>DB: open incident (status: broken)
-        Sense->>Notif: ops alert "scraper X broken"
-        Sense->>Heal: evidence bundle<br/>(failing fields, samples, last-good diff)
-        Heal->>Heal: build heal prompt from evidence
-        Heal->>Studio: refactor_template(prompt)
-        Studio-->>Heal: proposed diff (awaiting approval)
-        Heal->>Studio: approve (resume_automation_job)
-        Heal->>BD: canary verify run
-        BD-->>Heal: fresh output
-        Heal->>Sense: re-validate canary output
-        alt canary passes
-            Heal->>Studio: save to production
-            Heal->>DB: close incident, log diff + verdict
-            Heal->>Notif: ops alert "scraper X healed autonomously"
-        else canary fails (max N attempts / budget cap)
-            Heal->>Studio: reject proposal
-            Heal->>DB: incident stays open, log attempt
-            Heal->>Notif: escalate "manual attention needed"
+    Cron->>Pull: scrape-run (store)
+    Pull->>Store: fetch pages (bounded by max_pages)
+    Store-->>Pull: rows
+    alt rows parsed
+        Pull->>DB: run row + changed prices
+        Pull->>Sense: validate-run
+        Sense->>Sense: schema + null-rate + row-count<br/>+ value-drift checks
+        alt verdict ok
+            Sense->>DB: refresh baseline, resolve open incidents
+        else verdict broken
+            Sense->>DB: open incident with evidence
+            Sense->>Notif: ops alert "store X broken"
         end
+    else pull threw, or nothing for a store with history
+        Pull->>DB: error run + pull_failed incident
     end
 ```
 
-- **Notifier**: one interface, three adapters (Resend, Telegram, Discord).
-  Product alerts (price drop >X% on basket item) and ops alerts (breakage,
-  healed, escalation).
+- **Notifier**: one interface, adapters for Resend and Telegram. Product
+  alerts (price drop on a basket item) and ops alerts (breakage, recovery).
+  Nothing enqueues onto `notify` yet.
 
 ### 3.3 Datastore (Postgres 16)
-Tables: `scrapers`, `runs`, `baselines`,
-`price_records`, `products`, `incidents`, `heal_attempts`, `alerts`.
+Tables: `stores`, `products`, `runs`, `price_observations` (+ the
+`latest_price` view), `items`, `basket_map`, `baselines`, `incidents`,
+`alerts`.
 
 ```mermaid
 erDiagram
-    SCRAPER ||--o{ RUN : "executes"
-    SCRAPER ||--o{ INCIDENT : "suffers"
-    SCRAPER ||--|| BASELINE : "has rolling"
-    RUN ||--o{ PRICE_RECORD : "produces"
-    INCIDENT ||--o{ HEAL_ATTEMPT : "triggers"
-    PRICE_RECORD }o--|| PRODUCT : "prices"
-    PRODUCT }o--o{ BASKET : "belongs to"
+    STORE ||--o{ PRODUCT : "lists"
+    STORE ||--o{ RUN : "is pulled by"
+    STORE ||--o{ INCIDENT : "suffers"
+    STORE ||--|| BASELINE : "has rolling"
+    RUN ||--o{ PRICE_OBSERVATION : "records changes"
+    PRODUCT ||--o{ PRICE_OBSERVATION : "is priced by"
+    ITEM ||--o{ BASKET_MAP : "is pinned per store"
+    PRODUCT ||--o| BASKET_MAP : "is the pin for"
     INCIDENT ||--o{ ALERT : "emits"
-    PRICE_RECORD ||--o{ ALERT : "price-drop emits"
 
-    SCRAPER {
-        text id PK "collector_id from Studio"
+    STORE {
+        text store_id PK
+        text country
+        text currency
+        text method "shopify|magento-graphql|sitemap|none"
+        text endpoint
+        int max_pages
+        bool index_contributor
+        bool active
+    }
+    PRODUCT {
+        text store_id PK
+        text product_key PK
         text name
-        text target_site
-        text output_schema "JSON Schema"
-        text status "healthy|suspect|broken|healing|verifying|manual"
-        int heal_budget_daily
+        text url
+        numeric size_quantity "decomposed for unit price"
+        text size_base_uom
     }
     RUN {
-        uuid id PK
-        text scraper_id FK
-        text trigger "cron|manual|canary"
+        bigserial id PK
+        text store_id FK
+        text trigger "cron|manual"
         text status "ok|anomalous|error"
-        jsonb raw_output
-        timestamptz finished_at
+        int rows
+        int changes
+        jsonb findings
+    }
+    PRICE_OBSERVATION {
+        bigserial id PK
+        bigint run_id FK
+        text store_id FK
+        text product_key FK
+        numeric price
+        text currency
+        numeric unit_price
+        text change "new|price"
+    }
+    ITEM {
+        text key PK
+        text tier "core|stretch|registered"
+        jsonb target_size "per country"
+        numeric index_quantity
+    }
+    BASKET_MAP {
+        text item_key FK
+        text store_id FK
+        text product_key
+        text status "verified|curated|..."
     }
     INCIDENT {
         uuid id PK
-        text scraper_id FK
-        text kind "schema|nulls|rowcount|drift|freshness|error"
+        text store_id FK
+        bigint run_id FK
+        text kind "schema|nulls|rowcount|drift|pull_failed|mass_change_suppressed"
         jsonb evidence
-        text state "open|healing|resolved|manual"
-    }
-    HEAL_ATTEMPT {
-        uuid id PK
-        uuid incident_id FK
-        text heal_prompt
-        text studio_diff
-        text verdict "approved|rejected|failed"
-        int credits_spent
-    }
-    PRICE_RECORD {
-        uuid id PK
-        uuid run_id FK
-        uuid product_id FK
-        text store
-        numeric price
-        text currency
-        timestamptz observed_at
+        text state "open|resolved|manual"
     }
 ```
 
-Drizzle ORM + migrations. Raw run payloads kept (jsonb) so incidents can be
-replayed/re-validated during development.
+History is change-only: an observation lands when a price first appears or
+moves, never on every run, and `runs.rows` is what tells a truncated pull
+from a day of stable prices. Incident evidence is stored in full so a verdict
+can be replayed against rules that did not exist when it opened.
 
 ### 3.4 Dashboard (Next.js App Router + Tailwind)
-- **Public**: basket index line (the hero chart — gaps visualize breakage,
-  heals close the line), per-product store comparison, price-drop feed.
-- **Ops ("web" view)**: fleet health board (state machine per scraper),
-  incident timeline, heal audit viewer showing evidence -> prompt -> Studio
-  diff -> verdict, credit spend meter.
-- Server components fetch on first paint; only the live feed and fleet board
-  open an EventSource. No component library: the primitives are hand-built, and
-  the heal audit uses the native `<dialog>` element for focus trapping and
-  escape-to-close.
-- The dashboard is a **pure client of the API** and never touches Postgres. A
+- **Basket** (`/`): the price terrain (staples x stores, height = multiple
+  of the cheapest shelf), the cheapest cart, each staple's store-by-store
+  rail, and the basket over time with hatched gaps on days that could not be
+  fully priced, labelled with the incident that caused them.
+- **Prices** (`/prices`): catalogue search with unit-price sorting.
+- **Behind the data** (`/behind`): store count and last-pull provenance, and
+  the pins we do not fully trust.
+- Server components fetch on first paint. No component library. The
+  dashboard is a **pure client of the API** and never touches Postgres; a
   lint rule makes that structural rather than aspirational.
 
-### 3.5 Parker's Pantry ("chaos target")
-`apps/pantry` at `pantry.spencerjireh.com` -- a fictional grocery store with
-a US storefront (`/us`, USD) and a PH twin (`/ph`, PHP). Its prices are
-deterministic seeded walks from fixed base prices; both storefronts ship with
-`index_contributor = false` so they render on the dashboard but never move
-the country index. Purpose: a scripted, reproducible break-and-heal case.
+### 3.5 Parker's Pantry (the test store)
+`apps/pantry` at `pantry.spencerjireh.com/ph` -- a fictional ten-product
+storefront. Prices are deterministic seeded walks from fixed base prices, and
+the store ships with `index_contributor = false`, so it renders on the
+dashboard but never moves the index. Purpose: a scripted, reproducible
+break-and-recover case for the validator.
 
-The break switch swaps the storefront markup between two layouts:
-`just pantry-layout us b` breaks the US scraper's assumptions, `a` restores
-them. Guarded by `PANTRY_ADMIN_TOKEN`.
+Layout A serves `/ph/sitemap.xml` and a JSON-LD `Product` on every product
+page, so the `sitemap` adapter reads it like any other store. Layout B drops
+the structured data, and the next pull returns zero rows and opens an
+incident. `just pantry-layout ph b` / `ph a` flip it, guarded by
+`PANTRY_ADMIN_TOKEN`.
 
 ### 3.6 Deployment
 A VPS. **`docker-compose.prod.yml` at the repo root is the deployment
 unit** — the deploy platform runs the stack as one Docker Compose resource
 watching `main`, and redeploys on every push. `docker-compose.dev.yml`, also
 at the root, runs just postgres locally; apps run on the host with hot
-reload. The platform's reverse proxy handles TLS/subdomains. Secrets (Bright
-Data key, ops token, Resend, Telegram token, webhook secret) via deploy-time
-env vars.
+reload. The platform's reverse proxy handles TLS/subdomains. Secrets (ops
+token, Resend, Telegram token, pantry admin token) via deploy-time env vars.
 
 Domains: `basketwatch.spencerjireh.com` serves the dashboard, and the API sits
 behind it same-origin at `/api/`. The API sets a global `api` prefix with no
 exclusions and the Next.js server rewrites `/api/:path*` through **without
-stripping**, so the path is identical from browser to container, the API needs
-no host of its own, and the Bright Data webhook target is
-`https://basketwatch.spencerjireh.com/api/ingest/<scraper>`.
+stripping**, so the path is identical from browser to container and the API
+needs no host of its own.
 
 Two consequences of replacing nginx with the Next server: the web container
 listens on **3000**, not 80, and `API_INTERNAL_URL` is a **build argument** --
@@ -328,9 +307,8 @@ to container port 5432; so on the compose network the database is
 `postgres:55432`, not `postgres:5432`.
 
 All four services -- `postgres`, `api`, `web`, `pantry` -- build and start on
-every deploy. The `app` profile that once gated `api` and `web` behind the
-database is gone, so an app build that fails takes the deploy with it; that
-is the trade for having the stack come up in one step.
+every deploy. The API applies pending migrations itself on boot, ahead of the
+queue and the first request.
 
 ```mermaid
 flowchart TB
@@ -338,8 +316,7 @@ flowchart TB
         USER["Users<br/>(browser)"]
         TG["Telegram"]
         RESEND["Resend (email)"]
-        BDCLOUD["Bright Data Cloud<br/>Scraper Studio + fleet"]
-        STORES["Real store sites"]
+        STORES["Store catalogues"]
         TEAM["Team laptops<br/>psql / pandas ingest"]
     end
 
@@ -350,29 +327,25 @@ flowchart TB
             APIC["orchestrator-api<br/>NestJS + pg-boss"]
             PG[("postgres 16<br/>volume-backed")]
         end
-        CLONE["Parker's Pantry<br/>clone store + layout switch<br/>(pantry.spencerjireh.com)"]
+        PANTRY["Parker's Pantry<br/>test store + layout switch<br/>(pantry.spencerjireh.com)"]
     end
 
     USER -->|https| PROXY
     PROXY --> WEB
-    PROXY --> CLONE
+    PROXY --> PANTRY
     WEB -->|REST /api| APIC
     APIC --> PG
-    APIC -->|"trigger / heal / approve<br/>(api.brightdata.com)"| BDCLOUD
-    BDCLOUD -->|"webhook delivery<br/>(signed)"| PROXY
-    BDCLOUD -->|scrapes| STORES
-    BDCLOUD -->|scrapes| CLONE
+    APIC -->|pulls| STORES
+    APIC -->|pulls| PANTRY
     APIC -->|alerts| RESEND
     APIC -->|alerts| TG
     TEAM -->|"postgres :55432<br/>(direct to VPS IP,<br/>bypasses Cloudflare)"| PG
 ```
 
-
 ## 4. External interfaces
 
 | Interface | Direction | Notes |
 |---|---|---|
-| `api.brightdata.com /dca/*` | out | trigger, get_result, refactor_template, resume_automation_job |
-| Studio webhook delivery | in | signed; per-scraper path |
-| Resend / Telegram / Discord | out | notifier adapters |
-| Public REST `/api/*` | in | dashboard reads; manual trigger (unauthenticated but rate-limited, mutation endpoints behind a simple token) |
+| Store catalogues (`/products.json`, GraphQL, sitemaps + product pages) | out | plain HTTP, bounded by `max_pages` |
+| Resend / Telegram | out | notifier adapters (scaffolded) |
+| Public REST `/api/*` | in | dashboard reads; mutation endpoints behind the ops token and a 5/minute limit |

@@ -4,16 +4,16 @@ Instructions for AI coding agents working in this repository.
 
 ## What this repo is
 
-A self-healing grocery price tracker built on Bright Data Scraper Studio.
-This repo is the product codebase with design docs alongside it.
+A grocery basket index for the Philippines: shelf prices read straight from
+supermarket catalogues, a fifteen-staple basket priced in every store, and a
+validator that opens an incident when a store's pull stops making sense. This
+repo is the product codebase with design docs alongside it.
 
 Read the doc that matches the work, not all of them:
 
 - Adding or wiring an API module: `docs/architecture.md` (HLD; diagrams
   inline as mermaid).
 - Touching `packages/contract` or endpoint shapes: `docs/api-contract.md`.
-- Provisioning Studio collectors: `docs/collector-manifest.json` (canonical
-  definitions for all 16 stores).
 
 ## Layout
 
@@ -30,12 +30,12 @@ is no app subdirectory; `apps/` and `packages/` sit beside the compose files.
 - `packages/contract` — zod schemas and types. The only thing the two apps
   share, and the reason the boundary above holds.
 - `packages/tsconfig`, `packages/eslint-config` — shared configs.
-- `docs/` — design docs (`architecture.md`, `api-contract.md`) and
-  the collector manifest used by `ProvisionService`.
+- `docs/` — design docs (`architecture.md`, `api-contract.md`) and brand
+  assets.
 
-Parker's Pantry (`apps/pantry`) is live at `pantry.spencerjireh.com` as the
-clone store for staged break-and-heal tests. Not yet wired: the
-notifier module (channels scaffolded, nothing enqueues alerts).
+Parker's Pantry (`apps/pantry`) is live at `pantry.spencerjireh.com/ph` as
+the test store the pulls are allowed to break. Not yet wired: the notifier
+module (channels scaffolded, nothing enqueues alerts).
 
 ## Commands
 
@@ -77,11 +77,6 @@ runtime variable. The API applies pending migrations itself on boot, ahead of
 the queue and the first request — a deploy has no step where a human
 runs drizzle-kit. Never deploy without the user's go-ahead.
 
-Bright Data CLI (`brightdata`, v0.3.4+) drives Scraper Studio:
-`scraper create <url> "<desc>"`, `scraper run <id> [url]`,
-`scraper heal <id> "<prompt>" --auto-approve --auto-save`,
-`scraper approve <id>`, `budget`.
-
 ## Hard rules
 
 - **Never commit secrets.** Two files, both at the repo **root**, beside
@@ -93,13 +88,10 @@ Bright Data CLI (`brightdata`, v0.3.4+) drives Scraper Studio:
   token in the web container makes every visitor an operator on our credentials.
   Prod compose passes it to `api` and not to `web`, turbo does not forward it to
   the web dev server, and nothing under `apps/web` may read it.
-- **Credits are finite (~$50 per account).** Production spend is controlled
-  by heal caps (`HEAL_MAX_ATTEMPTS_PER_INCIDENT`,
-  `HEAL_MAX_PER_SCRAPER_PER_DAY`). Raise a cap deliberately, never silently.
-  Do not create/run/heal scrapers in bulk without the user's go-ahead.
-- **Bound every scraper.** Creation prompts must state the crawl scope
-  explicitly ("this product page only", "front page only") — an unbounded
-  description once crawled ~150 pages.
+- **Pulls hit real stores.** Do not run the fleet or a store in bulk without
+  the user's go-ahead; `?dryRun=true` fetches and parses but writes nothing.
+  `max_pages` on the store row is the crawl ceiling and every adapter checks it
+  before each fetch.
 - **Public data only.** No login-walled, paywalled, or private sources
   (house rule).
 - **Kill only listeners.** Use `lsof -ti:PORT -sTCP:LISTEN | xargs kill` —
@@ -114,14 +106,15 @@ Bright Data CLI (`brightdata`, v0.3.4+) drives Scraper Studio:
 - TypeScript everywhere; strict mode; match existing style (2-space,
   no semicolon changes, keep files small and typed).
 - Validator checks stay pure and unit-tested; incidents must be replayable
-  from stored `raw_output`.
+  from their stored evidence.
 - The API contract lives in `packages/contract/src/`, as zod
   schemas with types derived from them, and is documented in
   `docs/api-contract.md`. Both apps are typed by those schemas —
   change a schema and every consumer of it together, or neither.
 - Money is `{ amount, currency }`, never a preformatted string and never two
   sibling fields. Timestamps are ISO 8601 UTC strings. `country` appears on
-  every store-, product- and basket-shaped payload.
+  every store-, product- and basket-shaped payload; the contract lists PH
+  alone, and rows from the US era keep theirs with `stores.active = false`.
 - Do not run the API under `tsx`, and do not enable
   `@typescript-eslint/consistent-type-imports` for it: esbuild has no
   `emitDecoratorMetadata`, and the lint autofix strips the value imports Nest
@@ -130,41 +123,31 @@ Bright Data CLI (`brightdata`, v0.3.4+) drives Scraper Studio:
 
 ## Current state
 
-Snapshot at the end of the first collection week.
-
 - Every dashboard route answers from Postgres; there are no fixtures.
-  Migrations run 0000-0012.
-- The puller engine covers the pullable stores (four adapters, crawl
+  Migrations run 0000-0015.
+- The puller engine covers the pullable stores (three adapters, crawl
   config from the `stores` table): `POST /api/pullers/:storeId/run`, and
   `?dryRun=true` writes nothing. The pull schedule ships disarmed
-  (`PULL_SCHEDULE_ENABLED` defaults false); a scheduled run bypasses the
-  guarded wrapper, so arming it is a team decision, never a deploy default.
-- **Hybrid collection pipeline.** Twelve stores are
-  collected through Bright Data Studio collectors; four Shopify-style stores
-  with machine-readable catalogues are pulled over plain HTTP, routed through
-  Web Unlocker where the site blocks scraping (`needs_unlocker` on the store
-  row). A Studio store with no collector fails with a clear error requiring
-  provisioning; a Studio failure on a provisioned store is real -- recorded,
-  validated, diagnosed, and healed through Studio's self-healing API. The
-  Studio adapter uses sitemap discovery internally for product-page
-  collectors. Collector definitions (seed URLs, descriptions, probe findings)
-  live in `docs/collector-manifest.json`; the README's fleet table shows
-  which store runs which way.
-- **Self-healing diagnostic loop.** The
-  validator seeds baselines on boot, validates every run (schema, null rates,
-  row count, price drift), opens incidents with evidence, and enqueues a heal
-  job. The `HealAutoHandler` proposes fixes via the BD `refactor_template`
-  API; with `HEAL_AUTO_APPROVE_ENABLED` the machine judges the proposal's
-  preview sample against the store baseline, approves or rejects, and
-  verifies an approval with one canary pull -- capped per incident, then held
-  for a person. The dashboard is a read-only window on all of it. Baselines
-  update automatically after healthy runs.
-- **Provisioning from the dashboard.** `POST
-/api/fleet/:storeId/provision` and `POST /api/fleet/provision` create Studio
-  collectors from `collector-manifest.json` definitions. The Bright Data CLI
-  is installed in the API Docker image for this purpose.
-- **Parker's Pantry.** `apps/pantry` at
-  `pantry.spencerjireh.com` is the clone store for controlled
-  break-and-heal tests (two storefronts: `/us` USD, `/ph` PHP).
+  (`PULL_SCHEDULE_ENABLED` defaults false); arming it is a team decision,
+  never a deploy default.
+- **Collection.** `stores.method` names the adapter: `shopify` (Ever, Shop
+  Gaisano, Shop Suki), `magento-graphql` (SM Markets), `sitemap` (Parker's
+  Pantry). Landers and MerryMart are `none` until a browser adapter and a
+  feed exist for them. The adapters share one plain HTTP fetcher; there is
+  no proxy, no vendor, and no browser in the path.
+- **Incidents.** The validator seeds baselines on boot, validates every
+  applied run (schema, null rates, row count, price drift), opens an
+  incident with evidence on a `broken` verdict, and resolves a store's open
+  incidents on the next `ok` verdict. A pull that throws or returns nothing
+  for an established store opens a `pull_failed` incident directly. Nothing
+  repairs an adapter on its own; that is a person's job, and the incident
+  says what to look at.
+- **Philippines only.** The contract lists one country. US store rows from
+  the project's first weeks stay in the database with `active = false` and
+  keep their history; every read that joins `stores` filters on `active`.
+- **Parker's Pantry.** `apps/pantry` at `pantry.spencerjireh.com/ph` serves
+  a sitemap and JSON-LD product pages in layout A and neither in layout B, so
+  `just pantry-layout ph b` breaks the pull on purpose and `ph a` lets the
+  next run resolve the incident.
 - Not yet wired: the notifier module (channels scaffolded, nothing enqueues
   alerts).
