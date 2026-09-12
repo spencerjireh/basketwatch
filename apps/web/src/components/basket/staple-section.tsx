@@ -138,7 +138,7 @@ export function StapleSection({ rail, index }: { rail: Rail; index: number }) {
                    * The row carries the concrete product as a title rather than a
                    * hover card: it is the one place the reader can find out which
                    * exact catalogue item this price belongs to, and it has to
-                   * survive touch, keyboard and a screenshot in a demo video.
+                   * survive touch, keyboard and a screenshot.
                    */
                   title={`${pin.productName} — ${formatMoney(
                     pin.unitPrice.amount,

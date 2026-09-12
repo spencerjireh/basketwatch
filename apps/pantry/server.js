@@ -1,10 +1,10 @@
 import { createServer } from "node:http";
 
 /**
- * Parker's Pantry: a disclosed fake grocery store with two storefronts
- * (US and PH) whose markup can be mutated on demand to break scrapers in
- * a controlled, reproducible way. The heal-demo target and the comparison
- * view's insurance policy.
+ * Parker's Pantry: a fake grocery store with two storefronts (US and PH)
+ * whose markup can be mutated on demand to break scrapers in a controlled,
+ * reproducible way. The heal test target and the comparison view's
+ * insurance policy.
  *
  * Layout A: prices in .price spans with data-sku attributes.
  * Layout B: renamed classes, price split into whole/cents nested spans,
@@ -16,7 +16,6 @@ import { createServer } from "node:http";
  *
  * Toggle: POST /admin/layout {"store":"us"|"ph","layout":"a"|"b"} with
  * X-Admin-Token header, or set LAYOUT at boot for both storefronts.
- * Disclosed as a test rig in the hackathon submission.
  */
 
 const BASE_URL = process.env.PUBLIC_BASE_URL ?? "https://pantry.spencerjireh.com";
@@ -183,10 +182,10 @@ const cardB = (store, p, price) => {
  * the striped awning (country accent + white, scalloped edge); everything
  * else stays quiet around it.
  *
- * The Scrape-Verse nod is printed, not webbed: the wordmark carries a hint
- * of misregistered red/blue plates, the masthead a faint halftone dot
- * field, and the shelf tags a comic-sticker ink line -- all readings that a
- * grocer's weekly circular and a comic page happen to share.
+ * The print look: the wordmark carries a hint of misregistered red/blue
+ * plates, the masthead a faint halftone dot field, and the shelf tags a
+ * comic-sticker ink line -- readings a grocer's weekly circular and a comic
+ * page happen to share.
  */
 const css = (accent, lite) => `
   :root { --accent: ${accent}; --lite: ${lite}; --ink: #26221c; --milk: #fdfcf8; --card: #fffefb; --crate: #e6dfd2; --tag: #ffd23f; --leaf: #2e7d4f; --muted: #7d746a; }
@@ -282,7 +281,7 @@ const shell = (store, title, body) => {
   <main>
 ${body}
   </main>
-  <footer>Parker's Pantry is a fictional demonstration storefront for the basketwatch hackathon project. Not a real business.<br>214 Market Lane, Earth-616 &middot; Two imaginary neighborhoods, restocked daily.</footer>
+  <footer>Parker's Pantry is a fictional test storefront for basketwatch. Not a real business.<br>214 Market Lane &middot; Two imaginary neighborhoods, restocked daily.</footer>
 </body>
 </html>`;
 };

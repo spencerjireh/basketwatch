@@ -1,6 +1,6 @@
 ---
 title: API Contract
-tags: [hackathon, contract]
+tags: [contract]
 created: 2026-08-18
 updated: 2026-08-20
 status: v2
@@ -8,8 +8,8 @@ status: v2
 
 # API contract (v2)
 
-The seam between the two work slices in [architecture](architecture.md)
-section 5. Source of truth is `packages/contract/src/`: zod schemas
+The seam between the API and the dashboard (see
+[architecture](architecture.md)). Source of truth is `packages/contract/src/`: zod schemas
 with types derived from them, so runtime validation and the compiler read the
 same definition. Both apps are typed by those schemas — change a schema and
 every consumer of it together, or neither.
@@ -151,8 +151,7 @@ validation and the UI's exhaustiveness checks:
 
 - `HealAttempt` carries `attempt`, `startedAt`, `finishedAt` and `canary`, and
   the `heal_attempts` table has none of those columns — it holds only
-  `created_at`. This is deliberate: the audit view is the demo centrepiece, so
-  the gap surfaces as a type error when the repository is written rather than as
+  `created_at`. This is deliberate: the gap surfaces as a type error when the repository is written rather than as
   a blank panel. Closing it is item 1 of migration 0001.
 - Nothing computes `FleetScraper.nullRatePct`, `healsToday`, or
   `CreditBudget.spentToday` yet; all are derived at query time from `runs`,
