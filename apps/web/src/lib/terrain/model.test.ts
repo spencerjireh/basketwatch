@@ -1,4 +1,4 @@
-import type { Money, Rail, RailPin } from "@basketwatch/contract";
+import type { Country, Money, Rail, RailPin } from "@basketwatch/contract";
 import { describe, expect, it } from "vitest";
 import {
   RATIO_CAP,
@@ -10,7 +10,7 @@ import {
   weatherFor,
 } from "@/lib/terrain/model";
 
-const usd = (amount: number): Money => ({ amount, currency: "USD" });
+const php = (amount: number): Money => ({ amount, currency: "PHP" });
 
 function pin(overrides: Partial<RailPin> & Pick<RailPin, "storeId" | "storeName">): RailPin {
   return {
@@ -30,8 +30,8 @@ function pin(overrides: Partial<RailPin> & Pick<RailPin, "storeId" | "storeName"
 
 function rail(overrides: Partial<Rail> & Pick<Rail, "itemKey" | "label">): Rail {
   return {
-    country: "US",
-    currency: "USD",
+    country: "PH",
+    currency: "PHP",
     indexQuantity: null,
     indexUom: null,
     medianUnitPrice: null,
@@ -48,20 +48,20 @@ const rails: Rail[] = [
     label: "Rice",
     indexQuantity: 5,
     pins: [
-      pin({ storeId: "alpha", storeName: "Alpha Mart", unitPrice: usd(1) }),
-      pin({ storeId: "bravo", storeName: "Bravo Foods", unitPrice: usd(2) }),
+      pin({ storeId: "alpha", storeName: "Alpha Mart", unitPrice: php(1) }),
+      pin({ storeId: "bravo", storeName: "Bravo Foods", unitPrice: php(2) }),
       pin({
         storeId: "costless",
         storeName: "Costless",
         indexContributor: false,
-        unitPrice: usd(0.5),
+        unitPrice: php(0.5),
       }),
       pin({
         storeId: "sus",
         storeName: "Sus Depot",
         flag: "suspect",
         flagReason: "wholesale case price",
-        unitPrice: usd(0.1),
+        unitPrice: php(0.1),
       }),
     ],
   }),
@@ -70,14 +70,14 @@ const rails: Rail[] = [
     label: "Eggs",
     indexQuantity: 12,
     pins: [
-      pin({ storeId: "alpha", storeName: "Alpha Mart", unitPrice: usd(3) }),
-      pin({ storeId: "bravo", storeName: "Bravo Foods", unitPrice: usd(2) }),
+      pin({ storeId: "alpha", storeName: "Alpha Mart", unitPrice: php(3) }),
+      pin({ storeId: "bravo", storeName: "Bravo Foods", unitPrice: php(2) }),
     ],
   }),
   rail({
     itemKey: "coffee",
     label: "Coffee",
-    pins: [pin({ storeId: "delta", storeName: "Delta Grocer", unitPrice: usd(3) })],
+    pins: [pin({ storeId: "delta", storeName: "Delta Grocer", unitPrice: php(3) })],
   }),
 ];
 
@@ -99,8 +99,8 @@ describe("heightFor", () => {
 
 describe("weatherFor", () => {
   it("reads the excluded fraction over the gain", () => {
-    // rice carries one suspect pin out of seven US pins total.
-    expect(weatherFor(rails, "US")).toBeCloseTo(1 / 7 / WEATHER_GAIN);
+    // rice carries one suspect pin out of seven PH pins total.
+    expect(weatherFor(rails, "PH")).toBeCloseTo(1 / 7 / WEATHER_GAIN);
   });
 
   it("saturates at full overcast", () => {
@@ -114,16 +114,16 @@ describe("weatherFor", () => {
         ],
       }),
     ];
-    expect(weatherFor(broken, "US")).toBe(1);
+    expect(weatherFor(broken, "PH")).toBe(1);
   });
 
   it("is clear when there is nothing to measure", () => {
-    expect(weatherFor([], "US")).toBe(0);
+    expect(weatherFor([], "PH")).toBe(0);
   });
 });
 
 describe("buildTerrainGrid", () => {
-  const grid = buildTerrainGrid(rails, "US");
+  const grid = buildTerrainGrid(rails, "PH");
 
   it("orders columns by the basket ranking, unmeasured stores last", () => {
     expect(grid?.stores.map((store) => store.storeId)).toEqual([
@@ -160,20 +160,20 @@ describe("buildTerrainGrid", () => {
         itemKey: "rice",
         label: "Rice",
         pins: [
-          pin({ storeId: "a", storeName: "A", unitPrice: usd(1) }),
-          pin({ storeId: "b", storeName: "B", unitPrice: usd(10) }),
+          pin({ storeId: "a", storeName: "A", unitPrice: php(1) }),
+          pin({ storeId: "b", storeName: "B", unitPrice: php(10) }),
         ],
       }),
       rail({
         itemKey: "eggs",
         label: "Eggs",
         pins: [
-          pin({ storeId: "a", storeName: "A", unitPrice: usd(1) }),
-          pin({ storeId: "b", storeName: "B", unitPrice: usd(1) }),
+          pin({ storeId: "a", storeName: "A", unitPrice: php(1) }),
+          pin({ storeId: "b", storeName: "B", unitPrice: php(1) }),
         ],
       }),
     ];
-    const capped = buildTerrainGrid(outlier, "US");
+    const capped = buildTerrainGrid(outlier, "PH");
     const cell = capped?.cells[0]?.find((candidate) => candidate?.storeId === "b");
     expect(cell?.ratio).toBe(10);
     expect(cell?.height).toBe(1);
@@ -182,41 +182,43 @@ describe("buildTerrainGrid", () => {
   });
 
   it("declines to draw a degenerate landscape", () => {
-    expect(buildTerrainGrid([], "US")).toBeNull();
+    expect(buildTerrainGrid([], "PH")).toBeNull();
     // One store is a bar chart, not a landscape.
     const solo = [
       rail({
         itemKey: "rice",
         label: "Rice",
-        pins: [pin({ storeId: "a", storeName: "A", unitPrice: usd(1) })],
+        pins: [pin({ storeId: "a", storeName: "A", unitPrice: php(1) })],
       }),
       rail({
         itemKey: "eggs",
         label: "Eggs",
-        pins: [pin({ storeId: "a", storeName: "A", unitPrice: usd(1) })],
+        pins: [pin({ storeId: "a", storeName: "A", unitPrice: php(1) })],
       }),
     ];
-    expect(buildTerrainGrid(solo, "US")).toBeNull();
+    expect(buildTerrainGrid(solo, "PH")).toBeNull();
   });
 });
 
 describe("findCell and findGap", () => {
-  const grid = buildTerrainGrid(rails, "US");
+  const grid = buildTerrainGrid(rails, "PH");
   if (!grid) throw new Error("fixture grid did not build");
 
   it("finds a cell by country, staple, and store", () => {
-    const cell = findCell(grid, { country: "US", itemKey: "rice", storeId: "alpha" });
+    const cell = findCell(grid, { country: "PH", itemKey: "rice", storeId: "alpha" });
     expect(cell?.ratio).toBe(2);
-    expect(findCell(grid, { country: "PH", itemKey: "rice", storeId: "alpha" })).toBeNull();
-    expect(findCell(grid, { country: "US", itemKey: "rice", storeId: "nowhere" })).toBeNull();
+    expect(
+      findCell(grid, { country: "US" as Country, itemKey: "rice", storeId: "alpha" }),
+    ).toBeNull();
+    expect(findCell(grid, { country: "PH", itemKey: "rice", storeId: "nowhere" })).toBeNull();
   });
 
   it("names a gap where a store and staple cross with nothing there", () => {
-    expect(findGap(grid, { country: "US", itemKey: "rice", storeId: "delta" })).toEqual({
+    expect(findGap(grid, { country: "PH", itemKey: "rice", storeId: "delta" })).toEqual({
       storeName: "Delta Grocer",
       label: "Rice",
     });
     // An occupied cell is not a gap.
-    expect(findGap(grid, { country: "US", itemKey: "rice", storeId: "alpha" })).toBeNull();
+    expect(findGap(grid, { country: "PH", itemKey: "rice", storeId: "alpha" })).toBeNull();
   });
 });

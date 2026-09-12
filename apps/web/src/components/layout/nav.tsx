@@ -2,9 +2,6 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { COUNTRY_NAME, type Country, countries } from "@basketwatch/contract";
-import { CountryLink, useCountry } from "@/components/country/country";
-import { Dropdown } from "@/components/ui/dropdown";
 import { cn } from "@/lib/utils";
 
 /**
@@ -13,9 +10,6 @@ import { cn } from "@/lib/utils";
  * collected both. "Behind the data" is a door, not a disclaimer -- the stores
  * and the incidents are the reason to believe the first two pages, so they stay
  * one click away rather than hidden.
- *
- * The country switcher lives here because it scopes all three pages at once:
- * one flip and the basket, the catalogue and the store list all change world.
  */
 const LINKS = [
   { href: "/", label: "Basket" },
@@ -25,8 +19,6 @@ const LINKS = [
 
 export function Nav() {
   const pathname = usePathname();
-  const { country, setCountry } = useCountry();
-  const items = countries.map((c) => ({ value: c, label: COUNTRY_NAME[c] }));
 
   return (
     <header className="border-b border-line">
@@ -39,7 +31,7 @@ export function Nav() {
           {LINKS.map((link) => {
             const active = link.href === "/" ? pathname === "/" : pathname.startsWith(link.href);
             return (
-              <CountryLink
+              <Link
                 key={link.href}
                 href={link.href}
                 aria-current={active ? "page" : undefined}
@@ -51,18 +43,10 @@ export function Nav() {
                 )}
               >
                 {link.label}
-              </CountryLink>
+              </Link>
             );
           })}
         </nav>
-
-        <Dropdown
-          className="ml-auto"
-          label="Country"
-          items={items}
-          value={country}
-          onChange={(value) => setCountry(value as Country)}
-        />
       </div>
     </header>
   );

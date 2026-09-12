@@ -178,9 +178,9 @@ db-restore-local FILE:
 clean:
     pnpm clean
 
-# Flip a Parker's Pantry storefront layout to break (b) or restore (a) its
+# Flip the Parker's Pantry storefront layout to break (b) or restore (a) its
 # scraper on purpose. Needs PANTRY_ADMIN_TOKEN in the environment.
-#   just pantry-layout us b
+#   just pantry-layout ph b
 pantry-layout store layout:
     curl -sS -X POST https://pantry.spencerjireh.com/admin/layout \
         -H "X-Admin-Token: $PANTRY_ADMIN_TOKEN" \

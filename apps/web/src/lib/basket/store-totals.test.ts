@@ -1,8 +1,8 @@
-import type { Money, Rail, RailPin } from "@basketwatch/contract";
+import type { Country, Money, Rail, RailPin } from "@basketwatch/contract";
 import { describe, expect, it } from "vitest";
 import { basketSpread, rankStores, storeOrder } from "@/lib/basket/store-totals";
 
-const usd = (amount: number): Money => ({ amount, currency: "USD" });
+const php = (amount: number): Money => ({ amount, currency: "PHP" });
 
 function pin(overrides: Partial<RailPin> & Pick<RailPin, "storeId" | "storeName">): RailPin {
   return {
@@ -22,8 +22,8 @@ function pin(overrides: Partial<RailPin> & Pick<RailPin, "storeId" | "storeName"
 
 function rail(overrides: Partial<Rail> & Pick<Rail, "itemKey" | "label">): Rail {
   return {
-    country: "US",
-    currency: "USD",
+    country: "PH",
+    currency: "PHP",
     indexQuantity: null,
     indexUom: null,
     medianUnitPrice: null,
@@ -40,8 +40,12 @@ function rail(overrides: Partial<Rail> & Pick<Rail, "itemKey" | "label">): Rail 
  * contributor), sus 0.10 (suspect). Cheapest countable shelf is alpha's 1.00.
  * eggs (12 count): alpha 3.00, bravo 2.00. Cheapest countable is bravo's 2.00.
  * coffee: delta 3.00, but the rail carries no index quantity.
- * One PH rail, to prove the country filter.
+ * One rail from another country, to prove the filter. The contract lists PH
+ * alone, but rows from the US era still carry their country, so the filter
+ * has to hold against a value the enum no longer names.
  */
+const ELSEWHERE = "US" as Country;
+
 const rails: Rail[] = [
   rail({
     itemKey: "rice",
@@ -49,20 +53,20 @@ const rails: Rail[] = [
     indexQuantity: 5,
     indexUom: "kg",
     pins: [
-      pin({ storeId: "alpha", storeName: "Alpha Mart", unitPrice: usd(1) }),
-      pin({ storeId: "bravo", storeName: "Bravo Foods", unitPrice: usd(2) }),
+      pin({ storeId: "alpha", storeName: "Alpha Mart", unitPrice: php(1) }),
+      pin({ storeId: "bravo", storeName: "Bravo Foods", unitPrice: php(2) }),
       pin({
         storeId: "costless",
         storeName: "Costless",
         indexContributor: false,
-        unitPrice: usd(0.5),
+        unitPrice: php(0.5),
       }),
       pin({
         storeId: "sus",
         storeName: "Sus Depot",
         flag: "suspect",
         flagReason: "wholesale case price",
-        unitPrice: usd(0.1),
+        unitPrice: php(0.1),
       }),
     ],
   }),
@@ -75,13 +79,13 @@ const rails: Rail[] = [
       pin({
         storeId: "alpha",
         storeName: "Alpha Mart",
-        unitPrice: usd(3),
+        unitPrice: php(3),
         unitPriceBasis: "per_item",
       }),
       pin({
         storeId: "bravo",
         storeName: "Bravo Foods",
-        unitPrice: usd(2),
+        unitPrice: php(2),
         unitPriceBasis: "per_item",
       }),
     ],
@@ -89,26 +93,26 @@ const rails: Rail[] = [
   rail({
     itemKey: "coffee",
     label: "Coffee",
-    pins: [pin({ storeId: "delta", storeName: "Delta Grocer", unitPrice: usd(3) })],
+    pins: [pin({ storeId: "delta", storeName: "Delta Grocer", unitPrice: php(3) })],
   }),
   rail({
     itemKey: "rice",
     label: "Rice",
-    country: "PH",
-    currency: "PHP",
+    country: ELSEWHERE,
+    currency: "USD",
     indexQuantity: 5,
     pins: [
       pin({
-        storeId: "ph-store",
-        storeName: "PH Store",
-        unitPrice: { amount: 60, currency: "PHP" },
+        storeId: "us-store",
+        storeName: "US Store",
+        unitPrice: { amount: 60, currency: "USD" },
       }),
     ],
   }),
 ];
 
 describe("rankStores", () => {
-  const ranking = rankStores(rails, "US");
+  const ranking = rankStores(rails, "PH");
 
   it("counts only the rails a store could have covered", () => {
     expect(ranking.priceable).toBe(2);
@@ -160,15 +164,15 @@ describe("rankStores", () => {
   });
 
   it("filters by country and keeps that country's currency", () => {
-    const ph = rankStores(rails, "PH");
-    expect(ph.currency).toBe("PHP");
-    expect(ph.ranked.map((store) => store.storeId)).toEqual(["ph-store"]);
-    expect(ph.priceable).toBe(1);
+    const elsewhere = rankStores(rails, ELSEWHERE);
+    expect(elsewhere.currency).toBe("USD");
+    expect(elsewhere.ranked.map((store) => store.storeId)).toEqual(["us-store"]);
+    expect(elsewhere.priceable).toBe(1);
   });
 
   it("falls back to the country's default currency with no rails at all", () => {
-    const empty = rankStores([], "US");
-    expect(empty.currency).toBe("USD");
+    const empty = rankStores([], "PH");
+    expect(empty.currency).toBe("PHP");
     expect(empty.ranked).toEqual([]);
     expect(empty.ignored).toEqual([]);
   });
@@ -176,20 +180,20 @@ describe("rankStores", () => {
 
 describe("storeOrder", () => {
   it("interleaves ranked and ignored by ratio, unmeasured stores last", () => {
-    expect(storeOrder(rankStores(rails, "US"))).toEqual(["costless", "alpha", "bravo", "delta"]);
+    expect(storeOrder(rankStores(rails, "PH"))).toEqual(["costless", "alpha", "bravo", "delta"]);
   });
 });
 
 describe("basketSpread", () => {
   it("spans the complete baskets only", () => {
-    const spread = basketSpread(rankStores(rails, "US"));
+    const spread = basketSpread(rankStores(rails, "PH"));
     expect(spread?.low).toBe(34);
     expect(spread?.high).toBe(41);
-    expect(spread?.currency).toBe("USD");
+    expect(spread?.currency).toBe("PHP");
   });
 
   it("drops the sentence below two complete baskets", () => {
-    expect(basketSpread(rankStores(rails, "PH"))).toBeNull();
-    expect(basketSpread(rankStores([], "US"))).toBeNull();
+    expect(basketSpread(rankStores(rails, ELSEWHERE))).toBeNull();
+    expect(basketSpread(rankStores([], "PH"))).toBeNull();
   });
 });

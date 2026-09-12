@@ -19,15 +19,17 @@ import { toMoney } from "../../database/mappers/money.mapper.js";
 /**
  * Which pins count towards the published index.
  *
- * Three filters, and each one is a decision rather than a convenience:
- * `status` keeps unresolved and out-of-stock pins out, `index_contributor`
- * keeps a store the team has not endorsed from moving the headline number, and
+ * Four filters, and each one is a decision rather than a convenience:
+ * `status` keeps unresolved and out-of-stock pins out, `active` keeps a
+ * retired store's history from moving anything, `index_contributor` keeps a
+ * store the team has not endorsed from moving the headline number, and
  * `tier = 'core'` fixes the basket at the fifteen core staples. Widening
  * any of them changes what the chart means, so they live in one place.
  */
 const PIN_FILTER = sql`
   b.status in ('verified', 'curated')
   and b.product_key is not null
+  and s.active
   and s.index_contributor
   and i.tier = 'core'
 `;
@@ -505,6 +507,7 @@ export class BasketRepository {
           on lp.store_id = b.store_id and lp.product_key = b.product_key
         where b.status in ('verified', 'curated')
           and b.product_key is not null
+          and s.active
           and ${tiers}
           and (${country ?? null}::text is null or s.country = ${country ?? null})
       ),
@@ -624,7 +627,7 @@ export class BasketRepository {
              inc.resolved_at::date::text as resolved_at
       from incidents inc
       join stores s on s.store_id = inc.store_id
-      where s.index_contributor
+      where s.active and s.index_contributor
         and (${country ?? null}::text is null or s.country = ${country ?? null})
       order by inc.opened_at
     `)) as unknown as IncidentRow[];
