@@ -2,7 +2,7 @@
 title: API Contract
 tags: [contract]
 created: 2026-08-18
-updated: 2026-08-20
+updated: 2026-09-12
 status: v2
 ---
 
@@ -45,8 +45,6 @@ every layer:
 | prod, inside compose | `api:3001/api/health` |
 | prod, public | `basketwatch.spencerjireh.com/api/health` |
 
-This is why the Bright Data webhook target did not change across the rewrite.
-
 ## Dashboard reads
 
 Every read below is **public and unauthenticated**, deliberately: the dashboard
@@ -57,18 +55,17 @@ has no login, so anything it renders has to be reachable without a secret.
 | `GET /api/health` | `HealthResponse` | yes |
 | `GET /api/health/ready` | `ReadyResponse`, 503 when degraded | yes |
 | `GET /api/fleet` | `FleetScraper[]` | yes |
-| `GET /api/basket/index?country=US` | `BasketSeries[]` | yes |
-| `GET /api/basket/today?country=US` | `BasketItem[]` | yes |
+| `GET /api/basket/index?country=PH` | `BasketSeries[]` | yes |
+| `GET /api/basket/today?country=PH` | `BasketItem[]` | yes |
+| `GET /api/basket/rails?country=PH&tier=core` | `Rail[]` | yes |
+| `GET /api/products/search?q=rice&country=PH` | `Page<ProductHit>` | yes |
 | `GET /api/feed?limit=&cursor=` | `Page<FeedEvent>` | yes |
 | `GET /api/incidents?state=open&limit=&cursor=` | `Page<Incident>` | yes |
 | `GET /api/incidents/:id` | `Incident` | yes |
-| `GET /api/budget` | `CreditBudget` | yes |
-| `GET /api/heal/:scraperId/preview-prompt` | `HealPreviewPromptResponse` | yes |
-| `GET /api/heal/:scraperId/status` | `HealStatusResponse` | yes |
-| `GET /api/fleet/capture-status/:scraperId` | `{ hasTemplate }` | yes |
 
-`country` is optional on the basket endpoints: omit it for every country, which
-is what the comparison view asks for.
+`country` is optional on the basket endpoints. The contract lists PH alone,
+and every read that joins `stores` filters on `stores.active`, so rows from
+the US era never reach the wire.
 
 `BasketSeries` also carries an optional `stores` array — per-store daily sums
 (index contributors only, at index quantities), each store's points parallel to
@@ -77,26 +74,21 @@ the series' own. A store's partial day still totals and is flagged by
 basket's number claims the whole basket, a store's line claims only what that
 store charged for what it had.
 
-`Incident` is deliberately a fat response — evidence and every heal attempt
-travel with it, so the audit view renders from one request instead of three.
+`Incident` carries its evidence, so one request draws the whole record.
 
 ## Writes and inbound
 
-Every write costs money or changes the fleet, and every one of them carries the
-ops token. The dashboard holds no token and issues no writes at all — the API
+Every write hits real stores or changes the fleet, and every one of them
+carries the ops token. The dashboard holds no token and issues no writes at all — the API
 and the schedule are the only two ways to make this system do anything.
 
 | Endpoint | Body | Auth | Implemented |
 |---|---|---|---|
-| `POST /api/ingest/:scraperId` | `PriceRecord[]` | `X-Webhook-Secret` | validates, does not persist |
 | `POST /api/pullers/run` | none | `Bearer <OPS_TOKEN>` | yes — enqueues the fleet fan-out |
 | `POST /api/pullers/:storeId/run` | none | `Bearer <OPS_TOKEN>` | yes — enqueues one store |
 | `POST /api/pullers/:storeId/run?dryRun=true` | none | `Bearer <OPS_TOKEN>` | yes — answers inline, writes nothing |
-| `POST /api/heal/:scraperId/trigger` | `HealTriggerBody` | `Bearer <OPS_TOKEN>` | yes |
-| `POST /api/heal/:scraperId/{approve,reject,recover}` | none | `Bearer <OPS_TOKEN>` | yes |
-| `POST /api/fleet/provision`, `/api/fleet/:storeId/provision` | none | `Bearer <OPS_TOKEN>` | yes |
-| `POST /api/fleet/capture-code[/:scraperId]` | none | `Bearer <OPS_TOKEN>` | yes |
 | `POST /api/fleet/seed-baselines` | none | `Bearer <OPS_TOKEN>` | yes |
+| `POST /api/fleet/:storeId/index-contributor` | `{ contributor }` | `Bearer <OPS_TOKEN>` | yes |
 | `GET /api/stream` (SSE) | `FeedEvent` per message | none | stream opens, silent |
 
 A wet pull is **queued, not run inline**: it answers
@@ -104,11 +96,11 @@ A wet pull is **queued, not run inline**: it answers
 the schedule uses, so a hand trigger and the nightly fan-out cannot race. Asking
 twice for a store that already has one pending answers `already_queued`.
 
-Both secrets are compared with `timingSafeEqual`, not `===`: these endpoints are
+The token is compared with `timingSafeEqual`, not `===`: these endpoints are
 public, and a plain compare leaks the prefix over enough requests.
 
-Rate limits: 300/minute globally, and 5/minute on the pullers and heal routes,
-which are the ones that spend credits. Health and the SSE stream are exempt.
+Rate limits: 300/minute globally, and 5/minute on the pullers routes, which
+are the ones that hit real stores. Health and the SSE stream are exempt.
 
 `dryRun` fetches and parses exactly as a real run does and writes nothing, which
 is what makes a store's crawl config safe to change against production data.
@@ -125,7 +117,11 @@ Const array plus derived type, never a TS enum, so one list drives both runtime
 validation and the UI's exhaustiveness checks:
 
 `countries`, `scraperStates`, `runStatuses`, `incidentKinds`, `incidentStates`,
-`healVerdicts`, `feedEventKinds`, `checkNames`, `dataSources`.
+`feedEventKinds`, `checkNames`.
+
+`incidentKinds` keeps the `studio_*` kinds from the Bright Data era as
+legacy values: nothing writes them, and the rows that carry them still
+render as themselves.
 
 ## What changed from v1
 
@@ -135,8 +131,7 @@ validation and the UI's exhaustiveness checks:
   Cursor pagination cannot be added to a shipped contract without breaking every
   caller, and the target is 50+ stores.
 - **Store identity, not scraper identity.** `FleetScraper.id` became
-  `storeId`, with a nullable `collectorId`. Most stores are pulled over HTTP and
-  have no Studio collector at all.
+  `storeId`; the store row is the stable identity.
 - **`runStatuses` won the vocabulary conflict.** The database column holds
   `ok|anomalous|error` on live rows; the contract uses `ok|suspect|broken`,
   matching the validator and the state machine. `database/mappers/run-status`
@@ -147,41 +142,36 @@ validation and the UI's exhaustiveness checks:
 - `BasketItem` gained `unitPrice` and `unitPriceBasis`, which is what makes a
   5 lb bag and a 5 kg sack comparable.
 
+## What changed in the post-pivot cut (2026-09)
+
+- **One country.** `countries` is `["PH"]`. `country` stays on every
+  payload; US-era rows are filtered out server-side by `stores.active`.
+- **No heal, no budget, no ingest.** `HealAttempt`, `CanaryResult`,
+  `CreditBudget`, the `/api/heal/*`, `/api/budget`, `/api/ingest/*` and
+  `/api/fleet/*provision*` routes are gone. `Incident` lost `collectorId` and
+  `attempts`; `FleetScraper` lost `collectorId`, `healsToday`, `hasTemplate`;
+  `scraperStates` lost `healing` and `verifying`; `feedEventKinds` replaced
+  `healing`/`healed` with `recovery`; `BasketPoint` lost `healed` and kept
+  `incidentId`.
+- **`pull_failed`** joined `incidentKinds`, and `error` joined `checkNames`,
+  for the pull that threw or returned nothing.
+- `priceRecordSchema` moved from `ingest.ts` to `pullers.ts`.
+
 ## Known gaps
 
-- `HealAttempt` carries `attempt`, `startedAt`, `finishedAt` and `canary`, and
-  the `heal_attempts` table has none of those columns — it holds only
-  `created_at`. This is deliberate: the gap surfaces as a type error when the repository is written rather than as
-  a blank panel. Closing it is item 1 of migration 0001.
-- Nothing computes `FleetScraper.nullRatePct`, `healsToday`, or
-  `CreditBudget.spentToday` yet; all are derived at query time from `runs`,
-  `heal_attempts` and `baselines`.
+- Nothing computes `FleetScraper.nullRatePct` from the run itself; it is
+  derived at query time from `runs` and `baselines`.
 - **`priceRecordSchema` has not caught up with the data plane.** Postgres
-  carries size and unit price; the fleet output contract still does not. The v2
-  rewrite did not close this — `packages/contract/src/ingest.ts` still has the
-  v1 shape. Four changes are outstanding, each with a tested reference
-  implementation in the exploration codebase that preceded this repo:
-  - `unit: z.string().min(1)` must become nullable. 4,276 of 28,376 catalogue
-    rows have no parseable size and are still perfectly good prices; as
-    written the contract rejects 15% of the catalogue at the door.
+  carries size and unit price; the row contract still does not. Outstanding:
+  - `unit: z.string().min(1)` must become nullable. Rows with no parseable
+    size are still perfectly good prices; as written the contract rejects
+    them at the door.
   - Add `size_value`, `size_uom`, `size_quantity`, `size_base_uom`,
     `size_approximate` and `unit_price`, all nullable. Unit price is the
-    comparison primitive — raw prices across different pack sizes are not
-    comparable — and almost no store publishes it, so we compute it. Emit
-    nothing rather than a guess: a collector that returned `"1G"` for a
-    product titled `"1Gal."` priced cooking oil at PHP 799,950 per kilo.
-  - Add `source` (`studio` or `puller`), so a fallback-collected segment can
-    be rendered as what it is instead of being silently blended in. The
-    vocabulary already exists in the contract as `dataSources`; the ingest
-    schema just does not use it yet.
+    comparison primitive and almost no store publishes it, so we compute it.
+    Emit nothing rather than a guess.
   - Add `size_change` to `incidentKinds`. A pinned product whose size shrinks
     while its price holds is shrinkflation, and today it is invisible.
 
   These touch `packages/contract`, so the dashboard's fixtures move in the same
-  commit — see the coupling rule in `AGENTS.md`. Studio creation prompts must
-  also ask for the size explicitly, or every size field arrives empty.
-
-  Note the asymmetry this leaves today: `BasketItem` (a dashboard read) already
-  carries `unitPrice` and `unitPriceBasis`, because the database has them.
-  `PriceRecord` (a fleet write) does not, so a collector cannot supply what the
-  dashboard is ready to display.
+  commit — see the coupling rule in `AGENTS.md`.
