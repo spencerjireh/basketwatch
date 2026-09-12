@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Archivo, Newsreader, Sometype_Mono } from "next/font/google";
-import { Suspense } from "react";
-import { CountryProvider, CountryUrlSync } from "@/components/country/country";
+import { CountryProvider } from "@/components/country/country";
 import { Grain } from "@/components/layout/grain";
 import { Nav } from "@/components/layout/nav";
 import "./globals.css";
@@ -41,17 +40,17 @@ export const metadata: Metadata = {
   metadataBase: new URL("https://basketwatch.spencerjireh.com"),
   title: "Basketwatch",
   description:
-    "What fifteen grocery staples cost today, priced off the shelf in nineteen stores across two countries.",
+    "What fifteen grocery staples cost today, priced off the shelf in Philippine supermarkets.",
   openGraph: {
     title: "Basketwatch",
-    description: "What fifteen staples cost today, priced off the shelf in two countries.",
+    description: "What fifteen staples cost today, priced off the shelf in the Philippines.",
     siteName: "Basketwatch",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
     title: "Basketwatch",
-    description: "What fifteen staples cost today, priced off the shelf in two countries.",
+    description: "What fifteen staples cost today, priced off the shelf in the Philippines.",
   },
 };
 
@@ -60,11 +59,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en" className={`${newsreader.variable} ${archivo.variable} ${sometype.variable}`}>
       <body>
         <CountryProvider>
-          {/* The only useSearchParams caller, suspended alone so the static
-              routes keep their prerendered shells. */}
-          <Suspense fallback={null}>
-            <CountryUrlSync />
-          </Suspense>
           <Nav />
           {children}
           <Grain />

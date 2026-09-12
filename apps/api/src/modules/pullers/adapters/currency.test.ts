@@ -26,9 +26,9 @@ describe("normaliseCurrencyCode", () => {
 
 describe("buildRow currency fallback", () => {
   const config = {
-    storeId: "us-kesargrocery",
-    country: "US",
-    currency: "USD",
+    storeId: "ph-shopsuki",
+    country: "PH",
+    currency: "PHP",
   } as PullerConfig;
 
   it("reduces a price-label currency to its code", () => {
@@ -50,6 +50,6 @@ describe("buildRow currency fallback", () => {
       currency: "11.99",
       url: "https://example.com/eggs",
     });
-    expect(row?.currency).toBe("USD");
+    expect(row?.currency).toBe("PHP");
   });
 });
