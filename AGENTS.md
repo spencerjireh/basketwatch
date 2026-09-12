@@ -4,9 +4,8 @@ Instructions for AI coding agents working in this repository.
 
 ## What this repo is
 
-Team entry for the WeMakeDevs "Into the Scrape-Verse" hackathon
-(Aug 17-23, 2026): a self-healing grocery price tracker built on Bright
-Data Scraper Studio. This repo is the product codebase with design docs alongside it.
+A self-healing grocery price tracker built on Bright Data Scraper Studio.
+This repo is the product codebase with design docs alongside it.
 
 Read the doc that matches the work, not all of them:
 
@@ -35,7 +34,7 @@ is no app subdirectory; `apps/` and `packages/` sit beside the compose files.
   the collector manifest used by `ProvisionService`.
 
 Parker's Pantry (`apps/pantry`) is live at `pantry.spencerjireh.com` as the
-disclosed clone store for staged break-and-heal demos. Not yet wired: the
+clone store for staged break-and-heal tests. Not yet wired: the
 notifier module (channels scaffolded, nothing enqueues alerts).
 
 ## Commands
@@ -89,8 +88,7 @@ Bright Data CLI (`brightdata`, v0.3.4+) drives Scraper Studio:
   `.env.example` and the compose files: `.env` for what you are working against
   (local by default) and `.env.prod` for the deployed database, loaded only when
   named. Both are gitignored. There is still no per-app copy — that rule is
-  about apps, not about these two. Never print API keys in output, code, or the
-  demo video.
+  about apps, not about these two. Never print API keys in output or code.
 - **`OPS_TOKEN` belongs to the API alone.** The dashboard has no login, so a
   token in the web container makes every visitor an operator on our credentials.
   Prod compose passes it to `api` and not to `web`, turbo does not forward it to
@@ -103,7 +101,7 @@ Bright Data CLI (`brightdata`, v0.3.4+) drives Scraper Studio:
   explicitly ("this product page only", "front page only") — an unbounded
   description once crawled ~150 pages.
 - **Public data only.** No login-walled, paywalled, or private sources
-  (hackathon rule and house rule).
+  (house rule).
 - **Kill only listeners.** Use `lsof -ti:PORT -sTCP:LISTEN | xargs kill` —
   a bare `lsof -ti:PORT` also matches browsers connected to the port.
 - **Don't deploy** anything without the user's explicit go-ahead.
@@ -132,7 +130,7 @@ Bright Data CLI (`brightdata`, v0.3.4+) drives Scraper Studio:
 
 ## Current state
 
-Snapshot, accurate as of Aug 23.
+Snapshot at the end of the first collection week.
 
 - Every dashboard route answers from Postgres; there are no fixtures.
   Migrations run 0000-0012.
@@ -141,7 +139,7 @@ Snapshot, accurate as of Aug 23.
   `?dryRun=true` writes nothing. The pull schedule ships disarmed
   (`PULL_SCHEDULE_ENABLED` defaults false); a scheduled run bypasses the
   guarded wrapper, so arming it is a team decision, never a deploy default.
-- **Hybrid collection pipeline (settled Aug 23).** Twelve stores are
+- **Hybrid collection pipeline.** Twelve stores are
   collected through Bright Data Studio collectors; four Shopify-style stores
   with machine-readable catalogues are pulled over plain HTTP, routed through
   Web Unlocker where the site blocks scraping (`needs_unlocker` on the store
@@ -152,7 +150,7 @@ Snapshot, accurate as of Aug 23.
   collectors. Collector definitions (seed URLs, descriptions, probe findings)
   live in `docs/collector-manifest.json`; the README's fleet table shows
   which store runs which way.
-- **Self-healing diagnostic loop (landed Aug 22, closed Aug 23).** The
+- **Self-healing diagnostic loop.** The
   validator seeds baselines on boot, validates every run (schema, null rates,
   row count, price drift), opens incidents with evidence, and enqueues a heal
   job. The `HealAutoHandler` proposes fixes via the BD `refactor_template`
@@ -161,12 +159,12 @@ Snapshot, accurate as of Aug 23.
   verifies an approval with one canary pull -- capped per incident, then held
   for a person. The dashboard is a read-only window on all of it. Baselines
   update automatically after healthy runs.
-- **Provisioning from the dashboard (landed Aug 22).** `POST
+- **Provisioning from the dashboard.** `POST
 /api/fleet/:storeId/provision` and `POST /api/fleet/provision` create Studio
   collectors from `collector-manifest.json` definitions. The Bright Data CLI
   is installed in the API Docker image for this purpose.
-- **Parker's Pantry (live Aug 22).** `apps/pantry` at
-  `pantry.spencerjireh.com` is the disclosed clone store for controlled
-  break-and-heal demos (two storefronts: `/us` USD, `/ph` PHP).
+- **Parker's Pantry.** `apps/pantry` at
+  `pantry.spencerjireh.com` is the clone store for controlled
+  break-and-heal tests (two storefronts: `/us` USD, `/ph` PHP).
 - Not yet wired: the notifier module (channels scaffolded, nothing enqueues
   alerts).

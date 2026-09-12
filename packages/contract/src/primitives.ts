@@ -12,8 +12,8 @@ import { z } from "zod";
  * ISO 8601, UTC, always a string on the wire.
  *
  * UTC is not just a serialisation choice. This is a fleet monitor: "the run
- * landed at 06:12" has to mean the same thing to both of us, and we are not in
- * the same timezone as the judges.
+ * landed at 06:12" has to mean the same thing to everyone reading it, and
+ * readers are not all in one timezone.
  */
 export const timestampSchema = z.iso.datetime();
 export type Timestamp = z.infer<typeof timestampSchema>;

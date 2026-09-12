@@ -1,23 +1,23 @@
 # Contributing
 
-Working agreement for this repo during the WeMakeDevs "Into the Scrape-Verse"
-hackathon (Aug 17-23, 2026). Applies to humans and to AI coding agents alike.
+Working agreement for this repo. Applies to humans and to AI coding agents
+alike.
 
 ## The one rule
 
 **Never push to `main`.** Branch, open a PR, merge the PR.
 
 `main` only ever moves through a merged pull request. This holds for a one-line
-docs fix, and it holds at 2am on deadline night.
+docs fix, and it holds at 2am.
 
 The PR is not a permission gate here (see self-merge below). It earns its keep
 for three other reasons:
 
-- The diff stays reviewable after the fact. Judges score clean code, and "every
-  change landed through a PR" is evidence we can point at.
+- The diff stays reviewable after the fact. "Every change landed through a
+  PR" is a claim the history can back.
 - `main` stays deployable. Root `docker-compose.prod.yml` is the production
   deployment unit and auto-deploys on every push, so a broken `main` is a
-  broken demo.
+  broken site.
 - Reverting one merge commit is cheap. Untangling a direct push is not.
 
 ## Workflow
@@ -74,7 +74,7 @@ git config core.hooksPath .githooks
 Run this right after cloning. The hook lives at `.githooks/pre-push` and is
 version-controlled, so it stays in sync for both of us.
 
-Escape hatch, for a genuine deadline emergency:
+Escape hatch, for a genuine emergency:
 
 ```sh
 ALLOW_MAIN_PUSH=1 git push origin main

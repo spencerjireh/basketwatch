@@ -1,23 +1,22 @@
 ---
 title: Architecture (HLD)
-tags: [hackathon, hld]
+tags: [hld]
 created: 2026-08-15
 updated: 2026-08-23
 status: v1
 ---
 
-# HLD: Self-Healing Price Tracker ("Into the Scrape-Verse" 2026)
+# HLD: Self-Healing Price Tracker
 
-Status: draft v1 for team review, Aug 15, 2026, amended Aug 20 and Aug 23
-where the build diverged from it. The shape held; four things changed in the
+Status: v1, amended where the build diverged from it. The shape held; four things changed in the
 detail:
 
 - **The dashboard is Next.js**, not a Vite SPA, and nginx is gone with it
   (section 3.4 and 3.6).
-- **PH is in scope** — the gate passed Aug 19 (section 2).
+- **PH is in scope** (section 2).
 - **The app is the repo root**, on pnpm + Turborepo. Parker's Pantry
-  (`apps/pantry`) is live at `pantry.spencerjireh.com` as the disclosed clone
-  store for staged break-and-heal demos.
+  (`apps/pantry`) is live at `pantry.spencerjireh.com` as the clone store for
+  staged break-and-heal tests.
 - **Heal prompts are built deterministically.** The plan below sketched an
   LLM step composing heal prompts from evidence; what shipped is a pure
   template (`modules/heal/prompt.ts`) that turns validator findings and raw
@@ -31,8 +30,7 @@ Companion: [api-contract](api-contract.md) (endpoint and response shapes).
 A US/global grocery/staples price tracker whose scraper fleet cannot silently
 die: a "spider-sense" layer detects breakage from output anomalies, an AI heal
 orchestrator repairs scrapers autonomously through Bright Data Scraper Studio,
-and every repair is verified and audited. Framing (product-first vs
-devtool-first) deliberately deferred to demo prep.
+and every repair is verified and audited.
 
 ## 2. Goals / non-goals
 
@@ -45,15 +43,14 @@ Goals
   fleet health board, heal audit timeline.
 - Alerts: price drops (product) and breakage/heal events (ops) via Resend
   email + Telegram; Discord if time allows.
-- Deployed live on a VPS; judges click a URL.
+- Deployed live on a VPS behind a public URL.
 
 Non-goals (explicitly out)
 - User accounts / auth of any kind.
-- ~~Philippines site coverage.~~ **Superseded.** The PRD (Aug 18) made country
-  a first-class dimension rather than a feature, and the PH gate passed on
-  Aug 19 with nine fleet-ready sites. PH is in scope.
+- ~~Philippines site coverage.~~ **Superseded.** The PRD made country a
+  first-class dimension rather than a feature. PH is in scope.
 - Human approval gates in the heal loop (auto-approve with audit instead).
-- Scraping anything login-walled, paywalled, or private (hackathon rule).
+- Scraping anything login-walled, paywalled, or private (house rule).
 
 ## 3. Component overview
 
@@ -75,10 +72,10 @@ flowchart LR
         end
         DB[("Postgres<br/>prices, runs, incidents,<br/>heals, audit log")]
         DASH["Dashboard (React)<br/>public: basket index charts<br/>ops: fleet health + heal audit"]
-        CLONE["Clone Store Site<br/>layout-mutation switch<br/>(demo chaos target)"]
+        CLONE["Clone Store Site<br/>layout-mutation switch<br/>(chaos target)"]
     end
 
-    USERS["Users / Judges"]
+    USERS["Users"]
     CHANNELS["Email / Telegram"]
 
     SCHED -->|"trigger runs<br/>(/dca/trigger)"| FLEET
@@ -114,9 +111,8 @@ flowchart LR
 
 ### 3.2 Orchestrator API (NestJS)
 Single NestJS service, modular internals (controllers + injectable
-services). Why TS: Studio scraper code is JS, one language across
-scrapers/backend/frontend serves the clean-code track. Team-confirmed
-Aug 18 (replaces the earlier Hono sketch).
+services). Why TS: Studio scraper code is JS, so one language covers
+scrapers, backend and frontend (replaces the earlier Hono sketch).
 
 - **Jobs**: pg-boss — a Postgres-backed queue (no Redis broker): persistent
   jobs, retries with backoff, cron schedules. Queues: `fleet-scrape`
@@ -294,8 +290,7 @@ replayed/re-validated during development.
 a US storefront (`/us`, USD) and a PH twin (`/ph`, PHP). Its prices are
 deterministic seeded walks from fixed base prices; both storefronts ship with
 `index_contributor = false` so they render on the dashboard but never move
-the country index. Purpose: scripted, guaranteed break-and-heal demo moment.
-Disclosed as a test target in the submission.
+the country index. Purpose: a scripted, reproducible break-and-heal case.
 
 The break switch swaps the storefront markup between two layouts:
 `just pantry-layout us b` breaks the US scraper's assumptions, `a` restores
@@ -340,7 +335,7 @@ is the trade for having the stack come up in one step.
 ```mermaid
 flowchart TB
     subgraph INET["Internet"]
-        JUDGE["Judges / Users<br/>(browser)"]
+        USER["Users<br/>(browser)"]
         TG["Telegram"]
         RESEND["Resend (email)"]
         BDCLOUD["Bright Data Cloud<br/>Scraper Studio + fleet"]
@@ -358,7 +353,7 @@ flowchart TB
         CLONE["Parker's Pantry<br/>clone store + layout switch<br/>(pantry.spencerjireh.com)"]
     end
 
-    JUDGE -->|https| PROXY
+    USER -->|https| PROXY
     PROXY --> WEB
     PROXY --> CLONE
     WEB -->|REST /api| APIC
@@ -381,49 +376,3 @@ flowchart TB
 | Studio webhook delivery | in | signed; per-scraper path |
 | Resend / Telegram / Discord | out | notifier adapters |
 | Public REST `/api/*` | in | dashboard reads; manual trigger (unauthenticated but rate-limited, mutation endpoints behind a simple token) |
-
-## 5. Feature split (2 devs, by vertical slice)
-
-- **Slice 1 — data plane**: scrapers, ingest, validator, DB, baselines.
-- **Slice 2 — control plane + UI**: heal orchestrator, notifier, dashboard,
-  clone store, deploy.
-Swap freely; both slices meet at the `runs`/`incidents` tables and the REST
-API contract (defined day 1).
-
-## 6. Day plan (Aug 17-23)
-
-| Day | Milestone |
-|---|---|
-| Sun 17 | Repo scaffold, compose stack deployed skeleton, DB schema, clone store live, first 2 Studio scrapers (clone + 1 real), ingest storing runs |
-| Mon 18 | Validator + state machine complete w/ unit tests; 4+ scrapers; baselines forming |
-| Tue 19 | Heal orchestrator end-to-end against clone store (the make-or-break day) |
-| Wed 20 | Dashboard core: hero chart, fleet board, incident/heal views; notifier (Resend + Telegram) |
-| Thu 21 | Polish UI, framing decision (product vs devtool pitch), hardening, remaining scrapers |
-| Fri 22 | Demo video, README, Scraper Studio usage writeup, submission draft |
-| Sat 23 | Buffer + submit |
-
-The week ran differently in practice — the first half went to site vetting
-(163 candidates scored) and the catalogue migration into Postgres — but the
-plan's components all landed: ingest, validator, heal loop, dashboard, and
-the deployed stack described above.
-
-## 7. Risks
-
-| Risk | Impact | Mitigation |
-|---|---|---|
-| Account verification not approved | No AI create/heal at all | Emailed WeMakeDevs Aug 15; escalate via Zendesk; fallback: hand-written scrapers in Studio IDE (execution is not gated) + heal loop demo deferred |
-| Real store sites block/return junk | Weak product data | Bright Data unlocker infra mitigates; vet 8-10 candidate sites day 1, keep best 4-6; clone store guarantees demo |
-| Heal quality is poor on real breakage | Loop demo fails on real sites | Clone store gives controlled reproducible case; refine prompts (one field at a time per BD docs) |
-| Credit burn (heals cost unknown) | Dead account mid-week | Budget guard before every Studio call; measure heal cost Tue and recalibrate caps |
-
-## 8. Open questions for the team
-
-1. Which real store sites? (I'll vet a candidate list — need structurally
-   diverse, public, stable product pages: e.g. a big-box store, a pharmacy,
-   a regional grocer, an electronics retailer as an outlier item.)
-2. Basket contents: ~10 staples (eggs, milk, bread, rice, coffee, sugar,
-   chicken, oil, pasta, bananas)? Adjust freely.
-3. Names: engine codename + product name (Spider-Man theming encouraged by
-   the tracks). Decide with framing on Thu, but a repo name is needed Sun.
-4. ~~Next.js vs Vite SPA for the dashboard~~ — resolved Aug 20: Next.js App
-   Router, in the basketwatch rebuild.

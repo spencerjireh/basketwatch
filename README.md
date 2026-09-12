@@ -10,13 +10,10 @@ extraction code, and verifies the fix with a live re-scrape — no human in the
 loop. Days where a price could not be collected render as gaps in the index,
 never interpolated.
 
-Built with NestJS, Next.js, and Postgres for the Bright Data x WeMakeDevs
-[Into the Scrape-Verse](https://www.wemakedevs.org/hackathons/scrape-verse)
-hackathon.
+Built with NestJS, Next.js, and Postgres.
 
-- **Live demo:** [basketwatch.spencerjireh.com](https://basketwatch.spencerjireh.com) — no login, no signup
-- **Demo video:** [youtu.be/9L9E7pTpCWk](https://youtu.be/9L9E7pTpCWk)
-- **Parker's Pantry** (our disclosed test store): [US](https://pantry.spencerjireh.com/us) · [PH](https://pantry.spencerjireh.com/ph)
+- **Live:** [basketwatch.spencerjireh.com](https://basketwatch.spencerjireh.com) — no login, no signup
+- **Parker's Pantry** (our own test store): [US](https://pantry.spencerjireh.com/us) · [PH](https://pantry.spencerjireh.com/ph)
 - **Docs:** [Scraper Studio usage](docs/scraper-studio-usage.md) · [architecture](docs/architecture.md) · [API contract](docs/api-contract.md) · [collector manifest](docs/collector-manifest.json)
 
 ## What you are looking at
@@ -37,35 +34,35 @@ trust, and **Prices** is a raw search over more than 28,000 products.
 ## The fleet
 
 Nineteen real stores are registered, sixteen of them actively pulled, plus
-the two disclosed Parker's Pantry clones. In the 24 hours before this
-snapshot, 13 of the 16 returned fresh rows; the three that returned nothing
-have open incidents, visible on the
+the two Parker's Pantry clones. In the 24 hours before this snapshot, 13 of
+the 16 returned fresh rows; the three that returned nothing have open
+incidents, visible on the
 [Self-healing](https://basketwatch.spencerjireh.com/healing) page rather than
 hidden.
 
-Snapshot of `GET /api/fleet` on 2026-08-23 (UTC). The `c_*` values are the
-live Bright Data Scraper Studio collector IDs.
+Snapshot of `GET /api/fleet` at the end of the first collection week. The
+`c_*` values are the live Bright Data Scraper Studio collector IDs.
 
 | Store                  | Country | Scraper Studio collector | In the index            | Last pull (rows)           |
 | ---------------------- | ------- | ------------------------ | ----------------------- | -------------------------- |
-| Ever Supermarket       | PH      | HTTP pull                | yes                     | Aug 23 (6,962)             |
-| Shop Gaisano           | PH      | HTTP pull                | yes                     | Aug 23 (65)                |
-| Shop Suki              | PH      | `c_mt5q0jzi18h73rtbha`   | yes                     | Aug 23 (291)               |
-| SM Markets             | PH      | `c_mt5adrno248hml4trg`   | yes                     | Aug 23 (0 — incident open) |
-| Landers Superstore     | PH      | `c_mt5bbos7onya4mufc`    | yes                     | Aug 23 (0 — incident open) |
-| MerryMart Wholesale    | PH      | `c_mt5afb93oof2430yg`    | yes                     | Aug 23 (0 — incident open) |
-| Amigo Foods            | US      | `c_mt5sf35quefc5u6s8`    | yes                     | Aug 23 (168)               |
-| Cypress Indian Grocery | US      | `c_mt5sf1hn2gm0alggzg`   | yes                     | Aug 23 (167)               |
-| Dierbergs              | US      | `c_mt5bcgh01q3exw9das`   | no                      | Aug 23 (389)               |
-| H Mart                 | US      | `c_mt5ahmtdb7c4qmkkf`    | no                      | Aug 23 (1)                 |
-| Kesar Grocery          | US      | `c_mt5ag34x28n7do143j`   | yes                     | Aug 23 (296)               |
-| Latimex Market         | US      | `c_mt5sf4te2nl1om58n6`   | yes                     | Aug 23 (92)                |
-| Lili Mart              | US      | `c_mt5si8vp2cd0f03mfp`   | yes                     | Aug 23 (122)               |
-| MexGrocer              | US      | `c_mt5siakh3td7a3dk1`    | yes                     | Aug 23 (95)                |
-| MexMax                 | US      | HTTP pull                | yes                     | Aug 23 (142)               |
-| Sukli                  | US      | HTTP pull                | yes                     | Aug 23 (1,946)             |
-| Parker's Pantry (US)   | US      | HTTP pull                | never (disclosed clone) | on demand                  |
-| Parker's Pantry (PH)   | PH      | HTTP pull                | never (disclosed clone) | on demand                  |
+| Ever Supermarket       | PH      | HTTP pull                | yes                     | 6,962                      |
+| Shop Gaisano           | PH      | HTTP pull                | yes                     | 65                         |
+| Shop Suki              | PH      | `c_mt5q0jzi18h73rtbha`   | yes                     | 291                        |
+| SM Markets             | PH      | `c_mt5adrno248hml4trg`   | yes                     | 0 — incident open          |
+| Landers Superstore     | PH      | `c_mt5bbos7onya4mufc`    | yes                     | 0 — incident open          |
+| MerryMart Wholesale    | PH      | `c_mt5afb93oof2430yg`    | yes                     | 0 — incident open          |
+| Amigo Foods            | US      | `c_mt5sf35quefc5u6s8`    | yes                     | 168                        |
+| Cypress Indian Grocery | US      | `c_mt5sf1hn2gm0alggzg`   | yes                     | 167                        |
+| Dierbergs              | US      | `c_mt5bcgh01q3exw9das`   | no                      | 389                        |
+| H Mart                 | US      | `c_mt5ahmtdb7c4qmkkf`    | no                      | 1                          |
+| Kesar Grocery          | US      | `c_mt5ag34x28n7do143j`   | yes                     | 296                        |
+| Latimex Market         | US      | `c_mt5sf4te2nl1om58n6`   | yes                     | 92                         |
+| Lili Mart              | US      | `c_mt5si8vp2cd0f03mfp`   | yes                     | 122                        |
+| MexGrocer              | US      | `c_mt5siakh3td7a3dk1`    | yes                     | 95                         |
+| MexMax                 | US      | HTTP pull                | yes                     | 142                        |
+| Sukli                  | US      | HTTP pull                | yes                     | 1,946                      |
+| Parker's Pantry (US)   | US      | HTTP pull                | never (test clone)      | on demand                  |
+| Parker's Pantry (PH)   | PH      | HTTP pull                | never (test clone)      | on demand                  |
 
 ## How Bright Data Scraper Studio runs this
 
@@ -121,11 +118,10 @@ loop has a target we are allowed to break. We flipped its storefront to an
 alternate layout: the next pull returned zero rows and opened an incident;
 the heal loop sent the broken page to Scraper Studio, whose rewrite stitched
 the redesign's split price back together; a canary pull returned ten rows
-with zero nulls and the incident closed. No human intervened. Total cost: a
-few cents.
+with zero nulls and the incident closed. No human intervened.
 
-Full disclosure, because a price tracker must not launder fake data: Parker's
-Pantry prices are generated (a deterministic seeded walk of at most 1.5% per
+Because a price tracker must not launder fake data: Parker's Pantry prices
+are generated (a deterministic seeded walk of at most 1.5% per
 day per product), both storefronts are labeled as fake, and they ship with
 `index_contributor = false`, so they render on the dashboard but never move
 the country index.
@@ -139,7 +135,7 @@ the country index.
 ```
 apps/api        NestJS + Drizzle + pg-boss. Owns every read and write, incl. SSE.
 apps/web        Next.js dashboard. A pure client of the API; never touches Postgres.
-apps/pantry     Parker's Pantry, the disclosed clone store.
+apps/pantry     Parker's Pantry, the test clone store.
 packages/       contract (the zod schemas both apps share), tsconfig, eslint-config.
 docs/           architecture, API contract, collector manifest, brand assets.
 ```
@@ -171,7 +167,7 @@ and migration `0000` must keep its exact bytes: drizzle decides what to apply
 from the journal's `when` timestamp, and re-running `0000` against production
 fails on its one unguarded statement.
 
-## Parker's Pantry, the test rig
+## Parker's Pantry, the test store
 
 `apps/pantry` serves the two storefronts at `pantry.spencerjireh.com` (`/us`,
 `/ph`). `just pantry-layout us b` flips the US storefront to the breaking
