@@ -7,13 +7,10 @@ import { DatabaseModule } from "./database/database.module.js";
 import { JobsModule } from "./jobs/jobs.module.js";
 import { ProductsModule } from "./modules/products/products.module.js";
 import { BasketModule } from "./modules/basket/basket.module.js";
-import { BudgetModule } from "./modules/budget/budget.module.js";
 import { FeedModule } from "./modules/feed/feed.module.js";
 import { FleetModule } from "./modules/fleet/fleet.module.js";
-import { HealModule } from "./modules/heal/heal.module.js";
 import { HealthModule } from "./modules/health/health.module.js";
 import { IncidentsModule } from "./modules/incidents/incidents.module.js";
-import { IngestModule } from "./modules/ingest/ingest.module.js";
 import { NotifierModule } from "./modules/notifier/notifier.module.js";
 import { PullersModule } from "./modules/pullers/pullers.module.js";
 import { ValidatorModule } from "./modules/validator/validator.module.js";
@@ -28,13 +25,12 @@ import { ValidatorModule } from "./modules/validator/validator.module.js";
 
     // The dashboard is public and has no login, so the API is on the open
     // internet with it. 300/minute is deliberately loose: every server render
-    // of the front page is three API calls and the healing page is four, and
-    // they all arrive from ONE address -- the web container's, since it calls
+    // of the front page is three API calls, and they all arrive from ONE address -- the web container's, since it calls
     // the API directly over the compose network with no forwarded headers. A
     // tight global limit would throttle the site rather than an abuser.
     //
     // The endpoints that actually cost money carry their own much tighter
-    // limit; see PullersController and HealController.
+    // limit; see PullersController.
     ThrottlerModule.forRoot([{ name: "default", ttl: 60_000, limit: 300 }]),
 
     // Dashboard reads.
@@ -44,15 +40,10 @@ import { ValidatorModule } from "./modules/validator/validator.module.js";
     ProductsModule,
     FeedModule,
     IncidentsModule,
-    BudgetModule,
-
-    // Writes and inbound.
-    IngestModule,
 
     // The engine.
     ValidatorModule,
     PullersModule,
-    HealModule,
     NotifierModule,
   ],
   // The app's first global guard. Rate limiting is not a per-controller

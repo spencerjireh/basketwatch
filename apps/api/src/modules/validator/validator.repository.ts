@@ -95,36 +95,15 @@ export class ValidatorRepository {
     `);
   }
 
-  async loadRunRawOutput(runId: number): Promise<unknown[]> {
-    const rows = (await this.db.execute(sql`
-      select raw_output::text from runs where id = ${runId}
-    `)) as unknown as { raw_output: string | null }[];
-    if (!rows[0]?.raw_output) return [];
-    try {
-      const parsed = JSON.parse(rows[0].raw_output);
-      return Array.isArray(parsed) ? parsed : [];
-    } catch {
-      return [];
-    }
-  }
-
-  async getScraperId(storeId: string): Promise<string | null> {
-    const rows = (await this.db.execute(sql`
-      select studio_collector_id from stores where store_id = ${storeId}
-    `)) as unknown as { studio_collector_id: string | null }[];
-    return rows[0]?.studio_collector_id ?? null;
-  }
-
   async openIncident(
     storeId: string,
     runId: number,
     kind: string,
     evidence: Record<string, unknown>,
-    scraperId?: string | null,
   ): Promise<string> {
     const rows = (await this.db.execute(sql`
-      insert into incidents (store_id, scraper_id, run_id, kind, evidence, state)
-      values (${storeId}, ${scraperId ?? null}, ${runId}, ${kind}, ${JSON.stringify(evidence)}::jsonb, 'open')
+      insert into incidents (store_id, run_id, kind, evidence, state)
+      values (${storeId}, ${runId}, ${kind}, ${JSON.stringify(evidence)}::jsonb, 'open')
       returning id::text
     `)) as unknown as { id: string }[];
     return rows[0]!.id;
@@ -133,10 +112,26 @@ export class ValidatorRepository {
   async hasOpenIncident(storeId: string): Promise<boolean> {
     const rows = (await this.db.execute(sql`
       select 1 from incidents
-      where store_id = ${storeId} and state in ('open', 'healing')
+      where store_id = ${storeId} and state = 'open'
       limit 1
     `)) as unknown as unknown[];
     return rows.length > 0;
+  }
+
+  /**
+   * Close every open incident on a store, and say how many closed.
+   *
+   * Only `open` incidents: `manual` means a person took the store, and the
+   * machine does not hand it back on its own.
+   */
+  async resolveOpenIncidents(storeId: string): Promise<number> {
+    const rows = (await this.db.execute(sql`
+      update incidents
+      set state = 'resolved', resolved_at = now()
+      where store_id = ${storeId} and state = 'open'
+      returning id
+    `)) as unknown as unknown[];
+    return rows.length;
   }
 
   /**
@@ -195,18 +190,6 @@ export class ValidatorRepository {
     `);
 
     return baseline;
-  }
-
-  /** The recorded size and null rate of one run, for canary outcomes. */
-  async getRunStats(runId: number): Promise<{ rows: number; nullRatePct: number } | null> {
-    const result = (await this.db.execute(sql`
-      select rows, null_rate_pct from runs where id = ${runId}
-    `)) as unknown as { rows: number; null_rate_pct: string | number | null }[];
-    if (!result[0]) return null;
-    return {
-      rows: Number(result[0].rows ?? 0),
-      nullRatePct: Number(result[0].null_rate_pct ?? 0),
-    };
   }
 
   /** Seed baselines for all stores that have products. */

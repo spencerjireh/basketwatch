@@ -4,8 +4,8 @@ import { type Puller } from "./puller.types.js";
 /**
  * Maps a store's crawl method to the adapter that implements it.
  *
- * Empty until the adapters land in ./adapters. The 19 locked stores use five
- * shapes: shopify, magento-graphql, sitemap, sitemap-bounded, and none.
+ * Three shapes are registered: shopify, magento-graphql and sitemap. A store
+ * whose method is `none` is never pulled.
  */
 @Injectable()
 export class PullerRegistry {

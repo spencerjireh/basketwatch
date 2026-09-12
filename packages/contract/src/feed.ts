@@ -1,13 +1,7 @@
 import { z } from "zod";
 import { pageQuerySchema, pageSchema, timestampSchema } from "./primitives.js";
 
-export const feedEventKinds = [
-  "breakage",
-  "healing",
-  "healed",
-  "price_drop",
-  "escalation",
-] as const;
+export const feedEventKinds = ["breakage", "recovery", "price_drop", "escalation"] as const;
 export const feedEventKindSchema = z.enum(feedEventKinds);
 export type FeedEventKind = z.infer<typeof feedEventKindSchema>;
 
@@ -19,7 +13,7 @@ export const feedEventSchema = z.object({
   storeName: z.string(),
   kind: feedEventKindSchema,
   summary: z.string(),
-  /** present on breakage/healing/healed, so the feed links into the audit */
+  /** present on breakage/recovery, so the feed links to the incident */
   incidentId: z.string().nullable(),
 });
 export type FeedEvent = z.infer<typeof feedEventSchema>;

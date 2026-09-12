@@ -7,8 +7,7 @@ import { QUEUES } from "../queues.js";
 
 type ScrapeRunJob = {
   storeId: string;
-  trigger?: "cron" | "manual" | "canary";
-  healAttemptId?: string;
+  trigger?: "cron" | "manual";
 };
 
 /** Spread the fan-out so sixteen stores are not all fetched in the same second. */
@@ -46,7 +45,6 @@ export class FleetPullHandler implements OnApplicationBootstrap {
         await this.pullers.runStore(job.data.storeId, {
           dryRun: false,
           trigger: job.data.trigger ?? "cron",
-          healAttemptId: job.data.healAttemptId,
         });
         // Validation is enqueued by runStore itself now -- it is part of
         // finishing a run, not something the caller has to remember.
@@ -59,7 +57,7 @@ export class FleetPullHandler implements OnApplicationBootstrap {
     // same-store invariant does not live here -- singletonKey is decorative
     // on standard queues; the controller's hasPendingPull check is the guard.
     // Different stores in parallel are safe: adapter and fetcher are
-    // stateless and each pull works in its own mkdtemp.
+    // stateless.
     const concurrency = this.config.get("SCRAPE_CONCURRENCY", { infer: true });
     for (let i = 0; i < concurrency; i += 1) {
       await this.boss.work<ScrapeRunJob>(QUEUES.scrapeRun, handleScrapeRun, { batchSize: 1 });
@@ -92,10 +90,9 @@ export class FleetPullHandler implements OnApplicationBootstrap {
           // The store id is the singleton key, so a slow store cannot have two
           // runs in flight and double-write its own history.
           singletonKey: storeId,
-          // A Studio pull can legitimately run ~14 minutes (discovery + the
-          // CLI's 12-minute deadline), which outlives pg-boss's default
-          // 15-minute job expiration -- and an expired-but-alive pull being
-          // retried means two concurrent pulls of the same store.
+          // A sitemap pull at its 300-page ceiling can run past pg-boss's
+          // default 15-minute job expiration -- and an expired-but-alive pull
+          // being retried means two concurrent pulls of the same store.
           expireInSeconds: 1800,
           retryLimit: 2,
           retryDelay: 300,

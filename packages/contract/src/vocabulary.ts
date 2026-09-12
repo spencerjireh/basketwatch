@@ -6,14 +6,7 @@ import { z } from "zod";
  */
 
 /** The scraper state machine (architecture.md section 3.2). */
-export const scraperStates = [
-  "healthy",
-  "suspect",
-  "broken",
-  "healing",
-  "verifying",
-  "manual_attention",
-] as const;
+export const scraperStates = ["healthy", "suspect", "broken", "manual_attention"] as const;
 export const scraperStateSchema = z.enum(scraperStates);
 export type ScraperState = z.infer<typeof scraperStateSchema>;
 
@@ -37,26 +30,19 @@ export const incidentKinds = [
   "drift",
   "freshness",
   "error",
-  /** a Studio collector failed and the direct puller covered for it */
+  /** the pull itself failed: the fetch threw, or an established store returned no rows */
+  "pull_failed",
+  /**
+   * Legacy kinds from the Bright Data Scraper Studio era. Nothing writes them
+   * any more; they stay so the incidents already in the database render as
+   * themselves rather than as "error".
+   */
   "studio_failed",
-  /**
-   * Studio ran and returned rows, but none survived parsing: the fields moved.
-   * The only Studio failure a template rewrite can actually repair, and so the
-   * only one that auto-heals.
-   */
   "studio_broken",
-  /** the CLI was killed at the hard deadline -- says nothing about the template */
   "studio_timeout",
-  /** Studio ran and returned nothing at all */
   "studio_empty",
-  /** our own sitemap discovery found no URLs to submit; no template can fix that */
   "sitemap_error",
-  /** the store has no collector yet -- a provisioning gap, not a break */
   "provisioning_error",
-  /**
-   * Written by the puller before the kinds above existed. Kept so incidents
-   * already in the database render as themselves rather than as "error".
-   */
   "studio_error",
   /** over 90% of an established catalogue changed at once; history left alone */
   "mass_change_suppressed",
@@ -64,19 +50,16 @@ export const incidentKinds = [
 export const incidentKindSchema = z.enum(incidentKinds);
 export type IncidentKind = z.infer<typeof incidentKindSchema>;
 
-export const incidentStates = ["open", "healing", "resolved", "manual"] as const;
+export const incidentStates = ["open", "resolved", "manual"] as const;
 export const incidentStateSchema = z.enum(incidentStates);
 export type IncidentState = z.infer<typeof incidentStateSchema>;
 
-export const healVerdicts = ["approved", "rejected", "failed"] as const;
-export const healVerdictSchema = z.enum(healVerdicts);
-export type HealVerdict = z.infer<typeof healVerdictSchema>;
-
 /**
- * `freshness` is checked by the scheduler, not by the pure row checks, so it is
- * a valid check name with no row-level implementation.
+ * `freshness` is checked by the scheduler and `error` is the puller reporting
+ * that the fetch itself failed, so both are valid check names with no
+ * row-level implementation.
  */
-export const checkNames = ["schema", "rowcount", "nulls", "drift", "freshness"] as const;
+export const checkNames = ["schema", "rowcount", "nulls", "drift", "freshness", "error"] as const;
 export const checkNameSchema = z.enum(checkNames);
 export type CheckName = z.infer<typeof checkNameSchema>;
 

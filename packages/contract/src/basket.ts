@@ -11,9 +11,7 @@ import { countrySchema, currencyCodeSchema, moneySchema } from "./primitives.js"
 export const basketPointSchema = z.object({
   date: z.iso.date(),
   total: z.number().nullable(),
-  /** the day a heal closed the preceding gap */
-  healed: z.boolean().optional(),
-  /** set on gap days, so the chart can label the scar and link to the audit */
+  /** set on gap days, so the chart can label the scar and link to the incident */
   incidentId: z.string().nullable().optional(),
   /** how many of the basket's items had a usable price on this day */
   pricedItems: z.number().int(),

@@ -27,7 +27,7 @@ const archivo = Archivo({
 });
 
 /**
- * The ledger voice: prices, unit prices, timestamps, collector ids, diffs. A
+ * The ledger voice: prices, unit prices, timestamps, store ids. A
  * price tracker is mostly numbers, and they should look like a record.
  */
 const sometype = Sometype_Mono({

@@ -9,15 +9,12 @@ type FleetRow = {
   store_id: string;
   name: string;
   country: string;
-  collector_id: string | null;
   last_run_at: string | null;
   last_run_rows: number | null;
   last_run_status: string | null;
   last_run_null_rate_pct: string | null;
   incident_id: string | null;
   incident_state: string | null;
-  heals_today: string;
-  has_template: boolean;
   is_pullable: boolean;
 };
 
@@ -33,27 +30,21 @@ export class FleetRepository {
   constructor(@Inject(DRIZZLE) private readonly db: Db) {}
 
   async findAll(): Promise<FleetScraper[]> {
-    // Three lateral joins rather than three group-bys: each one wants the most
-    // recent row per store, which a join plus DISTINCT ON would compute for
-    // every store's whole history first.
+    // Lateral joins rather than group-bys: each one wants the most recent row
+    // per store, which a join plus DISTINCT ON would compute for every store's
+    // whole history first.
     const rows = (await this.db.execute(sql`
       select
         s.store_id,
         s.name,
         s.country,
-        s.studio_collector_id as collector_id,
         r.at as last_run_at,
         r.rows as last_run_rows,
         r.status as last_run_status,
         r.null_rate_pct::text as last_run_null_rate_pct,
         inc.id::text as incident_id,
         inc.state as incident_state,
-        coalesce(heals.n, 0)::text as heals_today,
-        exists(
-          select 1 from scraper_templates st
-          where st.scraper_id = s.studio_collector_id
-        ) as has_template,
-        (s.method is not null and s.method <> 'none') as is_pullable
+        (s.active and s.method is not null and s.method <> 'none') as is_pullable
       from stores s
       left join lateral (
         select at, rows, status, null_rate_pct from runs
@@ -65,11 +56,6 @@ export class FleetRepository {
         where incidents.store_id = s.store_id and incidents.state <> 'resolved'
         order by opened_at desc limit 1
       ) inc on true
-      left join lateral (
-        select count(*) as n from heal_attempts ha
-        join incidents i2 on i2.id = ha.incident_id
-        where i2.store_id = s.store_id and ha.started_at >= current_date
-      ) heals on true
       order by s.country, s.store_id
     `)) as unknown as FleetRow[];
 
@@ -83,33 +69,17 @@ export class FleetRepository {
           storeId: row.store_id,
           name: row.name,
           country: country.data,
-          collectorId: row.collector_id,
           status,
           lastRunAt: row.last_run_at === null ? null : new Date(row.last_run_at).toISOString(),
           lastRunRows: row.last_run_rows ?? 0,
           nullRatePct: row.last_run_null_rate_pct
             ? Number.parseFloat(row.last_run_null_rate_pct)
             : 0,
-          healsToday: Number(row.heals_today),
           openIncidentId: status === "healthy" ? null : row.incident_id,
-          hasTemplate: row.has_template,
           isPullable: row.is_pullable,
         } satisfies FleetScraper,
       ];
     });
-  }
-
-  async getCollectorId(storeId: string): Promise<string | null> {
-    const rows = (await this.db.execute(sql`
-      select studio_collector_id from stores where store_id = ${storeId}
-    `)) as unknown as { studio_collector_id: string | null }[];
-    return rows[0]?.studio_collector_id ?? null;
-  }
-
-  async setCollectorId(storeId: string, collectorId: string): Promise<void> {
-    await this.db.execute(sql`
-      update stores set studio_collector_id = ${collectorId} where store_id = ${storeId}
-    `);
   }
 
   /** Returns false when no such store exists, so the controller can 404. */
@@ -121,38 +91,17 @@ export class FleetRepository {
     `)) as unknown as { store_id: string }[];
     return rows.length > 0;
   }
-
-  async setStudioEndpoint(storeId: string, endpoint: string): Promise<void> {
-    await this.db.execute(sql`
-      update stores set studio_endpoint = ${endpoint} where store_id = ${storeId}
-    `);
-  }
-
-  async upsertScraper(collectorId: string, name: string, targetSite: string): Promise<void> {
-    await this.db.execute(sql`
-      insert into scrapers (id, name, target_site, output_schema, status)
-      values (${collectorId}, ${name}, ${targetSite}, '[]'::jsonb, 'healthy')
-      on conflict (id) do update set name = excluded.name, target_site = excluded.target_site
-    `);
-  }
 }
 
 /**
- * The board shows six states; a run only knows three.
+ * The board shows four states; a run only knows three.
  *
  * An open incident outranks the last run, because that is the whole claim the
  * product makes: a store whose last pull looked fine but whose incident is
  * still open is not healthy. Only when nothing is open does the last run decide.
  */
 function stateFor(row: FleetRow): ScraperState {
-  switch (row.incident_state) {
-    case "healing":
-      return "healing";
-    case "manual":
-      return "manual_attention";
-    default:
-      break;
-  }
+  if (row.incident_state === "manual") return "manual_attention";
 
   const runStatus = runStatusFromDb(row.last_run_status);
   if (runStatus === "broken") return "broken";

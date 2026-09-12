@@ -1,11 +1,7 @@
 import { Injectable, Logger, NotFoundException } from "@nestjs/common";
-import { ConfigService } from "@nestjs/config";
 import { type PullerRunResponse } from "@basketwatch/contract";
-import { type Env } from "../../config/env.schema.js";
 import { BossService } from "../../jobs/boss.provider.js";
 import { QUEUES } from "../../jobs/queues.js";
-import { StudioError } from "./adapters/studio.adapter.js";
-import { STUDIO_FAILURE } from "./studio-failure.js";
 import { dedupe, diff, isMassChange } from "./diff.js";
 import { PullerRegistry } from "./puller.registry.js";
 import { type PullResult, type PullerConfig, type PullerRunOptions } from "./puller.types.js";
@@ -24,7 +20,6 @@ export class PullersService {
     private readonly registry: PullerRegistry,
     private readonly repository: PullersRepository,
     private readonly boss: BossService,
-    private readonly config: ConfigService<Env, true>,
   ) {}
 
   /** Whether this store already has a pull waiting or running on the queue. */
@@ -39,45 +34,57 @@ export class PullersService {
   }
 
   /**
-   * The central pull method. Collects a store's catalogue via its Studio
-   * collector, dedupes the rows, diffs against the previous snapshot, guards
-   * against mass-change events (>90% of an established catalogue changing at
-   * once), persists the run, and enqueues validation.
+   * The central pull method. Collects a store's catalogue through the adapter
+   * the store row's `method` names, dedupes the rows, diffs against the previous snapshot,
+   * guards against mass-change events (>90% of an established catalogue
+   * changing at once), persists the run, and enqueues validation.
    *
-   * Studio failures are caught and routed to `handleStudioFailure`, which
-   * records the broken run, opens an incident, and -- if the failure kind is
-   * healable -- enqueues a heal job. The caller always gets a response, never
-   * an unhandled throw.
+   * A pull that throws, or that returns nothing for a store with history, is
+   * routed to `handlePullFailure`, which records the broken run and opens an
+   * incident. The caller always gets a response, never an unhandled throw.
    */
   async runStore(storeId: string, options: PullerRunOptions): Promise<PullerRunResponse> {
     const startedAt = Date.now();
     const [config] = await this.repository.pullableStores([storeId]);
     if (!config) throw new NotFoundException(`No pullable store with id ${storeId}.`);
 
+    const previous = await this.repository.latestPrices(config.storeId);
+    const established = previous.size > 0;
+
+    // The adapter is chosen by the store row's `method`; nothing else decides.
+    // A missing adapter is a server misconfiguration, not a store fault, so it
+    // 500s here rather than opening an incident against an innocent store.
+    const puller = this.registry.get(config.method);
+    if (!puller) throw new Error(`no adapter registered for method "${config.method}"`);
+
     let result: PullResult;
     try {
-      result = await this.collect(config);
+      result = await puller.pull(config);
     } catch (err) {
-      if (err instanceof StudioError) {
-        return this.handleStudioFailure(config, err, options, startedAt);
-      }
-      throw err;
+      const detail = err instanceof Error ? err.message : String(err);
+      return this.handlePullFailure(config, detail, options, startedAt);
+    }
+
+    // A store that has priced products before and now yields none did not
+    // empty its shelves; the adapter stopped understanding the site.
+    if (result.rows.length === 0 && established) {
+      return this.handlePullFailure(
+        config,
+        `pull returned no rows for a store with ${previous.size} priced products`,
+        options,
+        startedAt,
+      );
     }
 
     const rows = dedupe(result.rows);
-    const previous = await this.repository.latestPrices(config.storeId);
     const changes = diff(previous, rows);
 
-    const established = previous.size > 0;
     const suppressed = isMassChange(rows.length, changes.length, established);
     const ceilingReached = config.maxPages > 0 && result.pages >= config.maxPages;
-    const source = rows[0]?.source ?? "puller";
 
     const summary: RunSummary = {
       storeId: config.storeId,
       method: config.method,
-      transport: "studio",
-      source,
       trigger: options.trigger,
       rows: rows.length,
       unitPriced: rows.filter((row) => row.unitPrice !== null).length,
@@ -85,7 +92,6 @@ export class PullersService {
       ceilingReached,
       changes: suppressed ? 0 : changes.length,
       coverage: null,
-      rawOutput: result.rawOutput,
     };
 
     if (options.dryRun) {
@@ -122,11 +128,9 @@ export class PullersService {
       });
     }
 
-    // A canary whose observations were mass-change-suppressed proved nothing:
-    // the validator would judge the OLD products and falsely resolve the
-    // incident. Report it as a failed verification instead of validating.
-    const canaryFailed = options.trigger === "canary" && suppressed;
-    await this.enqueueValidation(runId, config.storeId, options.healAttemptId, canaryFailed);
+    // A suppressed run applied nothing, so there is nothing new to validate --
+    // and validating the old products would read as recovery.
+    if (!suppressed) await this.enqueueValidation(runId, config.storeId);
 
     this.logger.log(
       `${config.storeId}: run ${runId}, ${rows.length} rows, ${summary.changes} changes` +
@@ -162,28 +166,26 @@ export class PullersService {
   }
 
   /**
-   * Classifies a Studio failure by its `StudioFailureKind` (broken, timeout,
-   * empty, no_urls, unprovisioned) and decides whether a template rewrite
-   * could fix it. Only `broken` and `empty` auto-heal; the rest open an
-   * incident but skip the credit spend.
-   *
-   * The run is always recorded (evidence for the audit trail). If no incident
-   * is already open for the store, one is created with raw output and field
-   * names as evidence so the heal orchestrator can compose a targeted prompt.
+   * The pull itself failed: the fetch threw, the payload did not parse, or an
+   * established store came back empty. The run is always recorded as evidence;
+   * an incident opens unless one is already open for the store. Nothing is
+   * enqueued for validation -- there are no new rows to judge, and judging the
+   * old ones would read as recovery.
    */
-  private async handleStudioFailure(
+  private async handlePullFailure(
     config: PullerConfig,
-    err: StudioError,
+    detail: string,
     options: PullerRunOptions,
     startedAt: number,
   ): Promise<PullerRunResponse> {
-    const policy = STUDIO_FAILURE[err.kind];
-    this.logger.warn(`${config.storeId}: studio failed (${err.kind}) -- ${err.message}`);
+    this.logger.warn(`${config.storeId}: pull failed -- ${detail}`);
 
-    // A dry run promises to write nothing, and the happy path already keeps
-    // that promise. The failure path did not: it recorded a run, opened an
-    // incident and queued a heal, so the safe way to test a broken store was
-    // the one that spent money.
+    const verdict = {
+      status: "broken" as const,
+      findings: [{ check: "error" as const, severity: "hard" as const, detail }],
+    };
+
+    // A dry run promises to write nothing, on the failure path too.
     if (options.dryRun) {
       return {
         storeId: config.storeId,
@@ -193,19 +195,14 @@ export class PullersService {
         pages: 0,
         ceilingReached: false,
         changes: 0,
-        verdict: {
-          status: "broken",
-          findings: [{ check: policy.check, severity: "hard", detail: err.message }],
-        },
+        verdict,
         durationMs: Date.now() - startedAt,
       };
     }
 
-    const summary: RunSummary = {
+    const runId = await this.repository.recordEmptyRun({
       storeId: config.storeId,
       method: config.method,
-      transport: "studio",
-      source: "studio",
       trigger: options.trigger,
       rows: 0,
       unitPriced: 0,
@@ -213,107 +210,40 @@ export class PullersService {
       ceilingReached: false,
       changes: 0,
       coverage: null,
-      rawOutput: err.rawOutput.length > 0 ? err.rawOutput : undefined,
-    };
+    });
 
-    const runId = await this.repository.recordEmptyRun(summary);
-
-    // The first eight keys are what incidentEvidenceSchema requires. Writing a
-    // different shape meant safeParse failed and the salvage path replaced the
-    // whole thing with zeroes -- so every Studio incident rendered as "0 of ~0
-    // rows" with no failed check and no sample.
-    //
-    // The rest are stripped by the parse but stay in the jsonb, which is where
-    // `summarise` looks for `reason` and where the heal orchestrator reads
-    // `error` and `rawSample` to compose its prompt.
-    const evidence: Record<string, unknown> = {
-      kind: policy.incidentKind,
-      failedChecks: [{ check: policy.check, severity: "hard", detail: err.message }],
-      sampleBadRows: err.rawOutput.slice(0, 5),
-      sampleGoodRows: [],
-      fieldNullRates: {},
-      baselineNullRates: {},
-      rowCount: 0,
-      expectedRowCount: 0,
-      reason: policy.reason(err.message),
-      error: err.message,
-      rawSample: err.rawOutput.slice(0, 5),
-      rawFieldNames: this.extractFieldNames(err.rawOutput),
-      studioDetail: err.detail,
-    };
-
-    // A canary that never produced a run's worth of data is a failed
-    // verification, not a fresh incident: its incident is already open in
-    // 'healing', and the heal loop owns what happens next. The validate-run
-    // job is the seam so pullers never call heal code directly.
-    if (options.trigger === "canary" && options.healAttemptId) {
-      await this.enqueueValidation(runId, config.storeId, options.healAttemptId, true);
-      this.logger.warn(
-        `${config.storeId}: canary run ${runId} failed at the studio layer (${err.kind})`,
-      );
-      return this.studioFailureResponse(config, err, policy, startedAt, runId);
-    }
-
-    // The run row is the invariant and is always written; a second incident for
-    // a store that already has one open is just noise, and the validator has
-    // always worked this way.
     if (await this.repository.hasOpenIncident(config.storeId)) {
       this.logger.log(`${config.storeId}: run ${runId} recorded as failed, incident already open`);
-      return this.studioFailureResponse(config, err, policy, startedAt, runId);
-    }
-
-    const incidentId = await this.repository.openIncident(
-      config.storeId,
-      runId,
-      policy.incidentKind,
-      evidence,
-      config.collectorId,
-    );
-
-    this.logger.log(
-      `${config.storeId}: run ${runId} recorded as failed, incident ${incidentId} opened`,
-    );
-
-    // Two separate questions, both of which must say yes before a credit is
-    // spent. First: is this kind of failure one a template rewrite could fix?
-    if (!policy.autoHeal) {
+    } else {
+      // The first eight keys are what incidentEvidenceSchema requires; `reason`
+      // is stripped by the parse but stays in the jsonb for `summarise`.
+      const incidentId = await this.repository.openIncident(config.storeId, runId, "pull_failed", {
+        kind: "pull_failed",
+        failedChecks: verdict.findings,
+        sampleBadRows: [],
+        sampleGoodRows: [],
+        fieldNullRates: {},
+        baselineNullRates: {},
+        rowCount: 0,
+        expectedRowCount: 0,
+        reason: detail,
+      });
       this.logger.log(
-        `${config.storeId}: ${err.kind} is not repairable by a template rewrite; no heal queued`,
+        `${config.storeId}: run ${runId} recorded as failed, incident ${incidentId} opened`,
       );
-      return this.studioFailureResponse(config, err, policy, startedAt, runId);
     }
 
-    // Second: is the loop switched on at all? Checked here rather than only in
-    // the worker so a disarmed loop leaves nothing queued to fire later.
-    if (!this.config.get("HEAL_AUTO_ENABLED", { infer: true })) {
-      this.logger.log(
-        `${config.storeId}: auto-heal is disabled (HEAL_AUTO_ENABLED=false); ` +
-          `incident ${incidentId} stands unhealed`,
-      );
-      return this.studioFailureResponse(config, err, policy, startedAt, runId);
-    }
-
-    if (config.collectorId) {
-      try {
-        await this.boss.send(
-          QUEUES.heal,
-          {
-            scraperId: config.collectorId,
-            storeId: config.storeId,
-            incidentId,
-          },
-          { singletonKey: config.collectorId, retryLimit: 0 },
-        );
-        this.logger.log(`${config.storeId}: heal job enqueued`);
-      } catch (healErr) {
-        this.logger.error(
-          `${config.storeId}: failed to enqueue heal -- ` +
-            `${healErr instanceof Error ? healErr.message : String(healErr)}`,
-        );
-      }
-    }
-
-    return this.studioFailureResponse(config, err, policy, startedAt, runId);
+    return {
+      storeId: config.storeId,
+      dryRun: false,
+      runId: String(runId),
+      rows: 0,
+      pages: 0,
+      ceilingReached: false,
+      changes: 0,
+      verdict,
+      durationMs: Date.now() - startedAt,
+    };
   }
 
   /**
@@ -323,84 +253,14 @@ export class PullersService {
    * that first saw the pull finish -- so closing the tab at the wrong moment
    * meant the run was never validated and its anomalies never found.
    */
-  private async enqueueValidation(
-    runId: number,
-    storeId: string,
-    healAttemptId?: string,
-    canaryFailed?: boolean,
-  ): Promise<void> {
+  private async enqueueValidation(runId: number, storeId: string): Promise<void> {
     try {
-      await this.boss.send(QUEUES.validateRun, {
-        runId: Number(runId),
-        storeId,
-        ...(healAttemptId ? { healAttemptId } : {}),
-        ...(canaryFailed ? { canaryFailed } : {}),
-      });
+      await this.boss.send(QUEUES.validateRun, { runId: Number(runId), storeId });
     } catch (err) {
       this.logger.error(
         `${storeId}: failed to enqueue validation for run ${runId} -- ` +
           `${err instanceof Error ? err.message : String(err)}`,
       );
     }
-  }
-
-  /** The same failed-run answer whether or not a heal was queued behind it. */
-  private studioFailureResponse(
-    config: PullerConfig,
-    err: StudioError,
-    policy: (typeof STUDIO_FAILURE)[StudioError["kind"]],
-    startedAt: number,
-    runId: number,
-  ): PullerRunResponse {
-    return {
-      storeId: config.storeId,
-      dryRun: false,
-      runId: String(runId),
-      rows: 0,
-      pages: 0,
-      ceilingReached: false,
-      changes: 0,
-      verdict: {
-        status: "broken",
-        findings: [{ check: policy.check, severity: "hard", detail: err.message }],
-      },
-      durationMs: Date.now() - startedAt,
-    };
-  }
-
-  /** Extract the set of field names Studio returned, for diagnostic prompts. */
-  private extractFieldNames(raw: unknown[]): string[] {
-    const names = new Set<string>();
-    for (const item of raw.slice(0, 5)) {
-      if (item && typeof item === "object" && !Array.isArray(item)) {
-        for (const key of Object.keys(item as Record<string, unknown>)) {
-          names.add(key);
-        }
-      }
-    }
-    return [...names].sort();
-  }
-
-  /**
-   * All production pulls go through Bright Data Studio. If a store has no
-   * collector yet, the pull fails with a clear error requiring provisioning.
-   * There is no HTTP fallback -- a Studio failure surfaces as a real failure,
-   * gets diagnosed by the validator, and triggers a heal.
-   */
-  private async collect(config: PullerConfig): Promise<PullResult> {
-    if (!config.collectorId) {
-      // A StudioError, not a NotFoundException: this escapes runStore's catch
-      // otherwise, and once pulls run on the queue that means a job that
-      // retries an unprovisionable store instead of recording why it failed.
-      throw new StudioError(
-        `${config.storeId} has no Studio collector. Provision one first via POST /api/fleet/${config.storeId}/provision.`,
-        "unprovisioned",
-      );
-    }
-    const studio = this.registry.get("studio");
-    // A server misconfiguration, not a store fault -- it should 500 rather
-    // than open an incident against a store that did nothing wrong.
-    if (!studio) throw new Error("no studio adapter registered");
-    return studio.pull(config);
   }
 }

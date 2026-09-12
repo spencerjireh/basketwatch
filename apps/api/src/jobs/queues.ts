@@ -11,10 +11,6 @@ export const QUEUES = {
   scrapeRun: "scrape-run",
   /** spider-sense validation of a delivered run */
   validateRun: "validate-run",
-  /** enqueued when an incident opens; owned by modules/heal */
-  heal: "heal",
-  /** self-rescheduling watcher of an in-flight Bright Data heal */
-  healPoll: "heal-poll",
   /** outbound alerts; owned by modules/notifier */
   notify: "notify",
 } as const;

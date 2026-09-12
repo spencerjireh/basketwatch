@@ -5,7 +5,6 @@ import { DRIZZLE } from "../../database/database.tokens.js";
 import { type Db } from "../../database/database.module.js";
 import { type PriceChange } from "./diff.js";
 import { type PulledRow, type PullerConfig } from "./puller.types.js";
-import { type StapleMatchRule } from "./adapters/staples.js";
 
 type StoreRow = {
   store_id: string;
@@ -13,27 +12,20 @@ type StoreRow = {
   currency: string | null;
   method: string | null;
   endpoint: string | null;
-  studio_endpoint: string | null;
   max_pages: number | null;
   coverage: string | null;
-  needs_browser: boolean;
-  needs_unlocker: boolean;
-  studio_collector_id: string | null;
 };
 
 export type RunSummary = {
   storeId: string;
   method: string;
-  transport: "http" | "studio" | "unlocker";
-  source: "puller" | "studio";
-  trigger: "cron" | "manual" | "canary";
+  trigger: "cron" | "manual";
   rows: number;
   unitPriced: number;
   pages: number;
   ceilingReached: boolean;
   changes: number;
   coverage: string | null;
-  rawOutput?: unknown[];
 };
 
 /** The only file in this module allowed to touch the Drizzle schema. */
@@ -46,8 +38,8 @@ export class PullersRepository {
    *
    * The lock is a lab artifact and the columns already hold its `catalogue`
    * block, so changing where a store is crawled is a row edit rather than a
-   * deploy. Stores with `method = 'none'` have no catalogue to pull and are
-   * excluded here rather than skipped later.
+   * deploy. Inactive stores and stores with `method = 'none'` have no
+   * catalogue to pull and are excluded here rather than skipped later.
    */
   async pullableStores(storeIds?: string[]): Promise<PullerConfig[]> {
     const filter =
@@ -59,10 +51,9 @@ export class PullersRepository {
         : sql``;
 
     const rows = (await this.db.execute(sql`
-      select s.store_id, s.country, s.currency, s.method, s.endpoint, s.studio_endpoint,
-             s.max_pages, s.coverage, s.needs_browser, s.needs_unlocker, s.studio_collector_id
+      select s.store_id, s.country, s.currency, s.method, s.endpoint, s.max_pages, s.coverage
       from stores s
-      where s.method is not null and s.method <> 'none' ${filter}
+      where s.active and s.method is not null and s.method <> 'none' ${filter}
       order by s.store_id
     `)) as unknown as StoreRow[];
 
@@ -76,33 +67,10 @@ export class PullersRepository {
           currency: row.currency ?? DEFAULT_CURRENCY_BY_COUNTRY[country.data],
           method: row.method!,
           endpoint: row.endpoint,
-          studioEndpoint: row.studio_endpoint,
           maxPages: row.max_pages ?? 0,
-          needsBrowser: row.needs_browser,
-          needsUnlocker: row.needs_unlocker,
-          collectorId: row.studio_collector_id,
         } satisfies PullerConfig,
       ];
     });
-  }
-
-  /**
-   * Match rules for the basket staples, straight from items.match jsonb.
-   * Core tier only: the filter's job is to keep pulls cheap, and the index
-   * prices exactly the core fifteen. Match rules are data, never code.
-   */
-  async stapleMatchRules(): Promise<StapleMatchRule[]> {
-    const rows = (await this.db.execute(sql`
-      select match from items where tier = 'core' and match is not null
-    `)) as unknown as {
-      match: { must?: string[]; must_by_country?: Record<string, string[]>; exclude?: string[] };
-    }[];
-
-    return rows.map(({ match }) => ({
-      must: match.must ?? [],
-      mustByCountry: match.must_by_country,
-      exclude: match.exclude ?? [],
-    }));
   }
 
   /** The last known price per product, which is what `diff` compares against. */
@@ -137,15 +105,12 @@ export class PullersRepository {
     changes: PriceChange[],
   ): Promise<number> {
     return this.db.transaction(async (tx) => {
-      const rawJson = summary.rawOutput ? JSON.stringify(summary.rawOutput) : null;
       const [run] = (await tx.execute(sql`
-        insert into runs (store_id, at, method, transport, source, trigger, status,
-                          rows, unit_priced, pages, ceiling_reached, changes, coverage, raw_output)
-        values (${summary.storeId}, now(), ${summary.method}, ${summary.transport},
-                ${summary.source}, ${summary.trigger}, 'ok', ${summary.rows},
-                ${summary.unitPriced}, ${summary.pages}, ${summary.ceilingReached},
-                ${summary.changes}, ${summary.coverage},
-                ${rawJson ? sql`${rawJson}::jsonb` : sql`null`})
+        insert into runs (store_id, at, method, trigger, status,
+                          rows, unit_priced, pages, ceiling_reached, changes, coverage)
+        values (${summary.storeId}, now(), ${summary.method}, ${summary.trigger}, 'ok',
+                ${summary.rows}, ${summary.unitPriced}, ${summary.pages},
+                ${summary.ceilingReached}, ${summary.changes}, ${summary.coverage})
         returning id
       `)) as unknown as { id: string }[];
       const runId = Number(run!.id);
@@ -186,12 +151,12 @@ export class PullersRepository {
         await tx.execute(sql`
           insert into price_observations (run_id, store_id, product_key, observed_at, price,
                                           currency, unit_price, unit_price_basis, in_stock,
-                                          source, change, previous_price, delta)
+                                          change, previous_price, delta)
           values ${sql.join(
             batch.map(
               (c) => sql`(${runId}, ${c.storeId}, ${c.productKey}, ${c.observedAt}::timestamptz,
                           ${c.price}, ${c.currency}, ${c.unitPrice?.value ?? null},
-                          ${c.unitPrice?.basis ?? null}, ${c.inStock}, ${c.source},
+                          ${c.unitPrice?.basis ?? null}, ${c.inStock},
                           ${c.change}, ${c.previousPrice}, ${c.delta})`,
             ),
             sql`, `,
@@ -205,15 +170,13 @@ export class PullersRepository {
 
   /** A run with no rows to apply still needs its summary row. */
   async recordEmptyRun(summary: RunSummary): Promise<number> {
-    const rawJson = summary.rawOutput ? JSON.stringify(summary.rawOutput) : null;
     const [run] = (await this.db.execute(sql`
-      insert into runs (store_id, at, method, transport, source, trigger, status,
-                        rows, unit_priced, pages, ceiling_reached, changes, coverage, raw_output)
-      values (${summary.storeId}, now(), ${summary.method}, ${summary.transport},
-              ${summary.source}, ${summary.trigger}, ${summary.rows === 0 ? "error" : "anomalous"},
+      insert into runs (store_id, at, method, trigger, status,
+                        rows, unit_priced, pages, ceiling_reached, changes, coverage)
+      values (${summary.storeId}, now(), ${summary.method}, ${summary.trigger},
+              ${summary.rows === 0 ? "error" : "anomalous"},
               ${summary.rows}, ${summary.unitPriced}, ${summary.pages},
-              ${summary.ceilingReached}, ${summary.changes}, ${summary.coverage},
-              ${rawJson ? sql`${rawJson}::jsonb` : sql`null`})
+              ${summary.ceilingReached}, ${summary.changes}, ${summary.coverage})
       returning id
     `)) as unknown as { id: string }[];
     return Number(run!.id);
@@ -246,12 +209,12 @@ export class PullersRepository {
   /**
    * Store-scoped and kind-agnostic, matching the validator's rule exactly: one
    * open incident per store suppresses the next. A repeatedly failing store
-   * would otherwise stack a fresh incident, and a fresh heal, on every run.
+   * would otherwise stack a fresh incident on every run.
    */
   async hasOpenIncident(storeId: string): Promise<boolean> {
     const rows = (await this.db.execute(sql`
       select 1 from incidents
-      where store_id = ${storeId} and state in ('open', 'healing')
+      where store_id = ${storeId} and state = 'open'
       limit 1
     `)) as unknown as unknown[];
     return rows.length > 0;
@@ -262,11 +225,10 @@ export class PullersRepository {
     runId: number,
     kind: string,
     evidence: Record<string, unknown>,
-    scraperId?: string | null,
   ): Promise<string> {
     const rows = (await this.db.execute(sql`
-      insert into incidents (store_id, scraper_id, run_id, kind, evidence, state)
-      values (${storeId}, ${scraperId ?? null}, ${runId}, ${kind}, ${JSON.stringify(evidence)}::jsonb, 'open')
+      insert into incidents (store_id, run_id, kind, evidence, state)
+      values (${storeId}, ${runId}, ${kind}, ${JSON.stringify(evidence)}::jsonb, 'open')
       returning id::text
     `)) as unknown as { id: string }[];
     return rows[0]!.id;

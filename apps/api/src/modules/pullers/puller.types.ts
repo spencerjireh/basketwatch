@@ -15,22 +15,10 @@ export interface PullerConfig {
   currency: string;
   method: string;
   endpoint: string | null;
-  /** HTML product listing URL for Studio (e.g. /collections/all for Shopify). */
-  studioEndpoint: string | null;
   maxPages: number;
-  needsBrowser: boolean;
-  needsUnlocker: boolean;
-  /** collector_id, for the stores Studio collects rather than HTTP */
-  collectorId: string | null;
 }
 
-/**
- * One catalogue row as an adapter produces it, before any database sees it.
- *
- * `source` records which transport actually produced the row. Studio collects
- * the stores that need a browser; when one of its collectors fails the puller
- * covers, and the row says so rather than the substitution being invisible.
- */
+/** One catalogue row as an adapter produces it, before any database sees it. */
 export interface PulledRow {
   storeId: string;
   productKey: string;
@@ -43,15 +31,12 @@ export interface PulledRow {
   observedAt: string;
   size: Size | null;
   unitPrice: UnitPrice | null;
-  source: "puller" | "studio";
 }
 
 /** What an adapter hands back: the rows it found and what it cost in fetches. */
 export interface PullResult {
   rows: PulledRow[];
   pages: number;
-  /** Raw Studio output before normalization, for diagnostic replay. */
-  rawOutput?: unknown[];
 }
 
 export interface PullerRunOptions {
@@ -60,10 +45,8 @@ export interface PullerRunOptions {
    * what makes a config change safe to try against production data.
    */
   dryRun: boolean;
-  /** cron | manual | canary: recorded on the run row, so a schedule is legible later */
-  trigger: "cron" | "manual" | "canary";
-  /** Set on canary runs: the heal attempt this pull is verifying. */
-  healAttemptId?: string;
+  /** cron | manual: recorded on the run row, so a schedule is legible later */
+  trigger: "cron" | "manual";
 }
 
 export interface Puller {

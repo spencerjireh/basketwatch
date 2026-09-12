@@ -14,7 +14,6 @@ const row = (productKey: string, price: number): PulledRow => ({
   observedAt: "2026-08-20T06:00:00Z",
   size: null,
   unitPrice: null,
-  source: "puller",
 });
 
 describe("diff", () => {

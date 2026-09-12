@@ -22,26 +22,15 @@ import {
  * The data plane is the catalogue shape proven in spencer-exploration: identity
  * is (store_id, product_key), sizes are stored decomposed so unit price can be
  * computed and compared, and history is change-only. The control plane
- * (scrapers, baselines, heal_attempts, alerts) is the self-healing machinery.
+ * (baselines, incidents, alerts) is the breakage-detection machinery.
  *
  * Money is numeric, never float. Sizes are doublePrecision - they are
  * measurements, and drizzle hands numeric back as a string.
  */
 
-/** collector_id from Scraper Studio is the primary key: one row per fleet member. */
-export const scrapers = pgTable("scrapers", {
-  id: text("id").primaryKey(),
-  name: text("name").notNull(),
-  targetSite: text("target_site").notNull(),
-  outputSchema: jsonb("output_schema").notNull(),
-  status: text("status").notNull().default("healthy"),
-  healBudgetDaily: integer("heal_budget_daily").notNull().default(5),
-  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
-});
-
 /**
- * A retailer we track. Distinct from a scraper: 15 of 19 stores are pulled
- * directly over HTTP and have no Studio collector at all.
+ * A retailer we track. `method` names the adapter that pulls it; `active`
+ * is the switch that keeps a store's history without pulling or showing it.
  */
 export const stores = pgTable("stores", {
   storeId: text("store_id").primaryKey(),
@@ -54,15 +43,13 @@ export const stores = pgTable("stores", {
   coverage: text("coverage"),
   coverageReason: text("coverage_reason"),
   indexContributor: boolean("index_contributor").notNull().default(false),
-  studioCollectorId: text("studio_collector_id").references(() => scrapers.id),
-  needsBrowser: boolean("needs_browser").notNull().default(false),
-  needsUnlocker: boolean("needs_unlocker").notNull().default(false),
+  active: boolean("active").notNull().default(true),
 });
 
 /**
  * Identity is (store_id, product_key). The same physical product in two stores
  * is two rows on purpose: matching them across retailers is basket_map's job,
- * not something the collector should silently assume.
+ * not something the adapter should silently assume.
  */
 export const products = pgTable(
   "products",
@@ -100,27 +87,20 @@ export const products = pgTable(
 );
 
 /**
- * One row per execution, whether that was a catalogue pull over HTTP or a
- * Studio collector run. They are the same event in the product story, so the
- * feed, the credit ledger and the validator all read one history.
+ * One row per catalogue pull. The feed and the validator both read this one
+ * history.
  *
- * store_id is nullable rather than required because a trial run can target a
- * collector that has no store row yet; the check keeps a run attached to at
- * least one of the two.
+ * store_id is nullable for historical reasons: early runs could target a
+ * collector with no store row. Every run written today has a store.
  */
 export const runs = pgTable(
   "runs",
   {
     id: bigserial("id", { mode: "number" }).primaryKey(),
     storeId: text("store_id").references(() => stores.storeId),
-    scraperId: text("scraper_id").references(() => scrapers.id),
     at: timestamp("at", { withTimezone: true }).notNull().defaultNow(),
     method: text("method"),
-    /** studio | http */
-    transport: text("transport"),
-    /** studio | puller: what actually produced the rows */
-    source: text("source"),
-    /** cron | manual | canary */
+    /** cron | manual */
     trigger: text("trigger"),
     /** ok | anomalous | error */
     status: text("status"),
@@ -130,8 +110,6 @@ export const runs = pgTable(
     ceilingReached: boolean("ceiling_reached").notNull().default(false),
     changes: integer("changes").notNull().default(0),
     coverage: text("coverage"),
-    creditsUsd: numeric("credits_usd", { precision: 10, scale: 4 }),
-    rawOutput: jsonb("raw_output"),
     /** spider-sense verdict + findings from the validate-run handler */
     findings: jsonb("findings"),
     /** computed from the run's products; drives the fleet board's null column */
@@ -139,10 +117,6 @@ export const runs = pgTable(
   },
   (t) => ({
     storeAt: index("idx_runs_store").on(t.storeId, t.at),
-    attached: check(
-      "runs_attached_to_something",
-      sql`${t.storeId} is not null or ${t.scraperId} is not null`,
-    ),
   }),
 );
 
@@ -166,8 +140,6 @@ export const priceObservations = pgTable(
     unitPrice: numeric("unit_price", { precision: 16, scale: 6 }),
     unitPriceBasis: text("unit_price_basis"),
     inStock: boolean("in_stock"),
-    /** studio | puller | manual */
-    source: text("source").notNull().default("puller"),
     /** new | price */
     change: text("change").notNull(),
     previousPrice: numeric("previous_price", { precision: 12, scale: 4 }),
@@ -199,7 +171,6 @@ export const latestPrice = pgView("latest_price", {
   unitPrice: numeric("unit_price", { precision: 16, scale: 6 }),
   unitPriceBasis: text("unit_price_basis"),
   inStock: boolean("in_stock"),
-  source: text("source"),
   change: text("change"),
   previousPrice: numeric("previous_price", { precision: 12, scale: 4 }),
   delta: numeric("delta", { precision: 12, scale: 4 }),
@@ -314,53 +285,19 @@ export const baselines = pgTable("baselines", {
 export const incidents = pgTable("incidents", {
   id: uuid("id").primaryKey().defaultRandom(),
   storeId: text("store_id").references(() => stores.storeId),
-  scraperId: text("scraper_id").references(() => scrapers.id),
   runId: bigint("run_id", { mode: "number" }).references(() => runs.id),
-  // schema | nulls | rowcount | drift | freshness | error | studio_failed |
-  // mass_change_suppressed
+  // schema | nulls | rowcount | drift | freshness | error | pull_failed |
+  // mass_change_suppressed, plus the legacy studio_* kinds
   kind: text("kind").notNull(),
   evidence: jsonb("evidence").notNull(),
-  state: text("state").notNull().default("open"), // open | healing | resolved | manual
+  state: text("state").notNull().default("open"), // open | resolved | manual
   openedAt: timestamp("opened_at", { withTimezone: true }).notNull().defaultNow(),
   resolvedAt: timestamp("resolved_at", { withTimezone: true }),
 });
 
-export const healAttempts = pgTable("heal_attempts", {
-  id: uuid("id").primaryKey().defaultRandom(),
-  incidentId: uuid("incident_id")
-    .notNull()
-    .references(() => incidents.id),
-  /** 1-based, capped by HEAL_MAX_ATTEMPTS_PER_INCIDENT */
-  attempt: integer("attempt").notNull().default(1),
-  startedAt: timestamp("started_at", { withTimezone: true }).notNull().defaultNow(),
-  /** null while the attempt is still in flight */
-  finishedAt: timestamp("finished_at", { withTimezone: true }),
-  claudeDiagnosis: text("claude_diagnosis").notNull(),
-  healPrompt: text("heal_prompt").notNull(),
-  studioDiff: text("studio_diff"),
-  /** { ranAt, rows, nullRatePct, status } from the verification run */
-  canary: jsonb("canary"),
-  verdict: text("verdict"), // approved | rejected | failed
-  creditsSpent: numeric("credits_spent", { precision: 10, scale: 4 }),
-  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
-});
-
-/** Versioned scraper template snapshots. One row per capture event. */
-export const scraperTemplates = pgTable("scraper_templates", {
-  id: uuid("id").primaryKey().defaultRandom(),
-  scraperId: text("scraper_id")
-    .notNull()
-    .references(() => scrapers.id),
-  templateJson: jsonb("template_json").notNull(),
-  /** 'capture' | 'heal_approved' | 'manual' */
-  source: text("source").notNull(),
-  healAttemptId: uuid("heal_attempt_id").references(() => healAttempts.id),
-  capturedAt: timestamp("captured_at", { withTimezone: true }).notNull().defaultNow(),
-});
-
 export const alerts = pgTable("alerts", {
   id: uuid("id").primaryKey().defaultRandom(),
-  kind: text("kind").notNull(), // price_drop | breakage | healed | escalation
+  kind: text("kind").notNull(), // price_drop | breakage | recovery | escalation
   channel: text("channel").notNull(), // email | telegram | discord
   payload: jsonb("payload").notNull(),
   sentAt: timestamp("sent_at", { withTimezone: true }).notNull().defaultNow(),

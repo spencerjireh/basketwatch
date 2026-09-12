@@ -45,8 +45,7 @@ const nextConfig: NextConfig = {
       // filesystem routing so a stray src/app/api/ cannot shadow it.
       //
       // No prefix stripping on either side. The path is byte-identical from
-      // the browser through to Nest, which is why the Bright Data webhook URL
-      // did not change.
+      // the browser through to Nest.
       beforeFiles: [{ source: "/api/:path*", destination: `${target}/api/:path*` }],
       afterFiles: [],
       fallback: [],
