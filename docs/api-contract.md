@@ -2,7 +2,7 @@
 title: API Contract
 tags: [contract]
 created: 2026-08-18
-updated: 2026-09-12
+updated: 2026-09-27
 status: v2
 ---
 
@@ -76,40 +76,27 @@ store charged for what it had.
 
 `Incident` carries its evidence, so one request draws the whole record.
 
-## Writes and inbound
+## Streaming
 
-Every write hits real stores or changes the fleet, and every one of them
-carries the ops token. The dashboard holds no token and issues no writes at all — the API
-and the schedule are the only two ways to make this system do anything.
+The API is read-only: there are no write endpoints. Runs, prices and
+incidents are written into Postgres by a separate private service.
 
 | Endpoint | Body | Auth | Implemented |
 |---|---|---|---|
-| `POST /api/pullers/run` | none | `Bearer <OPS_TOKEN>` | yes — enqueues the fleet fan-out |
-| `POST /api/pullers/:storeId/run` | none | `Bearer <OPS_TOKEN>` | yes — enqueues one store |
-| `POST /api/pullers/:storeId/run?dryRun=true` | none | `Bearer <OPS_TOKEN>` | yes — answers inline, writes nothing |
-| `POST /api/fleet/seed-baselines` | none | `Bearer <OPS_TOKEN>` | yes |
-| `POST /api/fleet/:storeId/index-contributor` | `{ contributor }` | `Bearer <OPS_TOKEN>` | yes |
 | `GET /api/stream` (SSE) | `FeedEvent` per message | none | stream opens, silent |
 
-A wet pull is **queued, not run inline**: it answers
-`{ status, storeId, jobId }` and the work happens on the same `scrape-run` queue
-the schedule uses, so a hand trigger and the nightly fan-out cannot race. Asking
-twice for a store that already has one pending answers `already_queued`.
-
-The token is compared with `timingSafeEqual`, not `===`: these endpoints are
-public, and a plain compare leaks the prefix over enough requests.
-
-Rate limits: 300/minute globally, and 5/minute on the pullers routes, which
-are the ones that hit real stores. Health and the SSE stream are exempt.
-
-`dryRun` fetches and parses exactly as a real run does and writes nothing, which
-is what makes a store's crawl config safe to change against production data.
+Rate limit: 300/minute globally. Health and the SSE stream are exempt.
 
 SSE sets `Cache-Control: no-cache, no-transform` and `X-Accel-Buffering: no`, and
 emits a heartbeat comment every 20s. Each frame carries `id:`, so a browser
 reconnect sends `Last-Event-ID` and the server can resume. SSE remains the
 cuttable path: the fallback is polling these same endpoints, and nothing about
 the contract changes if it goes.
+
+`packages/contract/src/pullers.ts` still exports the price-row and manual-run
+shapes (`priceRecordSchema`, `pullerRunQuerySchema`, `pullerRunResponseSchema`,
+`indexContributorBodySchema`): the collector imports the contract, and those
+are its shapes. Nothing in this API serves them.
 
 ## Vocabulary
 
@@ -156,6 +143,15 @@ render as themselves.
 - **`pull_failed`** joined `incidentKinds`, and `error` joined `checkNames`,
   for the pull that threw or returned nothing.
 - `priceRecordSchema` moved from `ingest.ts` to `pullers.ts`.
+
+## What changed in the read-only split (2026-09-27)
+
+- **No writes.** `POST /api/pullers/run`, `POST /api/pullers/:storeId/run`,
+  `POST /api/fleet/seed-baselines` and `POST /api/fleet/:storeId/index-contributor`
+  are gone, with `routes.runPuller`, `routes.runPullerFleet` and
+  `routes.fleetIndexContributor`. Collection runs in a separate private service.
+- **`ReadyResponse.checks.queue` is optional.** The API runs no job queue; the
+  field stays in the schema so older responses still parse.
 
 ## Known gaps
 

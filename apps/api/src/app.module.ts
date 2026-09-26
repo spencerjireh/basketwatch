@@ -4,16 +4,12 @@ import { ThrottlerGuard, ThrottlerModule } from "@nestjs/throttler";
 import { ConfigModule } from "./config/config.module.js";
 import { LoggerModule } from "./common/logging/logger.module.js";
 import { DatabaseModule } from "./database/database.module.js";
-import { JobsModule } from "./jobs/jobs.module.js";
 import { ProductsModule } from "./modules/products/products.module.js";
 import { BasketModule } from "./modules/basket/basket.module.js";
 import { FeedModule } from "./modules/feed/feed.module.js";
 import { FleetModule } from "./modules/fleet/fleet.module.js";
 import { HealthModule } from "./modules/health/health.module.js";
 import { IncidentsModule } from "./modules/incidents/incidents.module.js";
-import { NotifierModule } from "./modules/notifier/notifier.module.js";
-import { PullersModule } from "./modules/pullers/pullers.module.js";
-import { ValidatorModule } from "./modules/validator/validator.module.js";
 
 @Module({
   imports: [
@@ -21,16 +17,12 @@ import { ValidatorModule } from "./modules/validator/validator.module.js";
     ConfigModule,
     LoggerModule,
     DatabaseModule,
-    JobsModule,
 
     // The dashboard is public and has no login, so the API is on the open
     // internet with it. 300/minute is deliberately loose: every server render
     // of the front page is three API calls, and they all arrive from ONE address -- the web container's, since it calls
     // the API directly over the compose network with no forwarded headers. A
     // tight global limit would throttle the site rather than an abuser.
-    //
-    // The endpoints that actually cost money carry their own much tighter
-    // limit; see PullersController.
     ThrottlerModule.forRoot([{ name: "default", ttl: 60_000, limit: 300 }]),
 
     // Dashboard reads.
@@ -40,11 +32,6 @@ import { ValidatorModule } from "./modules/validator/validator.module.js";
     ProductsModule,
     FeedModule,
     IncidentsModule,
-
-    // The engine.
-    ValidatorModule,
-    PullersModule,
-    NotifierModule,
   ],
   // The app's first global guard. Rate limiting is not a per-controller
   // decision -- a route that forgets it is exactly the route that needs it.

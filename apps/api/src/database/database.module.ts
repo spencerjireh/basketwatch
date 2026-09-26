@@ -34,10 +34,8 @@ export type Db = ReturnType<typeof drizzle<typeof schema>>;
       inject: [ConfigService],
       useFactory: (config: ConfigService<Env, true>): Sql => {
         const url = config.get("DATABASE_URL", { infer: true });
-        // One pool per process. max: 4 keeps a dev laptop and the
-        // single-container prod deploy well inside max_connections=100, because
-        // pg-boss holds its own connections alongside these and the team opens
-        // psql sessions against the same database.
+        // One pool per process. max: 4 keeps the API well inside
+        // max_connections=100 alongside the collector's pool and pg-boss.
         return postgres(url, { max: 4, onnotice: () => {} });
       },
     },
@@ -58,17 +56,21 @@ export class DatabaseModule implements OnModuleInit, OnApplicationShutdown {
 
   constructor(
     @Inject(PG_SQL) private readonly sql: Sql,
-    @Inject(DRIZZLE) private readonly db: Db,
+    private readonly config: ConfigService<Env, true>,
   ) {}
 
   /**
    * Apply pending migrations before anything else starts.
    *
-   * A deploy pulls main and runs compose -- there is no step in
-   * between where a human runs drizzle-kit, and a deploy that ships code
-   * expecting a column the database does not have is a broken demo. onModuleInit
-   * runs ahead of every onApplicationBootstrap hook, so the queue and the
-   * controllers only ever see a migrated schema.
+   * A deploy pulls main and runs compose -- there is no step in between where
+   * a human runs drizzle-kit. onModuleInit runs ahead of every
+   * onApplicationBootstrap hook, so the controllers only ever see a migrated
+   * schema.
+   *
+   * Migrations run on their own short-lived connection as the owner role
+   * (MIGRATION_DATABASE_URL). The pool this module serves requests from is a
+   * read-only role in production, which can neither migrate nor write --
+   * every write belongs to the private collector.
    *
    * Idempotent: drizzle keeps its own journal and skips what has already run.
    */
@@ -76,7 +78,15 @@ export class DatabaseModule implements OnModuleInit, OnApplicationShutdown {
     // dist/database/ at runtime, src/database/ in dev: the same two levels up
     // from either, which is what keeps this one path.
     const migrationsFolder = path.join(__dirname, "..", "..", "drizzle");
-    await migrate(this.db, { migrationsFolder });
+    const url =
+      this.config.get("MIGRATION_DATABASE_URL", { infer: true }) ||
+      this.config.getOrThrow<string>("DATABASE_URL");
+    const owner = postgres(url, { max: 1, onnotice: () => {} });
+    try {
+      await migrate(drizzle(owner), { migrationsFolder });
+    } finally {
+      await owner.end({ timeout: 5 });
+    }
     this.logger.log("database schema up to date");
   }
 

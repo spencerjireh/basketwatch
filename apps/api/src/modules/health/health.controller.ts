@@ -8,7 +8,6 @@ import {
 } from "@basketwatch/contract";
 import { PG_SQL } from "../../database/database.tokens.js";
 import { type Sql } from "../../database/database.module.js";
-import { BossService } from "../../jobs/boss.provider.js";
 
 const VERSION = process.env.npm_package_version ?? "0.0.0";
 const startedAt = Date.now();
@@ -23,10 +22,7 @@ const startedAt = Date.now();
 @SkipThrottle()
 @Controller("health")
 export class HealthController {
-  constructor(
-    @Inject(PG_SQL) private readonly sql: Sql,
-    private readonly boss: BossService,
-  ) {}
+  constructor(@Inject(PG_SQL) private readonly sql: Sql) {}
 
   /**
    * Liveness. Touches nothing on purpose: this is what Docker probes every 15
@@ -47,13 +43,10 @@ export class HealthController {
   @HttpCode(200)
   async ready(): Promise<ReadyResponse> {
     const database = await this.pingDatabase();
-    const queue = this.boss.isReady()
-      ? { ok: true }
-      : { ok: false, detail: "job queue not started" };
 
     return readyResponseSchema.parse({
-      status: database.ok && queue.ok ? "ok" : "degraded",
-      checks: { database, queue },
+      status: database.ok ? "ok" : "degraded",
+      checks: { database },
     });
   }
 

@@ -41,8 +41,8 @@ first. That is a courtesy, not a gate.
 ### Branch names
 
 `area/short-summary`, using the same areas as commit messages:
-`api/sitemap-adapter`, `web/price-chart`, `docs/prd-cut-order`,
-`pantry/layout-switch`.
+`api/basket-rails`, `web/price-chart`, `docs/prd-cut-order`,
+`web/fleet-table`.
 
 ### Commit messages
 

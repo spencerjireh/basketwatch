@@ -20,9 +20,4 @@ export const routes = {
   incidents: "/api/incidents",
   incident: (id: string) => `/api/incidents/${id}`,
   productSearch: "/api/products/search",
-  runPuller: (storeId: string) => `/api/pullers/${storeId}/run`,
-  /** The whole fleet, the same fan-out the schedule performs. */
-  runPullerFleet: "/api/pullers/run",
-  /** Write. Ops token: flips whether a store counts toward the index. */
-  fleetIndexContributor: (storeId: string) => `/api/fleet/${storeId}/index-contributor`,
 } as const;
