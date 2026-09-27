@@ -174,7 +174,9 @@ stripping**, so the path is identical from browser to container.
 The web container listens on **3000**, and `API_INTERNAL_URL` is a **build
 argument**: Next evaluates `rewrites()` during `next build`.
 
-Postgres is published on port `55432` for the collector and for backups.
+Postgres is published on port `55432` for the collector. A `DOCKER-USER`
+rule on the VPS drops every source but the collector's host and the Docker
+networks; backups run over SSH inside the container.
 Password auth is scram-sha-256. Clients connect to the VPS IP rather than a
 hostname -- the `*.spencerjireh.com` wildcard is Cloudflare-proxied and the
 proxy forwards HTTP only. Postgres also listens on `55432` *inside* the
@@ -187,4 +189,4 @@ traffic to container port 5432; on the compose network the database is
 | Interface | Direction | Notes |
 |---|---|---|
 | Public REST `/api/*` | in | dashboard reads only |
-| Postgres `:55432` | in | the private collector's writes; backups |
+| Postgres `:55432` | in | the private collector's writes (its host only) |

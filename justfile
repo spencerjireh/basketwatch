@@ -83,34 +83,16 @@ db-backup:
     #!/usr/bin/env bash
     set -euo pipefail
 
-    # .env.prod, not .env: the root .env points at the LOCAL database, so that
-    # a command run without thinking hits localhost. Reaching production is the
-    # thing that has to be deliberate, and naming a second file is that act.
-    if [ ! -f .env.prod ]; then
-        echo "error: no .env.prod at the repo root." >&2
-        echo "       It holds the deployed DATABASE_URL and POSTGRES_PASSWORD," >&2
-        echo "       and is gitignored. See .env.example." >&2
+    # Over `ssh vps`, inside the postgres container. The public port only
+    # admits the collector's host, and dumping through it from a laptop
+    # stalled anyway. Needs the `vps` host in ~/.ssh/config.
+    container="$(ssh -o BatchMode=yes vps \
+        "docker ps --format '{{{{.Names}}' | grep '^postgres-1mzeirylwlx8ufqpfvwpb5db-' | head -n1")"
+    if [ -z "$container" ]; then
+        echo "error: no basketwatch postgres container on vps." >&2
         exit 1
     fi
-
-    # cut -f2-, not -f2: the password may contain '='.
-    url="$(grep -E '^DATABASE_URL=' .env.prod | tail -n1 | cut -d= -f2- | sed -e 's/^"//' -e 's/"$//')"
-    if [ -z "$url" ]; then
-        echo "error: no DATABASE_URL in .env.prod. See .env.example." >&2
-        exit 1
-    fi
-
-    # Belt and braces now that .env.prod is a separate file: a local dump filed
-    # under the same name as a real one is worse than an error, so refuse.
-    case "$url" in
-        *@localhost:*|*@127.0.0.1:*)
-            echo "error: DATABASE_URL points at the local database -- there is nothing here worth backing up." >&2
-            echo "       Point it at the deployed database and run this again." >&2
-            exit 1
-            ;;
-    esac
-
-    echo "dumping $(printf '%s' "$url" | sed -E 's#//[^:]+:[^@]+@#//***:***@#')"
+    echo "dumping $container on vps"
 
     mkdir -p "{{BACKUP_DIR}}"
     out="{{BACKUP_DIR}}/basketwatch-$(date -u +%Y%m%dT%H%M%SZ).dump"
@@ -121,10 +103,8 @@ db-backup:
     tmp="$out.partial"
     trap 'rm -f "$tmp"' EXIT
 
-    # The URL goes in as an environment variable, never as an argv element, so
-    # the password does not show up in `ps` on the host.
-    docker run --rm -e PGURL="$url" --entrypoint sh postgres:16-alpine \
-        -c 'exec pg_dump --format=custom --no-owner --no-privileges "$PGURL"' > "$tmp"
+    ssh -o BatchMode=yes vps \
+        "docker exec $container pg_dump -p 55432 -U basketwatch --format=custom --no-owner --no-privileges basketwatch" > "$tmp"
 
     # Prove the archive parses before calling it a backup: a size check passes
     # on a truncated dump, reading its table of contents does not.

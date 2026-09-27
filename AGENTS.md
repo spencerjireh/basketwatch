@@ -54,11 +54,11 @@ package's watch build, and starting an app alone means contract edits stop
 propagating.
 
 **`DATABASE_URL` in the root `.env` points at the LOCAL database.** The deployed
-one lives in `.env.prod` and nothing loads it by default: `just db-backup` reads
-that file, and anything else pointed at production has to name it. The `just
-db-*` recipes still pass the local URL inline so they never depend on what
-`.env` happens to hold, and `drizzle.config.ts` still refuses a non-local host
-unless you pass `ALLOW_REMOTE_DB=1`. `0000_baseline` stands for the old
+one is not reachable from a laptop: a firewall rule on the VPS admits only the
+collector's host to port `55432`. `just db-backup` dumps it over `ssh vps`. The
+`just db-*` recipes pass the local URL inline so they never depend on what
+`.env` happens to hold, and `drizzle.config.ts` refuses a non-local host unless
+you pass `ALLOW_REMOTE_DB=1`. `0000_baseline` stands for the old
 0000-0015 chain and carries its last timestamp; new migrations get a later
 `when` — see the README.
 
@@ -68,7 +68,9 @@ To restore a production dump into the local database for testing:
 Deployment: root `docker-compose.prod.yml` is THE deployment unit
 (single Docker Compose resource watching `main`; secrets via deploy-time env
 vars). Three services deploy: `postgres`, published on port `55432` for the
-collector to write into, plus `api` and `web`. `web` binds **3000**, not 80,
+collector to write into (a `DOCKER-USER` rule on the VPS drops every other
+source; `basketwatch-pg-firewall.service` restores it at boot), plus `api` and
+`web`. `web` binds **3000**, not 80,
 and `API_INTERNAL_URL` is a Docker build arg rather than a runtime variable.
 The API serves requests as `bw_api` (read-only) and applies pending
 migrations on boot as the owner role (`MIGRATION_DATABASE_URL`), ahead of the

@@ -26,7 +26,6 @@ data** shows where each number came from and which prices we do not fully
 trust, and **Prices** is a raw search over the stores' catalogues, about
 27,000 products.
 
-<img src="docs/screenshots/prod-panorama.png" alt="The basket over time: each store's basket cost as a line, with hatched spans on days that could not be fully priced." width="800">
 
 ## The stores
 
@@ -90,8 +89,8 @@ just check          # typecheck, lint, test, build
 ## Database
 
 **`DATABASE_URL` in the repo-root `.env` points at the LOCAL database.** The
-deployed one lives in `.env.prod`, which nothing loads by default, and
-`drizzle.config.ts` refuses a non-local host unless you pass
+deployed one is firewalled to the collector's host; `just db-backup` dumps it
+over SSH, and `drizzle.config.ts` refuses a non-local host unless you pass
 `ALLOW_REMOTE_DB=1`.
 
 The API applies migrations on boot. `0000_baseline` is the whole schema as of
