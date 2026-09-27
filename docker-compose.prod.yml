@@ -1,0 +1,113 @@
+# THE Coolify deployment unit. Coolify watches `main` and redeploys this file
+# on every push (base directory `/`, compose file `docker-compose.prod.yml`).
+# Secrets come from Coolify-managed env vars; nothing secret belongs in here.
+#
+# All three services (postgres, api, web) deploy on every push to main.
+name: basketwatch-prod
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-basketwatch}
+      POSTGRES_DB: ${POSTGRES_DB:-basketwatch}
+      # No default on purpose: a missing password must fail the deploy loudly
+      # rather than quietly bring up a weakly-guarded public database.
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in the Coolify env}
+      # Explicit, so the password is never stored or sent as plain MD5.
+      POSTGRES_INITDB_ARGS: "--auth-host=scram-sha-256"
+    # Postgres listens on 55432 INSIDE the container as well, not just on the
+    # host. The VPS has a DOCKER-USER rule dropping external traffic to
+    # container port 5432, which protects every other Postgres on the box.
+    # Docker DNATs the published port before the FORWARD chain runs, so a
+    # 55432:5432 mapping would still be matched and dropped by that rule.
+    # Moving the internal port sidesteps it without touching the firewall.
+    command: postgres -p 55432 -c max_connections=100 -c shared_buffers=256MB
+    ports:
+      # Non-standard port. Bots hammer 5432 on any public IP; this does not
+      # make the database safe, it just keeps the log readable.
+      - "${POSTGRES_PORT_PUBLIC:-55432}:55432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -p 55432 -U ${POSTGRES_USER:-basketwatch}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  # ---------------------------------------------------------------------------
+  # The app. Both services build and run on every deploy as of the read path
+  # landing; the `app` profile that used to gate them is gone.
+  #
+  # web is served at basketwatch.spencerjireh.com on PORT 3000 -- this is Next's
+  # own server, not the nginx container that listened on 80, so the port has to
+  # match in the Coolify UI. The api has no domain: it is reached same-origin at
+  # /api/*, which the web container rewrites straight through to api:3001
+  # without stripping the prefix.
+  #
+  # The api applies pending migrations itself on boot, before it serves a
+  # request, on the owner role. There is no step in a Coolify deploy where a
+  # human runs drizzle-kit.
+  #
+  # The api is read-only. Price collection, validation and incidents are
+  # written by a separate private service that connects to this database.
+  #
+  # API_DB_PASSWORD uses `:?` like POSTGRES_PASSWORD: without it the api has no
+  # way in, and a loud config failure beats a crash loop.
+  # ---------------------------------------------------------------------------
+
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    restart: unless-stopped
+    environment:
+      # Port 55432, not 5432 -- see the postgres service's command above.
+      # Requests run as bw_api, a read-only role: every write belongs to the
+      # private collector. Migrations run once at boot as the owner role.
+      DATABASE_URL: postgres://bw_api:${API_DB_PASSWORD:?set API_DB_PASSWORD in the Coolify env}@postgres:55432/${POSTGRES_DB:-basketwatch}
+      MIGRATION_DATABASE_URL: postgres://${POSTGRES_USER:-basketwatch}:${POSTGRES_PASSWORD}@postgres:55432/${POSTGRES_DB:-basketwatch}
+      NODE_ENV: production
+      PORT: "3001"
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    expose:
+      - "3001"
+    healthcheck:
+      # 127.0.0.1, not localhost: inside the container localhost resolves to ::1
+      # first and the server binds IPv4, so a localhost probe is refused and the
+      # container never becomes healthy -- which would block web's depends_on.
+      #
+      # /api/health, not /health: the API sets a global "api" prefix with no
+      # exclusions, so every route lives under /api at every layer.
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:3001/api/health || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+      args:
+        # Build-time, not runtime. Next evaluates rewrites() during `next build`
+        # and serialises the result into the routes manifest, so the API address
+        # has to be present when the image is built.
+        API_INTERNAL_URL: http://api:3001
+    restart: unless-stopped
+    # `expose`, not `ports`: Coolify's proxy terminates TLS and routes by
+    # hostname. Publishing a host port would only add a second, plaintext way in.
+    #
+    # 3000, not 80: this is Next's own server now, not nginx. The Coolify UI
+    # needs the port changed to match when this service is switched on.
+    expose:
+      - "3000"
+    depends_on:
+      api:
+        condition: service_healthy
+
+volumes:
+  pgdata:

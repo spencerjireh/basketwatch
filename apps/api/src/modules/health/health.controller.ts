@@ -1,0 +1,62 @@
+import { Controller, Get, HttpCode, Inject } from "@nestjs/common";
+import { SkipThrottle } from "@nestjs/throttler";
+import {
+  type HealthResponse,
+  type ReadyResponse,
+  healthResponseSchema,
+  readyResponseSchema,
+} from "@basketwatch/contract";
+import { PG_SQL } from "../../database/database.tokens.js";
+import { type Sql } from "../../database/database.module.js";
+
+const VERSION = process.env.npm_package_version ?? "0.0.0";
+const startedAt = Date.now();
+
+/**
+ * Never throttled, structurally.
+ *
+ * Compose healthchecks this every 15s and `web` will not start until it passes,
+ * so a 429 here does not degrade the API -- it stops the dashboard booting at
+ * all. That is too sharp an edge to leave to a generous limit.
+ */
+@SkipThrottle()
+@Controller("health")
+export class HealthController {
+  constructor(@Inject(PG_SQL) private readonly sql: Sql) {}
+
+  /**
+   * Liveness. Touches nothing on purpose: this is what Docker probes every 15
+   * seconds, and a database blip must not convince the orchestrator to kill an
+   * otherwise healthy process.
+   */
+  @Get()
+  health(): HealthResponse {
+    return healthResponseSchema.parse({
+      status: "ok",
+      uptimeSeconds: Math.round((Date.now() - startedAt) / 1000),
+      version: VERSION,
+    });
+  }
+
+  /** Readiness. Says whether this process can actually serve a request. */
+  @Get("ready")
+  @HttpCode(200)
+  async ready(): Promise<ReadyResponse> {
+    const database = await this.pingDatabase();
+
+    return readyResponseSchema.parse({
+      status: database.ok ? "ok" : "degraded",
+      checks: { database },
+    });
+  }
+
+  private async pingDatabase(): Promise<{ ok: boolean; latencyMs?: number; detail?: string }> {
+    const start = Date.now();
+    try {
+      await this.sql`select 1`;
+      return { ok: true, latencyMs: Date.now() - start };
+    } catch (error) {
+      return { ok: false, detail: error instanceof Error ? error.message : "unreachable" };
+    }
+  }
+}

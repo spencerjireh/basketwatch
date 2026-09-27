@@ -1,0 +1,48 @@
+# The build context is the REPO ROOT, so BuildKit reads this file.
+#
+# Two things here are load-bearing in a way they were not when the context was
+# a subdirectory:
+#
+#   .env / .env.*  the real secrets file now sits inside the context
+#   .git           the whole history now sits inside the context
+#
+# And `lab` is what keeps 761 MB of scrape evidence out of the daemon. Both
+# Dockerfiles end their build stage with `COPY . .`, so anything not excluded
+# here is transferred and then baked into a layer.
+#
+# Sanity check after editing this file:
+#   docker build -f apps/api/Dockerfile -t bw-api:test . 2>&1 | grep "transferring context"
+# Single-digit MB is right. Hundreds means something below stopped matching.
+
+# Secrets and history -- keep these first.
+.env
+.env.*
+!.env.example
+.git
+.githooks
+
+# Lab notebooks: 761 MB on disk, plus a tracked 16.6 MB catalogue.db.
+lab
+
+# Docs and tooling that no image needs.
+docs
+.claude
+.playwright-mcp
+.pytest_cache
+**/__pycache__
+
+# Build output and dependency trees. pnpm's symlink farm holds absolute paths
+# into /Users/... that do not exist in the container, and copying it produces
+# an ERR_MODULE_NOT_FOUND deep in a build with no obvious cause.
+node_modules
+**/node_modules
+.turbo
+**/.turbo
+**/dist
+**/.next
+**/*.tsbuildinfo
+**/coverage
+
+**/*.md
+**/Dockerfile
+.dockerignore

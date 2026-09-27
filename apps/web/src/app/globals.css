@@ -1,0 +1,104 @@
+@import "tailwindcss";
+
+/*
+ * Basketwatch design tokens -- the gallery edition.
+ *
+ * The ground is warm paper and the type is ink. Colour is reserved for the
+ * scraper state machine (live/drift/broken/heal), darkened from the old dark
+ * theme so each holds AA contrast as text on a light ground.
+ *
+ * `clay` is the terrain relief material. The 3D hero and the SVG ridgeline
+ * both draw with it, which is what makes the fallback read as the same object
+ * rather than a downgrade.
+ */
+@theme {
+  --color-paper: #faf7f2;
+  --color-ink: #1f1c18;
+  --color-mute: #6e675d;
+  --color-line: #e6e1d6;
+  --color-wash: #f2eee6;
+  --color-clay: #e8e0d0;
+
+  --color-live: #1e7a4f;
+  --color-drift: #91660b;
+  --color-broken: #b23222;
+  --color-heal: #2f56b8;
+
+  --font-display: var(--font-newsreader), ui-serif, Georgia, serif;
+  --font-sans: var(--font-archivo), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-sometype), ui-monospace, SFMono-Regular, monospace;
+}
+
+@layer base {
+  * {
+    box-sizing: border-box;
+  }
+
+  html {
+    color-scheme: light;
+  }
+
+  body {
+    background-color: var(--color-paper);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    font-size: 14px;
+    line-height: 1.5;
+    margin: 0;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* A price tracker is mostly numbers, and numbers that shift width while they
+     tick are unreadable. Tabular figures everywhere by default. */
+  body {
+    font-variant-numeric: tabular-nums;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-ink);
+    outline-offset: 2px;
+  }
+
+  /* Preflight sets `cursor: default` on buttons, which reads as "not a
+     control" on a page whose controls are mostly bare type with no chrome to
+     give them away. Stated once here so no button can miss it. */
+  button:not(:disabled) {
+    cursor: pointer;
+  }
+}
+
+@layer utilities {
+  /* The hairline. Every section of the page hangs from one of these rather
+     than sitting in a box; the rule is the structure. */
+  .rule {
+    border-top: 1px solid var(--color-line);
+  }
+
+  /* The label voice: column heads, metadata, tab captions. */
+  .caps {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--color-mute);
+  }
+}
+
+/* The terrain tooltip's entrance: a small settle, run once on mount. The
+   reduced-motion block below flattens it along with everything else. */
+@keyframes tooltip-in {
+  from {
+    opacity: 0;
+    transform: translateY(3px) scale(0.97);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
