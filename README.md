@@ -26,7 +26,6 @@ data** shows where each number came from and which prices we do not fully
 trust, and **Prices** is a raw search over the stores' catalogues, about
 27,000 products.
 
-
 ## The stores
 
 | Store               | Status    | In the index      |
