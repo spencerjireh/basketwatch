@@ -95,7 +95,9 @@ function stateFor(row: FleetRow): ScraperState {
 
   const runStatus = runStatusFromDb(row.last_run_status);
   if (runStatus === "broken") return "broken";
-  if (runStatus === "suspect") return "suspect";
+  // Blocked means the store turned us away, not that its data changed; the
+  // board shows it as doubt rather than breakage.
+  if (runStatus === "suspect" || runStatus === "blocked") return "suspect";
   // A store that has never run, or ran before the status column was populated,
   // is not evidence of breakage. An unresolved incident is.
   return row.incident_state === null ? "healthy" : "suspect";

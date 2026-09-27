@@ -55,6 +55,8 @@ export function summarise(kind: IncidentKind, evidence: IncidentEvidence, raw: u
       return "Expected delivery did not arrive";
     case "pull_failed":
       return "The pull returned nothing usable";
+    case "coverage_drop":
+      return "Too few of the store's basket staples came back in the pull";
     // Legacy kinds from the Scraper Studio era; nothing writes them any more.
     case "studio_failed":
     case "studio_error":

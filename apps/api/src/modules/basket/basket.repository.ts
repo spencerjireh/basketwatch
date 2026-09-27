@@ -249,6 +249,15 @@ export class BasketRepository {
                cd.d, o.country, o.item_key, o.store_id, o.unit_price
         from country_days cd
         join obs o on o.country = cd.country and o.d <= cd.d
+        -- A pin missing from two pulls in a row opens a gap; its last price
+        -- does not carry into a day inside one. The day falls back to the
+        -- other stores, or shows as a gap if none has the staple.
+        where not exists (
+          select 1 from pin_gaps pg
+          where pg.store_id = o.store_id and pg.product_key = o.product_key
+            and cd.d >= pg.from_at::date
+            and (pg.to_at is null or cd.d < pg.to_at::date)
+        )
         order by cd.d, o.country, o.item_key, o.store_id, o.product_key, o.id desc
       ),
       cheapest as (
@@ -404,6 +413,8 @@ export class BasketRepository {
         join latest_price lp
           on lp.store_id = b.store_id and lp.product_key = b.product_key
         where ${PIN_FILTER}
+          -- Missing from the store's last two pulls: its last price is stale.
+          and b.missed_runs < 2
           and (${country ?? null}::text is null or s.country = ${country ?? null})
       ),
       med as (${MEDIAN}),
@@ -503,8 +514,11 @@ export class BasketRepository {
         -- LEFT, not inner. A pin with no observation against it yet is a fact
         -- about the rail; dropping it makes the rail claim three pins where
         -- there are four.
+        -- A pin missing from the store's last two pulls stays on the rail
+        -- unpriced, rather than showing a price the shelf may no longer carry.
         left join latest_price lp
           on lp.store_id = b.store_id and lp.product_key = b.product_key
+         and b.missed_runs < 2
         where b.status in ('verified', 'curated')
           and b.product_key is not null
           and s.active

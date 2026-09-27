@@ -23,6 +23,8 @@ export function runStatusFromDb(value: string | null): RunStatus | null {
     case "error":
     case "broken":
       return "broken";
+    case "blocked":
+      return "blocked";
     default:
       return null;
   }

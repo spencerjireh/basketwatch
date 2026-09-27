@@ -19,7 +19,11 @@ export type ScraperState = z.infer<typeof scraperStateSchema>;
  * no CHECK constraint, so nothing needs migrating today; database/mappers
  * translates on read until migration 0001 normalises the rows.
  */
-export const runStatuses = ["ok", "suspect", "broken"] as const;
+/**
+ * `blocked`: the store turned the pull away (403, 429 or a challenge page after
+ * retries). Not a verdict on the store's data, so it opens no incident.
+ */
+export const runStatuses = ["ok", "suspect", "broken", "blocked"] as const;
 export const runStatusSchema = z.enum(runStatuses);
 export type RunStatus = z.infer<typeof runStatusSchema>;
 
@@ -32,6 +36,8 @@ export const incidentKinds = [
   "error",
   /** the pull itself failed: the fetch threw, or an established store returned no rows */
   "pull_failed",
+  /** too few of the store's basket pins were seen in the run */
+  "coverage_drop",
   /**
    * Legacy kinds from the Bright Data Scraper Studio era. Nothing writes them
    * any more; they stay so the incidents already in the database render as

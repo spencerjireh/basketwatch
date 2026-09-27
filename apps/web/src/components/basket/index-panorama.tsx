@@ -89,9 +89,13 @@ export function IndexPanorama({ series }: { series: BasketSeries[] }) {
   const marked = new Map<number, string>();
   if (readings > 1) {
     const valued = totals.filter((t): t is number => t !== null);
-    const minIdx = totals.indexOf(Math.min(...valued));
-    const maxIdx = totals.indexOf(Math.max(...valued));
-    if (minIdx !== maxIdx) {
+    const min = Math.min(...valued);
+    const max = Math.max(...valued);
+    const minIdx = totals.indexOf(min);
+    const maxIdx = totals.indexOf(max);
+    // A flat line has no poles worth naming, and two poles on neighbouring
+    // days print their labels on top of each other.
+    if (max - min >= max * 0.005 && Math.abs(minIdx - maxIdx) >= 2) {
       marked.set(minIdx, "lowest");
       marked.set(maxIdx, "highest");
     }
