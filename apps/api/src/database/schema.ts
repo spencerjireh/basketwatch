@@ -44,6 +44,8 @@ export const stores = pgTable("stores", {
   coverageReason: text("coverage_reason"),
   indexContributor: boolean("index_contributor").notNull().default(false),
   active: boolean("active").notNull().default(true),
+  /** adapter-specific settings beyond the endpoint; read by the collector only */
+  pullConfig: jsonb("pull_config"),
 });
 
 /**
@@ -99,10 +101,12 @@ export const runs = pgTable(
     id: bigserial("id", { mode: "number" }).primaryKey(),
     storeId: text("store_id").references(() => stores.storeId),
     at: timestamp("at", { withTimezone: true }).notNull().defaultNow(),
+    /** when the pull began; `at` is written when it ends. Null before 0001. */
+    startedAt: timestamp("started_at", { withTimezone: true }),
     method: text("method"),
     /** cron | manual */
     trigger: text("trigger"),
-    /** ok | anomalous | error */
+    /** ok | anomalous | error | blocked */
     status: text("status"),
     rows: integer("rows").notNull().default(0),
     unitPriced: integer("unit_priced").notNull().default(0),
@@ -261,6 +265,8 @@ export const basketMap = pgTable(
     candidates: integer("candidates"),
     targetSize: text("target_size"),
     pickedAt: timestamp("picked_at", { withTimezone: true }).notNull(),
+    /** consecutive applied pulls of the store that did not see this pin */
+    missedRuns: integer("missed_runs").notNull().default(0),
   },
   (t) => ({
     pk: primaryKey({ columns: [t.itemKey, t.storeId] }),
@@ -269,6 +275,25 @@ export const basketMap = pgTable(
       foreignColumns: [products.storeId, products.productKey],
     }),
     byProduct: index("idx_basket_map_product").on(t.storeId, t.productKey),
+  }),
+);
+
+/**
+ * Spans in which a pin was missing from its store's pulls. The index does not
+ * carry a pin's last price into a day inside a gap. `toAt` is null while open.
+ */
+export const pinGaps = pgTable(
+  "pin_gaps",
+  {
+    storeId: text("store_id")
+      .notNull()
+      .references(() => stores.storeId),
+    productKey: text("product_key").notNull(),
+    fromAt: timestamp("from_at", { withTimezone: true }).notNull(),
+    toAt: timestamp("to_at", { withTimezone: true }),
+  },
+  (t) => ({
+    pk: primaryKey({ columns: [t.storeId, t.productKey, t.fromAt] }),
   }),
 );
 
