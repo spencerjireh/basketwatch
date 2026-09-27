@@ -30,7 +30,6 @@
     "@nestjs/throttler": "^6.5.0",
     "drizzle-orm": "^0.45.2",
     "nestjs-pino": "^4.4.0",
-    "pg-boss": "^11.1.2",
     "pino-http": "^11.0.0",
     "postgres": "^3.4.7",
     "reflect-metadata": "^0.2.2",

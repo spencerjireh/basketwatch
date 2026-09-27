@@ -4,10 +4,11 @@ Instructions for AI coding agents working in this repository.
 
 ## What this repo is
 
-A grocery basket index for the Philippines: shelf prices read straight from
-supermarket catalogues, a fifteen-staple basket priced in every store, and a
-validator that opens an incident when a store's pull stops making sense. This
-repo is the product codebase with design docs alongside it.
+A grocery basket index for the Philippines: a fifteen-staple basket priced in
+every store, over shelf prices a separate private service collects into the
+same Postgres database. This repo is the read side: a read-only API and the
+dashboard. It holds no collection code and must not name where or how prices
+are collected (endpoints, request headers, schedule, User-Agent).
 
 Read the doc that matches the work, not all of them:
 
@@ -20,10 +21,9 @@ Read the doc that matches the work, not all of them:
 The repo root **is** the product monorepo (pnpm workspaces + Turborepo). There
 is no app subdirectory; `apps/` and `packages/` sit beside the compose files.
 
-- `apps/api` — orchestrator: NestJS + Drizzle + pg-boss (Postgres-backed job
-  queue, no Redis). One directory per domain under `src/modules/`. Only
-  `*.repository.ts` may touch the Drizzle schema; a lint rule enforces it. The
-  spider-sense validator in `modules/validator/checks.ts` stays pure and IO-free.
+- `apps/api` — NestJS + Drizzle, read-only. One directory per domain under
+  `src/modules/`. Only `*.repository.ts` may touch the Drizzle schema; a lint
+  rule enforces it. It owns the schema and applies migrations on boot.
 - `apps/web` — dashboard (Next.js App Router + Tailwind, no component
   library). A pure client of the API: it never touches Postgres, and a lint rule
   enforces that too.
@@ -32,10 +32,6 @@ is no app subdirectory; `apps/` and `packages/` sit beside the compose files.
 - `packages/tsconfig`, `packages/eslint-config` — shared configs.
 - `docs/` — design docs (`architecture.md`, `api-contract.md`) and brand
   assets.
-
-Parker's Pantry (`apps/pantry`) is live at `pantry.spencerjireh.com/ph` as
-the test store the pulls are allowed to break. Not yet wired: the notifier
-module (channels scaffolded, nothing enqueues alerts).
 
 ## Commands
 
@@ -62,20 +58,21 @@ one lives in `.env.prod` and nothing loads it by default: `just db-backup` reads
 that file, and anything else pointed at production has to name it. The `just
 db-*` recipes still pass the local URL inline so they never depend on what
 `.env` happens to hold, and `drizzle.config.ts` still refuses a non-local host
-unless you pass `ALLOW_REMOTE_DB=1`. Migration `0000` must keep its exact bytes
-— see the README.
+unless you pass `ALLOW_REMOTE_DB=1`. `0000_baseline` stands for the old
+0000-0015 chain and carries its last timestamp; new migrations get a later
+`when` — see the README.
 
 To restore a production dump into the local database for testing:
 `just db-backup`, then `just db-restore-local <file>`.
 
 Deployment: root `docker-compose.prod.yml` is THE deployment unit
 (single Docker Compose resource watching `main`; secrets via deploy-time env
-vars). All four services deploy: `postgres`, published on port `55432` for
-the team to write scraped data into, plus `api`, `web`, and `pantry`. `web` binds
-**3000**, not 80, and `API_INTERNAL_URL` is a Docker build arg rather than a
-runtime variable. The API applies pending migrations itself on boot, ahead of
-the queue and the first request — a deploy has no step where a human
-runs drizzle-kit. Never deploy without the user's go-ahead.
+vars). Three services deploy: `postgres`, published on port `55432` for the
+collector to write into, plus `api` and `web`. `web` binds **3000**, not 80,
+and `API_INTERNAL_URL` is a Docker build arg rather than a runtime variable.
+The API serves requests as `bw_api` (read-only) and applies pending
+migrations on boot as the owner role (`MIGRATION_DATABASE_URL`), ahead of the
+first request. Never deploy without the user's go-ahead.
 
 ## Hard rules
 
@@ -84,14 +81,11 @@ runs drizzle-kit. Never deploy without the user's go-ahead.
   (local by default) and `.env.prod` for the deployed database, loaded only when
   named. Both are gitignored. There is still no per-app copy — that rule is
   about apps, not about these two. Never print API keys in output or code.
-- **`OPS_TOKEN` belongs to the API alone.** The dashboard has no login, so a
-  token in the web container makes every visitor an operator on our credentials.
-  Prod compose passes it to `api` and not to `web`, turbo does not forward it to
-  the web dev server, and nothing under `apps/web` may read it.
-- **Pulls hit real stores.** Do not run the fleet or a store in bulk without
-  the user's go-ahead; `?dryRun=true` fetches and parses but writes nothing.
-  `max_pages` on the store row is the crawl ceiling and every adapter checks it
-  before each fetch.
+- **The API stays read-only.** No write endpoints, no job queue, no
+  collection code. Writes belong to the private collector.
+- **No collection detail in this repo.** Store endpoints, request headers,
+  the pull schedule and the User-Agent live in the private collector, not in
+  code, migrations, docs or commit messages here.
 - **Public data only.** No login-walled, paywalled, or private sources
   (house rule).
 - **Kill only listeners.** Use `lsof -ti:PORT -sTCP:LISTEN | xargs kill` —
@@ -105,8 +99,6 @@ runs drizzle-kit. Never deploy without the user's go-ahead.
 
 - TypeScript everywhere; strict mode; match existing style (2-space,
   no semicolon changes, keep files small and typed).
-- Validator checks stay pure and unit-tested; incidents must be replayable
-  from their stored evidence.
 - The API contract lives in `packages/contract/src/`, as zod
   schemas with types derived from them, and is documented in
   `docs/api-contract.md`. Both apps are typed by those schemas —
@@ -124,30 +116,9 @@ runs drizzle-kit. Never deploy without the user's go-ahead.
 ## Current state
 
 - Every dashboard route answers from Postgres; there are no fixtures.
-  Migrations run 0000-0015.
-- The puller engine covers the pullable stores (three adapters, crawl
-  config from the `stores` table): `POST /api/pullers/:storeId/run`, and
-  `?dryRun=true` writes nothing. The pull schedule ships disarmed
-  (`PULL_SCHEDULE_ENABLED` defaults false); arming it is a team decision,
-  never a deploy default.
-- **Collection.** `stores.method` names the adapter: `shopify` (Ever, Shop
-  Gaisano, Shop Suki), `magento-graphql` (SM Markets), `sitemap` (Parker's
-  Pantry). Landers and MerryMart are `none` until a browser adapter and a
-  feed exist for them. The adapters share one plain HTTP fetcher; there is
-  no proxy, no vendor, and no browser in the path.
-- **Incidents.** The validator seeds baselines on boot, validates every
-  applied run (schema, null rates, row count, price drift), opens an
-  incident with evidence on a `broken` verdict, and resolves a store's open
-  incidents on the next `ok` verdict. A pull that throws or returns nothing
-  for an established store opens a `pull_failed` incident directly. Nothing
-  repairs an adapter on its own; that is a person's job, and the incident
-  says what to look at.
+  Migrations: `0000_baseline`.
+- The API is read-only: basket, products, fleet, feed, incidents, health.
+  Runs, observations and incidents are written by the private collector.
 - **Philippines only.** The contract lists one country. US store rows from
   the project's first weeks stay in the database with `active = false` and
   keep their history; every read that joins `stores` filters on `active`.
-- **Parker's Pantry.** `apps/pantry` at `pantry.spencerjireh.com/ph` serves
-  a sitemap and JSON-LD product pages in layout A and neither in layout B, so
-  `just pantry-layout ph b` breaks the pull on purpose and `ph a` lets the
-  next run resolve the incident.
-- Not yet wired: the notifier module (channels scaffolded, nothing enqueues
-  alerts).

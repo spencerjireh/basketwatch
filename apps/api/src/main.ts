@@ -23,7 +23,7 @@ async function bootstrap(): Promise<void> {
   // write its own X-Forwarded-For and mint a fresh bucket per request.
   app.getHttpAdapter().getInstance().set("trust proxy", 1);
 
-  // Required for the database pool and pg-boss to close cleanly.
+  // Required for the database pool to close cleanly.
   app.enableShutdownHooks();
 
   const port = Number(process.env.PORT ?? 3001);

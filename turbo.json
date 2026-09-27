@@ -36,8 +36,7 @@
         "PORT",
         "LOG_LEVEL",
         "API_INTERNAL_URL",
-        "PULL_SCHEDULE_ENABLED",
-        "PULL_SCHEDULE_CRON"
+        "MIGRATION_DATABASE_URL"
       ]
     },
     "db:generate": { "cache": false },

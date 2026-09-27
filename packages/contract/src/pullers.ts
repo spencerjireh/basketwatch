@@ -17,7 +17,7 @@ export const priceRecordSchema = z.object({
 export type PriceRecord = z.infer<typeof priceRecordSchema>;
 
 /**
- * POST /api/pullers/:storeId/run
+ * The collector's manual trigger (private service, not this API).
  *
  * Shapes for the manual trigger and its dry run. Dry run fetches and parses
  * exactly as a real run does but writes nothing, which is what makes a store's

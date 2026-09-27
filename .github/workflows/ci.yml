@@ -100,8 +100,6 @@ jobs:
             # Build-time, same value as docker-compose.prod.yml: Next bakes
             # rewrites() into the routes manifest during `next build`.
             build-args: API_INTERNAL_URL=http://api:3001
-          - app: pantry
-            build-args: ""
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
