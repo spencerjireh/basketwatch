@@ -8,6 +8,7 @@ import { ProductsModule } from "./modules/products/products.module.js";
 import { BasketModule } from "./modules/basket/basket.module.js";
 import { FeedModule } from "./modules/feed/feed.module.js";
 import { FleetModule } from "./modules/fleet/fleet.module.js";
+import { GovModule } from "./modules/gov/gov.module.js";
 import { HealthModule } from "./modules/health/health.module.js";
 import { IncidentsModule } from "./modules/incidents/incidents.module.js";
 
@@ -32,6 +33,7 @@ import { IncidentsModule } from "./modules/incidents/incidents.module.js";
     ProductsModule,
     FeedModule,
     IncidentsModule,
+    GovModule,
   ],
   // The app's first global guard. Rate limiting is not a per-controller
   // decision -- a route that forgets it is exactly the route that needs it.
