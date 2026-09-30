@@ -26,6 +26,16 @@ data** shows where each number came from and which prices we do not fully
 trust, and **Prices** is a raw search over the stores' catalogues, about
 27,000 products.
 
+## This week
+
+`/this-week` shows prices that come from government bulletins rather than store
+catalogues, for Metro Manila:
+
+- Fuel: DOE's weekly pump prices per city and brand, and the Tuesday adjustment
+- LPG: DOE's monthly 11-kg cylinder range
+- Wet markets: DA's daily Bantay Presyo prices per public market
+- Suggested retail prices: DTI's current bulletin for basic goods
+
 ## The stores
 
 | Store               | Status    | In the index      |

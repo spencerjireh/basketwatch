@@ -5,15 +5,17 @@ import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 
 /**
- * Three surfaces, named for what the reader gets rather than for what the
- * system is: prices, then the catalogue behind them, then the machinery that
- * collected both. "Behind the data" is a door, not a disclaimer -- the stores
+ * Four surfaces, named for what the reader gets rather than for what the
+ * system is: the basket, the catalogue behind it, this week's government
+ * figures (fuel, LPG, wet markets, SRPs), then the machinery that collected
+ * them. "Behind the data" is a door, not a disclaimer -- the stores
  * and the incidents are the reason to believe the first two pages, so they stay
  * one click away rather than hidden.
  */
 const LINKS = [
   { href: "/", label: "Basket" },
   { href: "/prices", label: "Prices" },
+  { href: "/this-week", label: "This week" },
   { href: "/behind", label: "Behind the data" },
 ] as const;
 

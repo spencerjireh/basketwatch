@@ -154,6 +154,9 @@ hatched gaps on the chart.
   rail, and the basket over time with hatched gaps on days that could not be
   fully priced, labelled with the incident that caused them.
 - **Prices** (`/prices`): catalogue search with unit-price sorting.
+- **This week** (`/this-week`): government series (DOE pump prices and
+  adjustments, LPG, DA wet-market prices, DTI SRPs) from `gov_series` and
+  `gov_prices`, via `/api/gov/*`.
 - **Behind the data** (`/behind`): store count and last-pull provenance, and
   the pins we do not fully trust.
 - Server components fetch on first paint. No component library. The
