@@ -76,6 +76,20 @@ store charged for what it had.
 
 `Incident` carries its evidence, so one request draws the whole record.
 
+## Government prices
+
+Read-only series collected from public government bulletins: DOE weekly pump
+prices (by city and brand, min-max) and monthly LPG, the DOE Oil Monitor's
+weekly adjustments, DA Bantay Presyo daily wet-market prices, and DTI suggested
+retail prices. Each route answers empty until its source has been ingested.
+
+| Endpoint | Query | Response |
+|---|---|---|
+| `GET /api/gov/fuel` | `region` (default NCR), `product` (default RON 95) | `FuelResponse`: latest week, per-city brand ranges, the week's adjustment, 12-week median |
+| `GET /api/gov/lpg` | none | `LpgResponse`: 11-kg cylinder min-max per month |
+| `GET /api/gov/markets` | `commodity` (optional) | `MarketsResponse`: latest day, price per market per specification |
+| `GET /api/gov/srp` | `q` (optional) | `SrpResponse`: current bulletin items |
+
 ## Streaming
 
 The API is read-only: there are no write endpoints. Runs, prices and

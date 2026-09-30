@@ -4,6 +4,7 @@ import {
   bigserial,
   boolean,
   check,
+  date,
   doublePrecision,
   foreignKey,
   index,
@@ -15,6 +16,7 @@ import {
   primaryKey,
   text,
   timestamp,
+  unique,
   uuid,
 } from "drizzle-orm/pg-core";
 
@@ -327,3 +329,65 @@ export const alerts = pgTable("alerts", {
   payload: jsonb("payload").notNull(),
   sentAt: timestamp("sent_at", { withTimezone: true }).notNull().defaultNow(),
 });
+
+/**
+ * Government price series (DOE, DA Bantay Presyo, DTI). The collector writes
+ * them; each bulletin is recorded in gov_documents so it is read once.
+ */
+export const govDocuments = pgTable(
+  "gov_documents",
+  {
+    source: text("source").notNull(),
+    url: text("url").notNull(),
+    title: text("title"),
+    periodStart: date("period_start"),
+    periodEnd: date("period_end"),
+    fetchedAt: timestamp("fetched_at", { withTimezone: true }).notNull().defaultNow(),
+    rows: integer("rows").notNull().default(0),
+  },
+  (t) => ({ pk: primaryKey({ columns: [t.source, t.url] }) }),
+);
+
+export const govSeries = pgTable(
+  "gov_series",
+  {
+    id: bigserial("id", { mode: "number" }).primaryKey(),
+    source: text("source").notNull(),
+    commodity: text("commodity").notNull(),
+    variant: text("variant").notNull().default(""),
+    brand: text("brand").notNull().default(""),
+    region: text("region").notNull().default(""),
+    place: text("place").notNull().default(""),
+    unit: text("unit").notNull().default(""),
+  },
+  (t) => ({
+    identity: unique("gov_series_identity").on(
+      t.source,
+      t.commodity,
+      t.variant,
+      t.brand,
+      t.region,
+      t.place,
+      t.unit,
+    ),
+    bySource: index("idx_gov_series_source").on(t.source, t.region, t.commodity),
+  }),
+);
+
+export const govPrices = pgTable(
+  "gov_prices",
+  {
+    seriesId: bigint("series_id", { mode: "number" })
+      .notNull()
+      .references(() => govSeries.id),
+    periodStart: date("period_start").notNull(),
+    periodEnd: date("period_end").notNull(),
+    priceMin: numeric("price_min", { precision: 12, scale: 2 }).notNull(),
+    priceMax: numeric("price_max", { precision: 12, scale: 2 }).notNull(),
+    documentUrl: text("document_url"),
+  },
+  (t) => ({
+    pk: primaryKey({ columns: [t.seriesId, t.periodStart] }),
+    byPeriod: index("idx_gov_prices_period").on(t.periodStart),
+  }),
+);

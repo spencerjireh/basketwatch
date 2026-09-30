@@ -20,4 +20,8 @@ export const routes = {
   incidents: "/api/incidents",
   incident: (id: string) => `/api/incidents/${id}`,
   productSearch: "/api/products/search",
+  govFuel: "/api/gov/fuel",
+  govLpg: "/api/gov/lpg",
+  govMarkets: "/api/gov/markets",
+  govSrp: "/api/gov/srp",
 } as const;
