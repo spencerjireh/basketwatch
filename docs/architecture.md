@@ -149,11 +149,17 @@ can be replayed later. Days with an open incident on an index store render as
 hatched gaps on the chart.
 
 ### 3.3 Dashboard (Next.js App Router + Tailwind)
-- **Basket** (`/`): the price terrain (staples x stores, height = multiple
+- **Search** (`/`): a GET search over every listed product in every active
+  store, one row per store product with a sparkline of its recent price steps,
+  a DTI SRP reference row when the words match one, and a store-category
+  filter. With no term it shows the week's biggest drops. `/prices` redirects
+  here with its query.
+- **Product** (`/p/<store>/<key>`): the full price history as a step line, its
+  30-day median and 90-day low, and same-size products from other stores.
+- **Basket** (`/basket`): the price terrain (staples x stores, height = multiple
   of the cheapest shelf), the cheapest cart, each staple's store-by-store
   rail, and the basket over time with hatched gaps on days that could not be
   fully priced, labelled with the incident that caused them.
-- **Prices** (`/prices`): catalogue search with unit-price sorting.
 - **This week** (`/this-week`): government series (DOE pump prices and
   adjustments, LPG, DA wet-market prices, DTI SRPs) from `gov_series` and
   `gov_prices`, via `/api/gov/*`.

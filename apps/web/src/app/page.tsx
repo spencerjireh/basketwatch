@@ -1,100 +1,367 @@
-import {
-  basketIndexResponseSchema,
-  basketRailsResponseSchema,
-  basketTodayResponseSchema,
-  routes,
-} from "@basketwatch/contract";
 import Link from "next/link";
-import { BasketExplorer } from "@/components/basket/basket-explorer";
-import { CheapestCart } from "@/components/basket/cheapest-cart";
-import { IndexPanorama } from "@/components/basket/index-panorama";
-import { Section } from "@/components/ui/section";
+import {
+  dropsResponseSchema,
+  productSearchResponseSchema,
+  routes,
+  type ProductHit,
+  type ProductSearchResponse,
+  type SrpReference,
+} from "@basketwatch/contract";
+import { HitRow, collapseListings } from "@/components/products/hit-row";
+import { StaplePlate } from "@/components/plates/staple-plate";
 import { apiGet } from "@/lib/api/server";
+import { CATEGORIES, categoryLabel } from "@/lib/categories";
+import { formatDay, formatMoney } from "@/lib/format";
+import { PLATE_KEYS, PLATE_SEARCH } from "@/lib/plates";
+import { cn } from "@/lib/utils";
 
-/**
- * The shopper's surface, gallery edition.
- *
- * The one theatrical thing on the page is the price landscape: stores across,
- * staples into depth, height = times the cheapest. It is navigation, not
- * decoration -- hover reads a point out in words, click lands on the staple
- * section at the bottom. Its headline and its flat twin belong to the client
- * boundary, because both answer to the country switcher.
- *
- * What is server-rendered here is the mid band -- the answer a shopper
- * actually came for, the cheapest cart, at full width -- and the tail: the
- * basket's history as a panorama, sitting under the staple evidence where its
- * scars close the page's argument rather than crowding its opening.
- */
-/**
- * Rendered per request, with the API call cached for 60 seconds.
- *
- * Not statically prerendered, deliberately: `next build` runs inside the web
- * image with no API container beside it, so prerendering this page means
- * fetching an address nothing is listening on. That is what broke every deploy
- * from #47 until this.
- *
- * force-dynamic alone would also drop the fetch cache, so fetchCache asks for
- * it back. The saving that mattered was never the prerender -- it was not
- * asking Postgres the same question once per visitor.
- */
+export const metadata = {
+  title: "Basketwatch",
+  description:
+    "Search shelf prices across Philippine stores, with each product's price history and this week's biggest drops.",
+};
+
+/** Same pair as /basket: no prerender against an API that is not there at build time. */
 export const dynamic = "force-dynamic";
 export const fetchCache = "default-cache";
 
-export default async function Page() {
-  const [basketIndex, basketItems, rails] = await Promise.all([
-    apiGet(routes.basketIndex, basketIndexResponseSchema, 60),
-    apiGet(routes.basketToday, basketTodayResponseSchema, 60),
-    apiGet(routes.basketRails, basketRailsResponseSchema, 60),
-  ]);
+type Search = { q?: string; category?: string; store?: string; sort?: string; cursor?: string };
 
-  // The receipt takes the full width of the band. Its old flatmate, the time
-  // strip, pushed both into columns whose heights never agreed; the receipt's
-  // own two-column-and-rail layout fills the paper that pairing left dead.
-  const midBand = (
-    <Section
-      className="mt-14"
-      title="The cheapest cart"
-      caption="The winning store for each staple, and what the whole basket costs if you buy every line at its winner."
-    >
-      <CheapestCart items={basketItems} index={basketIndex} />
-    </Section>
+/**
+ * The front page is a search box over every store we read. With nothing typed
+ * it shows what got cheaper this week; with a term it shows every listed
+ * product that holds each word, best match first, one row per store product.
+ * Nothing is grouped across stores yet: two rows that look alike are two
+ * stores' listings, compared by eye.
+ *
+ * A GET form rather than a live box: the URL is the search, so it can be
+ * shared, and the page renders on the server with the answer already in it.
+ */
+export default async function SearchPage({ searchParams }: { searchParams: Promise<Search> }) {
+  const params = await searchParams;
+  const q = (params.q ?? "").trim();
+  const category = CATEGORIES.some(([k]) => k === params.category) ? params.category : undefined;
+  const sort = params.sort === "unit_price" ? "unit_price" : "relevance";
+
+  return (
+    <main className="mx-auto min-h-screen w-full max-w-[880px] px-5 pb-24 pt-8">
+      <section className="max-w-[60ch]">
+        <h1 className="font-display text-[30px] leading-[1.15] tracking-[-0.01em]">
+          Find the shelf price
+        </h1>
+        <p className="mt-2.5 text-[14px] text-mute">
+          Every product we read from Philippine stores, with its price history. The line beside each
+          price is its recent steps; a green dot means it just went down.
+        </p>
+      </section>
+
+      <SearchForm q={q} category={category} sort={sort} />
+
+      {q.length >= 2 ? (
+        <Results
+          q={q}
+          category={category}
+          sort={sort}
+          store={params.store}
+          cursor={params.cursor}
+        />
+      ) : (
+        <Front category={category} />
+      )}
+    </main>
   );
+}
 
-  // The history closes the argument instead of opening it: after the staple
-  // evidence, before the methodology, drawn wide with every store's own line.
-  const tail = (
-    <Section
-      className="mt-14"
-      title="The basket over time"
-      caption="A gap is a day we could not price every staple, drawn as a gap rather than guessed across."
+function SearchForm({ q, category, sort }: { q: string; category?: string; sort: string }) {
+  return (
+    <form action="/" method="get" className="mt-7 flex flex-col gap-4" role="search">
+      <label className="flex flex-col gap-1.5">
+        <span className="caps">Search</span>
+        <span className="flex items-center gap-2.5 border-b-2 border-line text-mute transition-colors focus-within:border-ink focus-within:text-ink">
+          <SearchGlyph />
+          <input
+            id="q"
+            type="search"
+            name="q"
+            defaultValue={q}
+            autoFocus={!q}
+            placeholder="Try alaska evap, tp-link router, or saba sardines"
+            className="w-full bg-transparent px-0 py-2.5 font-display text-[22px] text-ink placeholder:font-sans placeholder:text-[14px] placeholder:text-mute focus:outline-none"
+          />
+        </span>
+      </label>
+      {category ? <input type="hidden" name="category" value={category} /> : null}
+      {sort !== "relevance" ? <input type="hidden" name="sort" value={sort} /> : null}
+      <CategoryChips q={q} active={category} sort={sort} />
+    </form>
+  );
+}
+
+function href(params: Record<string, string | undefined>): string {
+  const search = new URLSearchParams();
+  for (const [k, v] of Object.entries(params)) if (v) search.set(k, v);
+  const s = search.toString();
+  return s ? `/?${s}` : "/";
+}
+
+function CategoryChips({ q, active, sort }: { q: string; active?: string; sort: string }) {
+  const keep = { q: q || undefined, sort: sort !== "relevance" ? sort : undefined };
+  return (
+    <nav aria-label="Store category" className="flex flex-wrap gap-x-3 gap-y-2">
+      <Chip href={href(keep)} on={!active}>
+        All stores
+      </Chip>
+      {CATEGORIES.map(([key, label]) => (
+        <Chip key={key} href={href({ ...keep, category: key })} on={active === key}>
+          {label}
+        </Chip>
+      ))}
+    </nav>
+  );
+}
+
+function Chip({ href, on, children }: { href: string; on: boolean; children: React.ReactNode }) {
+  return (
+    <Link
+      href={href}
+      aria-current={on ? "page" : undefined}
+      className={cn(
+        "border-b pb-0.5 font-mono text-[10.5px] uppercase tracking-[0.08em] transition-colors",
+        on ? "border-ink text-ink" : "border-transparent text-mute hover:text-ink",
+      )}
     >
-      <IndexPanorama series={basketIndex} />
-    </Section>
+      {children}
+    </Link>
+  );
+}
+
+async function Results({
+  q,
+  category,
+  sort,
+  store,
+  cursor,
+}: {
+  q: string;
+  category?: string;
+  sort: string;
+  store?: string;
+  cursor?: string;
+}) {
+  const search = new URLSearchParams({ q, sort, limit: "40" });
+  if (category) search.set("category", category);
+  if (store) search.set("storeId", store);
+  if (cursor) search.set("cursor", cursor);
+
+  let page: ProductSearchResponse;
+  try {
+    page = await apiGet(`${routes.productSearch}?${search}`, productSearchResponseSchema, 300);
+  } catch {
+    return (
+      <p className="mt-8 text-[13px] text-broken">
+        The search did not answer. Try again in a minute.
+      </p>
+    );
+  }
+
+  const srp = page.srp[0];
+  const keep = { q, category, store };
+  return (
+    <section className="mt-8" aria-label="Results">
+      <div className="flex flex-wrap items-baseline justify-between gap-2">
+        <p className="text-[13px] text-mute">
+          {page.items.length === 0
+            ? `Nothing listed matches “${q}”${category ? ` in ${categoryLabel(category)?.toLowerCase()} stores` : ""}.`
+            : `Matches for “${q}”${category ? ` in ${categoryLabel(category)?.toLowerCase()} stores` : ""}`}
+        </p>
+        <div className="flex gap-3">
+          <Chip href={href({ ...keep })} on={sort === "relevance"}>
+            Best match
+          </Chip>
+          <Chip href={href({ ...keep, sort: "unit_price" })} on={sort === "unit_price"}>
+            Cheapest per unit
+          </Chip>
+        </div>
+      </div>
+
+      {page.srp.length > 0 ? <SrpRows rows={page.srp} /> : null}
+
+      {page.items.length > 0 ? (
+        <ul className="rule mt-3 flex flex-col">
+          {collapseListings(page.items).map(({ hit, listings }) => {
+            const over = srp ? overSrp(hit, page.srp) : null;
+            return (
+              <HitRow
+                key={`${hit.storeId}:${hit.productKey}`}
+                hit={hit}
+                listings={listings}
+                note={over ? `${formatMoney(over, "PHP")} over the SRP` : undefined}
+                noteTone="drift"
+              />
+            );
+          })}
+        </ul>
+      ) : null}
+
+      {page.nextCursor ? (
+        <Link
+          href={href({
+            ...keep,
+            sort: sort !== "relevance" ? sort : undefined,
+            cursor: page.nextCursor,
+          })}
+          className="mt-4 inline-block font-mono text-[11px] text-mute underline decoration-1 underline-offset-4 transition-colors hover:text-heal"
+        >
+          Next page
+        </Link>
+      ) : null}
+      <p className="mt-4 font-mono text-[10.5px] text-drift">
+        Listed means seen in the store&apos;s catalogue in the last 7 days.
+      </p>
+    </section>
+  );
+}
+
+/**
+ * A store row is over the SRP when it is the same brand at the same size: the
+ * SRP's first word (the brand) and its size string are both in the row's
+ * name. Loose on purpose; it only marks a row, never hides one.
+ */
+function overSrp(hit: ProductHit, srp: SrpReference[]): number | null {
+  if (!hit.price) return null;
+  const name = hit.name.toLowerCase();
+  const compact = name.replace(/\s+/g, "");
+  for (const s of srp) {
+    const brand = s.product.toLowerCase().split(/\s+/)[0] ?? "";
+    const size = s.size.toLowerCase().replace(/\s+/g, "");
+    if (brand.length > 1 && name.includes(brand) && compact.includes(size)) {
+      const over = Math.round((hit.price.amount - s.price) * 100) / 100;
+      return over > 0 ? over : null;
+    }
+  }
+  return null;
+}
+
+function SrpRows({ rows }: { rows: SrpReference[] }) {
+  return (
+    <div className="mt-4 border-l-2 border-heal pl-3">
+      <p className="caps">DTI suggested retail price</p>
+      <ul className="mt-1.5 flex flex-col gap-1">
+        {rows.map((s) => (
+          <li
+            key={`${s.product}:${s.size}`}
+            className="flex flex-wrap items-baseline justify-between gap-x-4 text-[13px]"
+          >
+            <span>
+              {s.product} <span className="text-mute">{s.size}</span>
+            </span>
+            <span className="font-mono">{formatMoney(s.price, "PHP")}</span>
+          </li>
+        ))}
+      </ul>
+      <p className="mt-1.5 font-mono text-[10.5px] text-mute">
+        Effective {formatDay(rows[0]!.effective)}.{" "}
+        <Link
+          href="/this-week#srp"
+          className="underline decoration-1 underline-offset-2 hover:text-heal"
+        >
+          All SRPs
+        </Link>
+      </p>
+    </div>
+  );
+}
+
+async function Front({ category }: { category?: string }) {
+  const search = new URLSearchParams({ limit: "30" });
+  if (category) search.set("category", category);
+  const drops = await apiGet(`${routes.productDrops}?${search}`, dropsResponseSchema, 300).catch(
+    () => null,
   );
 
   return (
-    <main className="min-h-screen w-full pb-24">
-      <BasketExplorer rails={rails} midBand={midBand} tail={tail} />
-
-      <div className="mx-auto w-full max-w-[1240px] px-5">
-        <Section
-          className="mt-14"
-          title="How we know"
-          caption="Every number here came off a shelf, and we keep the receipts."
-        >
-          <p className="max-w-[52ch] text-[13px] text-mute">
-            Prices are read from each store&apos;s own catalogue, not from a panel or a survey. When
-            a scraper breaks, the basket stops rather than carrying yesterday&apos;s number forward,
-            and the pins we do not trust are excluded and named.
+    <>
+      <section className="rule mt-10 pt-5" aria-labelledby="drops">
+        <h2 id="drops" className="font-display text-[20px] leading-snug">
+          Biggest drops this week
+        </h2>
+        <p className="mt-1 max-w-[64ch] text-[12.5px] text-mute">
+          Priced down in the last seven days and at least 10% under the product&apos;s own 30-day
+          median. A one-day flicker does not count.
+        </p>
+        {drops === null ? (
+          <p className="mt-4 text-[13px] text-broken">The drops did not load.</p>
+        ) : drops.items.length === 0 ? (
+          <p className="mt-4 text-[13px] text-mute">
+            Nothing qualifies
+            {category ? ` in ${categoryLabel(category)?.toLowerCase()} stores` : ""} yet. A product
+            needs a few weeks of history before its median means something.
           </p>
+        ) : (
+          <ul className="rule mt-4 flex flex-col">
+            {collapseListings(drops.items).map(({ hit: d, listings }) => (
+              <HitRow
+                key={`${d.storeId}:${d.productKey}`}
+                hit={d}
+                listings={listings}
+                note={`${Math.round(d.pctBelow * 100)}% under its ${formatMoney(d.median30, d.price?.currency ?? "PHP")} median`}
+                noteTone="live"
+              />
+            ))}
+          </ul>
+        )}
+      </section>
+
+      <section className="rule mt-12 pt-5" aria-labelledby="staples">
+        <h2 id="staples" className="font-display text-[20px] leading-snug">
+          Start from a staple
+        </h2>
+        <p className="mt-1 text-[12.5px] text-mute">
+          The fifteen the{" "}
           <Link
-            href="/behind"
-            className="mt-4 inline-block text-[13px] underline decoration-1 underline-offset-4 transition-colors hover:text-heal"
+            href="/basket"
+            className="underline decoration-1 underline-offset-2 hover:text-heal"
           >
-            Behind the data →
-          </Link>
-        </Section>
-      </div>
-    </main>
+            basket index
+          </Link>{" "}
+          prices every day.
+        </p>
+        <ul className="mt-6 grid grid-cols-3 gap-x-4 gap-y-5 sm:grid-cols-5">
+          {PLATE_KEYS.map((key) => (
+            <li key={key}>
+              <Link
+                href={href({ q: PLATE_SEARCH[key].query })}
+                className="group flex w-full flex-col items-center gap-1.5"
+              >
+                <span className="relative block aspect-square w-full max-w-[112px] opacity-[0.34] transition-opacity duration-300 group-hover:opacity-[0.68] group-focus-visible:opacity-[0.68]">
+                  <StaplePlate itemKey={key} />
+                </span>
+                <span className="font-mono text-[10.5px] uppercase tracking-[0.08em] text-mute transition-colors group-hover:text-ink">
+                  {PLATE_SEARCH[key].label}
+                </span>
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </section>
+    </>
+  );
+}
+
+function SearchGlyph() {
+  return (
+    <svg
+      viewBox="0 0 16 16"
+      className="h-4 w-4 shrink-0"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      aria-hidden="true"
+      focusable="false"
+    >
+      <circle cx="6.75" cy="6.75" r="4.25" />
+      <line x1="10" y1="10" x2="14" y2="14" />
+    </svg>
   );
 }

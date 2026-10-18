@@ -15,16 +15,22 @@ Built with NestJS, Next.js, and Postgres.
 
 ## What you are looking at
 
-<img src="docs/screenshots/prod-ph-front.png" alt="The front page: a price terrain drawn from live shelf data, with staple rows, store columns, and height showing each store's price as a multiple of the cheapest." width="800">
+The front page is a search over every product we read from Philippine stores
+(grocery, pharmacy, electronics, appliances, home, books and more). Each row
+is one store's product with a sparkline of its recent price steps, and a
+product page shows the full history and the same size in other stores. With
+nothing typed it lists the week's biggest drops: products at least 10% under
+their own 30-day median.
 
-The front page draws a price terrain from live shelf data: rows are fifteen
+<img src="docs/screenshots/prod-ph-front.png" alt="The basket page: a price terrain drawn from live shelf data, with staple rows, store columns, and height showing each store's price as a multiple of the cheapest." width="800">
+
+The basket page (`/basket`) draws a price terrain from live shelf data: rows are fifteen
 staples, columns are stores with the cheapest basket on the left, and height
 is each store's price as a multiple of the cheapest shelf for that staple.
 Hovering a point shows the product, the price, and when it was scraped. Below
 the terrain, each staple gets every store's price side by side. **Behind the
 data** shows where each number came from and which prices we do not fully
-trust, and **Prices** is a raw search over the stores' catalogues, about
-27,000 products.
+trust.
 
 ## This week
 

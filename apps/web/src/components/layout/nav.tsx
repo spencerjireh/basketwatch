@@ -6,15 +6,15 @@ import { cn } from "@/lib/utils";
 
 /**
  * Four surfaces, named for what the reader gets rather than for what the
- * system is: the basket, the catalogue behind it, this week's government
- * figures (fuel, LPG, wet markets, SRPs), then the machinery that collected
- * them. "Behind the data" is a door, not a disclaimer -- the stores
+ * system is: search over every store, the fifteen-staple basket, this week's
+ * government figures (fuel, LPG, wet markets, SRPs), then the machinery that
+ * collected them. "Behind the data" is a door, not a disclaimer -- the stores
  * and the incidents are the reason to believe the first two pages, so they stay
  * one click away rather than hidden.
  */
 const LINKS = [
-  { href: "/", label: "Basket" },
-  { href: "/prices", label: "Prices" },
+  { href: "/", label: "Search" },
+  { href: "/basket", label: "Basket" },
   { href: "/this-week", label: "This week" },
   { href: "/behind", label: "Behind the data" },
 ] as const;
@@ -31,7 +31,10 @@ export function Nav() {
 
         <nav aria-label="Sections" className="flex gap-6">
           {LINKS.map((link) => {
-            const active = link.href === "/" ? pathname === "/" : pathname.startsWith(link.href);
+            const active =
+              link.href === "/"
+                ? pathname === "/" || pathname.startsWith("/p/")
+                : pathname.startsWith(link.href);
             return (
               <Link
                 key={link.href}

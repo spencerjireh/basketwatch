@@ -29,6 +29,14 @@ const nextConfig: NextConfig = {
     "/opengraph-image": ["./assets/fonts/**/*"],
   },
 
+  // The catalogue search moved to the front page. A config redirect answers a
+  // real 308 before rendering (a page-level redirect streams a 200 first,
+  // because the root loading.tsx opens a Suspense boundary), and Next carries
+  // the query string across, so /prices?q=rice lands on /?q=rice.
+  async redirects() {
+    return [{ source: "/prices", destination: "/", permanent: true }];
+  },
+
   async rewrites() {
     // BUILD TIME, not run time. Next evaluates rewrites() during `next build`
     // and serialises the result into the routes manifest, so setting

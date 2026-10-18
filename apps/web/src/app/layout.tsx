@@ -40,7 +40,7 @@ export const metadata: Metadata = {
   metadataBase: new URL("https://basketwatch.spencerjireh.com"),
   title: "Basketwatch",
   description:
-    "What fifteen grocery staples cost today, priced off the shelf in Philippine supermarkets.",
+    "Shelf prices across Philippine stores with their history, and what fifteen grocery staples cost today.",
   openGraph: {
     title: "Basketwatch",
     description: "What fifteen staples cost today, priced off the shelf in the Philippines.",
