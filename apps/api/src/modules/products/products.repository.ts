@@ -252,7 +252,13 @@ export class ProductsRepository {
         and ${allTokens(sql`(s.variant || ' ' || s.commodity)`, tokens)}
       order by p.price_min
       limit 3
-    `)) as unknown as { category: string; product: string; size: string; price: string; effective: string }[];
+    `)) as unknown as {
+      category: string;
+      product: string;
+      size: string;
+      price: string;
+      effective: string;
+    }[];
     return rows.map((r) => ({ ...r, price: Number(r.price) }));
   }
 
