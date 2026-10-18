@@ -2,11 +2,17 @@ import { Inject, Injectable } from "@nestjs/common";
 import { sql, type SQL } from "drizzle-orm";
 import {
   DEFAULT_CURRENCY_BY_COUNTRY,
+  DROP_THRESHOLD,
+  LISTED_WITHIN_DAYS,
   countrySchema,
   unitPriceBasisSchema,
+  type DropsQuery,
+  type DropsResponse,
+  type ProductDetail,
   type ProductHit,
   type ProductSearchQuery,
   type ProductSearchResponse,
+  type SrpReference,
 } from "@basketwatch/contract";
 import { DRIZZLE } from "../../database/database.tokens.js";
 import { type Db } from "../../database/database.module.js";
@@ -32,9 +38,80 @@ type HitRow = {
   size_base_uom: string | null;
   imprecise: boolean;
   observed_at: string | null;
+  category: string | null;
+  last_seen: string;
+  spark: { d: string; p: string | number }[] | null;
   /** the leading sort value, already stringified for the cursor */
   sort_value: string | null;
 };
+
+/**
+ * Search words, each matched on its own: "alaska evap 370ml" finds
+ * "Alaska Evaporada 370ml" whatever the word order. One-letter words are
+ * dropped; they match nearly every row and no trigram index can serve them.
+ */
+export function searchTokens(q: string): string[] {
+  const words = q
+    .toLowerCase()
+    .split(/\s+/)
+    .map((w) => w.replace(/[%_\\]/g, ""))
+    .filter((w) => w.length >= 2);
+  return [...new Set(words)].slice(0, 8);
+}
+
+/** Every token must appear in the column; true when there are no tokens. */
+function allTokens(column: SQL, tokens: string[]): SQL {
+  if (tokens.length === 0) return sql`true`;
+  return sql.join(
+    tokens.map((t) => sql`${column} ilike ${"%" + t + "%"}`),
+    sql` and `,
+  );
+}
+
+/** How far under the median a price sits: 0.18 is 18% under. */
+export function pctBelow(price: number, median: number): number {
+  if (!(median > 0)) return 0;
+  return Math.round(((median - price) / median) * 1000) / 1000;
+}
+
+/*
+ * The columns every hit carries, over `pr` (products), `s` (stores) and the
+ * `lp` (latest observation) and `sp` (sparkline) laterals below.
+ */
+const HIT_COLUMNS = sql`
+  pr.store_id, s.name as store_name, s.country, s.category,
+  pr.product_key, pr.name, pr.url, pr.last_seen,
+  pr.size_quantity, pr.size_base_uom,
+  coalesce(pr.size_approximate or pr.size_form in ('multipack', 'range'), false)
+    as imprecise,
+  lp.price::text as price, lp.currency,
+  lp.unit_price::text as unit_price, lp.unit_price_basis,
+  lp.observed_at, sp.spark`;
+
+const LATEST = sql`
+  left join lateral (
+    select o.price, o.currency, o.unit_price, o.unit_price_basis, o.observed_at
+    from price_observations o
+    where o.store_id = pr.store_id and o.product_key = pr.product_key
+    order by o.id desc
+    limit 1
+  ) lp on true`;
+
+// The 30 most recent steps through idx_obs_product, reversed to oldest first.
+const SPARK = sql`
+  left join lateral (
+    select json_agg(json_build_object('d', to_char(x.observed_at at time zone 'UTC', 'YYYY-MM-DD'), 'p', x.price)
+                    order by x.id) as spark
+    from (
+      select o.id, o.observed_at, o.price
+      from price_observations o
+      where o.store_id = pr.store_id and o.product_key = pr.product_key
+      order by o.id desc
+      limit 30
+    ) x
+  ) sp on true`;
+
+const LISTED = sql`pr.last_seen > now() - make_interval(days => ${LISTED_WITHIN_DAYS})`;
 
 /** The only file in this module allowed to touch the Drizzle schema. */
 @Injectable()
@@ -85,7 +162,7 @@ export class ProductsRepository {
     // predicate shape. similarity() is never null, so no rank decoration.
     const leadValue = byPrice
       ? sql`coalesce(lp.unit_price, 0)`
-      : sql`(-similarity(pr.name, ${term ?? ""}))::numeric`;
+      : sql`(-word_similarity(${term ?? ""}, pr.name))::numeric`;
 
     const seek: SQL = !cursor
       ? sql``
@@ -108,7 +185,7 @@ export class ProductsRepository {
 
     // pr.name rather than a constant: it is the browse cursor's leading value,
     // and selecting it here keeps similarity() -- and so pg_trgm, which
-    // migration 0002 lets fail to install -- off the default view of the page.
+    // the baseline migration lets fail to install -- off the default view of the page.
     const sortValue = browsing ? sql`pr.name` : sql`${leadValue}::text`;
 
     /*
@@ -117,19 +194,11 @@ export class ProductsRepository {
      * index with a recheck per row, and `null ilike '%%'` would be null rather
      * than true. No predicate has neither problem.
      */
-    const nameMatch = term === undefined ? sql`true` : sql`pr.name ilike ${"%" + term + "%"}`;
+    const tokens = term === undefined ? [] : searchTokens(term);
+    const nameMatch = allTokens(sql`pr.name`, tokens);
 
     const rows = (await this.db.execute(sql`
-      select
-        pr.store_id, s.name as store_name, s.country,
-        pr.product_key, pr.name, pr.url,
-        pr.size_quantity, pr.size_base_uom,
-        coalesce(pr.size_approximate or pr.size_form in ('multipack', 'range'), false)
-          as imprecise,
-        lp.price::text as price, lp.currency,
-        lp.unit_price::text as unit_price, lp.unit_price_basis,
-        lp.observed_at,
-        ${sortValue} as sort_value
+      select ${HIT_COLUMNS}, ${sortValue} as sort_value
       from products pr
       join stores s on s.store_id = pr.store_id
       /*
@@ -139,15 +208,12 @@ export class ProductsRepository {
        * 84ms through the view, 14.5ms through this lateral. The difference is
        * structural, not a tuning detail.
        */
-      left join lateral (
-        select o.price, o.currency, o.unit_price, o.unit_price_basis, o.observed_at
-        from price_observations o
-        where o.store_id = pr.store_id and o.product_key = pr.product_key
-        order by o.id desc
-        limit 1
-      ) lp on true
+      ${LATEST}
+      ${SPARK}
       where ${nameMatch}
         and s.active
+        and ${LISTED}
+        and (${query.category ?? null}::text is null or s.category = ${query.category ?? null})
         and (${query.country ?? null}::text is null or s.country = ${query.country ?? null})
         and (${query.storeId ?? null}::text is null or pr.store_id = ${query.storeId ?? null})
         and (${query.basis ?? null}::text is null or lp.unit_price_basis = ${query.basis ?? null})
@@ -167,7 +233,164 @@ export class ProductsRepository {
       k: row.product_key,
     }));
 
-    return { items: page.items.flatMap((row) => toHit(row)), nextCursor: page.nextCursor };
+    // The reference row belongs to the first page of a typed search only.
+    const srp = tokens.length > 0 && !cursor ? await this.srp(tokens) : [];
+    return { items: page.items.flatMap((row) => toHit(row)), nextCursor: page.nextCursor, srp };
+  }
+
+  /** DTI SRP items in the latest bulletin whose product or category holds every token. */
+  private async srp(tokens: string[]): Promise<SrpReference[]> {
+    const rows = (await this.db.execute(sql`
+      select s.commodity as category, s.variant as product, s.unit as size,
+             p.price_min::text as price, p.period_start::text as effective
+      from gov_series s
+      join gov_prices p on p.series_id = s.id
+      where s.source = 'dti_srp'
+        and p.period_start = (
+          select max(p2.period_start) from gov_prices p2
+          join gov_series s2 on s2.id = p2.series_id where s2.source = 'dti_srp')
+        and ${allTokens(sql`(s.variant || ' ' || s.commodity)`, tokens)}
+      order by p.price_min
+      limit 3
+    `)) as unknown as {
+      category: string;
+      product: string;
+      size: string;
+      price: string;
+      effective: string;
+    }[];
+    return rows.map((r) => ({ ...r, price: Number(r.price) }));
+  }
+
+  /*
+   * Candidates first: only a product priced down in the last week can be a
+   * drop, and price_observations records exactly those as change = 'price'
+   * with a negative delta. The 30-day median then runs over that short list,
+   * not the catalogue: the price steps inside the window plus the one in
+   * effect when it opened.
+   */
+  async drops(query: DropsQuery): Promise<DropsResponse> {
+    const rows = (await this.db.execute(sql`
+      with candidates as (
+        select distinct o.store_id, o.product_key
+        from price_observations o
+        where o.observed_at > now() - interval '7 days'
+          and o.change = 'price' and o.delta < 0
+      ),
+      medians as (
+        select c.store_id, c.product_key,
+               percentile_cont(0.5) within group (order by w.price) as median30,
+               count(*) as steps
+        from candidates c
+        cross join lateral (
+          select o.price from price_observations o
+          where o.store_id = c.store_id and o.product_key = c.product_key
+            and o.observed_at > now() - interval '30 days'
+          union all
+          (select o.price from price_observations o
+           where o.store_id = c.store_id and o.product_key = c.product_key
+             and o.observed_at <= now() - interval '30 days'
+           order by o.id desc limit 1)
+        ) w
+        group by c.store_id, c.product_key
+      )
+      select ${HIT_COLUMNS}, m.median30::text as median30, null::text as sort_value
+      from medians m
+      join products pr on pr.store_id = m.store_id and pr.product_key = m.product_key
+      join stores s on s.store_id = pr.store_id
+      ${LATEST}
+      ${SPARK}
+      where m.steps >= 2
+        and s.active
+        and pr.last_seen > now() - interval '2 days'
+        and lp.price <= ${1 - DROP_THRESHOLD} * m.median30
+        and (${query.category ?? null}::text is null or s.category = ${query.category ?? null})
+      order by (m.median30 - lp.price) / nullif(m.median30, 0) desc, pr.store_id, pr.product_key
+      limit ${query.limit}
+    `)) as unknown as (HitRow & { median30: string })[];
+
+    return {
+      items: rows.flatMap((row) =>
+        toHit(row).map((hit) => {
+          const median30 = Number(row.median30);
+          return { ...hit, median30, pctBelow: pctBelow(hit.price?.amount ?? 0, median30) };
+        }),
+      ),
+    };
+  }
+
+  /** One product with all of its history; null when the store or key is unknown. */
+  async detail(storeId: string, productKey: string): Promise<ProductDetail | null> {
+    const [row] = (await this.db.execute(sql`
+      select ${HIT_COLUMNS}, pr.unit, pr.first_seen, null::text as sort_value,
+             (${LISTED}) as listed
+      from products pr
+      join stores s on s.store_id = pr.store_id
+      ${LATEST}
+      ${SPARK}
+      where pr.store_id = ${storeId} and pr.product_key = ${productKey}
+    `)) as unknown as (HitRow & { unit: string | null; first_seen: string; listed: boolean })[];
+    if (!row) return null;
+    const [hit] = toHit(row);
+    if (!hit) return null;
+
+    const history = (await this.db.execute(sql`
+      select o.observed_at, o.price::text as price, o.unit_price::text as unit_price
+      from price_observations o
+      where o.store_id = ${storeId} and o.product_key = ${productKey}
+      order by o.id
+    `)) as unknown as { observed_at: string; price: string; unit_price: string | null }[];
+
+    const [stats] = (await this.db.execute(sql`
+      select
+        (select min(o.price) from price_observations o
+         where o.store_id = ${storeId} and o.product_key = ${productKey}
+           and o.observed_at > now() - interval '90 days')::text as low90,
+        (select percentile_cont(0.5) within group (order by w.price) from (
+           select o.price from price_observations o
+           where o.store_id = ${storeId} and o.product_key = ${productKey}
+             and o.observed_at > now() - interval '30 days'
+           union all
+           (select o.price from price_observations o
+            where o.store_id = ${storeId} and o.product_key = ${productKey}
+              and o.observed_at <= now() - interval '30 days'
+            order by o.id desc limit 1)
+         ) w)::text as median30
+    `)) as unknown as { low90: string | null; median30: string | null }[];
+
+    // Same parsed size in another store, and a name the trigram index calls similar.
+    const sameSize =
+      row.size_quantity === null || row.size_base_uom === null
+        ? []
+        : ((await this.db.execute(sql`
+            select ${HIT_COLUMNS}, null::text as sort_value
+            from products pr
+            join stores s on s.store_id = pr.store_id
+            ${LATEST}
+            ${SPARK}
+            where pr.store_id <> ${storeId}
+              and s.active
+              and ${LISTED}
+              and pr.size_base_uom = ${row.size_base_uom}
+              and pr.size_quantity = ${row.size_quantity}
+              and pr.name % ${row.name}
+            order by similarity(pr.name, ${row.name}) desc, lp.price nulls last
+            limit 10
+          `)) as unknown as HitRow[]);
+
+    const { spark: _spark, ...product } = hit;
+    return {
+      product: { ...product, unit: row.unit, firstSeen: new Date(row.first_seen).toISOString() },
+      listed: row.listed,
+      history: history.map((h) => ({
+        at: new Date(h.observed_at).toISOString(),
+        price: Number(h.price),
+        unitPrice: h.unit_price === null ? null : Number(h.unit_price),
+      })),
+      low90: stats?.low90 == null ? null : Number(stats.low90),
+      median30: stats?.median30 == null ? null : Number(stats.median30),
+      sameSize: sameSize.flatMap((r) => toHit(r)),
+    };
   }
 }
 
@@ -193,6 +416,9 @@ function toHit(row: HitRow): ProductHit[] {
       sizeBaseUom: row.size_base_uom,
       imprecise: row.imprecise,
       observedAt: row.observed_at ? new Date(row.observed_at).toISOString() : null,
+      category: row.category,
+      lastSeen: new Date(row.last_seen).toISOString(),
+      spark: (row.spark ?? []).map((pt) => ({ d: pt.d, p: Number(pt.p) })),
     },
   ];
 }

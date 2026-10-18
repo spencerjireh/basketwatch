@@ -48,6 +48,8 @@ export const stores = pgTable("stores", {
   active: boolean("active").notNull().default(true),
   /** adapter-specific settings beyond the endpoint; read by the collector only */
   pullConfig: jsonb("pull_config"),
+  /** the registry category: grocery, pharmacy, electronics, ... */
+  category: text("category"),
 });
 
 /**

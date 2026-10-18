@@ -37,8 +37,33 @@ export const productHitSchema = z.object({
   /** the size is a range, a multipack, or labelled approximate */
   imprecise: z.boolean(),
   observedAt: timestampSchema.nullable(),
+  /** the store's registry category: grocery, pharmacy, electronics, ... */
+  category: z.string().nullable(),
+  /** the last pull that saw the product in the store's catalogue */
+  lastSeen: timestampSchema,
+  /**
+   * The most recent price changes, oldest first, at most 30: a sparkline, not
+   * a history. History is change-only, so a flat price is one point.
+   */
+  spark: z.array(z.object({ d: z.iso.date(), p: z.number() })),
 });
 export type ProductHit = z.infer<typeof productHitSchema>;
+
+/**
+ * Products unseen for this long drop out of search and drops. Their product
+ * pages stay, marked as no longer listed, so links and history keep working.
+ */
+export const LISTED_WITHIN_DAYS = 7;
+
+/** A DTI suggested retail price that matches the search, shown as a reference row. */
+export const srpReferenceSchema = z.object({
+  category: z.string(),
+  product: z.string(),
+  size: z.string(),
+  price: z.number(),
+  effective: z.iso.date(),
+});
+export type SrpReference = z.infer<typeof srpReferenceSchema>;
 
 /**
  * GET /api/products/search?q=rice&country=US
@@ -79,10 +104,60 @@ export const productSearchQuerySchema = pageQuerySchema.extend({
   ),
   country: countrySchema.optional(),
   storeId: z.string().optional(),
+  /** the store's registry category; product-level categories are store junk (see above) */
+  category: z.string().max(40).optional(),
   basis: unitPriceBasisSchema.optional(),
   sort: productSortSchema.default("relevance"),
 });
 export type ProductSearchQuery = z.infer<typeof productSearchQuerySchema>;
 
-export const productSearchResponseSchema = pageSchema(productHitSchema);
+export const productSearchResponseSchema = pageSchema(productHitSchema).extend({
+  /** empty without a term, and on every page after the first */
+  srp: z.array(srpReferenceSchema),
+});
 export type ProductSearchResponse = z.infer<typeof productSearchResponseSchema>;
+
+/**
+ * GET /api/products/drops?category=grocery
+ *
+ * A drop is a product whose latest price is at least 10% under its own 30-day
+ * median, priced down within the last week and still listed. The median is
+ * over the price steps in the window plus the price in effect when the window
+ * opened (history is change-only), so a product needs two steps to qualify.
+ */
+export const DROP_THRESHOLD = 0.1;
+
+export const dropsQuerySchema = z.object({
+  category: z.string().max(40).optional(),
+  limit: z.coerce.number().int().min(1).max(60).default(30),
+});
+export type DropsQuery = z.infer<typeof dropsQuerySchema>;
+
+export const dropSchema = productHitSchema.extend({
+  median30: z.number(),
+  /** 0.18 is 18% under the median */
+  pctBelow: z.number(),
+});
+export type Drop = z.infer<typeof dropSchema>;
+
+export const dropsResponseSchema = z.object({ items: z.array(dropSchema) });
+export type DropsResponse = z.infer<typeof dropsResponseSchema>;
+
+/** GET /api/products/:storeId/:productKey -- one product, all of its history. */
+export const productDetailSchema = z.object({
+  product: productHitSchema.omit({ spark: true }).extend({
+    /** the size exactly as the store wrote it */
+    unit: z.string().nullable(),
+    firstSeen: timestampSchema,
+  }),
+  /** listed means seen within LISTED_WITHIN_DAYS */
+  listed: z.boolean(),
+  history: z.array(
+    z.object({ at: timestampSchema, price: z.number(), unitPrice: z.number().nullable() }),
+  ),
+  low90: z.number().nullable(),
+  median30: z.number().nullable(),
+  /** listed products in other stores with the same parsed size and a similar name */
+  sameSize: z.array(productHitSchema),
+});
+export type ProductDetail = z.infer<typeof productDetailSchema>;
