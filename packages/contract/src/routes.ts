@@ -20,6 +20,9 @@ export const routes = {
   incidents: "/api/incidents",
   incident: (id: string) => `/api/incidents/${id}`,
   productSearch: "/api/products/search",
+  productDrops: "/api/products/drops",
+  product: (storeId: string, productKey: string) =>
+    `/api/products/${encodeURIComponent(storeId)}/${encodeURIComponent(productKey)}`,
   govFuel: "/api/gov/fuel",
   govLpg: "/api/gov/lpg",
   govMarkets: "/api/gov/markets",

@@ -58,7 +58,9 @@ has no login, so anything it renders has to be reachable without a secret.
 | `GET /api/basket/index?country=PH` | `BasketSeries[]` | yes |
 | `GET /api/basket/today?country=PH` | `BasketItem[]` | yes |
 | `GET /api/basket/rails?country=PH&tier=core` | `Rail[]` | yes |
-| `GET /api/products/search?q=rice&country=PH` | `Page<ProductHit>` | yes |
+| `GET /api/products/search?q=rice&category=grocery` | `Page<ProductHit>` plus `srp` | yes |
+| `GET /api/products/drops?category=grocery` | `{ items: Drop[] }` | yes |
+| `GET /api/products/:storeId/:productKey` | `ProductDetail`, 404 when unknown | yes |
 | `GET /api/feed?limit=&cursor=` | `Page<FeedEvent>` | yes |
 | `GET /api/incidents?state=open&limit=&cursor=` | `Page<Incident>` | yes |
 | `GET /api/incidents/:id` | `Incident` | yes |
@@ -75,6 +77,22 @@ basket's number claims the whole basket, a store's line claims only what that
 store charged for what it had.
 
 `Incident` carries its evidence, so one request draws the whole record.
+
+Product search matches each word of `q` on its own (`alaska evap 370ml` finds
+"Alaska Evaporada 370ml") and ranks by `word_similarity`. `category` is the
+store's registry category, set by the collector's seed; product-level
+categories stay unexposed. Every hit carries `spark`, its last 30 price steps,
+oldest first. A typed first page also carries `srp`: up to three DTI SRP items
+from the latest bulletin that hold every word.
+
+Search and drops show listed products only: seen within `LISTED_WITHIN_DAYS`
+(7). A product page answers for unlisted products too, with `listed: false`,
+so links and history keep working.
+
+A drop is a product priced down within the last week whose latest price is at
+least 10% (`DROP_THRESHOLD`) under its 30-day median. History is change-only,
+so the median runs over the price steps inside the window plus the price in
+effect when it opened; a product needs two steps to qualify.
 
 ## Government prices
 
